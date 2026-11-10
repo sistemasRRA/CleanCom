@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiError } from './api/client';
 import { SessionProvider, useSession } from './session/Session';
 import { ToastProvider } from './components/Toasts';
+import { ThemeProvider } from './theme/Theme';
 import { SCREENS } from './screens';
 import { ChangePassword, SignIn } from './pages/Auth';
 import { Layout } from './pages/Layout';
@@ -72,14 +73,16 @@ function App() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <SessionProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </SessionProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <SessionProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </SessionProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

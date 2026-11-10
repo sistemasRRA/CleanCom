@@ -42,12 +42,15 @@ const zonas = useQuery({
 ```
 src/
 ├── api/               Cliente generado y consultas compartidas
-├── components/        Diálogo, campo, estado de carga, avisos, formato de fechas
+├── components/        Logo, diálogo, campo, estado de carga, avisos, formato de fechas
 ├── session/           Sesión, permisos por pantalla
 ├── pages/             Una carpeta por pantalla (operations/, users/)
 ├── screens.ts         Menú: clave de permiso, ruta y semana del plan
 └── styles.css         Sistema de diseño (tokens de color, modo claro y oscuro)
+public/brand/          Logo de cleancom.mx: original, recortado, versión clara para fondo oscuro y solo el símbolo
 ```
+
+Los colores de marca y la fuente Poppins salen de cleancom.mx: azul `#7fa3d6` / `#5c84c0` / `#3e5c8a` / `#2f4a73` y marino `#22335a`. Si cambia la marca, se ajustan los tokens de `:root` en `styles.css` y los archivos de `public/brand/`.
 
 ## Reglas
 

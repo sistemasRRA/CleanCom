@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSession } from '../session/Session';
 import { Field, PageHeader } from '../components/Common';
+import { Logo } from '../components/Brand';
 
 export function SignIn() {
   const { login } = useSession();
@@ -28,7 +29,7 @@ export function SignIn() {
         <div className="card__body">
           <form onSubmit={submit} className="auth-form">
             <div>
-              <div className="auth__brand">CleanCom</div>
+              <Logo className="auth__logo" />
               <p className="muted">Oficina · inicia sesión para continuar</p>
             </div>
             <Field label="Usuario">
@@ -83,7 +84,7 @@ export function ChangePassword({ required }: { required: boolean }) {
     <form onSubmit={submit} className="auth-form">
       {required && (
         <div>
-          <div className="auth__brand">CleanCom</div>
+          <Logo className="auth__logo" />
           <p className="muted">Hola, {user?.fullName}. Antes de continuar, cambia tu contraseña inicial.</p>
         </div>
       )}
