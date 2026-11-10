@@ -115,7 +115,7 @@ export function Layout() {
           <div className="menu__footer">
             <div>{user?.fullName}</div>
             <div style={{ opacity: 0.7 }}>
-              {user?.userName} · {user?.role}
+              {user?.userName} · {user?.roleName}
             </div>
             <NavLink to="/mi-contrasena">Mi contraseña</NavLink>
             <button type="button" onClick={() => void logout()}>

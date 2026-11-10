@@ -66,11 +66,13 @@ public static class DependencyInjection
         services.AddScoped<TokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IRoleService, RoleService>();
+        services.AddSingleton<IPermissionStore, PermissionStore>();
         return services;
     }
 
     /// <summary>
-    /// Creates the first Administracion user when there is none and Seed:Admin:UserName and
+    /// Creates the first SuperUser user when there is none and Seed:Admin:UserName and
     /// Seed:Admin:Password are configured. The password must be changed on first sign-in.
     /// </summary>
     public static async Task SeedAdministratorAsync(this IServiceProvider provider, IConfiguration configuration)
@@ -88,8 +90,20 @@ public static class DependencyInjection
         try
         {
             var users = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-            if ((await users.GetUsersInRoleAsync(Roles.Administracion)).Count > 0)
+            if ((await users.GetUsersInRoleAsync(Roles.SuperUser)).Count > 0)
             {
+                return;
+            }
+
+            // Databases created before SuperUser existed: the seeded user becomes SuperUser so
+            // someone can still open Roles y permisos.
+            var existing = await users.FindByNameAsync(userName);
+            if (existing is not null)
+            {
+                var current = await users.GetRolesAsync(existing);
+                IdentityErrors.ThrowIfFailed(await users.RemoveFromRolesAsync(existing, current));
+                IdentityErrors.ThrowIfFailed(await users.AddToRoleAsync(existing, Roles.SuperUser));
+                log.LogInformation("User {UserName} moved to SuperUser", userName);
                 return;
             }
 
@@ -101,12 +115,12 @@ public static class DependencyInjection
                 CreatedAt = scope.ServiceProvider.GetRequiredService<IBusinessClock>().UtcNow,
             };
             IdentityErrors.ThrowIfFailed(await users.CreateAsync(user, password));
-            IdentityErrors.ThrowIfFailed(await users.AddToRoleAsync(user, Roles.Administracion));
-            log.LogInformation("Created Administracion user {UserName}", userName);
+            IdentityErrors.ThrowIfFailed(await users.AddToRoleAsync(user, Roles.SuperUser));
+            log.LogInformation("Created SuperUser user {UserName}", userName);
         }
         catch (Exception ex)
         {
-            log.LogWarning(ex, "Could not create the initial Administracion user. Have the migrations been applied?");
+            log.LogWarning(ex, "Could not create the initial SuperUser user. Have the migrations been applied?");
         }
     }
 }

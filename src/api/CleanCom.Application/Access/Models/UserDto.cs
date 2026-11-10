@@ -7,6 +7,7 @@ public record UserDto(
     string? Email,
     string? Phone,
     string Role,
+    string RoleName,
     bool Active,
     bool MustChangePassword,
     DateTimeOffset? LastAccess,

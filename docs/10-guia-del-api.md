@@ -187,7 +187,7 @@ Reglas que no se rompen:
 ## Permisos
 
 - Todo endpoint pide sesión, salvo los marcados `[AllowAnonymous]` (login, renovar y cerrar sesión).
-- Los permisos son por pantalla: `[RequireScreen(Screens.X, AccessLevel.View | Edit)]`. Edit incluye View. En el token viajan como `pantalla:view` o `pantalla:edit`.
+- Los permisos son por pantalla: `[RequireScreen(Screens.X, AccessLevel.View | Edit)]`. Edit incluye View. No viajan en el token: `ScreenRequirementHandler` toma el rol del token y consulta `IPermissionStore` (caché en memoria que `RoleService` limpia al guardar), así un cambio en Roles y permisos aplica en la siguiente petición. La sesión (`/auth/login`, `/auth/yo`) los entrega como `pantalla:view` o `pantalla:edit` para que el cliente arme el menú.
 - Las pantallas están en `CleanCom.Domain/Access/Access.cs` (`Screens`) y los permisos de cada rol en la tabla `role_permissions`. Agregar un rol no requiere tocar código.
 - Mientras el usuario no cambie su contraseña inicial, su token solo sirve en endpoints con `[Authorize(Policies.SignedIn)]` (`/auth/yo` y `/auth/cambiar-contrasena`).
 

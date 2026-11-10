@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using CleanCom.Domain.Access;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -30,7 +29,6 @@ public static class CleanComClaims
     public const string UserName = "name";
     public const string FullName = "full_name";
     public const string Role = "role";
-    public const string Permission = Permissions.ClaimType;
     /// <summary>Present while the user has not changed the initial or temporary password.</summary>
     public const string MustChangePassword = "must_change_password";
 }
@@ -39,7 +37,11 @@ public class TokenService(IOptions<JwtOptions> options)
 {
     private readonly JwtOptions _options = options.Value;
 
-    public (string Token, DateTimeOffset ExpiresAt) CreateAccessToken(User user, string role, IEnumerable<string> permissions, DateTimeOffset now)
+    /// <summary>
+    /// Permissions are not in the token: the API reads them per request from IPermissionStore,
+    /// so a change in Roles y permisos applies without signing in again.
+    /// </summary>
+    public (string Token, DateTimeOffset ExpiresAt) CreateAccessToken(User user, string role, DateTimeOffset now)
     {
         var expiresAt = now.AddMinutes(_options.AccessMinutes);
         var claims = new List<Claim>
@@ -50,7 +52,6 @@ public class TokenService(IOptions<JwtOptions> options)
             new(CleanComClaims.Role, role),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
         };
-        claims.AddRange(permissions.Select(p => new Claim(CleanComClaims.Permission, p)));
         if (user.MustChangePassword)
         {
             claims.Add(new Claim(CleanComClaims.MustChangePassword, "true"));

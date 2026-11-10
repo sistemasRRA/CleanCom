@@ -335,3 +335,51 @@ dialog::backdrop { background: rgb(15 23 42 / 45%); }
 .auth__logo { height: 40px; width: auto; display: block; margin-bottom: 10px; }
 .auth-form { display: grid; gap: 14px; }
 .auth button.primary { justify-content: center; padding: 10px; }
+
+/* ---- Roles y permisos ---- */
+.roles { display: grid; grid-template-columns: 220px minmax(0, 1fr) 240px; gap: 16px; align-items: start; }
+.roles__list ul { list-style: none; margin: 0; padding: 6px; display: grid; gap: 2px; }
+.roles__list li button {
+  width: 100%; border: none; background: none; justify-content: space-between; padding: 8px 10px;
+  border-radius: var(--radius-sm); font-weight: 500;
+}
+.roles__list li button .muted { font-size: 12px; font-weight: 400; }
+.roles__list li button:hover:not(:disabled) { background: var(--surface-2); }
+.roles__list li button.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; box-shadow: inset 3px 0 0 var(--brand); }
+.roles__editor { min-width: 0; }
+.roles__footer {
+  position: sticky; bottom: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.permissions td, .permissions th { padding-top: 7px; padding-bottom: 7px; }
+.permissions__group th { padding-top: 14px; }
+.permissions__bulk { display: inline-flex; gap: 10px; align-items: center; text-transform: none; letter-spacing: 0; font-weight: 500; }
+.permissions__bulk button.link { font-size: 12px; font-weight: 600; }
+
+.segmented { display: inline-flex; padding: 2px; gap: 2px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; }
+.segmented__option { border: none; background: transparent; padding: 4px 12px; font-size: 12.5px; border-radius: 999px; color: var(--text-muted); }
+.segmented__option:hover:not(:disabled) { background: var(--surface); color: var(--text); }
+.segmented__option.selected { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.segmented__option.is-view.selected { background: var(--brand-soft); color: var(--brand); }
+.segmented__option.is-edit.selected { background: var(--brand); color: #fff; }
+[data-theme='dark'] .segmented__option.is-edit.selected { color: #0f172a; }
+.segmented__option:disabled { cursor: default; opacity: 1; }
+.segmented__option:disabled:not(.selected) { opacity: 0.45; }
+
+/* Small copy of the side menu so the office sees what the role gets. */
+.roles__preview { position: sticky; top: 16px; overflow: hidden; }
+.roles__preview-menu { background: var(--navy); color: #e8eef8; padding: 10px; font-size: 13px; min-height: 120px; }
+.roles__preview-group { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; padding: 10px 8px 3px; }
+.roles__preview-item { padding: 5px 8px; border-radius: 6px; display: flex; justify-content: space-between; gap: 8px; }
+.roles__preview-item span { font-size: 11px; opacity: 0.65; }
+.roles__preview-empty { opacity: 0.7; padding: 8px; }
+
+@media (max-width: 1200px) {
+  .roles { grid-template-columns: 200px minmax(0, 1fr); }
+  .roles__preview { grid-column: 2; position: static; }
+}
+@media (max-width: 820px) {
+  .roles { grid-template-columns: 1fr; }
+  .roles__preview { grid-column: auto; }
+}

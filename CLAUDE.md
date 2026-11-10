@@ -61,7 +61,7 @@ En los validadores, `WithName("Nombre completo")` da el nombre en español que u
 
 ## Roles
 
-`Administracion`, `Chofer` e `Invitado`. Los permisos se definen por pantalla para poder agregar roles después sin desarrollo. Ver `docs/pantallas/oficina/usuarios.md`.
+Del sistema: `SuperUser`, `Administracion`, `Gerencia`, `Logistica`, `Telemarketing`, `Chofer`, `Planta` e `Invitado` (solo app). En la pantalla Roles y permisos se crean roles y se decide qué pantallas ve cada uno (Sin acceso, Ver o Editar), sin desarrollo. `SuperUser` siempre edita todas las pantallas de oficina y no se cambia; `Administracion` tiene todo menos Roles y permisos. Solo un SuperUser da ese rol o modifica a otro SuperUser. Los permisos se leen de la base en cada petición (`IPermissionStore`), no del token. Ver `docs/pantallas/oficina/usuarios.md`.
 
 ## Antes de terminar una tarea
 

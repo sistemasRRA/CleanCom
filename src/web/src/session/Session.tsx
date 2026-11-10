@@ -1,6 +1,7 @@
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getSession, onSessionChange, saveSession, unwrap, type Schemas, type Session } from '../api/client';
+import { keys } from '../api/queries';
 
 export type Level = 'view' | 'edit';
 
@@ -28,6 +29,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }),
     [queryClient],
   );
+
+  // Permissions are edited in Usuarios › Roles y permisos and apply right away in the API.
+  // The menu catches up when the tab regains focus and every minute.
+  const signedIn = !!session && !session.user.mustChangePassword;
+  const me = useQuery({
+    queryKey: keys.me,
+    queryFn: () => unwrap(api.GET('/auth/yo')),
+    enabled: signedIn,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
+  useEffect(() => {
+    const current = getSession();
+    if (!me.data || !current || me.data.id !== current.user.id) return;
+    if (JSON.stringify(me.data) !== JSON.stringify(current.user)) saveSession({ ...current, user: me.data });
+  }, [me.data]);
 
   const value: SessionContext = {
     user: session?.user ?? null,

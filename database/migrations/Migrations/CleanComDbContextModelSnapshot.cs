@@ -217,6 +217,230 @@ namespace CleanCom.Migrations.Migrations
                             Level = "Edit",
                             RoleId = 3,
                             Screen = "app-invitado"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "panel-del-dia"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "rutas"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "agendar"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "pedidos"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "clientes-crm"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "paradas-fijas"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "promociones"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "tickets-en-planta"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "kpis"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "clientes-y-fuentes"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "evidencias-y-caja"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "vista-del-chofer"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "unidades"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 4,
+                            Screen = "whatsapp-y-metas"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 5,
+                            Screen = "panel-del-dia"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 5,
+                            Screen = "rutas"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 5,
+                            Screen = "paradas-fijas"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 5,
+                            Screen = "pedidos"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 5,
+                            Screen = "vista-del-chofer"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 5,
+                            Screen = "unidades"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 5,
+                            Screen = "agendar"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 6,
+                            Screen = "agendar"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 6,
+                            Screen = "clientes-crm"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 6,
+                            Screen = "whatsapp-y-metas"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 6,
+                            Screen = "promociones"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 6,
+                            Screen = "pedidos"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 7,
+                            Screen = "tickets-en-planta"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "View",
+                            RoleId = 7,
+                            Screen = "pedidos"
                         });
                 });
 
@@ -1234,6 +1458,12 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("concurrency_stamp");
 
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)")
+                        .HasColumnName("display_name");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
@@ -1259,6 +1489,7 @@ namespace CleanCom.Migrations.Migrations
                         {
                             Id = 1,
                             ConcurrencyStamp = "role-administracion",
+                            DisplayName = "Administración",
                             Name = "Administracion",
                             NormalizedName = "ADMINISTRACION"
                         },
@@ -1266,6 +1497,7 @@ namespace CleanCom.Migrations.Migrations
                         {
                             Id = 2,
                             ConcurrencyStamp = "role-chofer",
+                            DisplayName = "Chofer",
                             Name = "Chofer",
                             NormalizedName = "CHOFER"
                         },
@@ -1273,8 +1505,49 @@ namespace CleanCom.Migrations.Migrations
                         {
                             Id = 3,
                             ConcurrencyStamp = "role-invitado",
+                            DisplayName = "Invitado",
                             Name = "Invitado",
                             NormalizedName = "INVITADO"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ConcurrencyStamp = "role-gerencia",
+                            DisplayName = "Gerencia",
+                            Name = "Gerencia",
+                            NormalizedName = "GERENCIA"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ConcurrencyStamp = "role-logistica",
+                            DisplayName = "Logística",
+                            Name = "Logistica",
+                            NormalizedName = "LOGISTICA"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ConcurrencyStamp = "role-telemarketing",
+                            DisplayName = "Telemarketing",
+                            Name = "Telemarketing",
+                            NormalizedName = "TELEMARKETING"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ConcurrencyStamp = "role-planta",
+                            DisplayName = "Planta",
+                            Name = "Planta",
+                            NormalizedName = "PLANTA"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ConcurrencyStamp = "role-superuser",
+                            DisplayName = "SuperUser",
+                            Name = "SuperUser",
+                            NormalizedName = "SUPERUSER"
                         });
                 });
 

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CleanCom.Application.Access;
 using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Infrastructure.Identity;
@@ -20,7 +21,8 @@ public static class Policies
 }
 
 /// <summary>
-/// "Screen:{screen}:{level}" policies built on the fly from the permissions in the token.
+/// "Screen:{screen}:{level}" policies built on the fly. The permissions come from IPermissionStore,
+/// not from the token, so a change in Roles y permisos applies on the next request.
 /// </summary>
 public class ScreenPolicyProvider(IOptions<AuthorizationOptions> options) : DefaultAuthorizationPolicyProvider(options)
 {
@@ -37,11 +39,28 @@ public class ScreenPolicyProvider(IOptions<AuthorizationOptions> options) : Defa
             return null;
         }
 
-        var screen = parts[0];
         return Security.WithActiveSession(new AuthorizationPolicyBuilder())
-            .RequireAssertion(ctx => Permissions.Allows(
-                ctx.User.FindAll(CleanComClaims.Permission).Select(c => c.Value), screen, level))
+            .AddRequirements(new ScreenRequirement(parts[0], level))
             .Build();
+    }
+}
+
+public record ScreenRequirement(string Screen, AccessLevel Level) : IAuthorizationRequirement;
+
+public class ScreenRequirementHandler(IPermissionStore store) : AuthorizationHandler<ScreenRequirement>
+{
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ScreenRequirement requirement)
+    {
+        var role = context.User.FindFirst(CleanComClaims.Role)?.Value;
+        if (string.IsNullOrEmpty(role))
+        {
+            return;
+        }
+        var permissions = await store.GetAsync(role, CancellationToken.None);
+        if (Permissions.Allows(permissions, requirement.Screen, requirement.Level))
+        {
+            context.Succeed(requirement);
+        }
     }
 }
 
@@ -96,6 +115,7 @@ public static class Security
             });
 
         services.AddSingleton<IAuthorizationPolicyProvider, ScreenPolicyProvider>();
+        services.AddSingleton<IAuthorizationHandler, ScreenRequirementHandler>();
         services.AddAuthorizationBuilder()
             .SetDefaultPolicy(WithActiveSession(new AuthorizationPolicyBuilder()).Build())
             // Every endpoint requires a session except those marked AllowAnonymous.

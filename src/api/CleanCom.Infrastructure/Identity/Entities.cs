@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 namespace CleanCom.Infrastructure.Identity;
 
 /// <summary>
-/// ASP.NET Identity user. Roles: Administracion, Chofer, Invitado.
+/// ASP.NET Identity user. System roles are in <see cref="CleanCom.Domain.Access.Roles"/>; the office can add more.
 /// </summary>
 public class User : IdentityUser<int>
 {
@@ -15,10 +15,16 @@ public class User : IdentityUser<int>
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>
+/// Name (inherited) is the key stored in the token, for example "Logistica";
+/// DisplayName is what the user sees, "Logística".
+/// </summary>
 public class Role : IdentityRole<int>
 {
     public Role() { }
     public Role(string name) : base(name) { }
+
+    public string DisplayName { get; set; } = "";
 }
 
 /// <summary>

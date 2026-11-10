@@ -28,4 +28,5 @@ export const SCREENS: MenuScreen[] = [
   { key: 'unidades', name: 'Unidades', path: '/unidades', group: 'Administración', week: 5 },
   { key: 'operacion', name: 'Operación', path: '/operacion', group: 'Administración' },
   { key: 'usuarios', name: 'Usuarios', path: '/usuarios', group: 'Administración' },
+  { key: 'roles-y-permisos', name: 'Roles y permisos', path: '/roles-y-permisos', group: 'Administración' },
 ];

@@ -15,6 +15,7 @@ public class UserService(
     UserManager<User> users,
     CleanComDbContext db,
     IBusinessClock clock,
+    ICurrentUser currentUser,
     IValidator<CreateUserRequest> createValidator,
     IValidator<UpdateUserRequest> updateValidator,
     IValidator<ResetPasswordRequest> resetValidator) : IUserService
@@ -25,6 +26,8 @@ public class UserService(
     public async Task<UserDto> CreateAsync(CreateUserRequest r, CancellationToken ct)
     {
         await createValidator.ValidateAndThrowAsync(r, ct);
+        await EnsureRoleExistsAsync(r.Role, ct);
+        await EnsureCanGiveRoleAsync(r.Role, ct);
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
         var user = new User
@@ -66,13 +69,16 @@ public class UserService(
     public async Task<UserDto> UpdateAsync(int id, UpdateUserRequest r, CancellationToken ct)
     {
         await updateValidator.ValidateAndThrowAsync(r, ct);
+        await EnsureRoleExistsAsync(r.Role, ct);
         var user = await users.FindByIdAsync(id.ToString()) ?? throw new NotFoundException($"El usuario {id} no existe.");
         var currentRole = (await users.GetRolesAsync(user)).FirstOrDefault();
+        await EnsureCanTouchAsync(currentRole, ct);
+        await EnsureCanGiveRoleAsync(r.Role, ct);
 
-        var stopsBeingAdmin = currentRole == Roles.Administracion && (r.Role != Roles.Administracion || !r.Active);
-        if (stopsBeingAdmin && await ActiveAdministratorsAsync(ct) <= 1)
+        var stopsBeingSuperUser = currentRole == Roles.SuperUser && (r.Role != Roles.SuperUser || !r.Active);
+        if (stopsBeingSuperUser && await ActiveSuperUsersAsync(ct) <= 1)
         {
-            throw new DomainException("Debe quedar al menos un usuario de Administración activo.");
+            throw new DomainException("Debe quedar al menos un usuario SuperUser activo.");
         }
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
@@ -119,6 +125,7 @@ public class UserService(
     {
         await resetValidator.ValidateAndThrowAsync(r, ct);
         var user = await users.FindByIdAsync(id.ToString()) ?? throw new NotFoundException($"El usuario {id} no existe.");
+        await EnsureCanTouchAsync((await users.GetRolesAsync(user)).FirstOrDefault(), ct);
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         IdentityErrors.ThrowIfFailed(await users.RemovePasswordAsync(user));
@@ -131,6 +138,48 @@ public class UserService(
         await transaction.CommitAsync(ct);
     }
 
+    public async Task<IReadOnlyList<RoleOptionDto>> ListAssignableRolesAsync(CancellationToken ct)
+    {
+        var isSuperUser = await CallerIsSuperUserAsync(ct);
+        var all = await db.Roles.AsNoTracking().OrderBy(r => r.Id).Select(r => new { r.Name, r.DisplayName }).ToListAsync(ct);
+        return
+        [
+            .. all
+                .Where(r => Roles.IsAssignableInOffice(r.Name!) && (isSuperUser || r.Name != Roles.SuperUser))
+                .Select(r => new RoleOptionDto(r.Name!, r.DisplayName)),
+        ];
+    }
+
+    /// <summary>Only a SuperUser makes someone SuperUser; otherwise Administracion could promote itself.</summary>
+    private async Task EnsureCanGiveRoleAsync(string role, CancellationToken ct)
+    {
+        if (role == Roles.SuperUser && !await CallerIsSuperUserAsync(ct))
+        {
+            throw new DomainException("Solo un usuario SuperUser puede dar el rol SuperUser.");
+        }
+    }
+
+    /// <summary>Only a SuperUser edits, deactivates or resets the password of another SuperUser.</summary>
+    private async Task EnsureCanTouchAsync(string? targetRole, CancellationToken ct)
+    {
+        if (targetRole == Roles.SuperUser && !await CallerIsSuperUserAsync(ct))
+        {
+            throw new DomainException("Solo un usuario SuperUser puede modificar a otro SuperUser.");
+        }
+    }
+
+    private async Task<bool> CallerIsSuperUserAsync(CancellationToken ct) =>
+        currentUser.Id is { } id
+        && await db.UserRoles.AnyAsync(ur => ur.UserId == id && ur.RoleId == Roles.SuperUserId, ct);
+
+    private async Task EnsureRoleExistsAsync(string role, CancellationToken ct)
+    {
+        if (!await db.Roles.AnyAsync(x => x.Name == role, ct))
+        {
+            throw new NotFoundException($"El rol {role} no existe.");
+        }
+    }
+
     private async Task LinkOperadorAsync(int userId, int operadorId, CancellationToken ct)
     {
         var operador = await db.Operadores.FindAsync([operadorId], ct) ?? throw new NotFoundException($"El operador {operadorId} no existe.");
@@ -141,10 +190,10 @@ public class UserService(
         operador.UserId = userId;
     }
 
-    private Task<int> ActiveAdministratorsAsync(CancellationToken ct) =>
+    private Task<int> ActiveSuperUsersAsync(CancellationToken ct) =>
         (from u in db.Users
          join ur in db.UserRoles on u.Id equals ur.UserId
-         where ur.RoleId == Roles.AdministracionId && u.Active
+         where ur.RoleId == Roles.SuperUserId && u.Active
          select u.Id).CountAsync(ct);
 
     private Task RevokeSessionsAsync(int userId, CancellationToken ct)
@@ -174,6 +223,7 @@ public class UserService(
             u.Email,
             u.PhoneNumber,
             r.Name!,
+            r.DisplayName,
             u.Active,
             u.MustChangePassword,
             u.LastAccess,

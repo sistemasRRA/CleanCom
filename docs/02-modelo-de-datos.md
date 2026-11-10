@@ -21,8 +21,8 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
-| `Usuario` | NombreCompleto, Usuario, Correo?, Telefono?, Rol, Activo, DebeCambiarContrasena, UltimoAcceso | ASP.NET Identity (tablas `Usuarios`, `Roles`, `UsuariosRoles`). Roles: Administracion, Chofer, Invitado |
-| `PermisoRol` | RolId, Pantalla, Nivel (Ver, Editar) | Permisos por pantalla; Editar incluye Ver. Viajan en el token como `pantalla:nivel` |
+| `Usuario` | NombreCompleto, Usuario, Correo?, Telefono?, Rol, Activo, DebeCambiarContrasena, UltimoAcceso | ASP.NET Identity (tablas `Usuarios`, `Roles`, `UsuariosRoles`). Roles del sistema: SuperUser, Administracion, Gerencia, Logistica, Telemarketing, Chofer, Planta, Invitado; la oficina agrega más. `roles.display_name` guarda el nombre con acentos |
+| `PermisoRol` | RolId, Pantalla, Nivel (Ver, Editar) | Permisos por pantalla; Editar incluye Ver. Se editan en Roles y permisos (SuperUser no tiene filas: siempre tiene todo) y el API los lee de la base en cada petición (con caché); la sesión los entrega como `pantalla:nivel` para armar el menú |
 | `TokenRenovacion` | UsuarioId, TokenHash, CreadoEn, ExpiraEn, RevocadoEn? | Solo se guarda el hash; cada renovación revoca el anterior |
 | `Operador` | Nombre, Telefono, RutaHabitualId, Activo, UsuarioId? | Choferes de la nómina |
 | `Invitado` | Nombre, TelefonoWhatsApp, OtroTelefono, Correo, Tipo (ClienteFinal, Empresa, TiendaInterna), ComoNosConocio, Campana, InfoRuteo, Observaciones, Etiquetas, EstatusCalculado, EstatusManual?, FrecuenciaFijaDias?, FrecuenciaCalculadaDias, ProximoContacto, LeTocaFecha, CuentaApp (SinApp, Invitado, Activa, Bloqueada), UsuarioId? | Ficha del CRM |

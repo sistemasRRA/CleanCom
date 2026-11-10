@@ -9,12 +9,19 @@ import { useSession } from '../../session/Session';
 type User = Schemas['UserDto'];
 type Operador = Schemas['OperadorDto'];
 
-/** The office only creates Administracion and Chofer users; invitados sign up from their app. */
-const ROLES = [
-  { key: 'Administracion', name: 'Administración' },
-  { key: 'Chofer', name: 'Chofer' },
-];
-const roleName = (role: string) => ROLES.find((r) => r.key === role)?.name ?? role;
+/** Roles the current user can assign. The API leaves out Invitado, and SuperUser unless the user is SuperUser. */
+function useOfficeRoles() {
+  const roles = useQuery({ queryKey: keys.assignableRoles, queryFn: () => unwrap(api.GET('/usuarios/roles')) });
+  return roles.data ?? [];
+}
+
+function RoleOptions() {
+  return useOfficeRoles().map((r) => (
+    <option key={r.key} value={r.key}>
+      {r.name}
+    </option>
+  ));
+}
 
 export function Users() {
   return (
@@ -49,11 +56,7 @@ export function UserList() {
         <div className="actions">
           <select value={role} onChange={(e) => setRole(e.target.value)} aria-label="Rol">
             <option value="">Todos los roles</option>
-            {ROLES.map((r) => (
-              <option key={r.key} value={r.key}>
-                {r.name}
-              </option>
-            ))}
+            <RoleOptions />
           </select>
           {canEdit && (
             <button type="button" className="primary" onClick={() => setCreating(true)}>
@@ -85,7 +88,7 @@ export function UserList() {
                       {u.phone && ` · ${u.phone}`}
                     </div>
                   </td>
-                  <td>{roleName(u.role)}</td>
+                  <td>{u.roleName}</td>
                   <td>{u.operadorName ?? <span className="muted">—</span>}</td>
                   <td className="muted">{formatDateTime(u.lastAccess)}</td>
                   <td>
@@ -166,11 +169,7 @@ function NewUser({ onClose }: { onClose: () => void }) {
         </Field>
         <Field label="Rol">
           <select value={f.role} onChange={(e) => change({ role: e.target.value })}>
-            {ROLES.map((r) => (
-              <option key={r.key} value={r.key}>
-                {r.name}
-              </option>
-            ))}
+            <RoleOptions />
           </select>
         </Field>
         <Field label="Usuario" hint={isChofer ? 'Corto, por ejemplo juan.rosales.' : undefined}>
@@ -265,11 +264,7 @@ function EditUser({ user, onClose }: { user: User; onClose: () => void }) {
         </Field>
         <Field label="Rol">
           <select value={f.role} onChange={(e) => change({ role: e.target.value })}>
-            {ROLES.map((r) => (
-              <option key={r.key} value={r.key}>
-                {r.name}
-              </option>
-            ))}
+            <RoleOptions />
           </select>
         </Field>
         <Field label="Teléfono">

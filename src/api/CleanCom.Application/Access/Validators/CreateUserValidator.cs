@@ -12,8 +12,9 @@ public class CreateUserValidator : AbstractValidator<CreateUserRequest>
             .WithMessage("El usuario solo lleva letras, números, punto, guion y arroba (por ejemplo juan.rosales).");
         RuleFor(x => x.Email).EmailAddress().MaximumLength(256).WithName("Correo").When(x => !string.IsNullOrWhiteSpace(x.Email));
         RuleFor(x => x.Phone).MaximumLength(20).WithName("Teléfono");
-        RuleFor(x => x.Role).Must(r => r is Roles.Administracion or Roles.Chofer)
-            .WithMessage("El rol debe ser Administracion o Chofer. Los invitados se registran desde su app.");
+        RuleFor(x => x.Role).NotEmpty().WithName("Rol");
+        RuleFor(x => x.Role).Must(Roles.IsAssignableInOffice)
+            .WithMessage("Los invitados se registran desde su app; elige un rol de oficina.");
         RuleFor(x => x.InitialPassword).NotEmpty().MinimumLength(8).WithMessage("La contraseña debe tener al menos 8 caracteres.");
         RuleFor(x => x).Must(x => x.OperadorId is null || !x.CreateOperador)
             .WithMessage("Elige un operador existente o crea uno nuevo, no ambos.");

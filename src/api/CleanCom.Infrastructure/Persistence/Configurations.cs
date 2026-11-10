@@ -183,10 +183,15 @@ internal class RoleConfig : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> e)
     {
-        e.HasData(
-            new Role { Id = Roles.AdministracionId, Name = Roles.Administracion, NormalizedName = Roles.Administracion.ToUpperInvariant(), ConcurrencyStamp = "role-administracion" },
-            new Role { Id = Roles.ChoferId, Name = Roles.Chofer, NormalizedName = Roles.Chofer.ToUpperInvariant(), ConcurrencyStamp = "role-chofer" },
-            new Role { Id = Roles.InvitadoId, Name = Roles.Invitado, NormalizedName = Roles.Invitado.ToUpperInvariant(), ConcurrencyStamp = "role-invitado" });
+        e.Property(x => x.DisplayName).HasMaxLength(60);
+        e.HasData(Roles.System.Select(r => new Role
+        {
+            Id = r.Id,
+            Name = r.Key,
+            NormalizedName = r.Key.ToUpperInvariant(),
+            DisplayName = r.Name,
+            ConcurrencyStamp = $"role-{r.Key.ToLowerInvariant()}",
+        }));
     }
 }
 

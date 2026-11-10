@@ -14,6 +14,7 @@ public class AuthService(
     UserManager<User> users,
     CleanComDbContext db,
     TokenService tokens,
+    IPermissionStore permissionStore,
     IBusinessClock clock,
     IValidator<LoginRequest> loginValidator,
     IValidator<ChangePasswordRequest> changeValidator) : IAuthService
@@ -106,15 +107,15 @@ public class AuthService(
     {
         var user = await users.FindByIdAsync(userId.ToString())
             ?? throw new NotFoundException("El usuario no existe.");
-        var (role, permissions) = await RoleAndPermissionsAsync(user, ct);
-        return ToSessionUser(user, role, permissions);
+        var (role, roleName, permissions) = await RoleAndPermissionsAsync(user, ct);
+        return ToSessionUser(user, role, roleName, permissions);
     }
 
     private async Task<SessionDto> IssueSessionAsync(User user, CancellationToken ct)
     {
         var now = clock.UtcNow;
-        var (role, permissions) = await RoleAndPermissionsAsync(user, ct);
-        var (access, expiresAt) = tokens.CreateAccessToken(user, role, permissions, now);
+        var (role, roleName, permissions) = await RoleAndPermissionsAsync(user, ct);
+        var (access, expiresAt) = tokens.CreateAccessToken(user, role, now);
         var (refresh, hash, refreshExpiresAt) = tokens.CreateRefreshToken(now);
 
         db.RefreshTokens.Add(new RefreshToken
@@ -126,20 +127,14 @@ public class AuthService(
         });
         await db.SaveChangesAsync(ct);
 
-        return new SessionDto(access, expiresAt, refresh, refreshExpiresAt, ToSessionUser(user, role, permissions));
+        return new SessionDto(access, expiresAt, refresh, refreshExpiresAt, ToSessionUser(user, role, roleName, permissions));
     }
 
-    private async Task<(string Role, IReadOnlyList<string> Permissions)> RoleAndPermissionsAsync(User user, CancellationToken ct)
+    private async Task<(string Role, string RoleName, IReadOnlyList<string> Permissions)> RoleAndPermissionsAsync(User user, CancellationToken ct)
     {
         var role = (await users.GetRolesAsync(user)).FirstOrDefault() ?? "";
-        var permissions = await (
-                from p in db.RolePermissions
-                join r in db.Roles on p.RoleId equals r.Id
-                where r.Name == role
-                orderby p.Screen
-                select new { p.Screen, p.Level })
-            .ToListAsync(ct);
-        return (role, permissions.Select(p => Permissions.ToClaim(p.Screen, p.Level)).ToList());
+        var roleName = await db.Roles.Where(r => r.Name == role).Select(r => r.DisplayName).FirstOrDefaultAsync(ct) ?? role;
+        return (role, roleName, await permissionStore.GetAsync(role, ct));
     }
 
     private async Task RevokeAllAsync(int userId, CancellationToken ct)
@@ -150,8 +145,8 @@ public class AuthService(
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, now), ct);
     }
 
-    private static SessionUserDto ToSessionUser(User u, string role, IReadOnlyList<string> permissions) =>
-        new(u.Id, u.FullName, u.UserName ?? "", role, u.MustChangePassword, permissions);
+    private static SessionUserDto ToSessionUser(User u, string role, string roleName, IReadOnlyList<string> permissions) =>
+        new(u.Id, u.FullName, u.UserName ?? "", role, roleName, u.MustChangePassword, permissions);
 }
 
 /// <summary>

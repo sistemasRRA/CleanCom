@@ -15,6 +15,7 @@ import { Settings } from './pages/operations/Settings';
 import { Rutas, Zonas } from './pages/operations/RutasZonas';
 import { CoveragePage, Lugares, NonWorkingDays, OtherCatalogs } from './pages/operations/Catalogs';
 import { Operadores, UserList, Users } from './pages/users/Users';
+import { RolesPermissions } from './pages/users/Roles';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -60,6 +61,8 @@ function App() {
             <Route path="operadores" element={<Operadores />} />
           </Route>
         )}
+
+        {can('roles-y-permisos') && <Route path="roles-y-permisos" element={<RolesPermissions />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

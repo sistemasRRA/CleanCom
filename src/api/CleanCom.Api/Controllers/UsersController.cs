@@ -29,6 +29,12 @@ public class UsersController(IUserService service) : ControllerBase
     public Task<UserDto> Update(int id, UpdateUserRequest request, CancellationToken ct) =>
         service.UpdateAsync(id, request, ct);
 
+    /// <summary>Roles for the user form: never Invitado; SuperUser only when the caller is SuperUser.</summary>
+    [HttpGet("roles")]
+    [RequireScreen(Screens.Usuarios, AccessLevel.View)]
+    public Task<IReadOnlyList<RoleOptionDto>> AssignableRoles(CancellationToken ct) =>
+        service.ListAssignableRolesAsync(ct);
+
     /// <summary>Assigns a temporary password; the user must change it on the next sign-in.</summary>
     [HttpPost("{id:int}/restablecer")]
     [RequireScreen(Screens.Usuarios, AccessLevel.Edit)]

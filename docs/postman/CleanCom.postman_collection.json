@@ -26,7 +26,8 @@
     { "key": "nonWorkingDate", "value": "" },
     { "key": "coverageId", "value": "" },
     { "key": "userId", "value": "" },
-    { "key": "operadorId", "value": "" }
+    { "key": "operadorId", "value": "" },
+    { "key": "roleId", "value": "" }
   ],
   "item": [
     {
@@ -655,7 +656,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Chofer de prueba {{suffix}}\",\n  \"userName\": \"prueba.{{suffix}}\",\n  \"email\": null,\n  \"phone\": \"5512345678\",\n  \"role\": \"Chofer\",\n  \"initialPassword\": \"Temporal-{{suffix}}\",\n  \"operadorId\": null,\n  \"createOperador\": true,\n  \"usualRutaId\": {{rutaId}}\n}" },
             "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] },
-            "description": "Rol Administracion o Chofer. Un Chofer se liga a un operador existente (operadorId) o crea uno nuevo (createOperador), no ambos."
+            "description": "Cualquier rol de oficina (GET /roles, assignableInOffice). Un Chofer se liga a un operador existente (operadorId) o crea uno nuevo (createOperador), no ambos."
           }
         },
         {
@@ -722,6 +723,213 @@
               "path": ["operadores"],
               "query": [{ "key": "includeInactive", "value": "true" }]
             }
+          }
+        },
+        {
+          "name": "3.6 · Roles con sus permisos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const roles = pm.response.json();",
+                  "pm.test('incluye los roles del sistema', () => ['SuperUser', 'Administracion', 'Gerencia', 'Logistica', 'Telemarketing', 'Chofer', 'Planta'].forEach(k => pm.expect(roles.map(r => r.key)).to.include(k)));",
+                  "pm.test('SuperUser tiene permisos fijos', () => pm.expect(roles.find(r => r.key === 'SuperUser').lockedPermissions).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            },
+            "description": "Cada rol con key (guardada), name (visible), userCount y permissions."
+          }
+        },
+        {
+          "name": "3.7 · Pantallas que se pueden dar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('cada pantalla trae su grupo del menú', () => pm.response.json().forEach(s => pm.expect(s.group).to.be.a('string').and.not.empty));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles/pantallas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles",
+                "pantallas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.8 · Crear rol (escribe)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creado', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.collectionVariables.set('roleId', r.id);",
+                  "pm.test('arranca sin permisos', () => pm.expect(r.permissions).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rol de prueba {{suffix}}\"\n}"
+            },
+            "description": "La clave se deriva del nombre sin acentos ni espacios."
+          }
+        },
+        {
+          "name": "3.9 · Permisos del rol (escribe)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('guardó dos permisos', () => pm.expect(pm.response.json().permissions).to.have.length(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/roles/{{roleId}}/permisos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles",
+                "{{roleId}}",
+                "permisos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permissions\": [\n    {\n      \"screen\": \"agendar\",\n      \"level\": \"Edit\"\n    },\n    {\n      \"screen\": \"kpis\",\n      \"level\": \"View\"\n    }\n  ]\n}"
+            },
+            "description": "Reemplaza todos los permisos del rol; una pantalla que no va queda sin acceso. Aplica en la siguiente petición de sus usuarios."
+          }
+        },
+        {
+          "name": "3.10 · Permisos de SuperUser → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/roles/8/permisos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles",
+                "8",
+                "permisos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permissions\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "3.11 · Borrar el rol de prueba (escribe)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles/{{roleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles",
+                "{{roleId}}"
+              ]
+            },
+            "description": "Solo roles creados por la oficina y sin usuarios."
           }
         }
       ]
