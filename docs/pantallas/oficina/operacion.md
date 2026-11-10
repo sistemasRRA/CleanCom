@@ -26,5 +26,8 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 
 ## Endpoints
 
-- `GET /configuracion`, `PUT /configuracion` (con fecha de vigencia opcional), `GET /configuracion/historial`.
-- `GET|POST|PUT|DELETE /lugares`, `/zonas`, `/zonas/{id}/dias`, `/dias-inhabiles`, `/cobertura`.
+- `GET /configuracion`, `PUT /configuracion` (con fecha de vigencia opcional), `GET /configuracion/historial?clave=`.
+- `GET|POST|PUT|DELETE /lugares`, `/zonas`, `/dias-inhabiles`, `/cobertura`; `PUT /zonas/{id}/dias`.
+- `GET|POST|PUT /rutas`, `/tipos-parada`, `/lineas-servicio`, `/motivos?tipo=`.
+
+Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` es baja lógica en lugares y zonas; en días inhábiles y cobertura quita el registro. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`.

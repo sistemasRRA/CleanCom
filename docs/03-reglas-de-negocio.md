@@ -32,7 +32,15 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Crm.DiasInactivo` | 120 | También define recuperado y perdido |
 | `Crm.FactorEnRiesgo` | 2 | Veces su frecuencia |
 | `Pedido.DiasPermitidosPorEtapa` | Por etapa | Semáforo de atraso |
-| `Base` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 · 19.3608092, -99.1968494 | Inicio y fin de ruta |
+| `Base.Direccion` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 | Inicio y fin de ruta |
+| `Base.Ubicacion` | 19.3608092,-99.1968494 | Coordenadas de la base |
+
+Notas de implementación:
+
+- Cada cambio es un registro nuevo con `VigenteDesde`; aplica el más reciente que ya empezó. Un cambio programado a futuro no aplica hasta su fecha, y no se aceptan fechas pasadas.
+- Si la ruta tiene valor propio en una clave (R), gana el de la ruta.
+- Formatos: hora `HH:mm`, rango `HH:mm-HH:mm`, coordenada `latitud,longitud`, sí/no como `true`/`false`.
+- `Pedido.DiasPermitidosPorEtapa` todavía no tiene clave: falta confirmar los días por etapa (ver pendientes).
 
 ## Zonas
 

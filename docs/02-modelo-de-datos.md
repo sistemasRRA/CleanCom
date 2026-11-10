@@ -1,14 +1,14 @@
 # Modelo de datos
 
-Entidades principales y sus campos clave. Es un punto de partida: los nombres finales y los índices se ajustan al crear las migraciones. Todas las tablas llevan `Id`, `CreadoEn`, `CreadoPor`, `ModificadoEn`, `ModificadoPor` y, donde aplique, `Activo` (baja lógica).
+Entidades principales y sus campos clave. Es un punto de partida: los nombres finales y los índices se ajustan al crear las migraciones. Todas las tablas llevan `Id`, `CreadoEn`, `CreadoPor`, `ModificadoEn`, `ModificadoPor` y, donde aplique, `Activo` (baja lógica). La auditoría la llena el API al guardar, en UTC. Los enums se guardan como texto.
 
 ## Catálogos y configuración
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
 | `Configuracion` | Clave, Valor, Tipo, VigenteDesde, ModificadoPor | Cortes, horarios, cupos, minutos por parada, umbrales. Historial de cambios y cambios programados. Ver reglas, sección Configuración |
-| `Ruta` | Codigo (F, K), Nombre, Color, CupoParadas?, Meta?, RegresoMaximo?, Activa | Los valores opcionales sobrescriben la configuración general |
-| `Zona` | Codigo (F1, K3, K1EXT), RutaId, ZonaNucleoId?, Poligono (`geography`), Activa | Las EXT siguen los días de su zona núcleo |
+| `Ruta` | Codigo (F, K), Nombre, Color, CupoParadas?, MetaRecolecciones?, RegresoMaximo?, RegresoMaximoSabado?, Activo | Los valores opcionales sobrescriben la configuración general |
+| `Zona` | Codigo (F1, K3, K1EXT), RutaId, ZonaNucleoId?, Poligono (`geography`), Activo | Las EXT siguen los días de su zona núcleo; el núcleo es de la misma ruta y no es EXT |
 | `ZonaDiaVisita` | ZonaId, DiaSemana | Lunes a domingo |
 | `CoberturaCP` | CodigoPostal, Colonia, Alcaldia, ZonaId | 156 registros iniciales; base para dibujar los polígonos |
 | `Lugar` | Nombre, Tipo (Base, Bodega, Tienda), Direccion, Ubicacion (`geography`), Horario | Leones, Bodega EXO, tiendas 7clean |
@@ -21,7 +21,9 @@ Entidades principales y sus campos clave. Es un punto de partida: los nombres fi
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
-| `Usuario` | Nombre, Usuario o Correo, Rol, Telefono, Activo, UltimoAcceso | ASP.NET Identity. Roles: Administracion, Chofer, Invitado |
+| `Usuario` | NombreCompleto, Usuario, Correo?, Telefono?, Rol, Activo, DebeCambiarContrasena, UltimoAcceso | ASP.NET Identity (tablas `Usuarios`, `Roles`, `UsuariosRoles`). Roles: Administracion, Chofer, Invitado |
+| `PermisoRol` | RolId, Pantalla, Nivel (Ver, Editar) | Permisos por pantalla; Editar incluye Ver. Viajan en el token como `pantalla:nivel` |
+| `TokenRenovacion` | UsuarioId, TokenHash, CreadoEn, ExpiraEn, RevocadoEn? | Solo se guarda el hash; cada renovación revoca el anterior |
 | `Operador` | Nombre, Telefono, RutaHabitualId, Activo, UsuarioId? | Choferes de la nómina |
 | `Invitado` | Nombre, TelefonoWhatsApp, OtroTelefono, Correo, Tipo (ClienteFinal, Empresa, TiendaInterna), ComoNosConocio, Campana, InfoRuteo, Observaciones, Etiquetas, EstatusCalculado, EstatusManual?, FrecuenciaFijaDias?, FrecuenciaCalculadaDias, ProximoContacto, LeTocaFecha, CuentaApp (SinApp, Invitado, Activa, Bloqueada), UsuarioId? | Ficha del CRM |
 | `Empresa` | RazonSocial, RFC, DatosFacturacion, CondicionesPrecio | Para convenios; varios `Invitado` como contactos |

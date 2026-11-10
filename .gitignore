@@ -5,6 +5,7 @@ obj/
 *.suo
 .vs/
 appsettings.*.local.json
+logs/
 
 # Node / Expo
 node_modules/

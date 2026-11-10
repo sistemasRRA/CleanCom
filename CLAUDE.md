@@ -14,7 +14,7 @@ Monorepo del sistema de CleanCom (tintorería a domicilio en CDMX): un API en C#
 - **Hora de Ciudad de México.** Todo corte y fecha de negocio se evalúa en `America/Mexico_City`. En base de datos se guarda UTC (`datetimeoffset` o `datetime2` en UTC). Usa un servicio `IRelojNegocio` inyectable para poder probar cortes.
 - **Idioma.** Código (clases, métodos, variables, tablas) en inglés técnico es aceptable, pero los **términos de dominio se conservan en español** según `docs/glosario.md` (por ejemplo `Invitado`, `Parada`, `Ruta`, `Zona`, `Pedido`, `Ticket`). Textos de interfaz siempre en español de México. Al cliente final se le llama **invitado**.
 - **Pruebas.** Cada regla de `docs/03-reglas-de-negocio.md` tiene al menos una prueba unitaria en el API, con los ejemplos que trae el documento (por ejemplo: cambio el día 2 a las 12:01 → nueva fecha día 4).
-- **Migraciones.** Solo con EF Core (`dotnet ef migrations add`). No edites a mano los archivos de `database/migraciones`.
+- **Migraciones.** Solo con EF Core: `dotnet ef migrations add <Nombre> --project database/migraciones/CleanCom.Migraciones.csproj --startup-project src/api/CleanCom.Api`. No edites a mano los archivos de `database/migraciones`.
 - **Secretos.** Nunca en el repositorio. Llaves de Google, Meta, Twilio, cadena de conexión y JWT van en variables de entorno o `dotnet user-secrets`. Hay un `.env.example` por proyecto.
 - **Fotos y documentos** se guardan en disco del servidor (ruta configurable), nunca dentro de SQL Server, para no rebasar el límite de 10 GB de SQL Server Express.
 - **Commits.** Mensajes de commit y descripciones de PR en inglés. El nombre del proyecto se escribe `CleanCom`, sin espacio. El autor es siempre el usuario configurado en git. No agregues líneas `Co-Authored-By: Claude`, `Claude-Session` ni ninguna otra atribución a Claude en mensajes de commit ni en descripciones de PR.
@@ -35,7 +35,7 @@ El cliente del API para web y apps se genera desde el OpenAPI del backend; no es
 
 ```
 src/api/
-├── CleanCom.Api/            Endpoints, autenticación, SignalR hubs
+├── CleanCom.Api/            Controladores, autenticación, SignalR hubs
 ├── CleanCom.Dominio/        Entidades y reglas puras (sin dependencias)
 ├── CleanCom.Aplicacion/     Casos de uso (AgendarRecoleccion, OptimizarRuta, ...)
 ├── CleanCom.Infraestructura/ EF Core, Google, WhatsApp, Twilio, POS, correo, archivos

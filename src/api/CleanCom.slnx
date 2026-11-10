@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="../../database/migraciones/CleanCom.Migraciones.csproj" />
+  <Project Path="CleanCom.Api/CleanCom.Api.csproj" />
+  <Project Path="CleanCom.Aplicacion/CleanCom.Aplicacion.csproj" />
+  <Project Path="CleanCom.Dominio/CleanCom.Dominio.csproj" />
+  <Project Path="CleanCom.Infraestructura/CleanCom.Infraestructura.csproj" />
+  <Project Path="CleanCom.Pruebas/CleanCom.Pruebas.csproj" />
+  <Project Path="CleanCom.Trabajos/CleanCom.Trabajos.csproj" />
+</Solution>

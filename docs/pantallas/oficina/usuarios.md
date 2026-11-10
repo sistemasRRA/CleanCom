@@ -31,6 +31,15 @@ Dos caminos, siempre ligados a la ficha del CRM:
 
 ## Endpoints
 
-- `GET /usuarios`, `POST /usuarios`, `PUT /usuarios/{id}`, `POST /usuarios/{id}/restablecer`.
-- `GET /operadores`, `PUT /operadores/{id}`.
-- `GET /invitados/cuentas?estado=`.
+- `POST /auth/login`, `POST /auth/renovar`, `POST /auth/cerrar`, `POST /auth/cambiar-contrasena`, `GET /auth/yo`.
+- `GET /usuarios?rol=`, `POST /usuarios`, `PUT /usuarios/{id}`, `POST /usuarios/{id}/restablecer` (contraseña temporal que se cambia al entrar).
+- `GET /operadores?incluirInactivos=`, `POST /operadores`, `PUT /operadores/{id}`.
+- `GET /invitados/cuentas?estado=` (pendiente, semana 5).
+
+## Implementado (semana 1)
+
+- Mientras el usuario no cambia su contraseña inicial o temporal, el token solo sirve para `/auth/cambiar-contrasena` y `/auth/yo`.
+- 5 intentos fallidos bloquean la cuenta 15 minutos.
+- Token de acceso de 30 minutos y de renovación de 14 días (configurables en `Jwt`). Reusar un token de renovación ya usado cierra todas las sesiones del usuario.
+- Desactivar o cambiar el rol de un usuario cierra sus sesiones. Siempre debe quedar un usuario de Administración activo.
+- Desde esta pantalla solo se crean usuarios Administracion y Chofer; los invitados se registran desde su app.

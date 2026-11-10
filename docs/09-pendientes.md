@@ -10,6 +10,14 @@
 - [ ] Días de proceso prometidos por línea de servicio (planchaduría, lavandería, tintorería, sastrería, calzado).
 - [ ] Días permitidos por etapa del pedido antes de marcarlo atrasado.
 - [ ] Destinatarios de cada aviso de flota.
+- [ ] Textos iniciales del catálogo de motivos (no entrega, atraso en planta, resultado de contacto). El catálogo existe pero arranca vacío.
+- [ ] Capacidad de prendas por ruta: Operación la pide "por ruta", pero las reglas la marcan como general (`Unidad.CapacidadPrendas`) y la unidad ya tiene la suya. Por ahora no se sobrescribe por ruta.
+
+## Decisiones de implementación por revisar
+
+- [ ] Restablecer contraseña por link o código (usuarios.md): necesita WhatsApp o correo (semana 6). Mientras, oficina asigna una contraseña temporal.
+- [ ] Verificación en dos pasos para Administración: no está en la semana 1.
+- [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
 ## Reglas propuestas que conviene validar
 

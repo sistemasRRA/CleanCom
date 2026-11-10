@@ -25,6 +25,7 @@ Sistema de logística, rutas y seguimiento de pedidos de CleanCom, tintorería a
 │   ├── 07-despliegue-vps.md
 │   ├── 08-costos.md
 │   ├── 09-pendientes.md
+│   ├── 10-guia-del-api.md
 │   ├── glosario.md
 │   └── pantallas/            Una ficha por pantalla
 │       ├── oficina/
@@ -48,4 +49,4 @@ Sistema de logística, rutas y seguimiento de pedidos de CleanCom, tintorería a
 3. Cada pantalla tiene su ficha en [`docs/pantallas/`](docs/pantallas/), con lo que se conserva del sistema actual y lo que mejora.
 4. El orden de construcción está en [`docs/05-plan-de-trabajo.md`](docs/05-plan-de-trabajo.md).
 
-Las carpetas de `src/` todavía no tienen código; se generan en la semana 1 del plan.
+El API ya tiene su base (semana 1): ver [`src/api/README.md`](src/api/README.md) para instalarlo y [`docs/10-guia-del-api.md`](docs/10-guia-del-api.md) para entender cómo está organizado y cómo agregar endpoints. La web y las apps todavía no tienen código.

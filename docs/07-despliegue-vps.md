@@ -50,6 +50,6 @@ GitHub Actions: al hacer merge a `main` se compila, se corren pruebas, se aplica
 
 | Ambiente | Uso |
 | --- | --- |
-| Desarrollo | Local de cada desarrollador (SQL Server en Docker) |
+| Desarrollo | Local de cada desarrollador (SQL Server Express o en Docker), base `cleancom_dev` |
 | Pruebas | En el VPS, base separada, para el piloto y revisión |
 | Producción | En el VPS |
