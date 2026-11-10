@@ -1,31 +1,31 @@
 {
   "info": {
     "name": "CleanCom API",
-    "description": "Flujo completo del API de CleanCom (semana 1): sesión, configuración de Operación, catálogos y usuarios.\n\nAntes de correr:\n1. Variables de la colección: `baseUrl` (por defecto http://localhost:5111), `usuario` y `contrasena` de un usuario de Administración.\n2. Si el usuario todavía debe cambiar su contraseña inicial, llena `contrasenaNueva`; el paso 0.2 la cambia y actualiza `contrasena`. Si no, el 0.2 se salta solo.\n3. Corre en orden (uno por uno o con el Runner). Los scripts guardan tokens e IDs.\n\nLos pasos marcados (escribe) crean o cambian datos. Úsala contra `cleancom_dev`, nunca contra producción. Cada corrida usa un sufijo distinto, así que se puede repetir sin choques de códigos.\n\nNo guardes contraseñas reales en este archivo: llénalas en tu Postman (valor actual) o en un environment local.",
+    "description": "Flujo completo del API de CleanCom (semana 1): sesión, configuración de Operación, catálogos y usuarios.\n\nAntes de correr:\n1. Variables de la colección: `baseUrl` (por defecto http://localhost:5111), `userName` y `password` de un usuario de Administración.\n2. Si el usuario todavía debe cambiar su contraseña inicial, llena `newPassword`; el paso 0.2 la cambia y actualiza `password`. Si no, el 0.2 se salta solo.\n3. Corre en orden (uno por uno o con el Runner). Los scripts guardan tokens e IDs.\n\nLos pasos marcados (escribe) crean o cambian datos. Úsala contra `cleancom_dev`, nunca contra producción. Cada corrida usa un suffix distinto, así que se puede repetir sin choques de códigos.\n\nNo guardes contraseñas reales en este archivo: llénalas en tu Postman (valor actual) o en un environment local.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{tokenAcceso}}", "type": "string" }]
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:5111" },
-    { "key": "usuario", "value": "admin" },
-    { "key": "contrasena", "value": "" },
-    { "key": "contrasenaNueva", "value": "" },
-    { "key": "tokenAcceso", "value": "" },
-    { "key": "tokenRenovacion", "value": "" },
-    { "key": "debeCambiar", "value": "" },
-    { "key": "sufijo", "value": "" },
+    { "key": "userName", "value": "admin" },
+    { "key": "password", "value": "" },
+    { "key": "newPassword", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "mustChange", "value": "" },
+    { "key": "suffix", "value": "" },
     { "key": "rutaId", "value": "" },
     { "key": "zonaNucleoId", "value": "" },
     { "key": "zonaExtId", "value": "" },
     { "key": "lugarId", "value": "" },
-    { "key": "motivoId", "value": "" },
-    { "key": "diaInhabilId", "value": "" },
-    { "key": "fechaInhabil", "value": "" },
-    { "key": "coberturaId", "value": "" },
-    { "key": "usuarioId", "value": "" },
+    { "key": "reasonId", "value": "" },
+    { "key": "nonWorkingDayId", "value": "" },
+    { "key": "nonWorkingDate", "value": "" },
+    { "key": "coverageId", "value": "" },
+    { "key": "userId", "value": "" },
     { "key": "operadorId", "value": "" }
   ],
   "item": [
@@ -42,11 +42,11 @@
                 "exec": [
                   "pm.test('200 sesión', () => pm.response.to.have.status(200));",
                   "const s = pm.response.json();",
-                  "pm.collectionVariables.set('tokenAcceso', s.tokenAcceso);",
-                  "pm.collectionVariables.set('tokenRenovacion', s.tokenRenovacion);",
-                  "pm.collectionVariables.set('debeCambiar', String(s.usuario.debeCambiarContrasena));",
-                  "pm.collectionVariables.set('sufijo', Date.now().toString().slice(-6));",
-                  "if (s.usuario.debeCambiarContrasena) { console.log('El usuario debe cambiar su contraseña: corre 0.2 con contrasenaNueva.'); }"
+                  "pm.collectionVariables.set('accessToken', s.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', s.refreshToken);",
+                  "pm.collectionVariables.set('mustChange', String(s.user.mustChangePassword));",
+                  "pm.collectionVariables.set('suffix', Date.now().toString().slice(-6));",
+                  "if (s.user.mustChangePassword) { console.log('El usuario debe cambiar su contraseña: corre 0.2 con newPassword.'); }"
                 ]
               }
             }
@@ -55,7 +55,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"usuario\": \"{{usuario}}\",\n  \"contrasena\": \"{{contrasena}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"userName\": \"{{userName}}\",\n  \"password\": \"{{password}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
             "description": "Acepta usuario o correo. 401 con credenciales incorrectas; 5 intentos fallidos bloquean la cuenta 15 minutos."
           }
@@ -68,7 +68,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "if (pm.collectionVariables.get('debeCambiar') !== 'true') {",
+                  "if (pm.collectionVariables.get('mustChange') !== 'true') {",
                   "  console.log('0.2 se salta: el usuario ya cambió su contraseña.');",
                   "  pm.execution.skipRequest();",
                   "}"
@@ -82,10 +82,10 @@
                 "exec": [
                   "pm.test('200 sesión nueva', () => pm.response.to.have.status(200));",
                   "const s = pm.response.json();",
-                  "pm.collectionVariables.set('tokenAcceso', s.tokenAcceso);",
-                  "pm.collectionVariables.set('tokenRenovacion', s.tokenRenovacion);",
-                  "pm.collectionVariables.set('debeCambiar', 'false');",
-                  "pm.collectionVariables.set('contrasena', pm.collectionVariables.get('contrasenaNueva'));"
+                  "pm.collectionVariables.set('accessToken', s.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', s.refreshToken);",
+                  "pm.collectionVariables.set('mustChange', 'false');",
+                  "pm.collectionVariables.set('password', pm.collectionVariables.get('newPassword'));"
                 ]
               }
             }
@@ -93,7 +93,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"contrasenaActual\": \"{{contrasena}}\",\n  \"contrasenaNueva\": \"{{contrasenaNueva}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/auth/cambiar-contrasena", "host": ["{{baseUrl}}"], "path": ["auth", "cambiar-contrasena"] },
             "description": "Mínimo 8 caracteres y distinta de la actual. Regresa una sesión nueva con el token completo y cierra las demás sesiones."
           }
@@ -107,11 +107,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200', () => pm.response.to.have.status(200));",
-                  "pm.test('ya no debe cambiar contraseña', () => pm.expect(pm.response.json().debeCambiarContrasena).to.be.false);",
+                  "pm.test('ya no debe cambiar contraseña', () => pm.expect(pm.response.json().mustChangePassword).to.be.false);",
                   "pm.test('puede editar Operación y Usuarios', () => {",
-                  "  const p = pm.response.json().permisos;",
-                  "  pm.expect(p).to.include('operacion:editar');",
-                  "  pm.expect(p).to.include('usuarios:editar');",
+                  "  const p = pm.response.json().permissions;",
+                  "  pm.expect(p).to.include('operacion:edit');",
+                  "  pm.expect(p).to.include('usuarios:edit');",
                   "});"
                 ]
               }
@@ -132,11 +132,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200 tokens nuevos', () => pm.response.to.have.status(200));",
-                  "const anterior = pm.collectionVariables.get('tokenRenovacion');",
+                  "const anterior = pm.collectionVariables.get('refreshToken');",
                   "const s = pm.response.json();",
-                  "pm.test('el token de renovación cambia', () => pm.expect(s.tokenRenovacion).to.not.eql(anterior));",
-                  "pm.collectionVariables.set('tokenAcceso', s.tokenAcceso);",
-                  "pm.collectionVariables.set('tokenRenovacion', s.tokenRenovacion);"
+                  "pm.test('el token de renovación cambia', () => pm.expect(s.refreshToken).to.not.eql(anterior));",
+                  "pm.collectionVariables.set('accessToken', s.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', s.refreshToken);"
                 ]
               }
             }
@@ -145,7 +145,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"tokenRenovacion\": \"{{tokenRenovacion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/auth/renovar", "host": ["{{baseUrl}}"], "path": ["auth", "renovar"] },
             "description": "Cada token de renovación sirve una vez. Reusar uno ya usado cierra todas las sesiones del usuario."
           }
@@ -166,7 +166,7 @@
                   "pm.test('200', () => pm.response.to.have.status(200));",
                   "const lista = pm.response.json();",
                   "pm.test('26 claves', () => pm.expect(lista.length).to.eql(26));",
-                  "pm.test('existe el corte del mismo día', () => pm.expect(lista.map(c => c.clave)).to.include('Agenda.CorteMismoDia'));"
+                  "pm.test('existe el corte del mismo día', () => pm.expect(lista.map(c => c.key)).to.include('Agenda.CorteMismoDia'));"
                 ]
               }
             }
@@ -186,7 +186,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200 renglón del historial', () => pm.response.to.have.status(200));",
-                  "pm.test('valor normalizado', () => pm.expect(pm.response.json().valor).to.eql('10'));"
+                  "pm.test('valor normalizado', () => pm.expect(pm.response.json().value).to.eql('10'));"
                 ]
               }
             }
@@ -194,9 +194,9 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"clave\": \"Ruta.MetaRecolecciones\",\n  \"valor\": \"10\",\n  \"vigenteDesde\": null,\n  \"nota\": \"Prueba Postman (mismo valor)\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"key\": \"Ruta.MetaRecolecciones\",\n  \"value\": \"10\",\n  \"effectiveFrom\": null,\n  \"note\": \"Prueba Postman (mismo valor)\"\n}" },
             "url": { "raw": "{{baseUrl}}/configuracion", "host": ["{{baseUrl}}"], "path": ["configuracion"] },
-            "description": "Pone el mismo valor que ya tiene para no alterar la operación; solo agrega un renglón al historial. Con `vigenteDesde` futuro el cambio queda programado; en el pasado responde 400."
+            "description": "Pone el mismo valor que ya tiene para no alterar la operación; solo agrega un renglón al historial. Con `effectiveFrom` futuro el cambio queda programado; en el pasado responde 400."
           }
         },
         {
@@ -208,7 +208,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('400 validación', () => pm.response.to.have.status(400));",
-                  "pm.test('mensaje en español', () => pm.expect(pm.response.json().errors.Clave[0]).to.include('no existe'));"
+                  "pm.test('mensaje en español', () => pm.expect(pm.response.json().errors.Key[0]).to.include('no existe'));"
                 ]
               }
             }
@@ -216,7 +216,7 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"clave\": \"Agenda.NoExiste\",\n  \"valor\": \"13:00\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"key\": \"Agenda.NoExiste\",\n  \"value\": \"13:00\"\n}" },
             "url": { "raw": "{{baseUrl}}/configuracion", "host": ["{{baseUrl}}"], "path": ["configuracion"] }
           }
         },
@@ -229,10 +229,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/configuracion/historial?clave=Ruta.MetaRecolecciones",
+              "raw": "{{baseUrl}}/configuracion/historial?key=Ruta.MetaRecolecciones",
               "host": ["{{baseUrl}}"],
               "path": ["configuracion", "historial"],
-              "query": [{ "key": "clave", "value": "Ruta.MetaRecolecciones" }]
+              "query": [{ "key": "key", "value": "Ruta.MetaRecolecciones" }]
             }
           }
         }
@@ -258,7 +258,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"P{{sufijo}}\",\n  \"nombre\": \"Ruta de prueba {{sufijo}}\",\n  \"color\": \"#1E88E5\",\n  \"cupoParadas\": 16,\n  \"metaRecolecciones\": null,\n  \"regresoMaximo\": null,\n  \"regresoMaximoSabado\": \"14:30:00\",\n  \"activo\": true\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"P{{suffix}}\",\n  \"name\": \"Ruta de prueba {{suffix}}\",\n  \"color\": \"#1E88E5\",\n  \"cupoParadas\": 16,\n  \"recoleccionGoal\": null,\n  \"maxReturnTime\": null,\n  \"maxReturnTimeSaturday\": \"14:30:00\",\n  \"active\": true\n}" },
             "url": { "raw": "{{baseUrl}}/rutas", "host": ["{{baseUrl}}"], "path": ["rutas"] },
             "description": "Código en mayúsculas sin espacios y color #RRGGBB. Cupo, meta y horas de regreso vacíos toman el valor general de Configuración."
           }
@@ -271,7 +271,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"P{{sufijo}}\",\n  \"nombre\": \"Otra\",\n  \"color\": \"#000000\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"P{{suffix}}\",\n  \"name\": \"Otra\",\n  \"color\": \"#000000\"\n}" },
             "url": { "raw": "{{baseUrl}}/rutas", "host": ["{{baseUrl}}"], "path": ["rutas"] }
           }
         },
@@ -303,7 +303,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"Z{{sufijo}}\",\n  \"rutaId\": {{rutaId}},\n  \"zonaNucleoId\": null,\n  \"poligono\": [\n    { \"lat\": 19.3712, \"lng\": -99.2051 },\n    { \"lat\": 19.3655, \"lng\": -99.1987 },\n    { \"lat\": 19.3598, \"lng\": -99.2063 }\n  ],\n  \"activo\": true\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"Z{{suffix}}\",\n  \"rutaId\": {{rutaId}},\n  \"zonaNucleoId\": null,\n  \"polygon\": [\n    { \"lat\": 19.3712, \"lng\": -99.2051 },\n    { \"lat\": 19.3655, \"lng\": -99.1987 },\n    { \"lat\": 19.3598, \"lng\": -99.2063 }\n  ],\n  \"active\": true\n}" },
             "url": { "raw": "{{baseUrl}}/zonas", "host": ["{{baseUrl}}"], "path": ["zonas"] },
             "description": "El polígono va en latitud y longitud, mínimo 3 vértices; se cierra solo."
           }
@@ -317,7 +317,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200', () => pm.response.to.have.status(200));",
-                  "pm.test('lunes y jueves', () => pm.expect(pm.response.json().diasVisita).to.eql(['Monday', 'Thursday']));"
+                  "pm.test('lunes y jueves', () => pm.expect(pm.response.json().visitDays).to.eql(['Monday', 'Thursday']));"
                 ]
               }
             }
@@ -325,7 +325,7 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"dias\": [\"Monday\", \"Thursday\"]\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"days\": [\"Monday\", \"Thursday\"]\n}" },
             "url": { "raw": "{{baseUrl}}/zonas/{{zonaNucleoId}}/dias", "host": ["{{baseUrl}}"], "path": ["zonas", "{{zonaNucleoId}}", "dias"] }
           }
         },
@@ -340,8 +340,8 @@
                   "pm.test('201 creada', () => pm.response.to.have.status(201));",
                   "const z = pm.response.json();",
                   "pm.collectionVariables.set('zonaExtId', z.id);",
-                  "pm.test('sin días propios', () => pm.expect(z.diasVisita).to.eql([]));",
-                  "pm.test('hereda los días del núcleo', () => pm.expect(z.diasVisitaEfectivos).to.eql(['Monday', 'Thursday']));"
+                  "pm.test('sin días propios', () => pm.expect(z.visitDays).to.eql([]));",
+                  "pm.test('hereda los días del núcleo', () => pm.expect(z.effectiveVisitDays).to.eql(['Monday', 'Thursday']));"
                 ]
               }
             }
@@ -349,7 +349,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"Z{{sufijo}}EXT\",\n  \"rutaId\": {{rutaId}},\n  \"zonaNucleoId\": {{zonaNucleoId}},\n  \"poligono\": [],\n  \"activo\": true\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"Z{{suffix}}EXT\",\n  \"rutaId\": {{rutaId}},\n  \"zonaNucleoId\": {{zonaNucleoId}},\n  \"polygon\": [],\n  \"active\": true\n}" },
             "url": { "raw": "{{baseUrl}}/zonas", "host": ["{{baseUrl}}"], "path": ["zonas"] },
             "description": "Regla de negocio: una zona EXT sigue los días de visita de su zona núcleo."
           }
@@ -371,7 +371,7 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"dias\": [\"Friday\"]\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"days\": [\"Friday\"]\n}" },
             "url": { "raw": "{{baseUrl}}/zonas/{{zonaExtId}}/dias", "host": ["{{baseUrl}}"], "path": ["zonas", "{{zonaExtId}}", "dias"] }
           }
         },
@@ -396,7 +396,7 @@
               "raw": "{{baseUrl}}/zonas?rutaId={{rutaId}}",
               "host": ["{{baseUrl}}"],
               "path": ["zonas"],
-              "query": [{ "key": "rutaId", "value": "{{rutaId}}" }, { "key": "incluirInactivas", "value": "false", "disabled": true }]
+              "query": [{ "key": "rutaId", "value": "{{rutaId}}" }, { "key": "includeInactive", "value": "false", "disabled": true }]
             }
           }
         },
@@ -409,7 +409,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200', () => pm.response.to.have.status(200));",
-                  "pm.test('está la base Leones', () => pm.expect(pm.response.json().map(l => l.nombre)).to.include('Leones'));"
+                  "pm.test('está la base Leones', () => pm.expect(pm.response.json().map(l => l.name)).to.include('Leones'));"
                 ]
               }
             }
@@ -437,7 +437,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Tienda de prueba {{sufijo}}\",\n  \"tipo\": \"Tienda\",\n  \"direccion\": \"Av. Revolución 1500, Guadalupe Inn, Álvaro Obregón\",\n  \"lat\": 19.3589,\n  \"lng\": -99.1890,\n  \"horario\": \"L-V 9:00-19:00\",\n  \"activo\": true\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tienda de prueba {{suffix}}\",\n  \"type\": \"Tienda\",\n  \"address\": \"Av. Revolución 1500, Guadalupe Inn, Álvaro Obregón\",\n  \"lat\": 19.3589,\n  \"lng\": -99.1890,\n  \"openingHours\": \"L-V 9:00-19:00\",\n  \"active\": true\n}" },
             "url": { "raw": "{{baseUrl}}/lugares", "host": ["{{baseUrl}}"], "path": ["lugares"] },
             "description": "Tipo Base, Bodega o Tienda. Latitud y longitud van juntas o ninguna."
           }
@@ -451,7 +451,7 @@
             "method": "DELETE",
             "header": [],
             "url": { "raw": "{{baseUrl}}/lugares/{{lugarId}}", "host": ["{{baseUrl}}"], "path": ["lugares", "{{lugarId}}"] },
-            "description": "Baja lógica: queda con activo = false."
+            "description": "Baja lógica: queda con active = false."
           }
         },
         {
@@ -485,7 +485,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('201 creado', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('motivoId', pm.response.json().id);"
+                  "pm.collectionVariables.set('reasonId', pm.response.json().id);"
                 ]
               }
             }
@@ -493,9 +493,9 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"NoEntrega\",\n  \"texto\": \"No había nadie en el domicilio ({{sufijo}})\",\n  \"activo\": true\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"FailedEntrega\",\n  \"text\": \"No había nadie en el domicilio ({{suffix}})\",\n  \"active\": true\n}" },
             "url": { "raw": "{{baseUrl}}/motivos", "host": ["{{baseUrl}}"], "path": ["motivos"] },
-            "description": "Tipos: NoEntrega, AtrasoPlanta, ResultadoContacto."
+            "description": "Tipos: FailedEntrega, PlantaDelay, ContactResult."
           }
         },
         {
@@ -507,10 +507,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/motivos?tipo=NoEntrega",
+              "raw": "{{baseUrl}}/motivos?type=FailedEntrega",
               "host": ["{{baseUrl}}"],
               "path": ["motivos"],
-              "query": [{ "key": "tipo", "value": "NoEntrega" }]
+              "query": [{ "key": "type", "value": "FailedEntrega" }]
             }
           }
         },
@@ -523,8 +523,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "// Fecha futura distinta en cada corrida para no chocar con la anterior.",
-                  "const d = new Date(Date.UTC(2030, 0, 1) + (Number(pm.collectionVariables.get('sufijo')) % 3000) * 86400000);",
-                  "pm.collectionVariables.set('fechaInhabil', d.toISOString().slice(0, 10));"
+                  "const d = new Date(Date.UTC(2030, 0, 1) + (Number(pm.collectionVariables.get('suffix')) % 3000) * 86400000);",
+                  "pm.collectionVariables.set('nonWorkingDate', d.toISOString().slice(0, 10));"
                 ]
               }
             },
@@ -534,7 +534,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('201 creado', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('diaInhabilId', pm.response.json().id);"
+                  "pm.collectionVariables.set('nonWorkingDayId', pm.response.json().id);"
                 ]
               }
             }
@@ -542,7 +542,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"fecha\": \"{{fechaInhabil}}\",\n  \"motivo\": \"Prueba Postman\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"date\": \"{{nonWorkingDate}}\",\n  \"reason\": \"Prueba Postman\"\n}" },
             "url": { "raw": "{{baseUrl}}/dias-inhabiles", "host": ["{{baseUrl}}"], "path": ["dias-inhabiles"] }
           }
         },
@@ -554,7 +554,7 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/dias-inhabiles/{{diaInhabilId}}", "host": ["{{baseUrl}}"], "path": ["dias-inhabiles", "{{diaInhabilId}}"] }
+            "url": { "raw": "{{baseUrl}}/dias-inhabiles/{{nonWorkingDayId}}", "host": ["{{baseUrl}}"], "path": ["dias-inhabiles", "{{nonWorkingDayId}}"] }
           }
         },
         {
@@ -566,7 +566,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('201 creada', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('coberturaId', pm.response.json().id);"
+                  "pm.collectionVariables.set('coverageId', pm.response.json().id);"
                 ]
               }
             }
@@ -574,7 +574,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"codigoPostal\": \"01710\",\n  \"colonia\": \"Colonia de prueba {{sufijo}}\",\n  \"alcaldia\": \"Álvaro Obregón\",\n  \"zonaId\": {{zonaNucleoId}}\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"postalCode\": \"01710\",\n  \"neighborhood\": \"Colonia de prueba {{suffix}}\",\n  \"borough\": \"Álvaro Obregón\",\n  \"zonaId\": {{zonaNucleoId}}\n}" },
             "url": { "raw": "{{baseUrl}}/cobertura", "host": ["{{baseUrl}}"], "path": ["cobertura"] }
           }
         },
@@ -596,12 +596,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/cobertura?buscar=Colonia de prueba {{sufijo}}",
+              "raw": "{{baseUrl}}/cobertura?search=Colonia de prueba {{suffix}}",
               "host": ["{{baseUrl}}"],
               "path": ["cobertura"],
-              "query": [{ "key": "buscar", "value": "Colonia de prueba {{sufijo}}" }]
+              "query": [{ "key": "search", "value": "Colonia de prueba {{suffix}}" }]
             },
-            "description": "`buscar` encuentra por inicio del CP, colonia o alcaldía. También acepta `zonaId`."
+            "description": "`search` encuentra por inicio del CP, colonia o alcaldía. También acepta `zonaId`."
           }
         },
         {
@@ -612,7 +612,7 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/cobertura/{{coberturaId}}", "host": ["{{baseUrl}}"], "path": ["cobertura", "{{coberturaId}}"] }
+            "url": { "raw": "{{baseUrl}}/cobertura/{{coverageId}}", "host": ["{{baseUrl}}"], "path": ["cobertura", "{{coverageId}}"] }
           }
         },
         {
@@ -624,7 +624,7 @@
             "method": "DELETE",
             "header": [],
             "url": { "raw": "{{baseUrl}}/zonas/{{zonaExtId}}", "host": ["{{baseUrl}}"], "path": ["zonas", "{{zonaExtId}}"] },
-            "description": "Baja lógica: queda con activo = false."
+            "description": "Baja lógica: queda con active = false."
           }
         }
       ]
@@ -642,9 +642,9 @@
                 "exec": [
                   "pm.test('201 creado', () => pm.response.to.have.status(201));",
                   "const u = pm.response.json();",
-                  "pm.collectionVariables.set('usuarioId', u.id);",
+                  "pm.collectionVariables.set('userId', u.id);",
                   "pm.collectionVariables.set('operadorId', u.operadorId);",
-                  "pm.test('debe cambiar su contraseña', () => pm.expect(u.debeCambiarContrasena).to.be.true);",
+                  "pm.test('debe cambiar su contraseña', () => pm.expect(u.mustChangePassword).to.be.true);",
                   "pm.test('quedó ligado a un operador', () => pm.expect(u.operadorId).to.be.a('number'));"
                 ]
               }
@@ -653,9 +653,9 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"nombreCompleto\": \"Chofer de prueba {{sufijo}}\",\n  \"usuario\": \"prueba.{{sufijo}}\",\n  \"correo\": null,\n  \"telefono\": \"5512345678\",\n  \"rol\": \"Chofer\",\n  \"contrasenaInicial\": \"Temporal-{{sufijo}}\",\n  \"operadorId\": null,\n  \"crearOperador\": true,\n  \"rutaHabitualId\": {{rutaId}}\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Chofer de prueba {{suffix}}\",\n  \"userName\": \"prueba.{{suffix}}\",\n  \"email\": null,\n  \"phone\": \"5512345678\",\n  \"role\": \"Chofer\",\n  \"initialPassword\": \"Temporal-{{suffix}}\",\n  \"operadorId\": null,\n  \"createOperador\": true,\n  \"usualRutaId\": {{rutaId}}\n}" },
             "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] },
-            "description": "Rol Administracion o Chofer. Un Chofer se liga a un operador existente (operadorId) o crea uno nuevo (crearOperador), no ambos."
+            "description": "Rol Administracion o Chofer. Un Chofer se liga a un operador existente (operadorId) o crea uno nuevo (createOperador), no ambos."
           }
         },
         {
@@ -667,10 +667,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/usuarios?rol=Chofer",
+              "raw": "{{baseUrl}}/usuarios?role=Chofer",
               "host": ["{{baseUrl}}"],
               "path": ["usuarios"],
-              "query": [{ "key": "rol", "value": "Chofer" }]
+              "query": [{ "key": "role", "value": "Chofer" }]
             }
           }
         },
@@ -683,7 +683,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('200', () => pm.response.to.have.status(200));",
-                  "pm.test('inactivo', () => pm.expect(pm.response.json().activo).to.be.false);"
+                  "pm.test('inactivo', () => pm.expect(pm.response.json().active).to.be.false);"
                 ]
               }
             }
@@ -691,8 +691,8 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"nombreCompleto\": \"Chofer de prueba {{sufijo}}\",\n  \"correo\": null,\n  \"telefono\": \"5512345678\",\n  \"rol\": \"Chofer\",\n  \"activo\": false,\n  \"operadorId\": {{operadorId}}\n}" },
-            "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{usuarioId}}"] }
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Chofer de prueba {{suffix}}\",\n  \"email\": null,\n  \"phone\": \"5512345678\",\n  \"role\": \"Chofer\",\n  \"active\": false,\n  \"operadorId\": {{operadorId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/usuarios/{{userId}}", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{userId}}"] }
           }
         },
         {
@@ -703,8 +703,8 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"contrasenaTemporal\": \"Otra-temporal-{{sufijo}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}/restablecer", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{usuarioId}}", "restablecer"] },
+            "body": { "mode": "raw", "raw": "{\n  \"temporaryPassword\": \"Otra-temporal-{{suffix}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/usuarios/{{userId}}/restablecer", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{userId}}", "restablecer"] },
             "description": "Asigna una contraseña temporal; el usuario debe cambiarla al entrar."
           }
         },
@@ -717,10 +717,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/operadores?incluirInactivos=true",
+              "raw": "{{baseUrl}}/operadores?includeInactive=true",
               "host": ["{{baseUrl}}"],
               "path": ["operadores"],
-              "query": [{ "key": "incluirInactivos", "value": "true" }]
+              "query": [{ "key": "includeInactive", "value": "true" }]
             }
           }
         }
@@ -750,7 +750,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"tokenRenovacion\": \"{{tokenRenovacion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/auth/cerrar", "host": ["{{baseUrl}}"], "path": ["auth", "cerrar"] }
           }
         },
@@ -763,7 +763,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"tokenRenovacion\": \"{{tokenRenovacion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/auth/renovar", "host": ["{{baseUrl}}"], "path": ["auth", "renovar"] }
           }
         }

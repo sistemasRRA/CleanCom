@@ -1,6 +1,6 @@
-using CleanCom.Api.Infraestructura;
-using CleanCom.Aplicacion.Catalogos;
-using CleanCom.Dominio.Acceso;
+using CleanCom.Api.Common;
+using CleanCom.Application.Catalogs;
+using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -8,32 +8,32 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("lugares")]
 [Tags("Catálogos")]
-public class LugaresController(ServicioCatalogos servicio) : ControllerBase
+public class LugaresController(CatalogService service) : ControllerBase
 {
     [HttpGet]
-    public Task<IReadOnlyList<LugarDto>> Listar([FromQuery] bool? incluirInactivos, CancellationToken ct) =>
-        servicio.ListarLugaresAsync(incluirInactivos ?? false, ct);
+    public Task<IReadOnlyList<LugarDto>> List([FromQuery] bool? includeInactive, CancellationToken ct) =>
+        service.ListLugaresAsync(includeInactive ?? false, ct);
 
     [HttpPost]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
     [ProducesResponseType<LugarDto>(StatusCodes.Status201Created)]
-    public async Task<IActionResult> Crear(GuardarLugarRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(SaveLugarRequest request, CancellationToken ct)
     {
-        var lugar = await servicio.CrearLugarAsync(request, ct);
+        var lugar = await service.CreateLugarAsync(request, ct);
         return Created($"/lugares/{lugar.Id}", lugar);
     }
 
     [HttpPut("{id:int}")]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
-    public Task<LugarDto> Actualizar(int id, GuardarLugarRequest request, CancellationToken ct) =>
-        servicio.ActualizarLugarAsync(id, request, ct);
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
+    public Task<LugarDto> Update(int id, SaveLugarRequest request, CancellationToken ct) =>
+        service.UpdateLugarAsync(id, request, ct);
 
     [HttpDelete("{id:int}")]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Desactivar(int id, CancellationToken ct)
+    public async Task<IActionResult> Deactivate(int id, CancellationToken ct)
     {
-        await servicio.DesactivarLugarAsync(id, ct);
+        await service.DeactivateLugarAsync(id, ct);
         return NoContent();
     }
 }

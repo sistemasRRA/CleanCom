@@ -11,12 +11,12 @@
 
 **Preguntar qué base de datos usa la app actual** (está en Vercel; probablemente PostgreSQL o Supabase, no SQL Server). Eso define cómo se extraen los datos.
 
-Los archivos de origen se guardan en `database/importacion/fuentes/`, carpeta excluida de Git porque contiene datos personales.
+Los archivos de origen se guardan en `database/import/fuentes/`, carpeta excluida de Git porque contiene datos personales.
 
 ## Proceso
 
 1. **Extraer** cada fuente a tablas de preparación (`stg_*`) en SQL Server, sin transformar.
-2. **Transformar y validar** con un importador en .NET (`database/importacion`) que se puede correr varias veces sin duplicar:
+2. **Transformar y validar** con un importador en .NET (`database/import`) que se puede correr varias veces sin duplicar:
    - Teléfonos normalizados a 10 dígitos; detectar invitados duplicados por teléfono.
    - Direcciones geocodificadas con Google; las que no se puedan ubicar van a una lista de pendientes.
    - Zona asignada por coordenadas; comparar contra la zona por CP y reportar diferencias.

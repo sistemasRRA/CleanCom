@@ -1,6 +1,6 @@
-using CleanCom.Api.Infraestructura;
-using CleanCom.Aplicacion.Catalogos;
-using CleanCom.Dominio.Acceso;
+using CleanCom.Api.Common;
+using CleanCom.Application.Catalogs;
+using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -8,23 +8,23 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("lineas-servicio")]
 [Tags("Catálogos")]
-public class LineasServicioController(ServicioCatalogos servicio) : ControllerBase
+public class LineasServicioController(CatalogService service) : ControllerBase
 {
     [HttpGet]
-    public Task<IReadOnlyList<LineaServicioDto>> Listar(CancellationToken ct) =>
-        servicio.ListarLineasServicioAsync(ct);
+    public Task<IReadOnlyList<LineaServicioDto>> List(CancellationToken ct) =>
+        service.ListLineasServicioAsync(ct);
 
     [HttpPost]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
     [ProducesResponseType<LineaServicioDto>(StatusCodes.Status201Created)]
-    public async Task<IActionResult> Crear(GuardarLineaServicioRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(SaveLineaServicioRequest request, CancellationToken ct)
     {
-        var linea = await servicio.GuardarLineaServicioAsync(null, request, ct);
+        var linea = await service.SaveLineaServicioAsync(null, request, ct);
         return Created($"/lineas-servicio/{linea.Id}", linea);
     }
 
     [HttpPut("{id:int}")]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
-    public Task<LineaServicioDto> Actualizar(int id, GuardarLineaServicioRequest request, CancellationToken ct) =>
-        servicio.GuardarLineaServicioAsync(id, request, ct);
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
+    public Task<LineaServicioDto> Update(int id, SaveLineaServicioRequest request, CancellationToken ct) =>
+        service.SaveLineaServicioAsync(id, request, ct);
 }

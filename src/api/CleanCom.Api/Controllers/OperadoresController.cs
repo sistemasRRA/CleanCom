@@ -1,6 +1,6 @@
-using CleanCom.Api.Infraestructura;
-using CleanCom.Aplicacion.Acceso;
-using CleanCom.Dominio.Acceso;
+using CleanCom.Api.Common;
+using CleanCom.Application.Access;
+using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -8,24 +8,24 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("operadores")]
 [Tags("Usuarios")]
-public class OperadoresController(ServicioOperadores servicio) : ControllerBase
+public class OperadoresController(OperadorService service) : ControllerBase
 {
     [HttpGet]
-    [RequierePantalla(Pantallas.Usuarios, NivelAcceso.Ver)]
-    public Task<IReadOnlyList<OperadorDto>> Listar([FromQuery] bool? incluirInactivos, CancellationToken ct) =>
-        servicio.ListarAsync(incluirInactivos ?? false, ct);
+    [RequireScreen(Screens.Usuarios, AccessLevel.View)]
+    public Task<IReadOnlyList<OperadorDto>> List([FromQuery] bool? includeInactive, CancellationToken ct) =>
+        service.ListAsync(includeInactive ?? false, ct);
 
     [HttpPost]
-    [RequierePantalla(Pantallas.Usuarios, NivelAcceso.Editar)]
+    [RequireScreen(Screens.Usuarios, AccessLevel.Edit)]
     [ProducesResponseType<OperadorDto>(StatusCodes.Status201Created)]
-    public async Task<IActionResult> Crear(GuardarOperadorRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(SaveOperadorRequest request, CancellationToken ct)
     {
-        var operador = await servicio.GuardarAsync(null, request, ct);
+        var operador = await service.SaveAsync(null, request, ct);
         return Created($"/operadores/{operador.Id}", operador);
     }
 
     [HttpPut("{id:int}")]
-    [RequierePantalla(Pantallas.Usuarios, NivelAcceso.Editar)]
-    public Task<OperadorDto> Actualizar(int id, GuardarOperadorRequest request, CancellationToken ct) =>
-        servicio.GuardarAsync(id, request, ct);
+    [RequireScreen(Screens.Usuarios, AccessLevel.Edit)]
+    public Task<OperadorDto> Update(int id, SaveOperadorRequest request, CancellationToken ct) =>
+        service.SaveAsync(id, request, ct);
 }

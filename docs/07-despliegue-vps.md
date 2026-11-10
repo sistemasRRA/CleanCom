@@ -30,6 +30,8 @@ El API, la web, los procesos programados y la base de datos se alojan en el VPS 
 - `oficina.<dominio>`: web de oficina.
 - `s.<dominio>`: ligas cortas de seguimiento para invitados sin app.
 
+La web se compila con `VITE_API_URL=https://api.<dominio>` y el API debe aceptar su origen en `Cors__Origins__0=https://oficina.<dominio>`. El proxy sirve `index.html` para cualquier ruta de `oficina.<dominio>`.
+
 ## Respaldos
 
 - Base de datos: respaldo completo diario y de registro de transacciones cada hora, copiados fuera del VPS.

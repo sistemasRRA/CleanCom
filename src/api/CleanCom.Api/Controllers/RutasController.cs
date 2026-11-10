@@ -1,31 +1,31 @@
-using CleanCom.Api.Infraestructura;
-using CleanCom.Aplicacion.Catalogos;
-using CleanCom.Dominio.Acceso;
+using CleanCom.Api.Common;
+using CleanCom.Application.Catalogs;
+using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
 
-/// <summary>Catálogos de Operación: leer pide sesión; cambiar pide editar Operación.</summary>
+/// <summary>Operación catalogs: reading requires a session; changing requires editing Operación.</summary>
 [ApiController]
 [Route("rutas")]
 [Tags("Catálogos")]
-public class RutasController(ServicioCatalogos servicio) : ControllerBase
+public class RutasController(CatalogService service) : ControllerBase
 {
     [HttpGet]
-    public Task<IReadOnlyList<RutaDto>> Listar(CancellationToken ct) =>
-        servicio.ListarRutasAsync(ct);
+    public Task<IReadOnlyList<RutaDto>> List(CancellationToken ct) =>
+        service.ListRutasAsync(ct);
 
     [HttpPost]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
     [ProducesResponseType<RutaDto>(StatusCodes.Status201Created)]
-    public async Task<IActionResult> Crear(GuardarRutaRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(SaveRutaRequest request, CancellationToken ct)
     {
-        var ruta = await servicio.CrearRutaAsync(request, ct);
+        var ruta = await service.CreateRutaAsync(request, ct);
         return Created($"/rutas/{ruta.Id}", ruta);
     }
 
     [HttpPut("{id:int}")]
-    [RequierePantalla(Pantallas.Operacion, NivelAcceso.Editar)]
-    public Task<RutaDto> Actualizar(int id, GuardarRutaRequest request, CancellationToken ct) =>
-        servicio.ActualizarRutaAsync(id, request, ct);
+    [RequireScreen(Screens.Operacion, AccessLevel.Edit)]
+    public Task<RutaDto> Update(int id, SaveRutaRequest request, CancellationToken ct) =>
+        service.UpdateRutaAsync(id, request, ct);
 }

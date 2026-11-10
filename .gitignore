@@ -25,7 +25,7 @@ google-services.json
 GoogleService-Info.plist
 
 # Datos de migración (contienen datos personales de invitados)
-database/importacion/fuentes/
+database/import/fuentes/
 
 # Sistema
 .DS_Store

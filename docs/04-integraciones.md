@@ -1,6 +1,6 @@
 # Integraciones
 
-Cada integración vive en `CleanCom.Infraestructura` detrás de una interfaz, para poder cambiar de proveedor y para simularla en pruebas. Las llaves van en variables de entorno.
+Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, para poder cambiar de proveedor y para simularla en pruebas. Las llaves van en variables de entorno.
 
 ## Google Maps Platform
 

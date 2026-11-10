@@ -32,8 +32,8 @@ Dos caminos, siempre ligados a la ficha del CRM:
 ## Endpoints
 
 - `POST /auth/login`, `POST /auth/renovar`, `POST /auth/cerrar`, `POST /auth/cambiar-contrasena`, `GET /auth/yo`.
-- `GET /usuarios?rol=`, `POST /usuarios`, `PUT /usuarios/{id}`, `POST /usuarios/{id}/restablecer` (contraseña temporal que se cambia al entrar).
-- `GET /operadores?incluirInactivos=`, `POST /operadores`, `PUT /operadores/{id}`.
+- `GET /usuarios?role=`, `POST /usuarios`, `PUT /usuarios/{id}`, `POST /usuarios/{id}/restablecer` (contraseña temporal que se cambia al entrar).
+- `GET /operadores?includeInactive=`, `POST /operadores`, `PUT /operadores/{id}`.
 - `GET /invitados/cuentas?estado=` (pendiente, semana 5).
 
 ## Implementado (semana 1)

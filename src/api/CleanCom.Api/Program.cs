@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using CleanCom.Api.Infraestructura;
-using CleanCom.Aplicacion;
-using CleanCom.Infraestructura;
+using CleanCom.Api.Common;
+using CleanCom.Application;
+using CleanCom.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Serilog;
@@ -12,48 +12,63 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddSerilog((servicios, log) => log
+    builder.Services.AddSerilog((services, log) => log
         .ReadFrom.Configuration(builder.Configuration)
-        .ReadFrom.Services(servicios)
+        .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
-    builder.Services.AddAplicacion();
-    builder.Services.AddInfraestructura(builder.Configuration);
-    builder.Services.AddSeguridad();
-
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddSecurity();
     builder.Services.AddProblemDetails();
-    builder.Services.AddExceptionHandler<ManejadorErrores>();
+    builder.Services.AddExceptionHandler<ErrorHandler>();
 
     builder.Services
         .AddControllers(o =>
-            // Las validaciones las hace FluentValidation con mensajes en español; sin esto MVC
-            // marcaría como requeridos los string no anulables con mensajes en inglés.
+            // Validation is done by FluentValidation with Spanish messages; without this MVC would
+            // mark non-nullable strings as required with English messages.
             o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
-        .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+        .AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            // Numbers as numbers: the client generated from OpenAPI types them as number, not number | string.
+            o.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        })
         .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = _ =>
-            // Solo llega aquí un cuerpo vacío o con JSON mal formado.
+            // Only an empty body or malformed JSON gets here.
             new BadRequestObjectResult(new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Petición no válida.",
                 Detail = "Revisa el formato de los datos enviados.",
             }));
-    builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-    builder.Services.AddOpenApi(o => o.AddDocumentTransformer((documento, _, _) =>
+    builder.Services.ConfigureHttpJsonOptions(o =>
     {
-        documento.Info.Title = "CleanCom API";
-        documento.Components ??= new OpenApiComponents();
-        documento.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-        documento.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    });
+
+    // The office web lives on another subdomain (oficina.<dominio>); in development it goes through the Vite proxy.
+    var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
+    builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
+        .WithOrigins(origins)
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
+
+    builder.Services.AddOpenApi(o => o.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "CleanCom API";
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
             Scheme = "bearer",
             BearerFormat = "JWT",
             Description = "Token de acceso de POST /auth/login.",
         };
-        // Swagger UI manda el token en todas las peticiones después de pulsar "Authorize".
-        documento.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", documento)] = [] }];
+        // Swagger UI sends the token on every request after pressing "Authorize".
+        document.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
         return Task.CompletedTask;
     }));
 
@@ -74,23 +89,23 @@ try
         });
     }
 
+    app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
 
-    await app.Services.SembrarAdministradorAsync(app.Configuration);
-
+    await app.Services.SeedAdministratorAsync(app.Configuration);
     await app.RunAsync();
 }
 catch (Exception ex) when (ex is not HostAbortedException)
 {
-    Log.Fatal(ex, "El API se detuvo por un error al iniciar");
+    Log.Fatal(ex, "The API stopped because of a startup error");
 }
 finally
 {
     await Log.CloseAndFlushAsync();
 }
 
-/// <summary>Punto de entrada; público para pruebas de integración.</summary>
+/// <summary>Entry point; public for integration tests.</summary>
 public partial class Program;

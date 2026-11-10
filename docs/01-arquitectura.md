@@ -41,7 +41,7 @@ Un solo backend en C# atiende a las tres aplicaciones. Toda regla de negocio viv
 ## Decisiones
 
 - **SQL Server, no BigQuery, para la operación.** BigQuery es un almacén analítico: lento y caro para lecturas y escrituras pequeñas y sin transacciones. En fase 2 se copia la información a BigQuery cada noche para reportes.
-- **Monolito modular.** Un solo API desplegable, con proyectos separados por capa (`Dominio`, `Aplicacion`, `Infraestructura`, `Api`, `Trabajos`). A este volumen no se justifican microservicios.
+- **Monolito modular.** Un solo API desplegable, con proyectos separados por capa (`Domain`, `Application`, `Infrastructure`, `Api`, `Jobs`). A este volumen no se justifican microservicios.
 - **Transacción para el cupo.** Reservar un lugar en una ruta se hace dentro de una transacción con bloqueo por (ruta, fecha) para que dos personas no tomen el último lugar a la vez.
 - **Offline en el chofer.** La app guarda en SQLite local cada acción (cambio de estado, foto, firma, kilometraje) en una cola con identificador único; el API acepta reenvíos sin duplicar (idempotencia por `IdLocal`).
 - **Tiempo real con SignalR.** Grupos por rol y por ruta. La ubicación del chofer se envía cada 30 a 60 segundos durante el turno y se guarda la última posición más un historial reducido.

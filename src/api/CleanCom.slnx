@@ -1,9 +1,9 @@
 <Solution>
-  <Project Path="../../database/migraciones/CleanCom.Migraciones.csproj" />
+  <Project Path="../../database/migrations/CleanCom.Migrations.csproj" />
   <Project Path="CleanCom.Api/CleanCom.Api.csproj" />
-  <Project Path="CleanCom.Aplicacion/CleanCom.Aplicacion.csproj" />
-  <Project Path="CleanCom.Dominio/CleanCom.Dominio.csproj" />
-  <Project Path="CleanCom.Infraestructura/CleanCom.Infraestructura.csproj" />
-  <Project Path="CleanCom.Pruebas/CleanCom.Pruebas.csproj" />
-  <Project Path="CleanCom.Trabajos/CleanCom.Trabajos.csproj" />
+  <Project Path="CleanCom.Application/CleanCom.Application.csproj" />
+  <Project Path="CleanCom.Domain/CleanCom.Domain.csproj" />
+  <Project Path="CleanCom.Infrastructure/CleanCom.Infrastructure.csproj" />
+  <Project Path="CleanCom.Jobs/CleanCom.Jobs.csproj" />
+  <Project Path="CleanCom.Tests/CleanCom.Tests.csproj" />
 </Solution>
