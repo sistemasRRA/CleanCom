@@ -16,6 +16,7 @@ import { Rutas, Zonas } from './pages/operations/RutasZonas';
 import { CoveragePage, Lugares, NonWorkingDays, OtherCatalogs } from './pages/operations/Catalogs';
 import { Operadores, UserList, Users } from './pages/users/Users';
 import { RolesPermissions } from './pages/users/Roles';
+import { Agendar } from './pages/agenda/Agendar';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -63,6 +64,8 @@ function App() {
         )}
 
         {can('roles-y-permisos') && <Route path="roles-y-permisos" element={<RolesPermissions />} />}
+
+        {can('agendar') && <Route path="agendar" element={<Agendar />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

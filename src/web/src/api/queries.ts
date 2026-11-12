@@ -13,6 +13,7 @@ export const keys = {
   reasons: ['reasons'] as const,
   paradaTypes: ['parada-types'] as const,
   lineasServicio: ['lineas-servicio'] as const,
+  pedidos: ['pedidos'] as const,
   users: ['users'] as const,
   operadores: ['operadores'] as const,
   roles: ['roles'] as const,

@@ -4,6 +4,92 @@
  */
 
 export interface paths {
+    "/agenda/disponibilidad": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AvailabilityRequest"];
+                    "text/json": components["schemas"]["AvailabilityRequest"];
+                    "application/*+json": components["schemas"]["AvailabilityRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvailabilityDto"];
+                        "application/json": components["schemas"]["AvailabilityDto"];
+                        "text/json": components["schemas"]["AvailabilityDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agenda/agendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ScheduleRequest"];
+                    "text/json": components["schemas"]["ScheduleRequest"];
+                    "application/*+json": components["schemas"]["ScheduleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ScheduleResultDto"];
+                        "application/json": components["schemas"]["ScheduleResultDto"];
+                        "text/json": components["schemas"]["ScheduleResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -321,6 +407,286 @@ export interface paths {
                 header?: never;
                 path: {
                     id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/buscar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"][];
+                        "application/json": components["schemas"]["InvitadoDto"][];
+                        "text/json": components["schemas"]["InvitadoDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveInvitadoRequest"];
+                    "text/json": components["schemas"]["SaveInvitadoRequest"];
+                    "application/*+json": components["schemas"]["SaveInvitadoRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveInvitadoRequest"];
+                    "text/json": components["schemas"]["SaveInvitadoRequest"];
+                    "application/*+json": components["schemas"]["SaveInvitadoRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/direcciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveDireccionRequest"];
+                    "text/json": components["schemas"]["SaveDireccionRequest"];
+                    "application/*+json": components["schemas"]["SaveDireccionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/direcciones/{direccionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    direccionId: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveDireccionRequest"];
+                    "text/json": components["schemas"]["SaveDireccionRequest"];
+                    "application/*+json": components["schemas"]["SaveDireccionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    direccionId: number;
                 };
                 cookie?: never;
             };
@@ -925,6 +1291,82 @@ export interface paths {
         };
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    invitadoId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoDto"][];
+                        "application/json": components["schemas"]["PedidoDto"][];
+                        "text/json": components["schemas"]["PedidoDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1857,6 +2299,51 @@ export interface components {
     schemas: {
         /** @enum {unknown} */
         AccessLevel: "View" | "Edit";
+        AgendaDayDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            /** Format: int32 */
+            occupied: number;
+            /** Format: int32 */
+            cupo: number;
+            available: boolean;
+        };
+        AvailabilityDto: {
+            /** Format: int32 */
+            zonaId: null | number;
+            zonaCode: null | string;
+            /** Format: int32 */
+            rutaId: null | number;
+            rutaCode: null | string;
+            zonaSource: components["schemas"]["ZonaSource"];
+            outOfCoverage: boolean;
+            /** Format: date */
+            minimumDate: null | string;
+            /** Format: date */
+            date: null | string;
+            /** Format: int32 */
+            place: null | number;
+            /** Format: int32 */
+            cupo: null | number;
+            days: components["schemas"]["AgendaDayDto"][];
+            explanation: string[];
+        };
+        AvailabilityRequest: {
+            /** Format: int32 */
+            direccionId: null | number;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            postalCode: null | string;
+            neighborhood: null | string;
+            /** Format: int32 */
+            zonaId: null | number;
+            turno?: components["schemas"]["Turno"];
+            /** Format: date-time */
+            registeredAt?: null | string;
+        };
         ChangePasswordRequest: {
             currentPassword: string;
             newPassword: string;
@@ -1893,6 +2380,43 @@ export interface components {
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+        DireccionDto: {
+            /** Format: int32 */
+            id: number;
+            label: null | string;
+            street: string;
+            exteriorNumber: null | string;
+            interiorNumber: null | string;
+            postalCode: string;
+            neighborhood: null | string;
+            borough: null | string;
+            references: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: int32 */
+            zonaId: null | number;
+            zonaCode: null | string;
+            zonaAssignedManually: boolean;
+            active: boolean;
+        };
+        InvitadoDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            whatsAppPhone: string;
+            otherPhone: null | string;
+            email: null | string;
+            type: components["schemas"]["InvitadoType"];
+            howFoundUs: null | string;
+            campaign: null | string;
+            notes: null | string;
+            active: boolean;
+            direcciones: components["schemas"]["DireccionDto"][];
+        };
+        /** @enum {unknown} */
+        InvitadoType: "ClienteFinal" | "Empresa" | "TiendaInterna";
         LineaServicioDto: {
             /** Format: int32 */
             id: number;
@@ -1945,6 +2469,37 @@ export interface components {
             requiredFields: null | string;
             active: boolean;
         };
+        PedidoDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: int32 */
+            invitadoId: number;
+            invitadoName: string;
+            whatsAppPhone: string;
+            /** Format: int32 */
+            direccionId: number;
+            address: string;
+            zonaCode: null | string;
+            rutaCode: null | string;
+            etapa: components["schemas"]["PedidoEtapa"];
+            turno: components["schemas"]["Turno"];
+            /** Format: time */
+            specificTime: null | string;
+            priority: boolean;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            driverNotes: null | string;
+            /** Format: date-time */
+            registeredAt: string;
+            origin: components["schemas"]["PedidoOrigin"];
+            /** Format: date */
+            recoleccionDate: string;
+            lineasServicio: string[];
+        };
+        /** @enum {unknown} */
+        PedidoEtapa: "Agendado" | "Recolectado" | "EnPlanta" | "Listo" | "EntregaConfirmada" | "EnCamino" | "Entregado" | "Cancelado";
+        /** @enum {unknown} */
+        PedidoOrigin: "Oficina" | "App";
         ReasonDto: {
             /** Format: int32 */
             id: number;
@@ -2002,6 +2557,33 @@ export interface components {
             borough: string;
             /** Format: int32 */
             zonaId: number;
+        };
+        SaveDireccionRequest: {
+            label: null | string;
+            street: string;
+            exteriorNumber: null | string;
+            interiorNumber: null | string;
+            postalCode: string;
+            neighborhood: null | string;
+            borough: null | string;
+            references: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: int32 */
+            zonaId: null | number;
+        };
+        SaveInvitadoRequest: {
+            name: string;
+            whatsAppPhone: string;
+            otherPhone: null | string;
+            email: null | string;
+            type: components["schemas"]["InvitadoType"];
+            howFoundUs: null | string;
+            campaign: null | string;
+            notes: null | string;
+            direccion?: null | components["schemas"]["SaveDireccionRequest"];
         };
         SaveLineaServicioRequest: {
             name: string;
@@ -2083,6 +2665,37 @@ export interface components {
             /** Format: date-time */
             effectiveFrom: string;
         };
+        ScheduleRequest: {
+            /** Format: int32 */
+            invitadoId: number;
+            /** Format: int32 */
+            direccionId: number;
+            turno: components["schemas"]["Turno"];
+            /** Format: time */
+            specificTime: null | string;
+            priority: boolean;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            driverNotes: null | string;
+            lineaServicioIds: null | number[];
+            /** Format: date-time */
+            registeredAt: null | string;
+            /** Format: date */
+            date: null | string;
+        };
+        ScheduleResultDto: {
+            scheduled: boolean;
+            /** Format: int32 */
+            pedidoId: null | number;
+            /** Format: int32 */
+            paradaId: null | number;
+            /** Format: date */
+            date: null | string;
+            /** Format: int32 */
+            place: null | number;
+            message: string;
+            availability: components["schemas"]["AvailabilityDto"];
+        };
         ScreenDto: {
             key: string;
             name: string;
@@ -2132,6 +2745,11 @@ export interface components {
         };
         /** @enum {unknown} */
         SettingValueType: "Text" | "Integer" | "Decimal" | "Boolean" | "Time" | "TimeRange" | "Coordinate";
+        /**
+         * @default CualquierHora
+         * @enum {unknown}
+         */
+        Turno: "CualquierHora" | "Manana" | "Tarde" | "HoraEspecifica";
         UpdateUserRequest: {
             fullName: string;
             email: null | string;
@@ -2182,6 +2800,8 @@ export interface components {
             effectiveVisitDays: components["schemas"]["DayOfWeek"][];
             polygon: null | components["schemas"]["Vertex"][];
         };
+        /** @enum {unknown} */
+        ZonaSource: "Poligono" | "CodigoPostal" | "Manual" | "FueraDeCobertura";
     };
     responses: never;
     parameters: never;

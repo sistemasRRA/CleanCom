@@ -383,3 +383,24 @@ dialog::backdrop { background: rgb(15 23 42 / 45%); }
   .roles { grid-template-columns: 1fr; }
   .roles__preview { grid-column: auto; }
 }
+
+/* ---- Agendar ---- */
+.agendar { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: start; }
+.agendar__panel { position: sticky; top: 16px; }
+.agendar__date { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--brand-soft); }
+.agendar__date strong { font-size: 18px; color: var(--brand); text-transform: capitalize; }
+.agendar__steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 13.5px; }
+.day-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.day-chip { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 6px 10px; min-width: 84px; font-size: 12.5px; }
+.day-chip span { color: var(--text-muted); }
+.day-chip.selected { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+.pick-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pick-list button { width: 100%; display: flex; justify-content: space-between; gap: 12px; text-align: left; flex-wrap: wrap; }
+.address-option { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.address-option.selected { border-color: var(--brand); background: var(--brand-soft); }
+.address-option label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; flex: 1; min-width: 200px; }
+.address-option select { width: auto; }
+@media (max-width: 1000px) {
+  .agendar { grid-template-columns: 1fr; }
+  .agendar__panel { position: static; }
+}
