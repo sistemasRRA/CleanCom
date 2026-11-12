@@ -1,6 +1,6 @@
 # Modelo de datos
 
-Entidades principales y sus campos clave. Es un punto de partida en español: en el código los campos van en inglés con los términos de dominio en español (`Ruta.Code`, `Ruta.CupoParadas`), y en SQL Server en `snake_case` (`rutas.cupo_paradas`). Ver la sección Nombres de `CLAUDE.md`. Todas las tablas llevan `id`, `created_at`, `created_by`, `modified_at`, `modified_by` y, donde aplique, `active` (baja lógica). La auditoría la llena el API al guardar, en UTC. Los enums se guardan como texto.
+Entidades principales y sus campos clave. Es un punto de partida en español: en el código los campos van en inglés con los términos de dominio en español (`Ruta.Code`, `Ruta.CupoParadas`), y en SQL Server en `snake_case` (`rutas.cupo_paradas`). Ver la sección Nombres de `CLAUDE.md`. Todas las tablas llevan `id`, `created_at`, `created_by`, `modified_at`, `modified_by` y, donde aplique, `active`. Nada se borra de la base: eliminar es siempre baja lógica (`active = false`), también en pedidos, paradas, días inhábiles y cobertura. La auditoría la llena el API al guardar, en UTC. Los enums se guardan como texto.
 
 ## Catálogos y configuración
 

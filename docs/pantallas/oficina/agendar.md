@@ -27,6 +27,15 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 - `POST /invitados` (con su primera dirección), `PUT /invitados/{id}`, `POST /invitados/{id}/direcciones`, `PUT /invitados/{id}/direcciones/{direccionId}`. Al guardar una dirección se le asigna su zona (polígono, código postal o la elegida a mano). Un WhatsApp repetido responde 409 con el nombre del invitado que ya lo tiene.
 - `POST /agenda/disponibilidad` → zona y cómo se encontró, ruta, fecha mínima, fecha, lugar, otros días con ocupación y explicación. Acepta una dirección guardada o la que se está capturando (coordenadas o CP), y una zona elegida a mano.
 - `POST /agenda/agendar` → pedido creado en Agendado con su parada de recolección, o `scheduled: false` con la siguiente fecha si el día se llenó mientras se capturaba. Con `date` se agenda en otro día de la lista.
+- `GET /pedidos` → recolecciones agendadas de hoy en adelante (tabla al pie de la pantalla).
+- `DELETE /pedidos/{id}` y `DELETE /invitados/{id}` → **solo SuperUser y Administración**, fijo en el código (Roles y permisos no lo puede dar a otro rol). Son baja lógica: nada se borra; el pedido y su parada quedan inactivos y su lugar en la agenda se libera. Dar de baja a un invitado da de baja también sus direcciones y pedidos.
+
+## Pantalla (semana 2)
+
+- Buscar invitado o capturarlo con su primera dirección. Mientras no estén las llaves de Google, la ubicación se pega como "latitud, longitud" desde Google Maps; sin ella la zona sale del código postal.
+- Elegir la dirección; si está fuera de cobertura, elegir la zona a mano ahí mismo.
+- Panel "Así se agenda" con la fecha, el lugar, la explicación y los otros días de la zona para cambiar con un clic.
+- Botón "Agendar el …" y tabla "Recolecciones agendadas". Los botones Eliminar solo aparecen a SuperUser y Administración.
 
 ## Criterios de aceptación
 

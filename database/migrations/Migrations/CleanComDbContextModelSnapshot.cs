@@ -613,6 +613,12 @@ namespace CleanCom.Migrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -644,7 +650,8 @@ namespace CleanCom.Migrations.Migrations
 
                     b.HasIndex("Date")
                         .IsUnique()
-                        .HasDatabaseName("ix_non_working_days_date");
+                        .HasDatabaseName("ix_non_working_days_date")
+                        .HasFilter("[active] = 1");
 
                     b.ToTable("non_working_days", (string)null);
                 });
@@ -731,6 +738,12 @@ namespace CleanCom.Migrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
                     b.Property<string>("Borough")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -778,7 +791,8 @@ namespace CleanCom.Migrations.Migrations
 
                     b.HasIndex("PostalCode", "Neighborhood")
                         .IsUnique()
-                        .HasDatabaseName("ix_postal_code_coverage_postal_code_neighborhood");
+                        .HasDatabaseName("ix_postal_code_coverage_postal_code_neighborhood")
+                        .HasFilter("[active] = 1");
 
                     b.ToTable("postal_code_coverage", (string)null);
                 });
@@ -1347,6 +1361,12 @@ namespace CleanCom.Migrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -1642,7 +1662,8 @@ namespace CleanCom.Migrations.Migrations
 
                     b.HasIndex("WhatsAppPhone")
                         .IsUnique()
-                        .HasDatabaseName("ix_invitados_whats_app_phone");
+                        .HasDatabaseName("ix_invitados_whats_app_phone")
+                        .HasFilter("[active] = 1");
 
                     b.ToTable("invitados", (string)null);
                 });
@@ -1717,6 +1738,12 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")

@@ -1,5 +1,6 @@
 using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
+using CleanCom.Application.Pedidos;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.People;
@@ -15,6 +16,7 @@ namespace CleanCom.Application.Invitados;
 public class InvitadoService(
     ICleanComDbContext db,
     ZonaLocator locator,
+    PedidoService pedidos,
     IValidator<SaveInvitadoRequest> invitadoValidator,
     IValidator<SaveDireccionRequest> direccionValidator)
 {
@@ -61,7 +63,7 @@ public class InvitadoService(
     public async Task<InvitadoDto> UpdateAsync(int id, SaveInvitadoRequest r, CancellationToken ct)
     {
         await invitadoValidator.ValidateAndThrowAsync(r, ct);
-        var invitado = await db.Invitados.FindAsync([id], ct) ?? throw new NotFoundException($"El invitado {id} no existe.");
+        var invitado = await db.Invitados.FirstOrDefaultAsync(i => i.Id == id && i.Active, ct) ?? throw new NotFoundException($"El invitado {id} no existe.");
         await ApplyAsync(invitado, r, ct);
         await db.SaveChangesAsync(ct);
         return await GetAsync(id, ct);
@@ -70,7 +72,7 @@ public class InvitadoService(
     public async Task<InvitadoDto> AddDireccionAsync(int invitadoId, SaveDireccionRequest r, CancellationToken ct)
     {
         await direccionValidator.ValidateAndThrowAsync(r, ct);
-        if (!await db.Invitados.AnyAsync(i => i.Id == invitadoId, ct))
+        if (!await db.Invitados.AnyAsync(i => i.Id == invitadoId && i.Active, ct))
         {
             throw new NotFoundException($"El invitado {invitadoId} no existe.");
         }
@@ -99,11 +101,32 @@ public class InvitadoService(
         await db.SaveChangesAsync(ct);
     }
 
+    /// <summary>
+    /// Baja lógica of the invitado with their addresses and every pedido (with its paradas, which free their cupo).
+    /// Nothing is deleted from the database. Administrators only (checked by the endpoint).
+    /// </summary>
+    public async Task DeactivateAsync(int id, CancellationToken ct)
+    {
+        var invitado = await db.Invitados.Include(i => i.Direcciones).FirstOrDefaultAsync(i => i.Id == id && i.Active, ct)
+            ?? throw new NotFoundException($"El invitado {id} no existe o ya fue eliminado.");
+        if (invitado.UserId is not null)
+        {
+            throw new DomainException($"{invitado.Name} tiene cuenta en la app; bloquea su cuenta antes de eliminarlo.");
+        }
+
+        var pedidoIds = await db.Pedidos.Where(p => p.InvitadoId == id && p.Active).Select(p => p.Id).ToListAsync(ct);
+        await pedidos.MarkInactiveAsync(pedidoIds, ct);
+        invitado.Direcciones.ForEach(d => d.Active = false);
+        invitado.Active = false;
+        await db.SaveChangesAsync(ct);
+    }
+
     private async Task ApplyAsync(Invitado invitado, SaveInvitadoRequest r, CancellationToken ct)
     {
         var phone = Phones.Normalize(r.WhatsAppPhone);
+        // Only active invitados: a WhatsApp given de baja can be captured again.
         var duplicate = await db.Invitados.AsNoTracking()
-            .Where(i => i.WhatsAppPhone == phone && i.Id != invitado.Id)
+            .Where(i => i.WhatsAppPhone == phone && i.Id != invitado.Id && i.Active)
             .Select(i => i.Name)
             .FirstOrDefaultAsync(ct);
         if (duplicate is not null)

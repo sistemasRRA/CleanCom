@@ -1,6 +1,7 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Invitados;
 using CleanCom.Domain.Access;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -37,6 +38,18 @@ public class InvitadosController(InvitadoService service) : ControllerBase
     [RequireScreen(Screens.Agendar, AccessLevel.Edit)]
     public Task<InvitadoDto> Update(int id, SaveInvitadoRequest request, CancellationToken ct) =>
         service.UpdateAsync(id, request, ct);
+
+    /// <summary>
+    /// Baja lógica of the invitado with their addresses and pedidos. SuperUser and Administración only.
+    /// </summary>
+    [HttpDelete("{id:int}")]
+    [Authorize(Policies.Administrators)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        await service.DeactivateAsync(id, ct);
+        return NoContent();
+    }
 
     [HttpPost("{id:int}/direcciones")]
     [RequireScreen(Screens.Agendar, AccessLevel.Edit)]

@@ -49,7 +49,7 @@ public class ZonaLocator(ICleanComDbContext db)
         if (!string.IsNullOrEmpty(cp))
         {
             var rows = await db.Coverage.AsNoTracking()
-                .Where(c => c.PostalCode == cp && c.Zona!.Active && c.Zona.Polygon == null)
+                .Where(c => c.Active && c.PostalCode == cp && c.Zona!.Active && c.Zona.Polygon == null)
                 .Select(c => new { c.ZonaId, c.Neighborhood })
                 .ToListAsync(ct);
             var zonaIds = rows.Select(r => r.ZonaId).Distinct().ToList();

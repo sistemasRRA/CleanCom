@@ -6,7 +6,7 @@ namespace CleanCom.Domain.Catalogs;
 /// <summary>
 /// Postal code and neighborhood served by a zona. Starting point to draw the zona polygons.
 /// </summary>
-public class PostalCodeCoverage : Entity
+public class PostalCodeCoverage : Entity, IActivatable
 {
     public string PostalCode { get; set; } = "";
     /// <summary>Colonia.</summary>
@@ -15,6 +15,7 @@ public class PostalCodeCoverage : Entity
     public string Borough { get; set; } = "";
     public int ZonaId { get; set; }
     public Zona? Zona { get; set; }
+    public bool Active { get; set; } = true;
 }
 
 public enum LugarType
@@ -61,12 +62,13 @@ public class LineaServicio : Entity, IActivatable
 }
 
 /// <summary>
-/// Day off; scheduling skips it.
+/// Day off; scheduling skips it. Removing one is a baja lógica.
 /// </summary>
-public class NonWorkingDay : Entity
+public class NonWorkingDay : Entity, IActivatable
 {
     public DateOnly Date { get; set; }
     public string Reason { get; set; } = "";
+    public bool Active { get; set; } = true;
 }
 
 public enum ReasonType

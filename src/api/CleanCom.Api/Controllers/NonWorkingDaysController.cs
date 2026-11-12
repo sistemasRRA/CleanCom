@@ -33,7 +33,7 @@ public class NonWorkingDaysController(CatalogService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        await service.DeleteNonWorkingDayAsync(id, ct);
+        await service.DeactivateNonWorkingDayAsync(id, ct);
         return NoContent();
     }
 }

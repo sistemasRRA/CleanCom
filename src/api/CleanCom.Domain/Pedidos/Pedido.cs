@@ -33,10 +33,11 @@ public enum PedidoOrigin
 }
 
 /// <summary>
-/// A service from recolección to entrega.
+/// A service from recolección to entrega. Never deleted: removing it is a baja lógica.
 /// </summary>
-public class Pedido : Entity
+public class Pedido : Entity, IActivatable
 {
+    public bool Active { get; set; } = true;
     public int InvitadoId { get; set; }
     public Invitado? Invitado { get; set; }
     public int DireccionId { get; set; }

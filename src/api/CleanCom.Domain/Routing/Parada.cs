@@ -35,8 +35,10 @@ public enum ParadaState
 /// A stop of a <see cref="RutaDia"/>. Position, estimated time and the chofer's visit data arrive with routing
 /// and the chofer app.
 /// </summary>
-public class Parada : Entity
+public class Parada : Entity, IActivatable
 {
+    /// <summary>An inactive parada (its pedido was removed) does not take cupo.</summary>
+    public bool Active { get; set; } = true;
     public int RutaDiaId { get; set; }
     public RutaDia? RutaDia { get; set; }
     public ParadaKind Kind { get; set; }

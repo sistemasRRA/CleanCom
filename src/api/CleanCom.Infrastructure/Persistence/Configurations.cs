@@ -86,7 +86,9 @@ internal class PostalCodeCoverageConfig : IEntityTypeConfiguration<PostalCodeCov
         e.Property(x => x.PostalCode).HasMaxLength(5).IsFixedLength();
         e.Property(x => x.Neighborhood).HasMaxLength(150);
         e.Property(x => x.Borough).HasMaxLength(100);
-        e.HasIndex(x => new { x.PostalCode, x.Neighborhood }).IsUnique();
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // Unique among active rows: a colonia given de baja can be added again.
+        e.HasIndex(x => new { x.PostalCode, x.Neighborhood }).IsUnique().HasFilter("[active] = 1");
         e.HasOne(x => x.Zona).WithMany().HasForeignKey(x => x.ZonaId).OnDelete(DeleteBehavior.Restrict);
     }
 }
@@ -154,7 +156,9 @@ internal class NonWorkingDayConfig : IEntityTypeConfiguration<NonWorkingDay>
     {
         e.ToTable("NonWorkingDays");
         e.Property(x => x.Reason).HasMaxLength(200);
-        e.HasIndex(x => x.Date).IsUnique();
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // Unique among active rows: a day given de baja can be marked again.
+        e.HasIndex(x => x.Date).IsUnique().HasFilter("[active] = 1");
     }
 }
 
@@ -240,8 +244,9 @@ internal class InvitadoConfig : IEntityTypeConfiguration<Invitado>
         e.Property(x => x.HowFoundUs).HasMaxLength(100);
         e.Property(x => x.Campaign).HasMaxLength(100);
         e.Property(x => x.Notes).HasMaxLength(1000);
-        // One ficha per WhatsApp: the app signs in with it and the office searches by it.
-        e.HasIndex(x => x.WhatsAppPhone).IsUnique();
+        // One active ficha per WhatsApp: the app signs in with it and the office searches by it.
+        // Invitados given de baja keep their number, and it can be captured again.
+        e.HasIndex(x => x.WhatsAppPhone).IsUnique().HasFilter("[active] = 1");
         e.HasIndex(x => x.Name);
         e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => x.UserId).IsUnique().HasFilter("[user_id] IS NOT NULL");
@@ -272,6 +277,8 @@ internal class PedidoConfig : IEntityTypeConfiguration<Pedido>
     public void Configure(EntityTypeBuilder<Pedido> e)
     {
         e.ToTable("Pedidos");
+        // Rows created before baja lógica existed start active.
+        e.Property(x => x.Active).HasDefaultValue(true);
         e.Property(x => x.DriverNotes).HasMaxLength(500);
         e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
@@ -308,6 +315,8 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
     public void Configure(EntityTypeBuilder<Parada> e)
     {
         e.ToTable("Paradas");
+        // Rows created before baja lógica existed start active.
+        e.Property(x => x.Active).HasDefaultValue(true);
         e.Property(x => x.Notes).HasMaxLength(500);
         e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);

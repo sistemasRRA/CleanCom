@@ -47,7 +47,7 @@ public class AgendaService(
             throw new DomainException("La hora específica y la prioridad solo las puede asignar oficina.");
         }
         var direccion = await db.Direcciones.AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == r.DireccionId && d.InvitadoId == r.InvitadoId && d.Active, ct)
+            .FirstOrDefaultAsync(d => d.Id == r.DireccionId && d.InvitadoId == r.InvitadoId && d.Active && d.Invitado!.Active, ct)
             ?? throw new NotFoundException("La dirección no existe o no es de este invitado.");
         await EnsureLineasServicioAsync(r.LineaServicioIds, ct);
 
@@ -164,7 +164,7 @@ public class AgendaService(
         var until = minimum.AddDays(SearchDays);
 
         var nonWorking = await db.NonWorkingDays.AsNoTracking()
-            .Where(d => d.Date >= minimum && d.Date <= until)
+            .Where(d => d.Active && d.Date >= minimum && d.Date <= until)
             .Select(d => d.Date)
             .ToListAsync(ct);
         var occupancy = await OccupancyQuery(zona.RutaId, minimum, until)
@@ -191,10 +191,11 @@ public class AgendaService(
             explanation);
     }
 
-    /// <summary>Paradas of the ruta that take cupo in the range, fixed paradas included.</summary>
+    /// <summary>Active paradas of the ruta that take cupo in the range, fixed paradas included.</summary>
     private IQueryable<Parada> OccupancyQuery(int rutaId, DateOnly from, DateOnly to) =>
         db.Paradas.AsNoTracking().Where(p =>
-            p.RutaDia!.RutaId == rutaId
+            p.Active
+            && p.RutaDia!.RutaId == rutaId
             && p.RutaDia.Date >= from && p.RutaDia.Date <= to
             && !Parada.KindsWithoutCupo.Contains(p.Kind));
 
@@ -212,7 +213,7 @@ public class AgendaService(
         {
             throw new DomainException($"El {AgendaCalculator.Format(date)} no es día de visita de la zona {zona.Code}.");
         }
-        if (await db.NonWorkingDays.AnyAsync(d => d.Date == date, ct))
+        if (await db.NonWorkingDays.AnyAsync(d => d.Active && d.Date == date, ct))
         {
             throw new DomainException($"El {AgendaCalculator.Format(date)} es día inhábil.");
         }
