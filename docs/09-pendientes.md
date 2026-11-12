@@ -22,6 +22,11 @@
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
+- [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
+- [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
+- [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
+- [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
+
 ## Reglas propuestas que conviene validar
 
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:

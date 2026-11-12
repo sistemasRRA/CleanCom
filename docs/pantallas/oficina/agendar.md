@@ -23,9 +23,10 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 
 ## Endpoints
 
-- `GET /invitados/buscar?q=`.
-- `POST /agenda/disponibilidad` → zona, ruta, fecha, lugar, otros días, explicación.
-- `POST /agenda/agendar` → pedido creado o siguiente fecha si ya no hay cupo.
+- `GET /invitados/buscar?q=` (nombre o teléfono en cualquier formato), `GET /invitados/{id}`.
+- `POST /invitados` (con su primera dirección), `PUT /invitados/{id}`, `POST /invitados/{id}/direcciones`, `PUT /invitados/{id}/direcciones/{direccionId}`. Al guardar una dirección se le asigna su zona (polígono, código postal o la elegida a mano). Un WhatsApp repetido responde 409 con el nombre del invitado que ya lo tiene.
+- `POST /agenda/disponibilidad` → zona y cómo se encontró, ruta, fecha mínima, fecha, lugar, otros días con ocupación y explicación. Acepta una dirección guardada o la que se está capturando (coordenadas o CP), y una zona elegida a mano.
+- `POST /agenda/agendar` → pedido creado en Agendado con su parada de recolección, o `scheduled: false` con la siguiente fecha si el día se llenó mientras se capturaba. Con `date` se agenda en otro día de la lista.
 
 ## Criterios de aceptación
 

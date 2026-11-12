@@ -245,5 +245,9 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Usuarios | `GET/POST /operadores` (`?includeInactive=`), `PUT /operadores/{id}` | Usuarios |
 | Configuración | `GET/PUT /configuracion`, `GET /configuracion/historial` (`?key=`) | Operación |
 | Catálogos | `/rutas`, `/zonas` (y `PUT /zonas/{id}/dias`), `/lugares`, `/tipos-parada`, `/lineas-servicio`, `/motivos` (`?type=`), `/dias-inhabiles` (`?from=&to=`), `/cobertura` (`?search=&zonaId=`) | Leer: sesión. Cambiar: Operación Edit |
+| Agenda | `POST /agenda/disponibilidad`, `POST /agenda/agendar` | Agendar: View para consultar, Edit para agendar |
+| Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{direccionId}` | Agendar: View para leer, Edit para cambiar |
+
+El motor de agenda está en `CleanCom.Domain/Agenda` (cortes y búsqueda de fecha, sin base de datos) y `CleanCom.Application/Agenda` (`AgendaService`, `ZonaLocator`). `agendar` repite el cálculo dentro de una transacción con `sp_getapplock` por ruta y fecha (`AgendaLock`), así dos personas no toman el último lugar del mismo día.
 
 El detalle de cada endpoint (campos, respuestas y errores) está en Swagger.

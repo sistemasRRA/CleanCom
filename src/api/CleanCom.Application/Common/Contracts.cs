@@ -1,7 +1,9 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Operations;
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanCom.Application.Common;
@@ -23,6 +25,11 @@ public interface ICleanComDbContext
     DbSet<Reason> Reasons { get; }
     DbSet<Operador> Operadores { get; }
     DbSet<RolePermission> RolePermissions { get; }
+    DbSet<Invitado> Invitados { get; }
+    DbSet<Direccion> Direcciones { get; }
+    DbSet<Pedido> Pedidos { get; }
+    DbSet<RutaDia> RutaDias { get; }
+    DbSet<Parada> Paradas { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
