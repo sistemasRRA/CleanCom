@@ -1,0 +1,20 @@
+{
+  "name": "cleancom-mobile",
+  "private": true,
+  "description": "CleanCom mobile apps (Expo): chofer, invitado and the shared package.",
+  "workspaces": ["shared", "chofer", "invitado"],
+  "packageManager": "npm@11.19.1",
+  "engines": {
+    "node": ">=24",
+    "npm": "11.19.1"
+  },
+  "scripts": {
+    "chofer": "npm run start --workspace chofer",
+    "invitado": "npm run start --workspace invitado",
+    "api:types": "openapi-typescript http://localhost:5111/openapi/v1.json -o shared/src/api/schema.d.ts",
+    "typecheck": "tsc --noEmit -p shared && tsc --noEmit -p chofer && tsc --noEmit -p invitado"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0"
+  }
+}

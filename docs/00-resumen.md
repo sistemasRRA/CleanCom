@@ -5,7 +5,7 @@ CleanCom se reconstruye en **12 semanas**: 8 de desarrollo y 4 de pruebas, pilot
 ## Tres lados, un backend
 
 - **Oficina (web):** logística, agenda, rutas, pedidos, CRM, planta, gerencia y administración.
-- **Chofer (app en tableta):** ruta del día, visitas, evidencias, kilometraje; funciona sin señal.
+- **Chofer (app en tableta o celular):** ruta del día, visitas, evidencias, kilometraje; funciona sin señal.
 - **Invitado (app):** autoservicio tipo Uber/DiDi para pedir recolecciones, seguir al chofer en el mapa, ver sus pedidos y beneficios.
 
 Todo se apoya en un API en C# (.NET 10) con SQL Server, alojado en el VPS que CleanCom ya tiene. BigQuery queda para reportes en fase 2.

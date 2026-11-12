@@ -42,6 +42,11 @@ La web se compila con `VITE_API_URL=https://api.<dominio>` y el API debe aceptar
 
 GitHub Actions: al hacer merge a `main` se compila, se corren pruebas, se aplican migraciones y se publica en el VPS por SSH. Las apps móviles se compilan con EAS Build de Expo.
 
+Estado:
+
+- **Hecho:** `.github/workflows/ci.yml` corre en cada push a `main`, `feat/**` y `fix/**` y en cada PR a `main`. Compila el API y corre sus pruebas, compila la web y revisa los tipos de las dos apps.
+- **Pendiente:** el workflow de publicación (migraciones y despliegue por SSH) espera los datos del VPS (ver `09-pendientes.md`).
+
 ## Monitoreo
 
 - Verificación de disponibilidad externa (por ejemplo UptimeRobot) del API y la web.

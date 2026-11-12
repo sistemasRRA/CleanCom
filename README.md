@@ -5,7 +5,7 @@ Sistema de logística, rutas y seguimiento de pedidos de CleanCom, tintorería a
 | Aplicación | Quién la usa | Tecnología | Carpeta |
 | --- | --- | --- | --- |
 | Web de oficina | Administración (logística, planta, gerencia) | React + Vite + TypeScript | `src/web` |
-| App del chofer | Choferes, en tableta | React Native (Expo) | `src/mobile/chofer` |
+| App del chofer | Choferes, en tableta o celular | React Native (Expo) | `src/mobile/chofer` |
 | App del invitado | Clientes finales y contactos de convenios | React Native (Expo) | `src/mobile/invitado` |
 | API | Las tres anteriores | ASP.NET Core (.NET 10 LTS) + SQL Server | `src/api` |
 
@@ -49,4 +49,4 @@ Sistema de logística, rutas y seguimiento de pedidos de CleanCom, tintorería a
 3. Cada pantalla tiene su ficha en [`docs/pantallas/`](docs/pantallas/), con lo que se conserva del sistema actual y lo que mejora.
 4. El orden de construcción está en [`docs/05-plan-de-trabajo.md`](docs/05-plan-de-trabajo.md).
 
-El API ya tiene su base (semana 1): ver [`src/api/README.md`](src/api/README.md) para instalarlo y [`docs/10-guia-del-api.md`](docs/10-guia-del-api.md) para entender cómo está organizado y cómo agregar endpoints. La web de oficina ya tiene inicio de sesión, menú por permisos, Operación y Usuarios: ver [`src/web/README.md`](src/web/README.md). Las apps todavía no tienen código.
+El API ya tiene su base (semana 1): ver [`src/api/README.md`](src/api/README.md) para instalarlo y [`docs/10-guia-del-api.md`](docs/10-guia-del-api.md) para entender cómo está organizado y cómo agregar endpoints. La web de oficina ya tiene inicio de sesión, menú por permisos, Operación y Usuarios: ver [`src/web/README.md`](src/web/README.md). Las apps del chofer y del invitado ya tienen su estructura e inicio de sesión: ver [`src/mobile/README.md`](src/mobile/README.md) para probarlas en un celular.

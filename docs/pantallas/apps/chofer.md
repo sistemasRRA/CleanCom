@@ -1,6 +1,20 @@
 # App del chofer
 
-**Plataforma:** Expo (React Native), diseñada primero para **tableta** (lista y mapa lado a lado) y usable en teléfono. Android y iOS desde el mismo código. **Rol:** Chofer.
+**Plataforma:** Expo (React Native), **responsiva**: tableta y celular, Android y iOS desde el mismo código. **Rol:** Chofer.
+
+## Diseño responsivo
+
+Cada pantalla se decide con `useLayout()` de `src/mobile/shared` (`isTablet`, `landscape`, `gutter`), nunca con medidas fijas.
+
+| Elemento | Tableta horizontal | Celular o vertical |
+| --- | --- | --- |
+| Ruta del día | Lista (40 %) y mapa lado a lado | Pestañas Lista / Mapa, o mapa con la lista en un panel deslizable |
+| Detalle de la parada | Junto a la lista | Pantalla propia |
+| Firma del invitado | En la misma pantalla | Pantalla completa en horizontal |
+| Barra superior | Logo completo | Logo corto |
+
+- Botones con la medida mínima `touch`, sin tablas anchas.
+- Cada pantalla se revisa en un celular chico (iPhone SE o equivalente) y en una tableta.
 
 ## Flujo del turno
 

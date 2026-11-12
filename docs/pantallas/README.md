@@ -27,7 +27,7 @@ Una ficha por pantalla. Cada ficha dice qué hace, lo que **se conserva** del si
 
 | App | Ficha |
 | --- | --- |
-| Chofer (tableta) | [apps/chofer.md](apps/chofer.md) |
+| Chofer (tableta o celular) | [apps/chofer.md](apps/chofer.md) |
 | Invitado (autoservicio) | [apps/invitado.md](apps/invitado.md) |
 
 ## Lineamientos de interfaz
