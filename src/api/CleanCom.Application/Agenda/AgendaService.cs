@@ -63,7 +63,7 @@ public class AgendaService(
             ?? throw new DomainException($"No hay días con cupo en los siguientes {SearchDays} días para la zona {availability.ZonaCode}.");
         if (r.Date is not null)
         {
-            EnsureDayCanBeChosen(r.Date.Value, availability);
+            await EnsureDayCanBeChosenAsync(r.Date.Value, location.Zona!, availability, ct);
         }
 
         var rutaId = availability.RutaId!.Value;
@@ -76,7 +76,7 @@ public class AgendaService(
         {
             var next = await CalculateAsync(location, registeredAt, ct);
             return new ScheduleResultDto(false, null, null, null, null,
-                $"El {AgendaCalculator.Format(date)} se llenó mientras agendabas. Siguiente fecha disponible: "
+                $"El {AgendaCalculator.Format(date)} ya no tiene cupo ({occupied} de {cupo}). Siguiente fecha disponible: "
                 + (next.Date is null ? "ninguna en los próximos días." : $"{AgendaCalculator.Format(next.Date.Value)}, lugar {next.Place} de {next.Cupo}."),
                 next);
         }
@@ -198,17 +198,23 @@ public class AgendaService(
             && p.RutaDia.Date >= from && p.RutaDia.Date <= to
             && !Parada.KindsWithoutCupo.Contains(p.Kind));
 
-    /// <summary>A day picked from the list must still follow the rules: from the minimum date, a visit day, not a day off.</summary>
-    private static void EnsureDayCanBeChosen(DateOnly date, AvailabilityDto availability)
+    /// <summary>
+    /// A chosen day must still follow the rules: from the minimum date, a visit day of the zona, not a day off.
+    /// A full day is not an error here: the check inside the lock answers with the next available date.
+    /// </summary>
+    private async Task EnsureDayCanBeChosenAsync(DateOnly date, Zona zona, AvailabilityDto availability, CancellationToken ct)
     {
         if (availability.MinimumDate is { } minimum && date < minimum)
         {
             throw new DomainException($"El {AgendaCalculator.Format(date)} ya no se puede: la fecha mínima es el {AgendaCalculator.Format(minimum)}.");
         }
-        var day = availability.Days.FirstOrDefault(d => d.Date == date);
-        if (day is null)
+        if (!zona.EffectiveVisitDays().Contains(date.DayOfWeek))
         {
-            throw new DomainException($"El {AgendaCalculator.Format(date)} no es un día de visita disponible de la zona {availability.ZonaCode}.");
+            throw new DomainException($"El {AgendaCalculator.Format(date)} no es día de visita de la zona {zona.Code}.");
+        }
+        if (await db.NonWorkingDays.AnyAsync(d => d.Date == date, ct))
+        {
+            throw new DomainException($"El {AgendaCalculator.Format(date)} es día inhábil.");
         }
     }
 
