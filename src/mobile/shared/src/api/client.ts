@@ -96,16 +96,26 @@ const auth: Middleware = {
     pendingCopies.set(id, request.clone());
     return request;
   },
-  async onResponse({ response, id }) {
+  async onResponse({ request, response, id }) {
     const copy = pendingCopies.get(id);
     pendingCopies.delete(id);
-    const isAuthCall = new URL(response.url || 'http://x/').pathname.includes('/auth/');
-    if (response.status !== 401 || !copy || isAuthCall || !currentSession) return response;
+    // Plain string check: React Native's URL class does not implement `pathname`.
+    const isAuthCall = /\/auth\//.test(request.url);
+    // Returning nothing keeps the response as is. Returning `response` itself fails in Expo:
+    // openapi-fetch checks `instanceof Response` and Expo's fetch response is a different class.
+    if (response.status !== 401 || !copy || isAuthCall || !currentSession) return undefined;
 
     const next = await refreshSession();
-    if (!next) return response;
+    if (!next) return undefined;
     copy.headers.set('Authorization', `Bearer ${next.accessToken}`);
-    return fetch(copy);
+    const retry = await fetch(copy);
+    // Rebuilt with the global Response so openapi-fetch accepts it.
+    const noBody = retry.status === 204 || retry.status === 205 || retry.status === 304;
+    return new Response(noBody ? null : await retry.text(), {
+      status: retry.status,
+      statusText: retry.statusText,
+      headers: retry.headers,
+    });
   },
   onError({ id }) {
     pendingCopies.delete(id);
@@ -151,8 +161,10 @@ export async function unwrap<T>(promise: Promise<{ data?: T; error?: unknown; re
   let result;
   try {
     result = await promise;
-  } catch {
-    throw new ApiError(0, `No hay conexión con el API (${apiUrl()}). Revisa tu señal o que el servidor esté encendido.`);
+  } catch (e) {
+    // Shown in the Metro console so a client bug is not mistaken for a network failure.
+    if (__DEV__) console.warn('[api] request failed before a response was read:', e);
+    throw new ApiError(0,`No hay conexión con el API (${apiUrl()}). Revisa tu señal o que el servidor esté encendido.`);
   }
   const { data, error, response } = result;
   if (!response.ok) throw toError(error, response);
