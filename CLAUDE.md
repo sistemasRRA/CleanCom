@@ -25,7 +25,7 @@ Monorepo del sistema de CleanCom (tintorería a domicilio en CDMX): un API en C#
 | --- | --- |
 | `src/api` | ASP.NET Core Web API .NET 10, EF Core, SQL Server (Express en el VPS, tipos `geography`), Hangfire, SignalR, ASP.NET Identity + JWT, FluentValidation, Serilog |
 | `src/web` | React 19 + Vite + TypeScript, TanStack Query, React Router, Google Maps JS API, cliente SignalR |
-| `src/mobile/chofer` | Expo (React Native) + TypeScript, diseño para tableta, SQLite local (offline), expo-location en segundo plano, expo-camera, Expo Notifications |
+| `src/mobile/chofer` | Expo (React Native) + TypeScript, responsiva (tableta y celular), SQLite local (offline), expo-location en segundo plano, expo-camera, Expo Notifications |
 | `src/mobile/invitado` | Expo (React Native) + TypeScript, mapa con seguimiento del chofer, Expo Notifications |
 | `src/mobile/shared` | Cliente del API tipado, componentes y utilidades comunes |
 

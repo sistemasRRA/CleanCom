@@ -33,7 +33,7 @@ Un solo backend en C# atiende a las tres aplicaciones. Toda regla de negocio viv
 | Archivos | Disco del VPS con respaldo externo diario | Fotos, firmas y documentos de unidades |
 | Acceso | ASP.NET Identity con JWT y roles | Administración, Chofer e Invitado |
 | Web de oficina | React + Vite + TypeScript | Logística, planta, gerencia y administración |
-| App del chofer | React Native (Expo), diseño para tableta | Ruta, visitas, evidencias, kilometraje; offline |
+| App del chofer | React Native (Expo), responsiva para tableta y celular | Ruta, visitas, evidencias, kilometraje; offline |
 | App del invitado | React Native (Expo) | Registro, pedir servicio, seguimiento, beneficios |
 | Hosting | VPS propio con proxy inverso y SSL | API y web |
 | Reportes (fase 2) | BigQuery | Cruce con HubSpot, pauta y nómina |

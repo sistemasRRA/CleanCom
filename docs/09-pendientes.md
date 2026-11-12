@@ -12,6 +12,8 @@
 - [ ] Destinatarios de cada aviso de flota.
 - [ ] Textos iniciales del catálogo de motivos (no entrega, atraso en planta, resultado de contacto). El catálogo existe pero arranca vacío.
 - [ ] Permisos iniciales de Administración (todo menos Roles y permisos), Gerencia (ver todo menos Usuarios y Operación), Logística (rutas, paradas, pedidos, panel y unidades), Telemarketing (agendar, CRM, WhatsApp) y Planta (tickets en planta y ver pedidos). Son una propuesta; se ajustan en Usuarios › Roles y permisos.
+- [ ] Equipo de los choferes: tableta de la empresa, celular (propio o de la empresa) o ambos; Android, iPhone o ambos. La app es responsiva, pero cambia cómo se distribuye.
+- [ ] Distribución de la app del chofer (no se publica en búsquedas de las tiendas). Propuesta: Android con APK interno o prueba interna de Google Play; iOS con Ad Hoc mientras sean menos de 100 equipos y después como app no listada en el App Store. Cambios de JavaScript con EAS Update.
 - [ ] Capacidad de prendas por ruta: Operación la pide "por ruta", pero las reglas la marcan como general (`Unidad.CapacidadPrendas`) y la unidad ya tiene la suya. Por ahora no se sobrescribe por ruta.
 
 ## Decisiones de implementación por revisar
