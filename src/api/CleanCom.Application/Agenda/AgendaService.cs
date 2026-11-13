@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Application.Pedidos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
@@ -23,6 +24,7 @@ public class AgendaService(
     IBusinessClock clock,
     ZonaLocator locator,
     IAgendaLock agendaLock,
+    PedidoService pedidos,
     IValidator<AvailabilityRequest> availabilityValidator,
     IValidator<ScheduleRequest> scheduleValidator)
 {
@@ -37,6 +39,51 @@ public class AgendaService(
         await availabilityValidator.ValidateAndThrowAsync(r, ct);
         var location = await LocateAsync(r, ct);
         return await CalculateAsync(location, r.RegisteredAt ?? clock.UtcNow, ct);
+    }
+
+    /// <summary>
+    /// The office agenda from <paramref name="from"/> for <paramref name="days"/> days (1 to 31): occupancy of each active
+    /// ruta per day against its cupo, days off, and the scheduled pedidos. Without a date, the current week from Monday.
+    /// </summary>
+    public async Task<AgendaBoardDto> BoardAsync(DateOnly? from, int? days, CancellationToken ct)
+    {
+        var today = clock.Today;
+        var start = from ?? today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        var count = Math.Clamp(days ?? 7, 1, 31);
+        var end = start.AddDays(count - 1);
+
+        var rutas = await db.Rutas.AsNoTracking().Where(r => r.Active).OrderBy(r => r.Code)
+            .Select(r => new BoardRutaDto(r.Id, r.Code, r.Name, r.Color)).ToListAsync(ct);
+        var cupos = new Dictionary<int, int>();
+        foreach (var ruta in rutas)
+        {
+            cupos[ruta.Id] = await settings.GetIntegerAsync(SettingKeys.RutaCupoParadas, ct, ruta.Id);
+        }
+
+        var occupancy = await db.Paradas.AsNoTracking()
+            .Where(p => p.Active && p.RutaDia!.Date >= start && p.RutaDia.Date <= end && !Parada.KindsWithoutCupo.Contains(p.Kind))
+            .GroupBy(p => new { p.RutaDia!.RutaId, p.RutaDia.Date })
+            .Select(g => new { g.Key.RutaId, g.Key.Date, Count = g.Count() })
+            .ToListAsync(ct);
+        var nonWorking = await db.NonWorkingDays.AsNoTracking()
+            .Where(d => d.Active && d.Date >= start && d.Date <= end)
+            .ToDictionaryAsync(d => d.Date, d => d.Reason, ct);
+
+        var boardDays = Enumerable.Range(0, count).Select(i =>
+        {
+            var date = start.AddDays(i);
+            return new BoardDayDto(
+                date,
+                AgendaCalculator.Format(date),
+                nonWorking.GetValueOrDefault(date),
+                rutas.Select(r => new BoardRutaDayDto(
+                    r.Id,
+                    occupancy.FirstOrDefault(o => o.RutaId == r.Id && o.Date == date)?.Count ?? 0,
+                    cupos[r.Id])).ToList());
+        }).ToList();
+
+        var pedidoList = await pedidos.ListAsync(start, end, null, ct);
+        return new AgendaBoardDto(start, end, today, rutas, boardDays, pedidoList);
     }
 
     public async Task<ScheduleResultDto> ScheduleAsync(ScheduleRequest r, PedidoOrigin origin, CancellationToken ct)

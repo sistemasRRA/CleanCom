@@ -9,7 +9,8 @@ namespace CleanCom.Application.Pedidos;
 /// </summary>
 public class PedidoService(ICleanComDbContext db, IBusinessClock clock)
 {
-    private const int ListLimit = 300;
+    // A month of the agenda board fits: 14 cupo x rutas x working days.
+    private const int ListLimit = 1000;
 
     /// <summary>
     /// Pedidos by recolección date. Without filters, from today on; with an invitado, all of theirs.

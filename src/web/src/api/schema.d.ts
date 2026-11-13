@@ -4,6 +4,46 @@
  */
 
 export interface paths {
+    "/agenda/tablero": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AgendaBoardDto"];
+                        "application/json": components["schemas"]["AgendaBoardDto"];
+                        "text/json": components["schemas"]["AgendaBoardDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/agenda/disponibilidad": {
         parameters: {
             query?: never;
@@ -2457,6 +2497,17 @@ export interface components {
     schemas: {
         /** @enum {unknown} */
         AccessLevel: "View" | "Edit";
+        AgendaBoardDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date */
+            today: string;
+            rutas: components["schemas"]["BoardRutaDto"][];
+            days: components["schemas"]["BoardDayDto"][];
+            pedidos: components["schemas"]["PedidoDto"][];
+        };
         AgendaDayDto: {
             /** Format: date */
             date: string;
@@ -2501,6 +2552,28 @@ export interface components {
             turno?: components["schemas"]["Turno"];
             /** Format: date-time */
             registeredAt?: null | string;
+        };
+        BoardDayDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            nonWorking: null | string;
+            rutas: components["schemas"]["BoardRutaDayDto"][];
+        };
+        BoardRutaDayDto: {
+            /** Format: int32 */
+            rutaId: number;
+            /** Format: int32 */
+            occupied: number;
+            /** Format: int32 */
+            cupo: number;
+        };
+        BoardRutaDto: {
+            /** Format: int32 */
+            id: number;
+            code: string;
+            name: string;
+            color: string;
         };
         ChangePasswordRequest: {
             currentPassword: string;
@@ -2940,10 +3013,7 @@ export interface components {
         };
         /** @enum {unknown} */
         SettingValueType: "Text" | "Integer" | "Decimal" | "Boolean" | "Time" | "TimeRange" | "Coordinate";
-        /**
-         * @default CualquierHora
-         * @enum {unknown}
-         */
+        /** @enum {unknown} */
         Turno: "CualquierHora" | "Manana" | "Tarde" | "HoraEspecifica";
         UpdateUserRequest: {
             fullName: string;

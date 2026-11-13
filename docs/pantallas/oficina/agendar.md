@@ -27,7 +27,8 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 - `POST /invitados` (con su primera dirección), `PUT /invitados/{id}`, `POST /invitados/{id}/direcciones`, `PUT /invitados/{id}/direcciones/{direccionId}`. Al guardar una dirección se le asigna su zona (polígono, código postal o la elegida a mano). Un WhatsApp repetido responde 409 con el nombre del invitado que ya lo tiene.
 - `POST /agenda/disponibilidad` → zona y cómo se encontró, ruta, fecha mínima, fecha, lugar, otros días con ocupación y explicación. Acepta una dirección guardada o la que se está capturando (coordenadas o CP), y una zona elegida a mano.
 - `POST /agenda/agendar` → pedido creado en Agendado con su parada de recolección, o `scheduled: false` con la siguiente fecha si el día se llenó mientras se capturaba. Con `date` se agenda en otro día de la lista.
-- `GET /pedidos` → recolecciones agendadas de hoy en adelante (tabla al pie de la pantalla).
+- `GET /agenda/tablero?from=&days=` → agenda al pie de la pantalla: por día y ruta, ocupación contra el cupo (calculada en el API), días inhábiles y recolecciones. Sin fecha, la semana actual; de 1 a 31 días.
+- `GET /pedidos` → recolecciones de hoy en adelante o de un invitado (para confirmar cuántas se van al eliminarlo).
 - `DELETE /pedidos/{id}` y `DELETE /invitados/{id}` → **solo SuperUser y Administración**, fijo en el código (Roles y permisos no lo puede dar a otro rol). Son baja lógica: nada se borra; el pedido y su parada quedan inactivos y su lugar en la agenda se libera. Dar de baja a un invitado da de baja también sus direcciones y pedidos.
 
 ## Pantalla (semana 2)
@@ -35,7 +36,8 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 - Buscar invitado o capturarlo con su primera dirección. Mientras no estén las llaves de Google, la ubicación se pega como "latitud, longitud" desde Google Maps; sin ella la zona sale del código postal.
 - Elegir la dirección; si está fuera de cobertura, elegir la zona a mano ahí mismo.
 - Panel "Así se agenda" con la fecha, el lugar, la explicación y los otros días de la zona para cambiar con un clic.
-- Botón "Agendar el …" y tabla "Recolecciones agendadas". Los botones Eliminar solo aparecen a SuperUser y Administración.
+- Botón "Agendar el …".
+- Agenda con ‹ Hoy ›, selector de fecha y vista **Semana** (7 días con la ocupación de cada ruta, por ejemplo "K 14/14 lleno", y sus tarjetas) o **Día** (una columna por ruta y filas por turno: mañana, tarde, hora específica y cualquier hora). Las tarjetas llevan el color de la ruta; al abrirlas se ve el detalle y, solo para SuperUser y Administración, Eliminar. Cuando existan horas estimadas (semana 3) la vista Día puede pasar a un eje de horas.
 
 ## Criterios de aceptación
 

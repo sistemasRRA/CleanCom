@@ -4,7 +4,8 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { useNotify } from '../../components/Toasts';
-import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useAction, useSave } from '../../components/Common';
+import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
+import { AgendaBoard } from './AgendaBoard';
 
 type Invitado = Schemas['InvitadoDto'];
 type Direccion = Schemas['DireccionDto'];
@@ -16,7 +17,6 @@ const TURNOS: { key: Turno; name: string }[] = [
   { key: 'Tarde', name: 'Tarde' },
   { key: 'HoraEspecifica', name: 'Hora específica' },
 ];
-const turnoName = (t: Turno) => TURNOS.find((x) => x.key === t)?.name ?? t;
 
 const SOURCES: Record<Schemas['ZonaSource'], string> = {
   Poligono: 'por ubicación',
@@ -94,7 +94,7 @@ export function Agendar() {
           </section>
         )}
       </div>
-      <PedidoList />
+      <AgendaBoard />
     </div>
   );
 }
@@ -677,94 +677,6 @@ function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; dire
           </form>
         )}
       </div>
-    </section>
-  );
-}
-
-// ---- Scheduled pedidos ----
-
-function PedidoList() {
-  const isAdmin = useIsAdministrator();
-  const pedidos = useQuery({ queryKey: keys.pedidos, queryFn: () => unwrap(api.GET('/pedidos')) });
-  const remove = useAction(
-    (id: number) => unwrap(api.DELETE('/pedidos/{id}', { params: { path: { id } } })),
-    [keys.pedidos, ['agenda']],
-    'Pedido eliminado; su lugar quedó libre.',
-  );
-
-  return (
-    <section className="card">
-      <div className="card__header">
-        <div>
-          <h2>Recolecciones agendadas</h2>
-          <p className="muted">De hoy en adelante.</p>
-        </div>
-      </div>
-      <QueryState loading={pedidos.isPending} error={pedidos.error}>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Invitado</th>
-                <th>Dirección</th>
-                <th>Zona</th>
-                <th>Cuándo</th>
-                <th>Servicio</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidos.data?.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <strong>{formatDate(p.recoleccionDate)}</strong>
-                  </td>
-                  <td>
-                    {p.invitadoName}
-                    <div className="muted">{p.whatsAppPhone}</div>
-                  </td>
-                  <td>{p.address}</td>
-                  <td>
-                    {p.zonaCode ?? '—'}
-                    {p.rutaCode && <div className="muted">Ruta {p.rutaCode}</div>}
-                  </td>
-                  <td>
-                    {turnoName(p.turno)}
-                    {p.specificTime && ` ${p.specificTime.slice(0, 5)}`}
-                    {p.priority && (
-                      <>
-                        {' '}
-                        <span className="badge danger">Prioridad</span>
-                      </>
-                    )}
-                  </td>
-                  <td>
-                    {p.lineasServicio.join(', ') || '—'}
-                    {p.garmentsApprox != null && <div className="muted">{p.garmentsApprox} prendas</div>}
-                  </td>
-                  <td className="end">
-                    {isAdmin && (
-                      <button
-                        type="button"
-                        className="small danger"
-                        disabled={remove.isPending}
-                        onClick={() =>
-                          confirm(`¿Eliminar la recolección de ${p.invitadoName} del ${formatDate(p.recoleccionDate)}? Su lugar queda libre.`) &&
-                          remove.mutate(p.id)
-                        }
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {pedidos.data?.length === 0 && <div className="empty">No hay recolecciones agendadas de hoy en adelante.</div>}
-        </div>
-      </QueryState>
     </section>
   );
 }
