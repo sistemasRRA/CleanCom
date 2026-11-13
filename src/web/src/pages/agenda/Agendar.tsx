@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
@@ -71,7 +71,13 @@ export function Agendar() {
 
   return (
     <div className="stack">
-      <PageHeader title="Agendar" description="Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el motor de agenda del API." />
+      <PageHeader title="Agendar" description="Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el motor de agenda del API.">
+        {params.get('invitado') && (
+          <Link to="/clientes" className="button">
+            ← Volver a Clientes (CRM)
+          </Link>
+        )}
+      </PageHeader>
       <div className="agendar">
         <div className="stack">
           <InvitadoSearch onChoose={choose} onNew={() => { choose(null); setCapturing(true); }} canEdit={canEdit} />

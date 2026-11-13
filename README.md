@@ -32,7 +32,7 @@ Sistema de logística, rutas y seguimiento de pedidos de CleanCom, tintorería a
 │       └── apps/
 ├── database/
 │   ├── migrations/           Scripts generados por EF Core (no editar a mano)
-│   └── import/               Importadores del Excel máster y del sistema actual
+│   └── import/               Importadores del sistema actual
 └── src/
     ├── api/                  ASP.NET Core Web API
     ├── web/                  Web de oficina

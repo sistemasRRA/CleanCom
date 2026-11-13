@@ -2,9 +2,10 @@
 
 ## Fuentes a solicitar
 
+**Decisión (13 nov 2026): no se usa el Excel máster.** Rutas, zonas y días de visita se capturan en Operación (los días ya siguen el máster: zona 1 lunes y jueves, zona 2 martes y viernes, zona 3 miércoles y sábado). La cobertura por zona se arma en Operación › Cobertura, con el catálogo oficial de Correos de México para colonias y alcaldías. El historial de invitados y pedidos viene de la base del sistema actual.
+
 | Fuente | Contenido esperado | Uso |
 | --- | --- | --- |
-| Excel "máster" | Zonas, días de visita, cobertura y demás catálogos | Se trata como base de datos de origen |
 | Base de datos o respaldo SQL del sistema actual | Invitados (655), pedidos, tickets, visitas, contactos del CRM, paradas fijas, promociones, mensajes, usuarios, operadores, unidades, configuración | Historial y datos vivos |
 | Hoja "KPI's 2026 CleanCom" | Metas por indicador | Metas iniciales |
 | POS | Tickets y facturación históricos | KPIs de venta y tickets |
@@ -20,7 +21,7 @@ Los archivos de origen se guardan en `database/import/fuentes/`, carpeta excluid
    - Teléfonos normalizados a 10 dígitos; detectar invitados duplicados por teléfono.
    - Direcciones geocodificadas con Google; las que no se puedan ubicar van a una lista de pendientes.
    - Zona asignada por coordenadas; comparar contra la zona por CP y reportar diferencias.
-   - Días de visita por zona corregidos según el máster (zona 1 lunes y jueves, zona 2 martes y viernes, zona 3 miércoles y sábado).
+   - Días de visita por zona: ya capturados en Operación (zona 1 lunes y jueves, zona 2 martes y viernes, zona 3 miércoles y sábado); lo que diga el sistema actual no los sobrescribe.
    - Tiendas propias dadas de alta como invitados (por ejemplo "7Wash Clza. del Hueso") pasan a tipo Tienda / uso interno.
    - Vueltas fijas ligadas por nombre ("OPERADORA", "TRASPASO K") se convierten en `VueltaFija` con pasos.
    - Estados técnicos (por ejemplo `no_realizada`) se mapean a las etapas y estados nuevos.
@@ -31,7 +32,7 @@ Los archivos de origen se guardan en `database/import/fuentes/`, carpeta excluid
 
 | Momento | Qué se migra |
 | --- | --- |
-| Semana 2 | Catálogos (zonas, cobertura, lugares, rutas, configuración) e invitados, para desarrollar con datos reales |
+| Semana 2 | Catálogos capturados en Operación (rutas F y K, zonas, días de visita) y catálogo oficial de códigos postales. Sin Excel máster |
 | Semana 7 | Migración completa de prueba |
 | Semanas 9 a 11 | Ensayos durante el piloto |
 | Semana 12 | Migración final el día de la salida en vivo, con el sistema actual en solo lectura |

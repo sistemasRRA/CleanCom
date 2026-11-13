@@ -56,5 +56,5 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Estado (semana 2)
 
 - El estatus se calcula al consultar con la misma regla (`CrmRules`) que usará el proceso nocturno cuando Hangfire esté conectado; entonces se guardará por la noche junto con su "por qué".
-- Un servicio es un pedido activo, no cancelado, con fecha de recolección de hoy o antes. Mientras no se importe el historial del Excel, casi todos los invitados salen como Prospecto.
+- Un servicio es un pedido activo, no cancelado, con fecha de recolección de hoy o antes. Mientras no se migre el historial del sistema actual, casi todos los invitados salen como Prospecto.
 - La zona del CRM es la de la primera dirección activa con zona.

@@ -29,5 +29,5 @@
 | Sello | Beneficio de Promociones Cruzadas para invitados recurrentes | `Beneficio` |
 | Cuponera | Cupones de bienvenida para invitados nuevos | `Beneficio` |
 | Le toca / En riesgo / Inactivo / Prospecto | Estatus del CRM | `EstatusInvitado` |
-| Máster | Excel con zonas, días y catálogos de referencia | |
+| Máster | Excel con zonas, días y catálogos de referencia. Ya no es fuente: sus datos se capturan en Operación | |
 | POS | Punto de venta; fuente oficial de cobros y tickets | `IProveedorPos` |
