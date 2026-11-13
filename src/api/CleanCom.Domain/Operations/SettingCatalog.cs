@@ -40,6 +40,10 @@ public static class SettingCatalog
         new(CrmAtRiskFactor, T.Decimal, "2", "Veces su frecuencia sin pedir para estar en riesgo"),
         new(BaseAddress, T.Text, "Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710", "Dirección de la base, inicio y fin de ruta"),
         new(BaseLocation, T.Coordinate, "19.3608092,-99.1968494", "Coordenadas de la base"),
+        // New keys go last: the seed gives each definition the id of its position.
+        new(CrmNoAnswerDays, T.Integer, "1", "Días para volver a llamar si no contestó"),
+        new(CrmCallLaterDays, T.Integer, "3", "Días para volver a llamar si pidió que le llamaran después"),
+        new(CrmNotNowDays, T.Integer, "21", "Días para volver a llamar si dijo que no por ahora"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

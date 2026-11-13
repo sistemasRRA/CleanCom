@@ -5,7 +5,7 @@
 | Semana | Backend y base de datos | Web de oficina | Apps móviles |
 | --- | --- | --- | --- |
 | 1 | Modelo de datos, acceso y roles, catálogos, preparación del VPS y despliegue automático | Sistema de diseño, menú por rol, inicio de sesión | Estructura de las dos apps, inicio de sesión |
-| 2 | Motor de agenda (zonas, cortes, cupos), invitados, importación inicial del Excel máster | Agendar, Clientes (CRM) y ficha | Chofer: ruta del día |
+| 2 | Motor de agenda (zonas, cortes, cupos), invitados (la importación del Excel máster se canceló: los catálogos se capturan en Operación) | Agendar, Clientes (CRM) y ficha | Chofer: ruta del día |
 | 3 | Rutas y optimización con Google, paradas fijas y viajes | Rutas, Paradas fijas, Operación | Chofer: navegación, en camino y llegué |
 | 4 | Pedidos y etapas, tickets, conexión con el POS | Pedidos, Tickets en planta | Chofer: cerrar visita, fotos, firma, sin señal |
 | 5 | Tiempo real, GPS, flota y sus notificaciones | Panel del día, mapa en vivo, Unidades | Invitado: registro con código, pedir servicio, seguimiento |
@@ -34,7 +34,7 @@ Tardan en resolverse y bloquean semanas posteriores:
 - Facturación de Google Cloud con llaves de Maps y tope de gasto.
 - Cuenta de Twilio para SMS de respaldo.
 - Acceso o documentación del POS.
-- Excel máster y respaldo de datos del sistema actual.
+- Respaldo de datos del sistema actual (el Excel máster ya no se usa).
 - Revisión del VPS (capacidad, sistema operativo, accesos).
 
 ## Orden sugerido para Claude Code

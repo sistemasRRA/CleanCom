@@ -41,12 +41,20 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 
 ## Endpoints
 
-- `GET /invitados?estatus=&ruta=&q=`, `GET /invitados/llamar-hoy`.
+- `GET /invitados?estatus=&ruta=&q=`, `GET /invitados/llamar-hoy` (semana 2, hecho): filas con estatus, por qué, frecuencia, le toca, visita sugerida, próxima recolección y próximo contacto, más los conteos por estatus (sin tiendas) y cuántos hay en "Llamar hoy". Permiso Clientes (CRM): View.
+- `GET /invitados/{id}/ficha` (hecho): datos, direcciones, evaluación del CRM, pedidos y contactos.
 - `GET /invitados/{id}`, `PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/fusionar`.
-- `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento`.
+- `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` (hecho; Clientes (CRM): Edit). Seguimiento: estatus manual, frecuencia fija, próximo contacto y no contactar.
+- Pendiente: `POST /invitados/{id}/fusionar`, invitar o bloquear en la app, bitácora por sección e indicadores de valor (gasto, ticket promedio).
 - `POST /invitados/{id}/invitar-app`, `POST /invitados/{id}/bloquear-app`.
 
 ## Criterios de aceptación
 
 - Un contacto "no contestó" sin fecha programa el siguiente para mañana y saca al invitado de "Llamar hoy".
 - Capturar un teléfono existente avisa del duplicado.
+
+## Estado (semana 2)
+
+- El estatus se calcula al consultar con la misma regla (`CrmRules`) que usará el proceso nocturno cuando Hangfire esté conectado; entonces se guardará por la noche junto con su "por qué".
+- Un servicio es un pedido activo, no cancelado, con fecha de recolección de hoy o antes. Mientras no se migre el historial del sistema actual, casi todos los invitados salen como Prospecto.
+- La zona del CRM es la de la primera dirección activa con zona.

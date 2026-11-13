@@ -1,4 +1,5 @@
 using CleanCom.Domain.Common;
+using CleanCom.Domain.Crm;
 
 namespace CleanCom.Domain.People;
 
@@ -27,6 +28,17 @@ public class Invitado : Entity, IActivatable
     public bool Active { get; set; } = true;
     /// <summary>App account, when the invitado has one.</summary>
     public int? UserId { get; set; }
+
+    // ---- CRM follow-up (Seguimiento). The status itself is calculated, see CrmRules. ----
+
+    /// <summary>Próximo contacto: until this date the invitado does not appear in "Llamar hoy".</summary>
+    public DateOnly? NextContactOn { get; set; }
+    /// <summary>Asked not to be contacted: never in "Llamar hoy" nor in campaigns.</summary>
+    public bool DoNotContact { get; set; }
+    /// <summary>Status fixed by the office; wins over the calculated one.</summary>
+    public CrmStatus? ManualStatus { get; set; }
+    /// <summary>Frequency fixed by the office, in days; wins over the calculated one.</summary>
+    public int? FixedFrequencyDays { get; set; }
 
     public List<Direccion> Direcciones { get; set; } = [];
 }

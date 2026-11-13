@@ -1,5 +1,6 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
+using CleanCom.Domain.Crm;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
@@ -343,5 +344,16 @@ internal class PostalCodeConfig : IEntityTypeConfiguration<PostalCode>
         // How Correos de México identifies a settlement; a new import updates it instead of duplicating it.
         e.HasIndex(x => new { x.StateCode, x.BoroughCode, x.SettlementId }).IsUnique();
         e.HasIndex(x => x.Code);
+    }
+}
+
+internal class ContactoConfig : IEntityTypeConfiguration<Contacto>
+{
+    public void Configure(EntityTypeBuilder<Contacto> e)
+    {
+        e.ToTable("Contactos");
+        e.Property(x => x.Note).HasMaxLength(1000);
+        e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.InvitadoId, x.ContactedAt });
     }
 }

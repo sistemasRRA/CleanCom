@@ -34,7 +34,7 @@ Alrededor de **30 a 150 USD al mes** con 2 rutas (WhatsApp, Google Maps y SMS de
 | [03-reglas-de-negocio.md](03-reglas-de-negocio.md) | Agenda, cortes, zonas, rutas, pedidos, CRM, promociones, KPIs |
 | [04-integraciones.md](04-integraciones.md) | Google Maps, WhatsApp, SMS, push, correo, POS |
 | [05-plan-de-trabajo.md](05-plan-de-trabajo.md) | 12 semanas por frente e hitos |
-| [06-migracion-de-datos.md](06-migracion-de-datos.md) | Excel máster, respaldo del sistema actual, limpieza |
+| [06-migracion-de-datos.md](06-migracion-de-datos.md) | Respaldo del sistema actual, limpieza (sin Excel máster) |
 | [07-despliegue-vps.md](07-despliegue-vps.md) | Servidor, respaldos, dominios |
 | [08-costos.md](08-costos.md) | Requisitos y costos de servicios externos |
 | [09-pendientes.md](09-pendientes.md) | Decisiones abiertas y fase 2 |

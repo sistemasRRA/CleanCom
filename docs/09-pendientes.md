@@ -4,7 +4,7 @@
 
 - [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo).
 - [ ] Base de datos que usa la app actual y respaldo para migrar.
-- [ ] Excel máster.
+- [ ] Cobertura de cada zona (F1 a K3): qué códigos postales y colonias atiende cada una, para capturarla en Operación › Cobertura. Ya no viene del Excel máster.
 - [ ] Dirección de la base (`Base.Direccion`): dice "Los Alpes, 01710", pero en el catálogo oficial de Correos de México Los Alpes es el CP 01010 y el 01710 es Ampliación Alpes o Las Águilas. Confirmar cuál es la correcta.
 - [ ] Características y sistema operativo del VPS.
 - [ ] Tipos de pagos por unidad (tenencia o refrendo, crédito o arrendamiento, póliza en pagos, otros).
@@ -29,6 +29,9 @@
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
 
 ## Reglas propuestas que conviene validar
+
+- [ ] Orden de prioridad entre estatus del CRM cuando aplican varios: Inactivo, En riesgo, Le toca, Nuevo y Activo (Prospecto si no hay servicios). Así un invitado nuevo con fecha "le toca" aparece como Le toca.
+- [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
 
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:
 
