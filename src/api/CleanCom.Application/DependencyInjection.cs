@@ -1,5 +1,6 @@
 using CleanCom.Application.Access;
 using CleanCom.Application.Agenda;
+using CleanCom.Application.Chofer;
 using CleanCom.Application.Invitados;
 using CleanCom.Application.Pedidos;
 using CleanCom.Application.PostalCodes;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<PedidoService>();
         services.AddScoped<PostalCodeService>();
         services.AddScoped<CrmService>();
+        services.AddScoped<ChoferService>();
         return services;
     }
 }

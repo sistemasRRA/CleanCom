@@ -3,11 +3,12 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Alert, Body, Button, Card, Logo, Title, radius, space, touch, useLayout, useSession, useTheme } from '@cleancom/mobile-shared';
+import { Body, Button, Card, Logo, Title, radius, space, touch, useLayout, useSession, useTheme } from '@cleancom/mobile-shared';
+import { RutaDelDia } from '../../ruta/RutaDelDia';
 
 /**
  * Driver's day. Tablet in landscape: stops and map side by side (docs/pantallas/apps/chofer.md).
- * Phone or portrait: one above the other. The route itself arrives in week 2 (GET /chofer/ruta).
+ * Phone or portrait: one above the other. Stops come from GET /chofer/ruta; the map arrives in week 3.
  */
 export default function Turno() {
   const { user, logout } = useSession();
@@ -15,14 +16,7 @@ export default function Turno() {
   const { gutter, isTablet, landscape } = useLayout();
   const sideBySide = isTablet && landscape;
 
-  const stops = (
-    <Panel title="Paradas del día" icon="list">
-      <Alert tone="info">La ruta del día llega en la semana 2 del plan. Aquí verás tus paradas en orden con su hora estimada.</Alert>
-      {['Recolección', 'Entrega', 'Convenio'].map((type, i) => (
-        <PlaceholderStop key={type} order={i + 1} type={type} />
-      ))}
-    </Panel>
-  );
+  const stops = <RutaDelDia />;
 
   const map = (
     <Panel title="Mapa" icon="map" grow>
@@ -102,34 +96,6 @@ function Panel({ title, icon, grow, children }: { title: string; icon: keyof typ
       </View>
       {children}
     </Card>
-  );
-}
-
-function PlaceholderStop({ order, type }: { order: number; type: string }) {
-  const { colors } = useTheme();
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space.md,
-        minHeight: touch + 16,
-        padding: space.md,
-        borderRadius: radius.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-        opacity: 0.6,
-      }}
-    >
-      <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: colors.brand, fontWeight: '700' }}>{order}</Text>
-      </View>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: colors.text, fontWeight: '600', fontSize: 15 }}>{type}</Text>
-        <Text style={{ color: colors.textMuted, fontSize: 13 }}>Ejemplo · dirección y hora estimada</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-    </View>
   );
 }
 

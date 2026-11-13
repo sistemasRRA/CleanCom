@@ -47,7 +47,7 @@ Cada pantalla se decide con `useLayout()` de `src/mobile/shared` (`isTablet`, `l
 ## Endpoints
 
 - `POST /chofer/turno/iniciar`, `POST /chofer/turno/cerrar`.
-- `GET /chofer/ruta?fecha=`.
+- `GET /chofer/ruta?fecha=` (semana 2, hecho): paradas activas de la ruta del chofer en el día (hoy en CDMX si no se manda). El chofer es el operador ligado al usuario; la ruta es la `RutaDia` que oficina le asignó ese día o, si no hay, la de su ruta habitual (salvo que oficina haya dado ese día a otro operador). Cada parada trae orden, tipo, turno, hora específica, prioridad, invitado, teléfono, dirección, referencias, zona, coordenadas, prendas, líneas de servicio y notas. Orden provisional por turno (mañana, tarde, cualquier hora; el fin de la mañana sale de `Turno.Manana`) hasta la optimización de la semana 3. Sin operador, sin ruta o en día inhábil responde con un aviso en `notice`. Permiso: App del chofer.
 - `POST /chofer/paradas/{id}/en-camino`, `/llegue`, `/cerrar`, `/no-realizada`.
 - `POST /chofer/evidencias` (multipart), `POST /chofer/ubicacion`, `POST /chofer/sincronizar` (lote de la cola offline).
 - `POST /chofer/fallas`, `POST /chofer/solicitudes-cambio`.
