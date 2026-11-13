@@ -26,6 +26,9 @@
 - [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
 - [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
 - [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
+- [ ] Viajes: la regla decía "en orden y seguidos"; con las vueltas reales (Operadora carga en Leones en la mañana y entrega en Cuautitlán en la tarde) quedó "en orden", cada paso con su turno y hora límite. Confirmar.
+- [ ] Lavafan (ruta K, viernes): confirmar dirección completa (la colonia no venía) y hora real; la plantilla decía 4:00.
+- [ ] Rutas: horas y km son estimados en línea recta hasta conectar Google (proyecto de Google Cloud con facturación, Routes API y Route Optimization con cuenta de servicio). Ajustar `Ruta.VelocidadPromedio` y `Ruta.FactorDistancia` con lo real mientras tanto.
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
 - [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Días de visita de zona: al cambiarlos se borran filas de `zona_visit_days` (código de la semana 1). Contradice la regla de solo baja lógica; corregir guardándolos como lista o con baja lógica.

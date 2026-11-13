@@ -37,6 +37,9 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Pedido.DiasPermitidosPorEtapa` | Por etapa | Semáforo de atraso |
 | `Base.Direccion` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 | Inicio y fin de ruta |
 | `Base.Ubicacion` | 19.3608092,-99.1968494 | Coordenadas de la base |
+| `Ruta.VelocidadPromedio` | 18 | km/h para estimar traslados mientras no se conecta Google |
+| `Ruta.FactorDistancia` | 1.4 | Distancia en calle respecto a la línea recta, mientras no se conecta Google |
+| `Parada.VentanaHoraEspecifica` | 30 | Minutos antes y después de una hora específica |
 
 Notas de implementación:
 
@@ -89,7 +92,7 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 
 1. Cada ruta sale de la base a `SalidaBase` y regresa a la base; la comida es una parada de `Comida.Minutos`.
 2. Ventanas por turno: mañana 09:00 a 13:00, tarde 13:00 a 18:00, cualquier hora = toda la jornada, hora específica = ventana corta alrededor de esa hora. Las restricciones escritas ("antes de las 4:00 p.m.", "después de cargar en Leones") se capturan como ventana o como paso de viaje.
-3. **Viajes:** los pasos de un viaje (por ejemplo Florida → Del Valle → Florida) se visitan en orden y seguidos.
+3. **Viajes:** los pasos de un viaje (por ejemplo Florida → Del Valle → Florida) se visitan en orden. No tienen que ir seguidos: Operadora carga en Leones antes de las 12:00 y entrega en Cuautitlán por la tarde antes de las 14:00. Cada paso tiene su propio qué se hace, turno y hora límite ("Antes: a las 9:30 a.m."), que cierra su ventana.
 4. **Posición fija:** una parada movida a mano o marcada como primera o última queda fija; el recálculo acomoda las demás.
 5. El orden se calcula con Google Route Optimization (una ruta a la vez). Se recalcula solo ante cambios relevantes: parada nueva o cancelada, cambio manual, inicio de turno o retraso del chofer mayor a 15 minutos. Nunca por cada lectura de GPS.
 6. **Alertas antes de guardar:** regreso estimado posterior a `RegresoMaximo` (horas extra), parada fuera de su ventana, prendas estimadas mayores a la capacidad de la unidad, unidad con seguro o verificación vencidos o falla abierta.

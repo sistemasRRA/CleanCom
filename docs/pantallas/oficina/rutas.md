@@ -28,15 +28,26 @@ Planeación del día por ruta: chofer, unidad y paradas en orden, con horas esti
 - Aviso de capacidad cuando las prendas estimadas pasan las 140 de la unidad.
 - Aprobar o rechazar solicitudes de cambio de orden que mande el chofer.
 
+## Cómo quedó (semana 3, sin Google)
+
+- **Plan por ruta y día** (`GET /rutas/dia?fecha=`): chofer (el asignado ese día o el operador cuya ruta habitual es), paradas en orden con hora estimada, espera, km desde la anterior y ventana; salida de Leones (`Ruta.SalidaBase`), comida del chofer (`Comida.Desde` y `Comida.Minutos`) y entrega de ruta en Leones.
+- **Estimación provisional:** distancia en línea recta × `Ruta.FactorDistancia` a `Ruta.VelocidadPromedio` km/h; minutos por parada de Operación (recolección 15, entrega 10, entrega y recolección 25, traslado 12). Al conectar Google se cambia por Routes API y Route Optimization sin tocar la pantalla.
+- **Ventanas:** mañana y tarde según `Turno.Manana` y `Turno.Tarde`; cualquier hora = toda la jornada; hora específica ± `Parada.VentanaHoraEspecifica`; "Antes de" la cierra antes.
+- **Optimizar** (`POST /rutas/dia/{id}/optimizar`), orden propio mientras llega Google: las iniciadas primero, luego las fijadas como primera, las demás por la siguiente más cercana dando prioridad a la ventana que cierra antes, y las fijadas como última. Los pasos de un viaje respetan su orden. Una parada movida a mano conserva su posición.
+- **▲ ▼ y Fijar** (`PATCH /paradas/{id}`): mover una parada la deja fija; un paso de viaje no puede quedar antes de su paso anterior.
+- **Alertas:** horas extra (regreso después de `Ruta.RegresoMaximo`, o del de sábado), parada fuera de su ventana, prendas sobre `Unidad.CapacidadPrendas`, más paradas que el cupo, sin chofer, sin coordenadas y paradas nuevas sin acomodar.
+- **Chofer del día** (`PUT /rutas/{rutaId}/dias/{fecha}/chofer`): vacío regresa al habitual; un operador no puede tener dos rutas el mismo día. La app del chofer ve exactamente el mismo orden.
+- **Pendiente en esta pantalla:** mapa y trazo por calles (con Google), "Viaje de un día" y "Parada de un día", tablero para arrastrar entre rutas, simular, unidad y solicitudes de cambio del chofer.
+
 ## Endpoints
 
-- `GET /rutas/dia?fecha=`, `PUT /rutas/dia/{id}` (chofer, unidad).
+- `GET /rutas/dia?fecha=`, `PUT /rutas/{rutaId}/dias/{fecha}/chofer` (la unidad llega en la semana 5).
 - `POST /rutas/dia/{id}/optimizar`, `POST /rutas/dia/{id}/simular` (efecto de un cambio sin guardar).
-- `POST /paradas`, `POST /viajes`, `PATCH /paradas/{id}` (posición, fijar, ventana).
+- `PATCH /paradas/{id}` (posición, fijar). Pendiente: `POST /paradas`, `POST /viajes` (de un día) y la ventana editable.
 - `POST /paradas-fijas/generar?fecha=`.
 
 ## Criterios de aceptación
 
-- Un viaje de 3 pasos siempre queda en orden y seguido tras optimizar.
+- Un viaje de 3 pasos siempre queda en orden tras optimizar (seguido cuando sus horas lo piden, como el Traspaso K).
 - Una parada fijada no cambia de posición al recalcular.
 - Guardar una ruta con regreso posterior a 18:00 muestra la alerta de horas extra.
