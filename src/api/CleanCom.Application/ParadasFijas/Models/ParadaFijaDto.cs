@@ -7,6 +7,7 @@ namespace CleanCom.Application.ParadasFijas;
 public record ParadaFijaDto(
     int Id,
     string Name,
+    ParadaCategory Category,
     ParadaKind Kind,
     int RutaId,
     string RutaCode,

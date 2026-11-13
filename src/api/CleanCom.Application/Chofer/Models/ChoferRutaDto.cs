@@ -14,6 +14,7 @@ public record ChoferParadaDto(
     int Id,
     int Order,
     ParadaKind Kind,
+    ParadaCategory? Category,
     ParadaState State,
     Turno Turno,
     TimeOnly? SpecificTime,

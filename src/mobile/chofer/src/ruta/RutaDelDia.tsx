@@ -16,6 +16,13 @@ const KIND: Record<Schemas['ParadaKind'], string> = {
   Salida: 'Salida',
   Regreso: 'Regreso',
   Comida: 'Comida',
+  Traslado: 'Traslado',
+};
+const CATEGORY: Record<NonNullable<Schemas['ParadaCategory']>, string> = {
+  ClienteFinal: 'Cliente final',
+  Convenio: 'Convenio',
+  Insumos: 'Insumos',
+  Traspaso: 'Traspaso',
 };
 const TURNO: Record<Schemas['Turno'], string> = {
   Manana: 'Mañana',
@@ -125,6 +132,7 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>{p.invitadoName ?? KIND[p.kind]}</Text>
           <Text style={{ color: colors.textMuted, fontSize: 13 }}>
+            {p.category && p.category !== 'ClienteFinal' ? `${CATEGORY[p.category]} · ` : ''}
             {KIND[p.kind]} · {when}
             {p.zonaCode ? ` · ${p.zonaCode}` : ''}
             {p.priority ? ' · PRIORIDAD' : ''}

@@ -354,6 +354,8 @@ internal class ParadaFijaConfig : IEntityTypeConfiguration<ParadaFija>
         e.ToTable("ParadasFijas");
         e.Ignore(x => x.ActivePasos);
         e.Ignore(x => x.IsVuelta);
+        // Rows created before the tipo de parada existed start as cliente final; office corrects them.
+        e.Property(x => x.Category).HasDefaultValue(ParadaCategory.ClienteFinal).HasSentinel(ParadaCategory.ClienteFinal);
         e.Property(x => x.Name).HasMaxLength(150);
         e.Property(x => x.Carried).HasMaxLength(500);
         e.Property(x => x.SiteContact).HasMaxLength(150);

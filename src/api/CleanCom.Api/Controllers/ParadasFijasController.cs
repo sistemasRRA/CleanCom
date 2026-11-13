@@ -14,11 +14,11 @@ namespace CleanCom.Api.Controllers;
 [Tags("Paradas fijas")]
 public class ParadasFijasController(ParadaFijaService service) : ControllerBase
 {
-    /// <summary>All paradas fijas; filters: kind and "ver inactivas".</summary>
+    /// <summary>All paradas fijas; filters: tipo de parada and "ver inactivas".</summary>
     [HttpGet]
     [RequireScreen(Screens.ParadasFijas, AccessLevel.View)]
-    public Task<IReadOnlyList<ParadaFijaDto>> List([FromQuery(Name = "tipo")] ParadaKind? kind, [FromQuery(Name = "inactivas")] bool includeInactive, CancellationToken ct) =>
-        service.ListAsync(includeInactive, kind, ct);
+    public Task<IReadOnlyList<ParadaFijaDto>> List([FromQuery(Name = "tipo")] ParadaCategory? category, [FromQuery(Name = "inactivas")] bool includeInactive, CancellationToken ct) =>
+        service.ListAsync(includeInactive, category, ct);
 
     /// <summary>"La semana de un vistazo": Monday to Saturday of the week of the date, by ruta, with the cupo they take.</summary>
     [HttpGet("semana")]

@@ -1470,7 +1470,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    tipo?: components["schemas"]["ParadaKind"];
+                    tipo?: components["schemas"]["ParadaCategory"];
                     inactivas?: boolean;
                 };
                 header?: never;
@@ -3123,6 +3123,7 @@ export interface components {
             /** Format: int32 */
             order: number;
             kind: components["schemas"]["ParadaKind"];
+            category: null | components["schemas"]["ParadaCategory"];
             state: components["schemas"]["ParadaState"];
             turno: components["schemas"]["Turno"];
             /** Format: time */
@@ -3306,6 +3307,7 @@ export interface components {
             /** Format: int32 */
             paradaFijaId: number;
             name: string;
+            category: components["schemas"]["ParadaCategory"];
             kind: components["schemas"]["ParadaKind"];
             turno: components["schemas"]["Turno"];
             placement: components["schemas"]["ParadaPlacement"];
@@ -3396,10 +3398,13 @@ export interface components {
             /** Format: int32 */
             userId: null | number;
         };
+        /** @enum {unknown} */
+        ParadaCategory: "ClienteFinal" | "Convenio" | "Insumos" | "Traspaso" | null;
         ParadaFijaDto: {
             /** Format: int32 */
             id: number;
             name: string;
+            category: components["schemas"]["ParadaCategory"];
             kind: components["schemas"]["ParadaKind"];
             /** Format: int32 */
             rutaId: number;
@@ -3447,7 +3452,7 @@ export interface components {
             notes: null | string;
         };
         /** @enum {unknown} */
-        ParadaKind: "Recoleccion" | "Entrega" | "RecoleccionYEntrega" | "Convenio" | "Insumos" | "Traspaso" | "Salida" | "Regreso" | "Comida";
+        ParadaKind: "Recoleccion" | "Entrega" | "RecoleccionYEntrega" | "Convenio" | "Insumos" | "Traspaso" | "Salida" | "Regreso" | "Comida" | "Traslado";
         /** @enum {unknown} */
         ParadaPlacement: "Automatica" | "Primera" | "Ultima";
         /** @enum {unknown} */
@@ -3662,11 +3667,13 @@ export interface components {
             lat: null | number;
             /** Format: double */
             lng: null | number;
+            mapsLink: null | string;
             activity: null | string;
             notes: null | string;
         };
         SaveParadaFijaRequest: {
             name: string;
+            category: components["schemas"]["ParadaCategory"];
             kind: components["schemas"]["ParadaKind"];
             /** Format: int32 */
             rutaId: number;

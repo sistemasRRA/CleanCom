@@ -11,8 +11,9 @@ public class SaveParadaFijaValidator : AbstractValidator<SaveParadaFijaRequest>
     public SaveParadaFijaValidator()
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150).WithName("Nombre");
+        RuleFor(x => x.Category).IsInEnum().WithName("Tipo de parada");
         RuleFor(x => x.Kind).Must(k => ParadaFija.AllowedKinds.Contains(k))
-            .WithMessage("El tipo de parada debe ser convenio, insumos, traspaso, recolección, entrega o entrega y recolección.");
+            .WithMessage("Qué se hace debe ser recolección, entrega, entrega y recolección o traslado.");
         RuleFor(x => x.RutaId).GreaterThan(0).WithName("Ruta");
         RuleFor(x => x.Turno).IsInEnum().NotEqual(Turno.HoraEspecifica)
             .WithMessage("Una parada fija se pide por turno (mañana, tarde o cualquier hora).");
@@ -36,7 +37,8 @@ public class SaveParadaFijaValidator : AbstractValidator<SaveParadaFijaRequest>
             p.RuleFor(x => x.Lat).InclusiveBetween(-90, 90).WithName("Latitud").When(x => x.Lat is not null);
             p.RuleFor(x => x.Lng).InclusiveBetween(-180, 180).WithName("Longitud").When(x => x.Lng is not null);
             p.RuleFor(x => x.Address).MaximumLength(300).WithName("Dirección");
-            p.RuleFor(x => x.Activity).MaximumLength(200).WithName("Qué se hace");
+            p.RuleFor(x => x.MapsLink).MaximumLength(2000).WithName("Link de Google Maps o coordenadas");
+            p.RuleFor(x => x.Activity).MaximumLength(200).WithName("Indicación");
             p.RuleFor(x => x.Notes).MaximumLength(500).WithName("Nota");
         });
     }

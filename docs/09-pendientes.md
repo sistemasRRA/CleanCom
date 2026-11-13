@@ -27,7 +27,7 @@
 - [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
 - [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
-- [ ] Paradas fijas: el tipo es fijo (convenio, insumos, traspaso, cliente final) y no usa el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario.
+- [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Días de visita de zona: al cambiarlos se borran filas de `zona_visit_days` (código de la semana 1). Contradice la regla de solo baja lógica; corregir guardándolos como lista o con baja lógica.
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
 

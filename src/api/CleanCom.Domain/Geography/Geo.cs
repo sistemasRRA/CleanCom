@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using CleanCom.Domain.Common;
 using NetTopologySuite;
 using NetTopologySuite.Algorithm;
@@ -59,6 +61,41 @@ public static class Geo
             throw new DomainException("El polígono no es válido: sus lados se cruzan.");
         }
         return polygon;
+    }
+
+    /// <summary>
+    /// Reads coordinates from "19.36,-99.19" or a full Google Maps link ("@lat,lng", "q=lat,lng", "!3dlat!4dlng").
+    /// Short links (maps.app.goo.gl) carry no coordinates and return false.
+    /// </summary>
+    public static bool TryParseCoordinates(string? text, out double lat, out double lng)
+    {
+        lat = lng = 0;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+        var decoded = Uri.UnescapeDataString(text.Trim());
+        const string number = @"(-?\d{1,3}(?:\.\d+)?)";
+        string[] patterns =
+        [
+            $@"!3d{number}!4d{number}",
+            $@"@{number},\s*{number}",
+            $@"[?&](?:q|query|ll|destination)={number},\s*{number}",
+            $@"^{number}\s*,\s*{number}$",
+        ];
+        foreach (var pattern in patterns)
+        {
+            var m = Regex.Match(decoded, pattern);
+            if (m.Success
+                && double.TryParse(m.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var a)
+                && double.TryParse(m.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var b)
+                && a is >= -90 and <= 90 && b is >= -180 and <= 180)
+            {
+                (lat, lng) = (a, b);
+                return true;
+            }
+        }
+        return false;
     }
 
     public static IReadOnlyList<Vertex> ToVertices(Polygon polygon) =>

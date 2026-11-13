@@ -23,10 +23,10 @@ public class ParadaFijaService(
     IValidator<SaveParadaFijaRequest> validator,
     IValidator<SaveParadaFijaExceptionRequest> exceptionValidator)
 {
-    public async Task<IReadOnlyList<ParadaFijaDto>> ListAsync(bool includeInactive, ParadaKind? kind, CancellationToken ct)
+    public async Task<IReadOnlyList<ParadaFijaDto>> ListAsync(bool includeInactive, ParadaCategory? category, CancellationToken ct)
     {
         var fijas = await Query()
-            .Where(f => (includeInactive || f.Active) && (kind == null || f.Kind == kind))
+            .Where(f => (includeInactive || f.Active) && (category == null || f.Category == category))
             .OrderBy(f => f.Ruta!.Code).ThenBy(f => f.Name)
             .ToListAsync(ct);
         return fijas.Select(ToDto).ToList();
@@ -137,7 +137,7 @@ public class ParadaFijaService(
             return new FijasWeekDayDto(d, AgendaCalculator.Format(d), nonWorking.GetValueOrDefault(d), rutas.Select(ruta =>
             {
                 var items = fijas.Where(f => f.RutaId == ruta.Id && f.AppliesOn(d, nonWorkingSet))
-                    .Select(f => new FijasWeekItemDto(f.Id, f.Name, f.Kind, f.Turno, f.Placement, f.ActivePasos.Count, generated.Contains((f.Id, d))))
+                    .Select(f => new FijasWeekItemDto(f.Id, f.Name, f.Category, f.Kind, f.Turno, f.Placement, f.ActivePasos.Count, generated.Contains((f.Id, d))))
                     .ToList();
                 return new FijasWeekCellDto(ruta.Id, cupos[ruta.Id], items.Sum(x => x.Pasos), items);
             }).ToList());
@@ -298,6 +298,7 @@ public class ParadaFijaService(
         }
 
         fija.Name = name;
+        fija.Category = r.Category;
         fija.Kind = r.Kind;
         fija.RutaId = r.RutaId;
         fija.Turno = r.Turno;
@@ -322,7 +323,7 @@ public class ParadaFijaService(
             paso.Order = i + 1;
             paso.LugarId = source.LugarId;
             paso.Address = source.LugarId is null ? Clean(source.Address) : null;
-            paso.Location = source.LugarId is null && source.Lat is { } lat && source.Lng is { } lng ? Geo.CreatePoint(lat, lng) : null;
+            paso.Location = source.LugarId is null ? Location(source, i + 1) : null;
             paso.Activity = Clean(source.Activity);
             paso.Notes = Clean(source.Notes);
             if (i >= current.Count)
@@ -338,6 +339,22 @@ public class ParadaFijaService(
         }
     }
 
+    /// <summary>Coordinates as given, or read from the Google Maps link.</summary>
+    private static NetTopologySuite.Geometries.Point? Location(SaveParadaFijaPasoRequest paso, int number)
+    {
+        if (paso.Lat is { } lat && paso.Lng is { } lng)
+        {
+            return Geo.CreatePoint(lat, lng);
+        }
+        if (string.IsNullOrWhiteSpace(paso.MapsLink))
+        {
+            return null;
+        }
+        return Geo.TryParseCoordinates(paso.MapsLink, out var a, out var b)
+            ? Geo.CreatePoint(a, b)
+            : throw new DomainException($"Paso {number}: no encontré coordenadas en el link. Si es un link corto (maps.app.goo.gl), ábrelo y copia el link completo del navegador o las coordenadas (19.36, -99.19).");
+    }
+
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private IQueryable<ParadaFija> Query() =>
@@ -349,6 +366,7 @@ public class ParadaFijaService(
     private ParadaFijaDto ToDto(ParadaFija f) => new(
         f.Id,
         f.Name,
+        f.Category,
         f.Kind,
         f.RutaId,
         f.Ruta?.Code ?? "",

@@ -20,32 +20,41 @@ import {
 
 type Fija = Schemas['ParadaFijaDto'];
 type Kind = Schemas['ParadaKind'];
+type Category = NonNullable<Schemas['ParadaCategory']>;
 type Turno = Schemas['Turno'];
 type Placement = Schemas['ParadaPlacement'];
 type Lugar = Schemas['LugarDto'];
 
-/** Kinds a parada fija can have, with the name and color class used on screen. */
-export const FIJA_KINDS: { key: Kind; name: string; tone: string }[] = [
-  { key: 'Convenio', name: 'Convenio', tone: 'kind-convenio' },
+/** Tipo de parada, with the hint and the color class used on screen. */
+export const CATEGORIES: { key: Category; name: string; hint?: string; tone: string }[] = [
+  { key: 'ClienteFinal', name: 'Cliente final', tone: 'kind-cliente' },
+  { key: 'Convenio', name: 'Convenio', hint: 'Empresa o cliente con convenio y visita fija', tone: 'kind-convenio' },
   { key: 'Insumos', name: 'Insumos', tone: 'kind-insumos' },
   { key: 'Traspaso', name: 'Traspaso', tone: 'kind-traspaso' },
-  { key: 'Recoleccion', name: 'Cliente final: recolección', tone: 'kind-cliente' },
-  { key: 'Entrega', name: 'Cliente final: entrega', tone: 'kind-cliente' },
-  { key: 'RecoleccionYEntrega', name: 'Cliente final: entrega y recolección', tone: 'kind-cliente' },
 ];
-const kindOf = (k: Kind) => FIJA_KINDS.find((x) => x.key === k) ?? { key: k, name: k, tone: '' };
+/** The schema marks the enum nullable (the chofer's paradas may have none); a parada fija always has one. */
+const categoryOf = (c: Category | null) => CATEGORIES.find((x) => x.key === c) ?? CATEGORIES[0];
+
+/** "Qué se hace". */
+export const ACTIONS: { key: Kind; name: string }[] = [
+  { key: 'Recoleccion', name: 'Recolección' },
+  { key: 'Entrega', name: 'Entrega' },
+  { key: 'RecoleccionYEntrega', name: 'Entrega y recolección' },
+  { key: 'Traslado', name: 'Traslado' },
+];
+const actionName = (k: Kind) => ACTIONS.find((x) => x.key === k)?.name ?? k;
 
 const TURNOS: { key: Turno; name: string }[] = [
-  { key: 'Manana', name: 'Mañana' },
-  { key: 'Tarde', name: 'Tarde' },
+  { key: 'Manana', name: 'Por la mañana' },
+  { key: 'Tarde', name: 'Por la tarde' },
   { key: 'CualquierHora', name: 'Cualquier hora' },
 ];
 const turnoName = (t: Turno) => TURNOS.find((x) => x.key === t)?.name ?? t;
 
 const PLACEMENTS: { key: Placement; name: string; short: string }[] = [
-  { key: 'Automatica', name: 'Automático (lo decide el ruteo)', short: '' },
-  { key: 'Primera', name: 'Primera de la ruta', short: '1ª' },
-  { key: 'Ultima', name: 'Última de la ruta', short: 'Últ.' },
+  { key: 'Automatica', name: 'Automático (donde quede mejor dentro del turno)', short: '' },
+  { key: 'Primera', name: 'Primera parada del día', short: '1ª' },
+  { key: 'Ultima', name: 'Última parada antes de Leones', short: 'Últ.' },
 ];
 const placementName = (p: Placement) => PLACEMENTS.find((x) => x.key === p)?.name.split(' (')[0] ?? p;
 
@@ -66,13 +75,13 @@ const short = (iso: string) => shortDate.format(new Date(`${iso}T00:00:00Z`)).re
  */
 export function ParadasFijas() {
   const canEdit = useSession().can('paradas-fijas', 'edit');
-  const [kind, setKind] = useState<Kind | ''>('');
+  const [category, setCategory] = useState<Category | ''>('');
   const [inactive, setInactive] = useState(false);
   const [editing, setEditing] = useState<Fija | 'new' | null>(null);
 
   const list = useQuery({
-    queryKey: [...keys.paradasFijas, 'lista', kind, inactive],
-    queryFn: () => unwrap(api.GET('/paradas-fijas', { params: { query: { tipo: kind || undefined, inactivas: inactive } } })),
+    queryKey: [...keys.paradasFijas, 'lista', category, inactive],
+    queryFn: () => unwrap(api.GET('/paradas-fijas', { params: { query: { tipo: category || undefined, inactivas: inactive } } })),
     placeholderData: (previous) => previous,
   });
   const open = async (id: number) => setEditing(await unwrap(api.GET('/paradas-fijas/{id}', { params: { path: { id } } })));
@@ -93,9 +102,9 @@ export function ParadasFijas() {
         <div className="card__header">
           <h2>Todas las paradas fijas</h2>
           <div className="actions">
-            <select value={kind} onChange={(e) => setKind(e.target.value as Kind | '')} style={{ width: 'auto' }}>
+            <select value={category} onChange={(e) => setCategory(e.target.value as Category | '')} style={{ width: 'auto' }}>
               <option value="">Todos los tipos</option>
-              {FIJA_KINDS.map((k) => (
+              {CATEGORIES.map((k) => (
                 <option key={k.key} value={k.key}>
                   {k.name}
                 </option>
@@ -129,8 +138,11 @@ export function ParadasFijas() {
                       <div className="muted fija-pasos">{f.pasos.map((p) => p.lugarName ?? p.address).join(' → ')}</div>
                     </td>
                     <td>
-                      <span className={`badge ${kindOf(f.kind).tone}`}>{kindOf(f.kind).name}</span>
-                      {f.isVuelta && <div className="muted">Vuelta de {f.pasos.length} pasos</div>}
+                      <span className={`badge ${categoryOf(f.category).tone}`}>{categoryOf(f.category).name}</span>
+                      <div className="muted">
+                        {actionName(f.kind)}
+                        {f.isVuelta && ` · vuelta de ${f.pasos.length} pasos`}
+                      </div>
                     </td>
                     <td>
                       <span className="ruta-color" style={{ background: f.rutaColor }} />
@@ -268,9 +280,9 @@ function WeekGrid({ onOpen, canEdit }: { onOpen: (id: number) => void; canEdit: 
                                 <button
                                   key={i.paradaFijaId}
                                   type="button"
-                                  className={`fija-chip ${kindOf(i.kind).tone}`}
+                                  className={`fija-chip ${categoryOf(i.category).tone}`}
                                   onClick={() => onOpen(i.paradaFijaId)}
-                                  title={`${kindOf(i.kind).name} · ${turnoName(i.turno)} · ${i.pasos} lugar(es)${i.generated ? ' · ya está en la ruta' : ''}`}
+                                  title={`${categoryOf(i.category).name} · ${actionName(i.kind)} · ${turnoName(i.turno)} · ${i.pasos} lugar(es)${i.generated ? ' · ya está en la ruta' : ''}`}
                                 >
                                   {PLACEMENTS.find((p) => p.key === i.placement)?.short && (
                                     <b>{PLACEMENTS.find((p) => p.key === i.placement)?.short} </b>
@@ -300,15 +312,16 @@ function WeekGrid({ onOpen, canEdit }: { onOpen: (id: number) => void; canEdit: 
   );
 }
 
-type PasoForm = { lugarId: string; address: string; lat: string; lng: string; activity: string; notes: string };
-const emptyPaso: PasoForm = { lugarId: '', address: '', lat: '', lng: '', activity: '', notes: '' };
+type PasoForm = { lugarId: string; address: string; mapsLink: string; activity: string; notes: string };
+const emptyPaso: PasoForm = { lugarId: '', address: '', mapsLink: '', activity: '', notes: '' };
 
 function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: boolean; onClose: () => void }) {
   const rutas = useRutas();
   const lugares = useQuery({ queryKey: keys.lugares, queryFn: () => unwrap(api.GET('/lugares')) });
   const [f, setF] = useState({
     name: fija?.name ?? '',
-    kind: fija?.kind ?? ('Convenio' as Kind),
+    category: fija?.category ?? ('Convenio' as Category),
+    kind: fija?.kind ?? ('Recoleccion' as Kind),
     rutaId: fija?.rutaId?.toString() ?? '',
     turno: fija?.turno ?? ('CualquierHora' as Turno),
     placement: fija?.placement ?? ('Automatica' as Placement),
@@ -327,8 +340,7 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
     fija?.pasos.map((p) => ({
       lugarId: p.lugarId?.toString() ?? '',
       address: p.lugarId ? '' : (p.address ?? ''),
-      lat: p.lugarId ? '' : (p.lat?.toString() ?? ''),
-      lng: p.lugarId ? '' : (p.lng?.toString() ?? ''),
+      mapsLink: p.lugarId || p.lat == null || p.lng == null ? '' : `${p.lat}, ${p.lng}`,
       activity: p.activity ?? '',
       notes: p.notes ?? '',
     })) ?? [{ ...emptyPaso }],
@@ -346,6 +358,7 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
     () => {
       const body = {
         name: f.name.trim(),
+        category: f.category,
         kind: f.kind,
         rutaId: Number(f.rutaId),
         turno: f.turno,
@@ -363,8 +376,9 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
         pasos: pasos.map((p) => ({
           lugarId: p.lugarId ? Number(p.lugarId) : null,
           address: p.lugarId ? null : optional(p.address),
-          lat: p.lugarId ? null : optionalNumber(p.lat),
-          lng: p.lugarId ? null : optionalNumber(p.lng),
+          lat: null,
+          lng: null,
+          mapsLink: p.lugarId ? null : optional(p.mapsLink),
           activity: optional(p.activity),
           notes: optional(p.notes),
         })),
@@ -394,9 +408,18 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
           <Field label="Nombre" wide>
             <input autoFocus value={f.name} onChange={(e) => change({ name: e.target.value })} required placeholder="Traspaso K, Insumos Florida, Convenio Wildress" />
           </Field>
-          <Field label="Tipo de parada">
+          <Field label="Tipo de parada" hint={categoryOf(f.category).hint}>
+            <select value={f.category} onChange={(e) => change({ category: e.target.value as Category })}>
+              {CATEGORIES.map((k) => (
+                <option key={k.key} value={k.key}>
+                  {k.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Qué se hace">
             <select value={f.kind} onChange={(e) => change({ kind: e.target.value as Kind })}>
-              {FIJA_KINDS.map((k) => (
+              {ACTIONS.map((k) => (
                 <option key={k.key} value={k.key}>
                   {k.name}
                 </option>
@@ -551,19 +574,16 @@ function PasoEditor({
             ))}
           </select>
         </Field>
-        <Field label="Qué se hace">
-          <input value={paso.activity} onChange={(e) => onChange({ activity: e.target.value })} placeholder="Cargar, entregar insumos…" />
+        <Field label="Indicación">
+          <input value={paso.activity} onChange={(e) => onChange({ activity: e.target.value })} placeholder="Cargar en Leones, entregar insumos…" />
         </Field>
         {!paso.lugarId && (
           <>
             <Field label="Dirección" wide>
               <input value={paso.address} onChange={(e) => onChange({ address: e.target.value })} required />
             </Field>
-            <Field label="Latitud" hint="Para el mapa y el ruteo.">
-              <input inputMode="decimal" value={paso.lat} onChange={(e) => onChange({ lat: e.target.value })} />
-            </Field>
-            <Field label="Longitud">
-              <input inputMode="decimal" value={paso.lng} onChange={(e) => onChange({ lng: e.target.value })} />
+            <Field label="Link de Google Maps o coordenadas" wide hint="El link completo del navegador o 19.36, -99.19. Para el mapa y el ruteo.">
+              <input value={paso.mapsLink} onChange={(e) => onChange({ mapsLink: e.target.value })} />
             </Field>
           </>
         )}

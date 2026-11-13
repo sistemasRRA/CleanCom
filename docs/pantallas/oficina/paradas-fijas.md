@@ -22,8 +22,11 @@ El trabajo que se repite cada semana: convenios, insumos y traspasos. Se pide po
 ## Cómo quedó
 
 - **Parada y vuelta fija son el mismo registro:** se capturan los pasos en orden (lugar del catálogo o dirección con coordenadas, qué se hace y nota). Un paso es una parada fija; varios pasos son una vuelta, que genera un `Viaje` cuyos pasos se visitan seguidos y en orden. Botones ▲ ▼, "+ Otro paso" y "+ Regresar al inicio".
-- **Tipo:** convenio, insumos, traspaso o cliente final (recolección, entrega, entrega y recolección). El catálogo editable de tipos de parada no se usa aquí: el tipo decide qué hace el chofer y cómo se cuenta.
-- **Turno:** mañana, tarde o cualquier hora; la hora específica y las ventanas cortas llegan con Rutas.
+- **Tipo de parada** (cliente final, convenio, insumos, traspaso) y **qué se hace** (recolección, entrega, entrega y recolección, traslado), los mismos catálogos del sistema actual. Convenio: empresa o cliente con convenio y visita fija.
+- **Lugar en la ruta:** automático (donde quede mejor dentro del turno), primera parada del día o última parada antes de Leones.
+- **Link de Google Maps o coordenadas** en cada paso que no es lugar del catálogo: se leen las coordenadas del link completo o de "19.36, -99.19". Un link corto (maps.app.goo.gl) no trae coordenadas y se pide abrirlo y copiar el link completo; con Google conectado se cambia por autocompletado.
+- **Indicación** por paso ("Cargar en Leones") y nota.
+- **Turno:** por la mañana, por la tarde o cualquier hora; la hora específica y las ventanas cortas llegan con Rutas.
 - **Generación:** al arrancar el API y cada noche a las 00:15 (hora de CDMX) se generan las fijas de hoy a `Fijas.DiasAnticipacion` días; correrla dos veces no duplica. Al guardar una fija, pausarla, desactivarla o cambiarle excepciones se reemplazan sus paradas desde hoy que el chofer no haya iniciado.
 - **Cupo:** cada paso ocupa un lugar. La agenda cuenta también las fijas de días que todavía no se generan, así que nunca promete un lugar que una fija va a ocupar.
 - **La semana de un vistazo:** ruta por día (lunes a sábado), color por tipo, turno, marca 1ª o Últ., días inhábiles y "3 de 14 lugares" por celda; clic para editar. "Agregar las fijas del día" regenera un día.

@@ -55,6 +55,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<ParadaKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaState>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaPlacement>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ParadaCategory>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);

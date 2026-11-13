@@ -15,7 +15,8 @@ public class ParadaFijaTests
     {
         Id = 7,
         Name = "Traspaso K",
-        Kind = ParadaKind.Traspaso,
+        Category = ParadaCategory.Traspaso,
+        Kind = ParadaKind.Traslado,
         RutaId = 2,
         Turno = Turno.Manana,
         Placement = ParadaPlacement.Primera,
@@ -57,7 +58,8 @@ public class ParadaFijaTests
         {
             Assert.Same(rutaDia, p.RutaDia);
             Assert.Equal(7, p.ParadaFijaId);
-            Assert.Equal(ParadaKind.Traspaso, p.Kind);
+            Assert.Equal(ParadaKind.Traslado, p.Kind);
+            Assert.Equal(ParadaCategory.Traspaso, p.Category);
             Assert.Equal(ParadaPlacement.Primera, p.Placement);
             Assert.True(Parada.TakesCupo(p.Kind));
         });
@@ -69,7 +71,8 @@ public class ParadaFijaTests
         var fija = new ParadaFija
         {
             Name = "Insumos Del Valle",
-            Kind = ParadaKind.Insumos,
+            Category = ParadaCategory.Insumos,
+            Kind = ParadaKind.Entrega,
             DriverNotes = "Tocar en la puerta de servicio",
             Days = [DayOfWeek.Tuesday],
             Pasos = [new ParadaFijaPaso { Order = 1, Address = "Av. Coyoacán 100", Notes = "Preguntar por Ana" }],

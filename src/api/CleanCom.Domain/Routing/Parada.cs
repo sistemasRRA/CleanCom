@@ -6,8 +6,8 @@ using CleanCom.Domain.People;
 namespace CleanCom.Domain.Routing;
 
 /// <summary>
-/// What the chofer does at a parada. Not to be confused with the <see cref="ParadaType"/> catalog
-/// (Convenio, Insumos, Traspaso), which describes fixed paradas.
+/// What the chofer does at a parada ("qué se hace"). Who it is for is <see cref="ParadaCategory"/>.
+/// Convenio, Insumos and Traspaso remain for paradas created before the category existed.
 /// </summary>
 public enum ParadaKind
 {
@@ -20,6 +20,18 @@ public enum ParadaKind
     Salida,
     Regreso,
     Comida,
+    /// <summary>Moving load between lugares (traspasos, insumos).</summary>
+    Traslado,
+}
+
+/// <summary>Tipo de parada: who the visit is for.</summary>
+public enum ParadaCategory
+{
+    ClienteFinal,
+    /// <summary>Empresa o cliente con convenio y visita fija.</summary>
+    Convenio,
+    Insumos,
+    Traspaso,
 }
 
 public enum ParadaState
@@ -55,6 +67,8 @@ public class Parada : Entity, IActivatable
     public string? Notes { get; set; }
     /// <summary>Pinned first or last; routing arranges the rest.</summary>
     public ParadaPlacement Placement { get; set; } = ParadaPlacement.Automatica;
+    /// <summary>Tipo de parada; null for an invitado's recolección or entrega (cliente final).</summary>
+    public ParadaCategory? Category { get; set; }
     /// <summary>The parada fija that generated it, if any.</summary>
     public int? ParadaFijaId { get; set; }
     public ParadaFija? ParadaFija { get; set; }

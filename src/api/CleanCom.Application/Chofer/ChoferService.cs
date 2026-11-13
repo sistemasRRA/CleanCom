@@ -71,6 +71,7 @@ public class ChoferService(ICleanComDbContext db, ICurrentUser currentUser, IBus
                 p.Notes,
                 p.PedidoId,
                 p.Placement,
+                p.Category,
                 p.ViajeId,
                 p.ViajeStep,
                 ViajeName = p.Viaje == null ? null : p.Viaje.Name,
@@ -111,7 +112,7 @@ public class ChoferService(ICleanComDbContext db, ICurrentUser currentUser, IBus
                     name = $"{p.Title} · {p.LugarName}";
                 }
                 return new ChoferParadaDto(
-                    p.Id, i + 1, p.Kind, p.State, p.Turno, p.SpecificTime, p.Priority, p.PedidoId,
+                    p.Id, i + 1, p.Kind, p.Category, p.State, p.Turno, p.SpecificTime, p.Priority, p.PedidoId,
                     name, p.Phone,
                     p.Street is not null ? Address(p.Street, p.Exterior, p.Interior, p.Neighborhood) : p.ParadaAddress ?? p.LugarAddress,
                     p.References, p.ZonaCode, location?.Y, location?.X, p.GarmentsApprox, p.Lineas, p.Notes, p.Activity,

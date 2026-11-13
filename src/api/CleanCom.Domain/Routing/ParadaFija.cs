@@ -20,11 +20,14 @@ public enum ParadaPlacement
 /// </summary>
 public class ParadaFija : Entity, IActivatable
 {
-    /// <summary>Kinds a fixed parada can have; Salida, Regreso and Comida belong to routing.</summary>
+    /// <summary>"Qué se hace" options of a parada fija.</summary>
     public static readonly ParadaKind[] AllowedKinds =
-        [ParadaKind.Convenio, ParadaKind.Insumos, ParadaKind.Traspaso, ParadaKind.Recoleccion, ParadaKind.Entrega, ParadaKind.RecoleccionYEntrega];
+        [ParadaKind.Recoleccion, ParadaKind.Entrega, ParadaKind.RecoleccionYEntrega, ParadaKind.Traslado];
 
     public string Name { get; set; } = "";
+    /// <summary>Tipo de parada.</summary>
+    public ParadaCategory Category { get; set; }
+    /// <summary>Qué se hace.</summary>
     public ParadaKind Kind { get; set; }
     public int RutaId { get; set; }
     public Ruta? Ruta { get; set; }
@@ -84,6 +87,7 @@ public class ParadaFija : Entity, IActivatable
         {
             RutaDia = rutaDia,
             Kind = Kind,
+            Category = Category,
             Turno = Turno,
             Placement = Placement,
             ParadaFijaId = Id,
