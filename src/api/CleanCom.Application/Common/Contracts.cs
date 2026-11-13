@@ -18,6 +18,7 @@ public interface ICleanComDbContext
     DbSet<Zona> Zonas { get; }
     DbSet<ZonaVisitDay> ZonaVisitDays { get; }
     DbSet<PostalCodeCoverage> Coverage { get; }
+    DbSet<PostalCode> PostalCodes { get; }
     DbSet<Lugar> Lugares { get; }
     DbSet<ParadaType> ParadaTypes { get; }
     DbSet<LineaServicio> LineasServicio { get; }

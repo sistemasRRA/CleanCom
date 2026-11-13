@@ -14,6 +14,7 @@ import { Operations } from './pages/operations/Operations';
 import { Settings } from './pages/operations/Settings';
 import { Rutas, Zonas } from './pages/operations/RutasZonas';
 import { CoveragePage, Lugares, NonWorkingDays, OtherCatalogs } from './pages/operations/Catalogs';
+import { PostalCodes } from './pages/operations/PostalCodes';
 import { Operadores, UserList, Users } from './pages/users/Users';
 import { RolesPermissions } from './pages/users/Roles';
 import { Agendar } from './pages/agenda/Agendar';
@@ -51,6 +52,7 @@ function App() {
             <Route path="lugares" element={<Lugares />} />
             <Route path="dias-inhabiles" element={<NonWorkingDays />} />
             <Route path="cobertura" element={<CoveragePage />} />
+            <Route path="codigos-postales" element={<PostalCodes />} />
             <Route path="catalogos" element={<OtherCatalogs />} />
           </Route>
         )}

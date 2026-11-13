@@ -20,6 +20,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Zona> Zonas => Set<Zona>();
     public DbSet<ZonaVisitDay> ZonaVisitDays => Set<ZonaVisitDay>();
     public DbSet<PostalCodeCoverage> Coverage => Set<PostalCodeCoverage>();
+    public DbSet<PostalCode> PostalCodes => Set<PostalCode>();
     public DbSet<Lugar> Lugares => Set<Lugar>();
     public DbSet<ParadaType> ParadaTypes => Set<ParadaType>();
     public DbSet<LineaServicio> LineasServicio => Set<LineaServicio>();

@@ -330,6 +330,28 @@ function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest']
 
 function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onChange: (v: DireccionFields) => void }) {
   const set = (k: keyof DireccionFields) => (e: { target: { value: string } }) => onChange({ ...value, [k]: e.target.value });
+
+  // Official catalog: the postal code suggests its colonias and fills the alcaldía.
+  const cp = value.postalCode.trim();
+  const colonias = useQuery({
+    queryKey: [...keys.postalCodes, cp],
+    queryFn: () => unwrap(api.GET('/codigos-postales/{code}', { params: { path: { code: cp } } })),
+    enabled: /^\d{5}$/.test(cp),
+    staleTime: Infinity,
+  });
+  const options = colonias.data ?? [];
+  useEffect(() => {
+    if (options.length === 0) return;
+    const match = options.find((o) => o.settlement.toLowerCase() === value.neighborhood.trim().toLowerCase());
+    const only = options.length === 1 ? options[0] : undefined;
+    const neighborhood = value.neighborhood || only?.settlement || '';
+    const borough = (match ?? only ?? options[0]).borough;
+    if (neighborhood !== value.neighborhood || borough !== value.borough) onChange({ ...value, neighborhood, borough });
+    // Only when the catalog answers or the colonia changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colonias.data, value.neighborhood]);
+  const listId = `colonias-${cp}`;
+
   return (
     <div className="form-grid">
       <Field label="Calle" wide>
@@ -341,11 +363,27 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
       <Field label="Interior">
         <input value={value.interiorNumber} onChange={set('interiorNumber')} />
       </Field>
-      <Field label="Código postal">
+      <Field
+        label="Código postal"
+        hint={
+          colonias.data && /^\d{5}$/.test(cp)
+            ? options.length
+              ? `${options.length} colonia${options.length === 1 ? '' : 's'} en el catálogo oficial`
+              : 'No está en el catálogo oficial'
+            : undefined
+        }
+      >
         <input value={value.postalCode} onChange={set('postalCode')} inputMode="numeric" maxLength={5} required />
       </Field>
       <Field label="Colonia">
-        <input value={value.neighborhood} onChange={set('neighborhood')} />
+        <input value={value.neighborhood} onChange={set('neighborhood')} list={listId} autoComplete="off" />
+        <datalist id={listId}>
+          {options.map((o) => (
+            <option key={`${o.settlement}-${o.borough}`} value={o.settlement}>
+              {o.settlementType}
+            </option>
+          ))}
+        </datalist>
       </Field>
       <Field label="Alcaldía">
         <input value={value.borough} onChange={set('borough')} />

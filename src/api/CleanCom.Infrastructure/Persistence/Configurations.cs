@@ -324,3 +324,24 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.HasIndex(x => new { x.RutaDiaId, x.Kind });
     }
 }
+
+internal class PostalCodeConfig : IEntityTypeConfiguration<PostalCode>
+{
+    public void Configure(EntityTypeBuilder<PostalCode> e)
+    {
+        e.ToTable("PostalCodes");
+        e.Property(x => x.Code).HasMaxLength(5).IsFixedLength();
+        e.Property(x => x.Settlement).HasMaxLength(150);
+        e.Property(x => x.SettlementType).HasMaxLength(50);
+        e.Property(x => x.Borough).HasMaxLength(100);
+        e.Property(x => x.City).HasMaxLength(100);
+        e.Property(x => x.State).HasMaxLength(60);
+        e.Property(x => x.StateCode).HasMaxLength(2);
+        e.Property(x => x.BoroughCode).HasMaxLength(3);
+        e.Property(x => x.SettlementId).HasMaxLength(4);
+        e.Property(x => x.AreaType).HasMaxLength(20);
+        // How Correos de México identifies a settlement; a new import updates it instead of duplicating it.
+        e.HasIndex(x => new { x.StateCode, x.BoroughCode, x.SettlementId }).IsUnique();
+        e.HasIndex(x => x.Code);
+    }
+}

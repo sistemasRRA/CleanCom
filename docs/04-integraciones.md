@@ -56,3 +56,10 @@ Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, par
 ## BigQuery (fase 2)
 
 Copia nocturna de tablas de hechos (pedidos, visitas, mensajes, valores de KPIs) para cruzar con HubSpot, pauta y nómina, y para costo por fuente.
+
+## Correos de México (catálogo de códigos postales)
+
+- Fuente: correosdemexico.gob.mx › Consulta de códigos postales › Exportar, formato TXT (ISO-8859-1, campos separados por `|`), por estado o de todo el país.
+- Se importa desde Operación › Códigos postales (`POST /codigos-postales/importar`). Volver a importar actualiza y da de baja lo que ya no venga; importar el mismo archivo dos veces no cambia nada.
+- Términos: gratuito para uso particular; no se permite comercializarlo ni distribuirlo a terceros. Por eso el archivo no va en el repositorio ni en migraciones, y las pruebas usan filas inventadas.
+- Uso: llenar colonia y alcaldía al capturar direcciones y validar CP. No decide la zona: eso es la tabla de cobertura y los polígonos.

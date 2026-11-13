@@ -5,6 +5,7 @@
 - [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo).
 - [ ] Base de datos que usa la app actual y respaldo para migrar.
 - [ ] Excel máster.
+- [ ] Dirección de la base (`Base.Direccion`): dice "Los Alpes, 01710", pero en el catálogo oficial de Correos de México Los Alpes es el CP 01010 y el 01710 es Ampliación Alpes o Las Águilas. Confirmar cuál es la correcta.
 - [ ] Características y sistema operativo del VPS.
 - [ ] Tipos de pagos por unidad (tenencia o refrendo, crédito o arrendamiento, póliza en pagos, otros).
 - [ ] Días de proceso prometidos por línea de servicio (planchaduría, lavandería, tintorería, sastrería, calzado).

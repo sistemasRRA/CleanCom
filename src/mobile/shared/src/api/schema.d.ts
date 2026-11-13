@@ -1372,6 +1372,164 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/codigos-postales/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    code: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PostalCodeDto"][];
+                        "application/json": components["schemas"]["PostalCodeDto"][];
+                        "text/json": components["schemas"]["PostalCodeDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/codigos-postales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PostalCodeDto"][];
+                        "application/json": components["schemas"]["PostalCodeDto"][];
+                        "text/json": components["schemas"]["PostalCodeDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/codigos-postales/resumen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PostalCodeSummaryDto"];
+                        "application/json": components["schemas"]["PostalCodeSummaryDto"];
+                        "text/json": components["schemas"]["PostalCodeSummaryDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/codigos-postales/importar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PostalCodeImportDto"];
+                        "application/json": components["schemas"]["PostalCodeImportDto"];
+                        "text/json": components["schemas"]["PostalCodeImportDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/motivos": {
         parameters: {
             query?: never;
@@ -2401,6 +2559,8 @@ export interface components {
             zonaAssignedManually: boolean;
             active: boolean;
         };
+        /** Format: binary */
+        IFormFile: string;
         InvitadoDto: {
             /** Format: int32 */
             id: number;
@@ -2500,6 +2660,41 @@ export interface components {
         PedidoEtapa: "Agendado" | "Recolectado" | "EnPlanta" | "Listo" | "EntregaConfirmada" | "EnCamino" | "Entregado" | "Cancelado";
         /** @enum {unknown} */
         PedidoOrigin: "Oficina" | "App";
+        PostalCodeDto: {
+            code: string;
+            settlement: string;
+            settlementType: string;
+            borough: string;
+            city: null | string;
+            state: string;
+        };
+        PostalCodeImportDto: {
+            /** Format: int32 */
+            read: number;
+            /** Format: int32 */
+            added: number;
+            /** Format: int32 */
+            updated: number;
+            /** Format: int32 */
+            deactivated: number;
+            states: string[];
+        };
+        PostalCodeStateDto: {
+            state: string;
+            /** Format: int32 */
+            settlements: number;
+            /** Format: int32 */
+            postalCodes: number;
+        };
+        PostalCodeSummaryDto: {
+            /** Format: int32 */
+            settlements: number;
+            /** Format: int32 */
+            postalCodes: number;
+            states: components["schemas"]["PostalCodeStateDto"][];
+            /** Format: date-time */
+            lastImportAt: null | string;
+        };
         ReasonDto: {
             /** Format: int32 */
             id: number;
