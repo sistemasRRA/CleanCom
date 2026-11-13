@@ -335,6 +335,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chofer/ruta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cobertura": {
         parameters: {
             query?: never;
@@ -2586,6 +2625,50 @@ export interface components {
             effectiveFrom: null | string;
             note: null | string;
         };
+        ChoferParadaDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: int32 */
+            order: number;
+            kind: components["schemas"]["ParadaKind"];
+            state: components["schemas"]["ParadaState"];
+            turno: components["schemas"]["Turno"];
+            /** Format: time */
+            specificTime: null | string;
+            priority: boolean;
+            /** Format: int32 */
+            pedidoId: null | number;
+            invitadoName: null | string;
+            phone: null | string;
+            address: null | string;
+            references: null | string;
+            zonaCode: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            lineasServicio: string[];
+            notes: null | string;
+        };
+        ChoferRutaDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            operadorName: null | string;
+            ruta: null | components["schemas"]["ChoferRutaInfoDto"];
+            assignedByOffice: boolean;
+            notice: null | string;
+            paradas: components["schemas"]["ChoferParadaDto"][];
+        };
+        ChoferRutaInfoDto: {
+            /** Format: int32 */
+            id: number;
+            code: string;
+            name: string;
+            color: string;
+        };
         CoverageDto: {
             /** Format: int32 */
             id: number;
@@ -2695,6 +2778,10 @@ export interface components {
             /** Format: int32 */
             userId: null | number;
         };
+        /** @enum {unknown} */
+        ParadaKind: "Recoleccion" | "Entrega" | "RecoleccionYEntrega" | "Convenio" | "Insumos" | "Traspaso" | "Salida" | "Regreso" | "Comida";
+        /** @enum {unknown} */
+        ParadaState: "Pendiente" | "EnCamino" | "EnSitio" | "Realizada" | "NoRealizada";
         ParadaTypeDto: {
             /** Format: int32 */
             id: number;

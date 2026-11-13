@@ -251,6 +251,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
+| App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
 
 El motor de agenda está en `CleanCom.Domain/Agenda` (cortes y búsqueda de fecha, sin base de datos) y `CleanCom.Application/Agenda` (`AgendaService`, `ZonaLocator`). `agendar` repite el cálculo dentro de una transacción con `sp_getapplock` por ruta y fecha (`AgendaLock`), así dos personas no toman el último lugar del mismo día.
 
