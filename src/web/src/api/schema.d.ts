@@ -466,6 +466,243 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invitados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    estatus?: components["schemas"]["CrmStatus"];
+                    ruta?: number;
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmListDto"];
+                        "application/json": components["schemas"]["CrmListDto"];
+                        "text/json": components["schemas"]["CrmListDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveInvitadoRequest"];
+                    "text/json": components["schemas"]["SaveInvitadoRequest"];
+                    "application/*+json": components["schemas"]["SaveInvitadoRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoDto"];
+                        "application/json": components["schemas"]["InvitadoDto"];
+                        "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/llamar-hoy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    ruta?: number;
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmListDto"];
+                        "application/json": components["schemas"]["CrmListDto"];
+                        "text/json": components["schemas"]["CrmListDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/ficha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmFichaDto"];
+                        "application/json": components["schemas"]["CrmFichaDto"];
+                        "text/json": components["schemas"]["CrmFichaDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/contactos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveContactoRequest"];
+                    "text/json": components["schemas"]["SaveContactoRequest"];
+                    "application/*+json": components["schemas"]["SaveContactoRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmFichaDto"];
+                        "application/json": components["schemas"]["CrmFichaDto"];
+                        "text/json": components["schemas"]["CrmFichaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/seguimiento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveSeguimientoRequest"];
+                    "text/json": components["schemas"]["SaveSeguimientoRequest"];
+                    "application/*+json": components["schemas"]["SaveSeguimientoRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmFichaDto"];
+                        "application/json": components["schemas"]["CrmFichaDto"];
+                        "text/json": components["schemas"]["CrmFichaDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invitados/buscar": {
         parameters: {
             query?: never;
@@ -587,49 +824,6 @@ export interface paths {
                 };
             };
         };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invitados": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["SaveInvitadoRequest"];
-                    "text/json": components["schemas"]["SaveInvitadoRequest"];
-                    "application/*+json": components["schemas"]["SaveInvitadoRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["InvitadoDto"];
-                        "application/json": components["schemas"]["InvitadoDto"];
-                        "text/json": components["schemas"]["InvitadoDto"];
-                    };
-                };
-            };
-        };
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2586,6 +2780,21 @@ export interface components {
             effectiveFrom: null | string;
             note: null | string;
         };
+        /** @enum {unknown} */
+        ContactChannel: "Llamada" | "WhatsApp";
+        ContactoDto: {
+            /** Format: int32 */
+            id: number;
+            channel: components["schemas"]["ContactChannel"];
+            result: components["schemas"]["ContactResult"];
+            note: null | string;
+            /** Format: date */
+            nextContactOn: null | string;
+            /** Format: date-time */
+            contactedAt: string;
+        };
+        /** @enum {unknown} */
+        ContactResult: "NoContesto" | "LlamarDespues" | "NoPorAhora" | "Agendo" | "NoContactar";
         CoverageDto: {
             /** Format: int32 */
             id: number;
@@ -2608,6 +2817,60 @@ export interface components {
             createOperador: boolean;
             /** Format: int32 */
             usualRutaId: null | number;
+        };
+        CrmFichaDto: {
+            invitado: components["schemas"]["InvitadoDto"];
+            crm: components["schemas"]["CrmRowDto"];
+            manualStatus: null | components["schemas"]["CrmStatus"];
+            /** Format: int32 */
+            fixedFrequencyDays: null | number;
+            pedidos: components["schemas"]["PedidoDto"][];
+            contactos: components["schemas"]["ContactoDto"][];
+        };
+        CrmListDto: {
+            /** Format: date */
+            today: string;
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            callTodayCount: number;
+            counts: components["schemas"]["CrmStatusCountDto"][];
+            rows: components["schemas"]["CrmRowDto"][];
+        };
+        CrmRowDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            whatsAppPhone: string;
+            type: components["schemas"]["InvitadoType"];
+            neighborhood: null | string;
+            zonaCode: null | string;
+            rutaCode: null | string;
+            status: components["schemas"]["CrmStatus"];
+            statusIsManual: boolean;
+            why: string;
+            /** Format: int32 */
+            serviceCount: number;
+            /** Format: int32 */
+            frequencyDays: null | number;
+            /** Format: date */
+            lastService: null | string;
+            /** Format: date */
+            leTocaDate: null | string;
+            /** Format: date */
+            suggestedVisit: null | string;
+            /** Format: date */
+            nextRecoleccion: null | string;
+            /** Format: date */
+            nextContactOn: null | string;
+            doNotContact: boolean;
+        };
+        /** @enum {unknown} */
+        CrmStatus: "Prospecto" | "Nuevo" | "Activo" | "LeToca" | "EnRiesgo" | "Inactivo";
+        CrmStatusCountDto: {
+            status: components["schemas"]["CrmStatus"];
+            /** Format: int32 */
+            count: number;
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
@@ -2819,6 +3082,13 @@ export interface components {
             maxReturnTimeSaturday: null | string;
             active: boolean;
         };
+        SaveContactoRequest: {
+            channel: components["schemas"]["ContactChannel"];
+            result: components["schemas"]["ContactResult"];
+            note: null | string;
+            /** Format: date */
+            nextContactOn: null | string;
+        };
         SaveCoverageRequest: {
             postalCode: string;
             neighborhood: string;
@@ -2917,6 +3187,14 @@ export interface components {
             maxReturnTimeSaturday: null | string;
             /** @default true */
             active: boolean;
+        };
+        SaveSeguimientoRequest: {
+            manualStatus: null | components["schemas"]["CrmStatus"];
+            /** Format: int32 */
+            fixedFrequencyDays: null | number;
+            /** Format: date */
+            nextContactOn: null | string;
+            doNotContact: boolean;
         };
         SaveZonaRequest: {
             code: string;

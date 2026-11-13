@@ -1,6 +1,7 @@
 using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
+using CleanCom.Domain.Crm;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -33,6 +34,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Pedido> Pedidos => Set<Pedido>();
     public DbSet<RutaDia> RutaDias => Set<RutaDia>();
     public DbSet<Parada> Paradas => Set<Parada>();
+    public DbSet<Contacto> Contactos => Set<Contacto>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -49,6 +51,9 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<Turno>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaState>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

@@ -1130,6 +1130,73 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("zona_visit_days", (string)null);
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Crm.Contacto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("ContactedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("contacted_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("InvitadoId")
+                        .HasColumnType("int")
+                        .HasColumnName("invitado_id");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateOnly?>("NextContactOn")
+                        .HasColumnType("date")
+                        .HasColumnName("next_contact_on");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("result");
+
+                    b.HasKey("Id")
+                        .HasName("pk_contactos");
+
+                    b.HasIndex("InvitadoId", "ContactedAt")
+                        .HasDatabaseName("ix_contactos_invitado_id_contacted_at");
+
+                    b.ToTable("contactos", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Operations.Setting", b =>
                 {
                     b.Property<int>("Id")
@@ -1450,6 +1517,36 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Coordinate",
                             Value = "19.3608092,-99.1968494"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Crm.DiasNoContesto",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "1"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Crm.DiasLlamarDespues",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "3"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Crm.DiasNoPorAhora",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "21"
                         });
                 });
 
@@ -1699,15 +1796,28 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("int")
                         .HasColumnName("created_by");
 
+                    b.Property<bool>("DoNotContact")
+                        .HasColumnType("bit")
+                        .HasColumnName("do_not_contact");
+
                     b.Property<string>("Email")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)")
                         .HasColumnName("email");
 
+                    b.Property<int?>("FixedFrequencyDays")
+                        .HasColumnType("int")
+                        .HasColumnName("fixed_frequency_days");
+
                     b.Property<string>("HowFoundUs")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("how_found_us");
+
+                    b.Property<string>("ManualStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("manual_status");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset")
@@ -1722,6 +1832,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)")
                         .HasColumnName("name");
+
+                    b.Property<DateOnly?>("NextContactOn")
+                        .HasColumnType("date")
+                        .HasColumnName("next_contact_on");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
@@ -2410,6 +2524,18 @@ namespace CleanCom.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_zona_visit_days_zonas_zona_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Crm.Contacto", b =>
+                {
+                    b.HasOne("CleanCom.Domain.People.Invitado", "Invitado")
+                        .WithMany()
+                        .HasForeignKey("InvitadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_contactos_invitados_invitado_id");
+
+                    b.Navigation("Invitado");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Pedidos.Pedido", b =>

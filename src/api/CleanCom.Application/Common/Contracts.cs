@@ -1,5 +1,6 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
+using CleanCom.Domain.Crm;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -31,6 +32,7 @@ public interface ICleanComDbContext
     DbSet<Pedido> Pedidos { get; }
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
+    DbSet<Contacto> Contactos { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

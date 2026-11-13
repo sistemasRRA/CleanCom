@@ -30,6 +30,9 @@
 
 ## Reglas propuestas que conviene validar
 
+- [ ] Orden de prioridad entre estatus del CRM cuando aplican varios: Inactivo, En riesgo, Le toca, Nuevo y Activo (Prospecto si no hay servicios). Así un invitado nuevo con fecha "le toca" aparece como Le toca.
+- [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
+
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:
 
 - [ ] Recolectado → En planta ocurre al llegar el primer ticket del POS ligado al pedido.

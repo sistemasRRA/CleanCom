@@ -31,6 +31,9 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Crm.DiasNuevo` | 45 | |
 | `Crm.DiasInactivo` | 120 | También define recuperado y perdido |
 | `Crm.FactorEnRiesgo` | 2 | Veces su frecuencia |
+| `Crm.DiasNoContesto` | 1 | Volver a llamar si no contestó (registro de contacto sin fecha) |
+| `Crm.DiasLlamarDespues` | 3 | Volver a llamar si pidió que le llamaran después |
+| `Crm.DiasNoPorAhora` | 21 | Volver a llamar si dijo que no por ahora |
 | `Pedido.DiasPermitidosPorEtapa` | Por etapa | Semáforo de atraso |
 | `Base.Direccion` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 | Inicio y fin de ruta |
 | `Base.Ubicacion` | 19.3608092,-99.1968494 | Coordenadas de la base |
@@ -157,7 +160,7 @@ Invitados Le toca o En riesgo cuya ruta pasa mañana por su zona, excluyendo a q
 
 ### Registro de contacto
 
-Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 días si pidió que le llamaran, en 3 semanas si dijo que no por ahora.
+Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 días si pidió que le llamaran, en 3 semanas si dijo que no por ahora (días configurables: `Crm.DiasNoContesto`, `Crm.DiasLlamarDespues`, `Crm.DiasNoPorAhora`). "No contactar" marca al invitado: sale de "Llamar hoy" y de campañas. "Agendó" no programa seguimiento.
 
 ### Clientes y fuentes
 

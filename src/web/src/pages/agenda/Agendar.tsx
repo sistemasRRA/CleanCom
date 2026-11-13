@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
@@ -43,7 +44,10 @@ function addressLine(d: Direccion) {
 
 export function Agendar() {
   const canEdit = useSession().can('agendar', 'edit');
-  const [invitadoId, setInvitadoId] = useState<number | null>(null);
+  // "Agendar" from the CRM opens the screen with the invitado chosen (/agendar?invitado=12).
+  const [params] = useSearchParams();
+  const fromCrm = Number(params.get('invitado'));
+  const [invitadoId, setInvitadoId] = useState<number | null>(Number.isInteger(fromCrm) && fromCrm > 0 ? fromCrm : null);
   const [direccionId, setDireccionId] = useState<number | null>(null);
   const [capturing, setCapturing] = useState(false);
 

@@ -4,6 +4,7 @@ using CleanCom.Application.Invitados;
 using CleanCom.Application.Pedidos;
 using CleanCom.Application.PostalCodes;
 using CleanCom.Application.Catalogs;
+using CleanCom.Application.Crm;
 using CleanCom.Application.Operations;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<InvitadoService>();
         services.AddScoped<PedidoService>();
         services.AddScoped<PostalCodeService>();
+        services.AddScoped<CrmService>();
         return services;
     }
 }
