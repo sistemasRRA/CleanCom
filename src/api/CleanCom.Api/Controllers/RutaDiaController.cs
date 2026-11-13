@@ -30,7 +30,25 @@ public class RutaDiaController(RutaDiaService service) : ControllerBase
     public Task<RutaPlanDto> Optimize(int id, CancellationToken ct) =>
         service.OptimizeAsync(id, ct);
 
-    /// <summary>Moves a parada (with its viaje) and/or pins it; a parada moved by hand stays fixed.</summary>
+    /// <summary>"Parada de un día": one paso (convenio, insumos, traspaso…) added to a ruta on a date.</summary>
+    [HttpPost("paradas")]
+    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    public Task<RutaPlanDto> AddParada(AddToRutaRequest request, CancellationToken ct) =>
+        service.AddAsync(request, false, ct);
+
+    /// <summary>"Viaje de un día": two or more pasos visited in order.</summary>
+    [HttpPost("viajes")]
+    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    public Task<RutaPlanDto> AddViaje(AddToRutaRequest request, CancellationToken ct) =>
+        service.AddAsync(request, true, ct);
+
+    /// <summary>Takes a parada (or its whole viaje) out of the ruta that day. Baja lógica; pedidos go through the agenda.</summary>
+    [HttpDelete("paradas/{id:int}")]
+    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    public Task<RutaPlanDto> RemoveParada(int id, CancellationToken ct) =>
+        service.RemoveParadaAsync(id, ct);
+
+    /// <summary>Moves a parada and/or pins it; a parada moved by hand stays fixed.</summary>
     [HttpPatch("paradas/{id:int}")]
     [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
     public Task<RutaPlanDto> PatchParada(int id, PatchParadaRequest request, CancellationToken ct) =>

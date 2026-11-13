@@ -73,7 +73,8 @@ public class ParadaFija : Entity, IActivatable
 
     /// <summary>
     /// The paradas for one day of <paramref name="rutaDia"/>, pasos in order. A vuelta also gets its <see cref="Viaje"/>,
-    /// which keeps the pasos together and in order when routing. <see cref="Pasos"/> must be loaded.
+    /// which keeps the pasos in order when routing. <see cref="Pasos"/> must be loaded. An unsaved parada fija (Id 0)
+    /// builds a parada or viaje de un día, not linked to any parada fija.
     /// </summary>
     public IReadOnlyList<Parada> BuildParadas(RutaDia rutaDia)
     {
@@ -83,7 +84,7 @@ public class ParadaFija : Entity, IActivatable
             throw new DomainException($"La parada fija {Name} no tiene pasos.");
         }
 
-        var viaje = pasos.Count > 1 ? new Viaje { RutaDia = rutaDia, Name = Name, Carried = Carried, ParadaFijaId = Id } : null;
+        var viaje = pasos.Count > 1 ? new Viaje { RutaDia = rutaDia, Name = Name, Carried = Carried, ParadaFijaId = LinkedId } : null;
         return pasos.Select((paso, i) => new Parada
         {
             RutaDia = rutaDia,
@@ -92,7 +93,7 @@ public class ParadaFija : Entity, IActivatable
             Turno = paso.Turno ?? Turno,
             Before = paso.Before,
             Placement = Placement,
-            ParadaFijaId = Id,
+            ParadaFijaId = LinkedId,
             Viaje = viaje,
             ViajeStep = viaje is null ? null : i + 1,
             Title = Name,
@@ -103,6 +104,8 @@ public class ParadaFija : Entity, IActivatable
             Notes = JoinNotes(DriverNotes, paso.Notes),
         }).ToList();
     }
+
+    private int? LinkedId => Id == 0 ? null : Id;
 
     private static string? JoinNotes(string? general, string? paso) =>
         (general, paso) switch

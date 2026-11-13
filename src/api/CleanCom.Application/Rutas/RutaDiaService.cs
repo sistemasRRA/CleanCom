@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Application.ParadasFijas;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
@@ -20,7 +21,8 @@ public class RutaDiaService(
     ICleanComDbContext db,
     ISettingService settings,
     IBusinessClock clock,
-    IValidator<PatchParadaRequest> patchValidator)
+    IValidator<PatchParadaRequest> patchValidator,
+    IValidator<AddToRutaRequest> addValidator)
 {
     public async Task<RutasDiaDto> DayAsync(DateOnly? date, CancellationToken ct)
     {
@@ -128,6 +130,96 @@ public class RutaDiaService(
         paradas.First(p => p.Id == parada.Id).PositionFixed = r.Fixed ?? true;
         await db.SaveChangesAsync(ct);
         return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, context, ct);
+    }
+
+    /// <summary>
+    /// "Parada de un día" (<paramref name="viaje"/> false, one paso) or "Viaje de un día" (two or more pasos in order).
+    /// It takes cupo like any parada; going over the cupo shows in the alerts.
+    /// </summary>
+    public async Task<RutaPlanDto> AddAsync(AddToRutaRequest r, bool viaje, CancellationToken ct)
+    {
+        await addValidator.ValidateAndThrowAsync(r, ct);
+        if (viaje && r.Pasos.Count < 2)
+        {
+            throw new DomainException("Un viaje lleva al menos dos pasos; para un solo lugar agrega una parada de un día.");
+        }
+        if (!viaje && r.Pasos.Count != 1)
+        {
+            throw new DomainException("Una parada de un día lleva un solo lugar; para varios agrega un viaje de un día.");
+        }
+        var ruta = await db.Rutas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == r.RutaId && x.Active, ct)
+            ?? throw new NotFoundException($"La ruta {r.RutaId} no existe o está inactiva.");
+        if (r.Date < clock.Today)
+        {
+            throw new DomainException("No se pueden agregar paradas a un día que ya pasó.");
+        }
+        if (await db.NonWorkingDays.AnyAsync(d => d.Active && d.Date == r.Date, ct))
+        {
+            throw new DomainException($"El {AgendaCalculator.Format(r.Date)} es día inhábil.");
+        }
+        var lugarIds = r.Pasos.Where(p => p.LugarId is not null).Select(p => p.LugarId!.Value).Distinct().ToList();
+        if (lugarIds.Count > 0 && await db.Lugares.CountAsync(l => lugarIds.Contains(l.Id) && l.Active, ct) != lugarIds.Count)
+        {
+            throw new DomainException("Algún lugar no existe o está inactivo.");
+        }
+
+        // Built like a parada fija that is never saved: same pasos, same viaje, no link to a parada fija.
+        var oneDay = new ParadaFija
+        {
+            Name = r.Name.Trim(),
+            Category = r.Category,
+            Kind = r.Kind,
+            Turno = r.Turno,
+            Placement = r.Placement,
+            Carried = PasoMapper.Clean(r.Carried),
+            DriverNotes = PasoMapper.Clean(r.DriverNotes),
+        };
+        for (var i = 0; i < r.Pasos.Count; i++)
+        {
+            var paso = new ParadaFijaPaso();
+            PasoMapper.Apply(paso, r.Pasos[i], i + 1, r.Kind, r.Turno);
+            oneDay.Pasos.Add(paso);
+        }
+
+        var rutaDia = await db.RutaDias.FirstOrDefaultAsync(d => d.RutaId == r.RutaId && d.Date == r.Date, ct);
+        if (rutaDia is null)
+        {
+            rutaDia = new RutaDia { RutaId = r.RutaId, Date = r.Date };
+            db.RutaDias.Add(rutaDia);
+        }
+        db.Paradas.AddRange(oneDay.BuildParadas(rutaDia));
+        await db.SaveChangesAsync(ct);
+        return await PlanAsync(ruta, r.Date, rutaDia, await ContextAsync(r.Date, ct), ct);
+    }
+
+    /// <summary>
+    /// Takes a parada out of the ruta that day (baja lógica); a paso of a viaje takes out the whole viaje.
+    /// A pedido's recolección is cancelled from the agenda, not here.
+    /// </summary>
+    public async Task<RutaPlanDto> RemoveParadaAsync(int paradaId, CancellationToken ct)
+    {
+        var parada = await db.Paradas.Include(p => p.RutaDia).ThenInclude(d => d!.Ruta)
+            .FirstOrDefaultAsync(p => p.Id == paradaId && p.Active, ct)
+            ?? throw new NotFoundException($"La parada {paradaId} no existe.");
+        if (parada.PedidoId is not null)
+        {
+            throw new DomainException("Es la recolección de un pedido: elimínala desde la agenda.");
+        }
+        var paradas = parada.ViajeId is { } viajeId
+            ? await db.Paradas.Include(p => p.Viaje).Where(p => p.ViajeId == viajeId && p.Active).ToListAsync(ct)
+            : [parada];
+        if (paradas.Any(p => p.State != ParadaState.Pendiente))
+        {
+            throw new DomainException("El chofer ya la inició; no se puede quitar.");
+        }
+        foreach (var p in paradas)
+        {
+            p.Active = false;
+            p.Viaje?.Active = false;
+        }
+        await db.SaveChangesAsync(ct);
+        var rutaDia = parada.RutaDia!;
+        return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, await ContextAsync(rutaDia.Date, ct), ct);
     }
 
     // ---------------- plan ----------------

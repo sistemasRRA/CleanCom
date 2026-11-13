@@ -331,17 +331,7 @@ public class ParadaFijaService(
         for (var i = 0; i < r.Pasos.Count; i++)
         {
             var paso = i < current.Count ? current[i] : new ParadaFijaPaso();
-            var source = r.Pasos[i];
-            paso.Order = i + 1;
-            paso.LugarId = source.LugarId;
-            paso.Address = source.LugarId is null ? Clean(source.Address) : null;
-            paso.Location = source.LugarId is null ? Location(source, i + 1) : null;
-            paso.Activity = Clean(source.Activity);
-            // Same as the parada fija: stored as null so changing the parada changes the paso too.
-            paso.Kind = source.Kind == r.Kind ? null : source.Kind;
-            paso.Turno = source.Turno == r.Turno ? null : source.Turno;
-            paso.Before = source.Before;
-            paso.Notes = Clean(source.Notes);
+            PasoMapper.Apply(paso, r.Pasos[i], i + 1, r.Kind, r.Turno);
             if (i >= current.Count)
             {
                 fija.Pasos.Add(paso);
@@ -355,27 +345,11 @@ public class ParadaFijaService(
         }
     }
 
-    /// <summary>Coordinates as given, or read from the Google Maps link.</summary>
-    private static NetTopologySuite.Geometries.Point? Location(SaveParadaFijaPasoRequest paso, int number)
-    {
-        if (paso.Lat is { } lat && paso.Lng is { } lng)
-        {
-            return Geo.CreatePoint(lat, lng);
-        }
-        if (string.IsNullOrWhiteSpace(paso.MapsLink))
-        {
-            return null;
-        }
-        return Geo.TryParseCoordinates(paso.MapsLink, out var a, out var b)
-            ? Geo.CreatePoint(a, b)
-            : throw new DomainException($"Paso {number}: no encontré coordenadas en el link. Si es un link corto (maps.app.goo.gl), ábrelo y copia el link completo del navegador o las coordenadas (19.36, -99.19).");
-    }
-
     /// <summary>"Durango 216, Roma Norte, …" → "Durango 216, Roma Norte".</summary>
     private static string? ShortAddress(string? address) =>
         address is null ? null : string.Join(",", address.Split(',').Take(2)).Trim();
 
-    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    private static string? Clean(string? value) => PasoMapper.Clean(value);
 
     private IQueryable<ParadaFija> Query() =>
         db.ParadasFijas.AsNoTracking()

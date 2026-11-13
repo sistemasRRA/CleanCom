@@ -29,21 +29,6 @@ public class SaveParadaFijaValidator : AbstractValidator<SaveParadaFijaRequest>
             .WithMessage("La vigencia termina antes de empezar.");
         RuleFor(x => x.Pasos).NotEmpty().WithMessage("Agrega al menos un paso (lugar o dirección).")
             .Must(p => p.Count <= MaxPasos).WithMessage($"Máximo {MaxPasos} pasos.");
-        RuleForEach(x => x.Pasos).ChildRules(p =>
-        {
-            p.RuleFor(x => x).Must(x => x.LugarId is not null || !string.IsNullOrWhiteSpace(x.Address))
-                .WithMessage("Cada paso necesita un lugar del catálogo o una dirección.");
-            p.RuleFor(x => x).Must(x => (x.Lat is null) == (x.Lng is null)).WithMessage("Indica latitud y longitud juntas.");
-            p.RuleFor(x => x.Lat).InclusiveBetween(-90, 90).WithName("Latitud").When(x => x.Lat is not null);
-            p.RuleFor(x => x.Lng).InclusiveBetween(-180, 180).WithName("Longitud").When(x => x.Lng is not null);
-            p.RuleFor(x => x.Address).MaximumLength(300).WithName("Dirección");
-            p.RuleFor(x => x.Kind).Must(k => k is null || ParadaFija.AllowedKinds.Contains(k.Value))
-                .WithMessage("Qué se hace del paso debe ser recolección, entrega, entrega y recolección o traslado.");
-            p.RuleFor(x => x.Turno).Must(t => t is null || t != Turno.HoraEspecifica)
-                .WithMessage("El turno del paso es mañana, tarde o cualquier hora; para una hora usa \"Antes de\".");
-            p.RuleFor(x => x.MapsLink).MaximumLength(2000).WithName("Link de Google Maps o coordenadas");
-            p.RuleFor(x => x.Activity).MaximumLength(200).WithName("Indicación");
-            p.RuleFor(x => x.Notes).MaximumLength(500).WithName("Nota");
-        });
+        RuleForEach(x => x.Pasos).SetValidator(new SaveParadaFijaPasoValidator());
     }
 }

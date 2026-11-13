@@ -131,6 +131,17 @@ public class ParadaFijaTests
     }
 
     [Fact]
+    public void A_viaje_de_un_dia_is_built_the_same_way_without_a_parada_fija()
+    {
+        var oneDay = TraspasoK();
+        oneDay.Id = 0;
+        var paradas = oneDay.BuildParadas(new RutaDia { Date = Monday });
+        Assert.Equal(3, paradas.Count);
+        Assert.All(paradas, p => Assert.Null(p.ParadaFijaId));
+        Assert.Null(paradas[0].Viaje!.ParadaFijaId);
+    }
+
+    [Fact]
     public void Without_pasos_it_cannot_generate()
     {
         var fija = new ParadaFija { Name = "Sin pasos", Days = [DayOfWeek.Monday] };

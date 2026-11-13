@@ -2546,6 +2546,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/paradas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddToRutaRequest"];
+                    "text/json": components["schemas"]["AddToRutaRequest"];
+                    "application/*+json": components["schemas"]["AddToRutaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/viajes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddToRutaRequest"];
+                    "text/json": components["schemas"]["AddToRutaRequest"];
+                    "application/*+json": components["schemas"]["AddToRutaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/paradas/{id}": {
         parameters: {
             query?: never;
@@ -2556,7 +2642,30 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch: {
@@ -3197,6 +3306,20 @@ export interface components {
     schemas: {
         /** @enum {unknown} */
         AccessLevel: "View" | "Edit";
+        AddToRutaRequest: {
+            /** Format: int32 */
+            rutaId: number;
+            /** Format: date */
+            date: string;
+            name: string;
+            category: components["schemas"]["ParadaCategory"];
+            kind: components["schemas"]["ParadaKind"];
+            turno: components["schemas"]["Turno"];
+            placement: components["schemas"]["ParadaPlacement"];
+            carried: null | string;
+            driverNotes: null | string;
+            pasos: components["schemas"]["SaveParadaFijaPasoRequest"][];
+        };
         AgendaBoardDto: {
             /** Format: date */
             from: string;

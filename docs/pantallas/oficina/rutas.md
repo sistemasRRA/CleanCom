@@ -37,13 +37,15 @@ Planeación del día por ruta: chofer, unidad y paradas en orden, con horas esti
 - **▲ ▼ y Fijar** (`PATCH /paradas/{id}`): mover una parada la deja fija; un paso de viaje no puede quedar antes de su paso anterior.
 - **Alertas:** horas extra (regreso después de `Ruta.RegresoMaximo`, o del de sábado), parada fuera de su ventana, prendas sobre `Unidad.CapacidadPrendas`, más paradas que el cupo, sin chofer, sin coordenadas y paradas nuevas sin acomodar.
 - **Chofer del día** (`PUT /rutas/{rutaId}/dias/{fecha}/chofer`): vacío regresa al habitual; un operador no puede tener dos rutas el mismo día. La app del chofer ve exactamente el mismo orden.
-- **Pendiente en esta pantalla:** mapa y trazo por calles (con Google), "Viaje de un día" y "Parada de un día", tablero para arrastrar entre rutas, simular, unidad y solicitudes de cambio del chofer.
+- **Agregar** (un solo botón con selector): **parada de un día** (`POST /paradas`, un lugar) o **viaje de un día** (`POST /viajes`, dos o más pasos en orden, con "+ Otro paso" y "+ Regresar al inicio"). Se capturan igual que las paradas fijas: tipo, qué se hace, turno, lugar en la ruta, insumos o qué se lleva y, por paso, lugar o dirección con link de Maps, qué se hace, turno, "antes de", indicación y nota. Ocupan cupo; pasarse del cupo sale en las alertas. No se agregan a días pasados ni inhábiles.
+- **Quitar** (`DELETE /paradas/{id}`, baja lógica): quita la parada ese día; un paso quita todo su viaje. No aplica a la recolección de un pedido (se elimina desde la agenda) ni a lo que el chofer ya inició. Una parada fija quitada un día no regresa con la generación nocturna; "Agregar las fijas del día" la repone.
+- **Pendiente en esta pantalla:** mapa y trazo por calles (con Google), tablero para arrastrar entre rutas, simular, unidad y solicitudes de cambio del chofer.
 
 ## Endpoints
 
 - `GET /rutas/dia?fecha=`, `PUT /rutas/{rutaId}/dias/{fecha}/chofer` (la unidad llega en la semana 5).
 - `POST /rutas/dia/{id}/optimizar`, `POST /rutas/dia/{id}/simular` (efecto de un cambio sin guardar).
-- `PATCH /paradas/{id}` (posición, fijar). Pendiente: `POST /paradas`, `POST /viajes` (de un día) y la ventana editable.
+- `PATCH /paradas/{id}` (posición, fijar), `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (quitar, baja lógica). Pendiente: ventana editable en la ruta.
 - `POST /paradas-fijas/generar?fecha=`.
 
 ## Criterios de aceptación

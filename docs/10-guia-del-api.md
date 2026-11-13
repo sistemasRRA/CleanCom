@@ -255,7 +255,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
 | Rutas | `GET /rutas/dia?fecha=` | Rutas: View |
-| Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}` | Rutas: Edit |
+| Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |
 | Paradas fijas | `GET /paradas-fijas` (`?tipo=&inactivas=`), `GET /paradas-fijas/{id}`, `GET /paradas-fijas/semana?fecha=` | Paradas fijas: View |
 | Paradas fijas | `POST /paradas-fijas`, `PUT /paradas-fijas/{id}`, `POST /paradas-fijas/{id}/excepciones`, `DELETE /paradas-fijas/{id}/excepciones/{excepcionId}` (baja lógica), `POST /paradas-fijas/generar?fecha=` | Paradas fijas: Edit |
 
