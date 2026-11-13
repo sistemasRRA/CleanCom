@@ -5,6 +5,7 @@
 - [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo).
 - [ ] Base de datos que usa la app actual y respaldo para migrar.
 - [ ] Excel máster.
+- [ ] Dirección de la base (`Base.Direccion`): dice "Los Alpes, 01710", pero en el catálogo oficial de Correos de México Los Alpes es el CP 01010 y el 01710 es Ampliación Alpes o Las Águilas. Confirmar cuál es la correcta.
 - [ ] Características y sistema operativo del VPS.
 - [ ] Tipos de pagos por unidad (tenencia o refrendo, crédito o arrendamiento, póliza en pagos, otros).
 - [ ] Días de proceso prometidos por línea de servicio (planchaduría, lavandería, tintorería, sastrería, calzado).
@@ -21,6 +22,11 @@
 - [ ] Restablecer contraseña por link o código (usuarios.md): necesita WhatsApp o correo (semana 6). Mientras, oficina asigna una contraseña temporal.
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
+
+- [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
+- [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
+- [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
+- [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
 
 ## Reglas propuestas que conviene validar
 

@@ -2,7 +2,9 @@ using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Operations;
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -18,6 +20,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Zona> Zonas => Set<Zona>();
     public DbSet<ZonaVisitDay> ZonaVisitDays => Set<ZonaVisitDay>();
     public DbSet<PostalCodeCoverage> Coverage => Set<PostalCodeCoverage>();
+    public DbSet<PostalCode> PostalCodes => Set<PostalCode>();
     public DbSet<Lugar> Lugares => Set<Lugar>();
     public DbSet<ParadaType> ParadaTypes => Set<ParadaType>();
     public DbSet<LineaServicio> LineasServicio => Set<LineaServicio>();
@@ -25,6 +28,11 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Reason> Reasons => Set<Reason>();
     public DbSet<Operador> Operadores => Set<Operador>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<Invitado> Invitados => Set<Invitado>();
+    public DbSet<Direccion> Direcciones => Set<Direccion>();
+    public DbSet<Pedido> Pedidos => Set<Pedido>();
+    public DbSet<RutaDia> RutaDias => Set<RutaDia>();
+    public DbSet<Parada> Paradas => Set<Parada>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -35,6 +43,12 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<ReasonType>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<AccessLevel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<DayOfWeek>().HaveConversion<string>().HaveMaxLength(10);
+        builder.Properties<InvitadoType>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PedidoEtapa>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PedidoOrigin>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<Turno>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ParadaKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ParadaState>().HaveConversion<string>().HaveMaxLength(30);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

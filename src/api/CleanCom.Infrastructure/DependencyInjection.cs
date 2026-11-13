@@ -1,5 +1,6 @@
 using System.Text;
 using CleanCom.Application.Access;
+using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Time;
@@ -38,6 +39,7 @@ public static class DependencyInjection
                 .MigrationsHistoryTable("__ef_migrations_history"))
             .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
         services.AddScoped<ICleanComDbContext>(sp => sp.GetRequiredService<CleanComDbContext>());
+        services.AddScoped<IAgendaLock, AgendaLock>();
 
         services.AddIdentityCore<User>(o =>
             {

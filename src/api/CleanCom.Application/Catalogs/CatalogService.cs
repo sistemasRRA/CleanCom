@@ -188,15 +188,15 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
 
     public async Task<IReadOnlyList<NonWorkingDayDto>> ListNonWorkingDaysAsync(DateOnly? from, DateOnly? to, CancellationToken ct) =>
         await db.NonWorkingDays.AsNoTracking()
-            .Where(d => (from == null || d.Date >= from) && (to == null || d.Date <= to))
+            .Where(d => d.Active && (from == null || d.Date >= from) && (to == null || d.Date <= to))
             .OrderBy(d => d.Date)
             .Select(d => new NonWorkingDayDto(d.Id, d.Date, d.Reason)).ToListAsync(ct);
 
     public async Task<NonWorkingDayDto> SaveNonWorkingDayAsync(int? id, SaveNonWorkingDayRequest r, CancellationToken ct)
     {
         await Validate(r, ct);
-        var day = id is null ? new NonWorkingDay() : await db.NonWorkingDays.FindAsync([id], ct) ?? throw new NotFoundException($"El día inhábil {id} no existe.");
-        if (await db.NonWorkingDays.AnyAsync(x => x.Date == r.Date && x.Id != day.Id, ct))
+        var day = id is null ? new NonWorkingDay() : await db.NonWorkingDays.FirstOrDefaultAsync(x => x.Id == id && x.Active, ct) ?? throw new NotFoundException($"El día inhábil {id} no existe.");
+        if (await db.NonWorkingDays.AnyAsync(x => x.Date == r.Date && x.Id != day.Id && x.Active, ct))
         {
             throw new ConflictException($"El {r.Date:yyyy-MM-dd} ya está marcado como inhábil.");
         }
@@ -210,10 +210,10 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
         return new NonWorkingDayDto(day.Id, day.Date, day.Reason);
     }
 
-    public async Task DeleteNonWorkingDayAsync(int id, CancellationToken ct)
+    public async Task DeactivateNonWorkingDayAsync(int id, CancellationToken ct)
     {
-        var day = await db.NonWorkingDays.FindAsync([id], ct) ?? throw new NotFoundException($"El día inhábil {id} no existe.");
-        db.NonWorkingDays.Remove(day);
+        var day = await db.NonWorkingDays.FirstOrDefaultAsync(x => x.Id == id && x.Active, ct) ?? throw new NotFoundException($"El día inhábil {id} no existe.");
+        day.Active = false;
         await db.SaveChangesAsync(ct);
     }
 
@@ -221,7 +221,7 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
 
     public async Task<IReadOnlyList<CoverageDto>> ListCoverageAsync(string? search, int? zonaId, CancellationToken ct)
     {
-        var query = db.Coverage.AsNoTracking();
+        var query = db.Coverage.AsNoTracking().Where(c => c.Active);
         if (zonaId is not null)
         {
             query = query.Where(c => c.ZonaId == zonaId);
@@ -242,9 +242,9 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
         await Validate(r, ct);
         var zona = await db.Zonas.AsNoTracking().FirstOrDefaultAsync(z => z.Id == r.ZonaId, ct)
             ?? throw new NotFoundException($"La zona {r.ZonaId} no existe.");
-        var coverage = id is null ? new PostalCodeCoverage() : await db.Coverage.FindAsync([id], ct) ?? throw new NotFoundException($"El registro de cobertura {id} no existe.");
+        var coverage = id is null ? new PostalCodeCoverage() : await db.Coverage.FirstOrDefaultAsync(x => x.Id == id && x.Active, ct) ?? throw new NotFoundException($"El registro de cobertura {id} no existe.");
         var neighborhood = r.Neighborhood.Trim();
-        if (await db.Coverage.AnyAsync(x => x.PostalCode == r.PostalCode && x.Neighborhood == neighborhood && x.Id != coverage.Id, ct))
+        if (await db.Coverage.AnyAsync(x => x.PostalCode == r.PostalCode && x.Neighborhood == neighborhood && x.Id != coverage.Id && x.Active, ct))
         {
             throw new ConflictException($"La colonia {neighborhood} ({r.PostalCode}) ya está en la cobertura.");
         }
@@ -260,10 +260,10 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
         return new CoverageDto(coverage.Id, coverage.PostalCode, coverage.Neighborhood, coverage.Borough, zona.Id, zona.Code);
     }
 
-    public async Task DeleteCoverageAsync(int id, CancellationToken ct)
+    public async Task DeactivateCoverageAsync(int id, CancellationToken ct)
     {
-        var coverage = await db.Coverage.FindAsync([id], ct) ?? throw new NotFoundException($"El registro de cobertura {id} no existe.");
-        db.Coverage.Remove(coverage);
+        var coverage = await db.Coverage.FirstOrDefaultAsync(x => x.Id == id && x.Active, ct) ?? throw new NotFoundException($"El registro de cobertura {id} no existe.");
+        coverage.Active = false;
         await db.SaveChangesAsync(ct);
     }
 }

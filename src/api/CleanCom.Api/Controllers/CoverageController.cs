@@ -34,7 +34,7 @@ public class CoverageController(CatalogService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        await service.DeleteCoverageAsync(id, ct);
+        await service.DeactivateCoverageAsync(id, ct);
         return NoContent();
     }
 }

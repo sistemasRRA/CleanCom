@@ -15,6 +15,12 @@ public static class Policies
     /// <summary>Being signed in is enough, even if the initial password has not been changed yet.</summary>
     public const string SignedIn = "SignedIn";
 
+    /// <summary>
+    /// SuperUser and Administracion only, fixed in code: for actions that cannot be undone (deleting pedidos and
+    /// invitados). Roles y permisos cannot hand it to another role.
+    /// </summary>
+    public const string Administrators = "Administrators";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -122,7 +128,9 @@ public static class Security
             .SetFallbackPolicy(WithActiveSession(new AuthorizationPolicyBuilder()).Build())
             .AddPolicy(Policies.SignedIn, p => p
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                .RequireAuthenticatedUser());
+                .RequireAuthenticatedUser())
+            .AddPolicy(Policies.Administrators, p => WithActiveSession(p)
+                .RequireRole(Roles.SuperUser, Roles.Administracion));
 
         return services;
     }

@@ -46,7 +46,7 @@ Notas de implementación:
 
 1. Cada zona pertenece a una ruta. Las zonas EXT (por ejemplo K1EXT) siguen los días de visita de su zona núcleo.
 2. **Días de visita (máster):** zona 1 lunes y jueves, zona 2 martes y viernes, zona 3 miércoles y sábado. El sistema actual tiene marcadas todas las zonas de lunes a sábado; se corrige al migrar.
-3. **Zona por coordenadas:** la zona de una dirección se decide porque sus coordenadas caen dentro del polígono de la zona. Los polígonos se dibujan a partir de la cobertura actual de 156 códigos postales.
+3. **Zona por coordenadas:** la zona de una dirección se decide porque sus coordenadas caen dentro del polígono de la zona. Los polígonos se dibujan a partir de la cobertura actual de 156 códigos postales. Mientras una zona no tenga polígono dibujado, se usa su código postal (tabla de cobertura); si el CP está repartido entre zonas, decide la colonia. Una dirección que no cae en ninguna zona queda fuera de cobertura y oficina elige la zona a mano.
 4. **Fuera de cobertura o en el borde:** si la dirección no cae en ningún polígono o cae en el borde de dos, el sistema propone la ruta más factible: la que suma menos tiempo y kilómetros a las paradas que ya tiene ese día. Oficina puede corregir la zona a mano (`ZonaAsignadaManual`). Estos servicios cuentan en el KPI "servicios fuera de cobertura".
 
 ## Agenda (motor único)

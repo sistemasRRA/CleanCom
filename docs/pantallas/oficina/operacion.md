@@ -13,6 +13,7 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - Días de visita por zona (lunes a domingo), con nota de que las EXT siguen a su núcleo.
 - Días inhábiles con fecha y motivo.
 - Cobertura: CP, colonia, alcaldía y zona; búsqueda y alta (156 registros).
+- Códigos postales: catálogo oficial de Correos de México (colonias y alcaldía por CP). SuperUser y Administración suben el TXT que se descarga de correosdemexico.gob.mx (por estado o todos); se puede repetir y lo que ya no venga se da de baja. Sirve para llenar colonia y alcaldía al capturar direcciones; la zona la sigue decidiendo Cobertura. El archivo no se guarda en el repositorio: sus términos prohíben distribuirlo.
 
 ## Mejora
 
@@ -29,5 +30,6 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - `GET /configuracion`, `PUT /configuracion` (con fecha de vigencia opcional), `GET /configuracion/historial?key=`.
 - `GET|POST|PUT|DELETE /lugares`, `/zonas`, `/dias-inhabiles`, `/cobertura`; `PUT /zonas/{id}/dias`.
 - `GET|POST|PUT /rutas`, `/tipos-parada`, `/lineas-servicio`, `/motivos?type=`.
+- `GET /codigos-postales/{cp}` (colonias del CP), `GET /codigos-postales?search=`, `GET /codigos-postales/resumen`: solo sesión. `POST /codigos-postales/importar` (multipart, campo `file`): solo SuperUser y Administración.
 
-Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` es baja lógica en lugares y zonas; en días inhábiles y cobertura quita el registro. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`.
+Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` siempre es baja lógica (lugares, zonas, días inhábiles y cobertura); nada se borra de la base. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`.

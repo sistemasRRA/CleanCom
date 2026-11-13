@@ -1,4 +1,8 @@
 using CleanCom.Application.Access;
+using CleanCom.Application.Agenda;
+using CleanCom.Application.Invitados;
+using CleanCom.Application.Pedidos;
+using CleanCom.Application.PostalCodes;
 using CleanCom.Application.Catalogs;
 using CleanCom.Application.Operations;
 using FluentValidation;
@@ -18,6 +22,11 @@ public static class DependencyInjection
         services.AddScoped<CatalogService>();
         services.AddScoped<ZonaService>();
         services.AddScoped<OperadorService>();
+        services.AddScoped<ZonaLocator>();
+        services.AddScoped<AgendaService>();
+        services.AddScoped<InvitadoService>();
+        services.AddScoped<PedidoService>();
+        services.AddScoped<PostalCodeService>();
         return services;
     }
 }

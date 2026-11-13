@@ -9,6 +9,7 @@ const TABS = [
   { path: 'lugares', name: 'Tiendas y bodegas' },
   { path: 'dias-inhabiles', name: 'Días inhábiles' },
   { path: 'cobertura', name: 'Cobertura' },
+  { path: 'codigos-postales', name: 'Códigos postales' },
   { path: 'catalogos', name: 'Otros catálogos' },
 ];
 

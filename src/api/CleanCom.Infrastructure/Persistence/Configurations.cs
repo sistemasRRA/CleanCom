@@ -2,7 +2,9 @@ using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -84,7 +86,9 @@ internal class PostalCodeCoverageConfig : IEntityTypeConfiguration<PostalCodeCov
         e.Property(x => x.PostalCode).HasMaxLength(5).IsFixedLength();
         e.Property(x => x.Neighborhood).HasMaxLength(150);
         e.Property(x => x.Borough).HasMaxLength(100);
-        e.HasIndex(x => new { x.PostalCode, x.Neighborhood }).IsUnique();
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // Unique among active rows: a colonia given de baja can be added again.
+        e.HasIndex(x => new { x.PostalCode, x.Neighborhood }).IsUnique().HasFilter("[active] = 1");
         e.HasOne(x => x.Zona).WithMany().HasForeignKey(x => x.ZonaId).OnDelete(DeleteBehavior.Restrict);
     }
 }
@@ -152,7 +156,9 @@ internal class NonWorkingDayConfig : IEntityTypeConfiguration<NonWorkingDay>
     {
         e.ToTable("NonWorkingDays");
         e.Property(x => x.Reason).HasMaxLength(200);
-        e.HasIndex(x => x.Date).IsUnique();
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // Unique among active rows: a day given de baja can be marked again.
+        e.HasIndex(x => x.Date).IsUnique().HasFilter("[active] = 1");
     }
 }
 
@@ -223,5 +229,119 @@ internal class RefreshTokenConfig : IEntityTypeConfiguration<RefreshToken>
         e.Property(x => x.TokenHash).HasMaxLength(64);
         e.HasIndex(x => x.TokenHash).IsUnique();
         e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal class InvitadoConfig : IEntityTypeConfiguration<Invitado>
+{
+    public void Configure(EntityTypeBuilder<Invitado> e)
+    {
+        e.ToTable("Invitados");
+        e.Property(x => x.Name).HasMaxLength(150);
+        e.Property(x => x.WhatsAppPhone).HasMaxLength(10).IsFixedLength();
+        e.Property(x => x.OtherPhone).HasMaxLength(20);
+        e.Property(x => x.Email).HasMaxLength(150);
+        e.Property(x => x.HowFoundUs).HasMaxLength(100);
+        e.Property(x => x.Campaign).HasMaxLength(100);
+        e.Property(x => x.Notes).HasMaxLength(1000);
+        // One active ficha per WhatsApp: the app signs in with it and the office searches by it.
+        // Invitados given de baja keep their number, and it can be captured again.
+        e.HasIndex(x => x.WhatsAppPhone).IsUnique().HasFilter("[active] = 1");
+        e.HasIndex(x => x.Name);
+        e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => x.UserId).IsUnique().HasFilter("[user_id] IS NOT NULL");
+        e.HasMany(x => x.Direcciones).WithOne(d => d.Invitado).HasForeignKey(d => d.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class DireccionConfig : IEntityTypeConfiguration<Direccion>
+{
+    public void Configure(EntityTypeBuilder<Direccion> e)
+    {
+        e.ToTable("Direcciones");
+        e.Property(x => x.Label).HasMaxLength(50);
+        e.Property(x => x.Street).HasMaxLength(200);
+        e.Property(x => x.ExteriorNumber).HasMaxLength(20);
+        e.Property(x => x.InteriorNumber).HasMaxLength(20);
+        e.Property(x => x.PostalCode).HasMaxLength(5).IsFixedLength();
+        e.Property(x => x.Neighborhood).HasMaxLength(150);
+        e.Property(x => x.Borough).HasMaxLength(100);
+        e.Property(x => x.References).HasMaxLength(500);
+        e.Property(x => x.Location).HasColumnType("geography");
+        e.HasOne(x => x.Zona).WithMany().HasForeignKey(x => x.ZonaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class PedidoConfig : IEntityTypeConfiguration<Pedido>
+{
+    public void Configure(EntityTypeBuilder<Pedido> e)
+    {
+        e.ToTable("Pedidos");
+        // Rows created before baja lógica existed start active.
+        e.Property(x => x.Active).HasDefaultValue(true);
+        e.Property(x => x.DriverNotes).HasMaxLength(500);
+        e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.LineasServicio).WithOne().HasForeignKey(l => l.PedidoId).OnDelete(DeleteBehavior.Cascade);
+        e.HasIndex(x => new { x.Etapa, x.RecoleccionDate });
+    }
+}
+
+internal class PedidoLineaServicioConfig : IEntityTypeConfiguration<PedidoLineaServicio>
+{
+    public void Configure(EntityTypeBuilder<PedidoLineaServicio> e)
+    {
+        e.ToTable("PedidoLineasServicio");
+        e.HasKey(x => new { x.PedidoId, x.LineaServicioId });
+        e.HasOne(x => x.LineaServicio).WithMany().HasForeignKey(x => x.LineaServicioId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class RutaDiaConfig : IEntityTypeConfiguration<RutaDia>
+{
+    public void Configure(EntityTypeBuilder<RutaDia> e)
+    {
+        e.ToTable("RutaDias");
+        // One per ruta and date; the agenda lock relies on it.
+        e.HasIndex(x => new { x.RutaId, x.Date }).IsUnique();
+        e.HasOne(x => x.Ruta).WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Operador).WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Paradas).WithOne(p => p.RutaDia).HasForeignKey(p => p.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class ParadaConfig : IEntityTypeConfiguration<Parada>
+{
+    public void Configure(EntityTypeBuilder<Parada> e)
+    {
+        e.ToTable("Paradas");
+        // Rows created before baja lógica existed start active.
+        e.Property(x => x.Active).HasDefaultValue(true);
+        e.Property(x => x.Notes).HasMaxLength(500);
+        e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Lugar).WithMany().HasForeignKey(x => x.LugarId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.RutaDiaId, x.Kind });
+    }
+}
+
+internal class PostalCodeConfig : IEntityTypeConfiguration<PostalCode>
+{
+    public void Configure(EntityTypeBuilder<PostalCode> e)
+    {
+        e.ToTable("PostalCodes");
+        e.Property(x => x.Code).HasMaxLength(5).IsFixedLength();
+        e.Property(x => x.Settlement).HasMaxLength(150);
+        e.Property(x => x.SettlementType).HasMaxLength(50);
+        e.Property(x => x.Borough).HasMaxLength(100);
+        e.Property(x => x.City).HasMaxLength(100);
+        e.Property(x => x.State).HasMaxLength(60);
+        e.Property(x => x.StateCode).HasMaxLength(2);
+        e.Property(x => x.BoroughCode).HasMaxLength(3);
+        e.Property(x => x.SettlementId).HasMaxLength(4);
+        e.Property(x => x.AreaType).HasMaxLength(20);
+        // How Correos de México identifies a settlement; a new import updates it instead of duplicating it.
+        e.HasIndex(x => new { x.StateCode, x.BoroughCode, x.SettlementId }).IsUnique();
+        e.HasIndex(x => x.Code);
     }
 }
