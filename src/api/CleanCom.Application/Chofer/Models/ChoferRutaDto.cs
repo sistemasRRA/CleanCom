@@ -5,8 +5,11 @@ namespace CleanCom.Application.Chofer;
 
 public record ChoferRutaInfoDto(int Id, string Code, string Name, string Color);
 
-/// <param name="Order">1, 2, 3… in the order to visit. Provisional (by turno) until the ruta is optimized in week 3.</param>
+/// <param name="Order">1, 2, 3… in the order to visit. Provisional (by turno) until the ruta is optimized.</param>
+/// <param name="InvitadoName">The invitado, or the name of the parada fija or lugar.</param>
 /// <param name="Address">Street, number, interior and colonia in one line.</param>
+/// <param name="Activity">What is done there (paradas fijas).</param>
+/// <param name="Viaje">"Traspaso K · paso 2 de 3" when it is part of a viaje.</param>
 public record ChoferParadaDto(
     int Id,
     int Order,
@@ -25,7 +28,9 @@ public record ChoferParadaDto(
     double? Lng,
     int? GarmentsApprox,
     IReadOnlyList<string> LineasServicio,
-    string? Notes);
+    string? Notes,
+    string? Activity,
+    string? Viaje);
 
 /// <summary>
 /// Answer of <c>GET /chofer/ruta</c>: what the signed-in chofer does on a day.

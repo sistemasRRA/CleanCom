@@ -17,4 +17,5 @@ public class RutaDia : Entity
     public Operador? Operador { get; set; }
 
     public List<Parada> Paradas { get; set; } = [];
+    public List<Viaje> Viajes { get; set; } = [];
 }

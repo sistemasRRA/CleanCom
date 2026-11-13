@@ -1960,6 +1960,16 @@ namespace CleanCom.Migrations.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("active");
 
+                    b.Property<string>("Activity")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("activity");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("address");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -1978,6 +1988,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("kind");
 
+                    b.Property<Point>("Location")
+                        .HasColumnType("geography")
+                        .HasColumnName("location");
+
                     b.Property<int?>("LugarId")
                         .HasColumnType("int")
                         .HasColumnName("lugar_id");
@@ -1995,9 +2009,21 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("notes");
 
+                    b.Property<int?>("ParadaFijaId")
+                        .HasColumnType("int")
+                        .HasColumnName("parada_fija_id");
+
                     b.Property<int?>("PedidoId")
                         .HasColumnType("int")
                         .HasColumnName("pedido_id");
+
+                    b.Property<string>("Placement")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Automatica")
+                        .HasColumnName("placement");
 
                     b.Property<int>("Position")
                         .HasColumnType("int")
@@ -2013,11 +2039,24 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("state");
 
+                    b.Property<string>("Title")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("title");
+
                     b.Property<string>("Turno")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("turno");
+
+                    b.Property<int?>("ViajeId")
+                        .HasColumnType("int")
+                        .HasColumnName("viaje_id");
+
+                    b.Property<int?>("ViajeStep")
+                        .HasColumnType("int")
+                        .HasColumnName("viaje_step");
 
                     b.HasKey("Id")
                         .HasName("pk_paradas");
@@ -2031,10 +2070,256 @@ namespace CleanCom.Migrations.Migrations
                     b.HasIndex("PedidoId")
                         .HasDatabaseName("ix_paradas_pedido_id");
 
+                    b.HasIndex("ViajeId")
+                        .HasDatabaseName("ix_paradas_viaje_id");
+
+                    b.HasIndex("ParadaFijaId", "RutaDiaId")
+                        .HasDatabaseName("ix_paradas_parada_fija_id_ruta_dia_id");
+
                     b.HasIndex("RutaDiaId", "Kind")
                         .HasDatabaseName("ix_paradas_ruta_dia_id_kind");
 
                     b.ToTable("paradas", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFija", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Carried")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("carried");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.PrimitiveCollection<string>("Days")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("days");
+
+                    b.Property<string>("DriverNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("driver_notes");
+
+                    b.Property<int?>("GarmentsApprox")
+                        .HasColumnType("int")
+                        .HasColumnName("garments_approx");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("name");
+
+                    b.Property<bool>("Paused")
+                        .HasColumnType("bit")
+                        .HasColumnName("paused");
+
+                    b.Property<string>("Placement")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("placement");
+
+                    b.Property<int>("RutaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_id");
+
+                    b.Property<string>("SiteContact")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("site_contact");
+
+                    b.Property<string>("SitePhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("site_phone");
+
+                    b.Property<string>("Turno")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("turno");
+
+                    b.Property<DateOnly?>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly?>("ValidUntil")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_until");
+
+                    b.HasKey("Id")
+                        .HasName("pk_paradas_fijas");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_paradas_fijas_name")
+                        .HasFilter("[active] = 1");
+
+                    b.HasIndex("RutaId")
+                        .HasDatabaseName("ix_paradas_fijas_ruta_id");
+
+                    b.ToTable("paradas_fijas", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFijaException", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("ParadaFijaId")
+                        .HasColumnType("int")
+                        .HasColumnName("parada_fija_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("reason");
+
+                    b.HasKey("Id")
+                        .HasName("pk_parada_fija_exceptions");
+
+                    b.HasIndex("ParadaFijaId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_parada_fija_exceptions_parada_fija_id_date")
+                        .HasFilter("[active] = 1");
+
+                    b.ToTable("parada_fija_exceptions", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFijaPaso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Activity")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("activity");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("address");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<Point>("Location")
+                        .HasColumnType("geography")
+                        .HasColumnName("location");
+
+                    b.Property<int?>("LugarId")
+                        .HasColumnType("int")
+                        .HasColumnName("lugar_id");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int")
+                        .HasColumnName("order");
+
+                    b.Property<int>("ParadaFijaId")
+                        .HasColumnType("int")
+                        .HasColumnName("parada_fija_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_parada_fija_pasos");
+
+                    b.HasIndex("LugarId")
+                        .HasDatabaseName("ix_parada_fija_pasos_lugar_id");
+
+                    b.HasIndex("ParadaFijaId", "Order")
+                        .IsUnique()
+                        .HasDatabaseName("ix_parada_fija_pasos_parada_fija_id_order")
+                        .HasFilter("[active] = 1");
+
+                    b.ToTable("parada_fija_pasos", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.RutaDia", b =>
@@ -2085,6 +2370,66 @@ namespace CleanCom.Migrations.Migrations
                         .HasDatabaseName("ix_ruta_dias_ruta_id_date");
 
                     b.ToTable("ruta_dias", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.Viaje", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Carried")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("carried");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("ParadaFijaId")
+                        .HasColumnType("int")
+                        .HasColumnName("parada_fija_id");
+
+                    b.Property<int>("RutaDiaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_dia_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_viajes");
+
+                    b.HasIndex("ParadaFijaId")
+                        .HasDatabaseName("ix_viajes_parada_fija_id");
+
+                    b.HasIndex("RutaDiaId")
+                        .HasDatabaseName("ix_viajes_ruta_dia_id");
+
+                    b.ToTable("viajes", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Infrastructure.Identity.RefreshToken", b =>
@@ -2638,6 +2983,12 @@ namespace CleanCom.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_paradas_lugares_lugar_id");
 
+                    b.HasOne("CleanCom.Domain.Routing.ParadaFija", "ParadaFija")
+                        .WithMany()
+                        .HasForeignKey("ParadaFijaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_paradas_paradas_fijas_parada_fija_id");
+
                     b.HasOne("CleanCom.Domain.Pedidos.Pedido", "Pedido")
                         .WithMany()
                         .HasForeignKey("PedidoId")
@@ -2651,13 +3002,63 @@ namespace CleanCom.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_paradas_ruta_dias_ruta_dia_id");
 
+                    b.HasOne("CleanCom.Domain.Routing.Viaje", "Viaje")
+                        .WithMany()
+                        .HasForeignKey("ViajeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_paradas_viajes_viaje_id");
+
                     b.Navigation("Direccion");
 
                     b.Navigation("Lugar");
 
+                    b.Navigation("ParadaFija");
+
                     b.Navigation("Pedido");
 
                     b.Navigation("RutaDia");
+
+                    b.Navigation("Viaje");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFija", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Catalogs.Ruta", "Ruta")
+                        .WithMany()
+                        .HasForeignKey("RutaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_paradas_fijas_rutas_ruta_id");
+
+                    b.Navigation("Ruta");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFijaException", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Routing.ParadaFija", null)
+                        .WithMany("Exceptions")
+                        .HasForeignKey("ParadaFijaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_parada_fija_exceptions_paradas_fijas_parada_fija_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFijaPaso", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Catalogs.Lugar", "Lugar")
+                        .WithMany()
+                        .HasForeignKey("LugarId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_parada_fija_pasos_lugares_lugar_id");
+
+                    b.HasOne("CleanCom.Domain.Routing.ParadaFija", null)
+                        .WithMany("Pasos")
+                        .HasForeignKey("ParadaFijaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_parada_fija_pasos_paradas_fijas_parada_fija_id");
+
+                    b.Navigation("Lugar");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.RutaDia", b =>
@@ -2678,6 +3079,24 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("Operador");
 
                     b.Navigation("Ruta");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.Viaje", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Routing.ParadaFija", null)
+                        .WithMany()
+                        .HasForeignKey("ParadaFijaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_viajes_paradas_fijas_parada_fija_id");
+
+                    b.HasOne("CleanCom.Domain.Routing.RutaDia", "RutaDia")
+                        .WithMany("Viajes")
+                        .HasForeignKey("RutaDiaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_viajes_ruta_dias_ruta_dia_id");
+
+                    b.Navigation("RutaDia");
                 });
 
             modelBuilder.Entity("CleanCom.Infrastructure.Identity.RefreshToken", b =>
@@ -2767,9 +3186,18 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("Direcciones");
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFija", b =>
+                {
+                    b.Navigation("Exceptions");
+
+                    b.Navigation("Pasos");
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Routing.RutaDia", b =>
                 {
                     b.Navigation("Paradas");
+
+                    b.Navigation("Viajes");
                 });
 #pragma warning restore 612, 618
         }

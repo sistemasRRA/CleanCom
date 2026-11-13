@@ -308,6 +308,7 @@ internal class RutaDiaConfig : IEntityTypeConfiguration<RutaDia>
         e.HasOne(x => x.Ruta).WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Operador).WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Paradas).WithOne(p => p.RutaDia).HasForeignKey(p => p.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Viajes).WithOne(v => v.RutaDia).HasForeignKey(v => v.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 
@@ -323,6 +324,71 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Lugar).WithMany().HasForeignKey(x => x.LugarId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.RutaDiaId, x.Kind });
+        e.Property(x => x.Title).HasMaxLength(150);
+        e.Property(x => x.Activity).HasMaxLength(200);
+        e.Property(x => x.Address).HasMaxLength(300);
+        e.Property(x => x.Location).HasColumnType("geography");
+        // Rows created before placement existed are placed by routing.
+        e.Property(x => x.Placement).HasDefaultValue(ParadaPlacement.Automatica).HasSentinel(ParadaPlacement.Automatica);
+        e.HasOne(x => x.ParadaFija).WithMany().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Viaje).WithMany().HasForeignKey(x => x.ViajeId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.ParadaFijaId, x.RutaDiaId });
+    }
+}
+
+internal class ViajeConfig : IEntityTypeConfiguration<Viaje>
+{
+    public void Configure(EntityTypeBuilder<Viaje> e)
+    {
+        e.ToTable("Viajes");
+        e.Property(x => x.Name).HasMaxLength(150);
+        e.Property(x => x.Carried).HasMaxLength(500);
+        e.HasOne<ParadaFija>().WithMany().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class ParadaFijaConfig : IEntityTypeConfiguration<ParadaFija>
+{
+    public void Configure(EntityTypeBuilder<ParadaFija> e)
+    {
+        e.ToTable("ParadasFijas");
+        e.Ignore(x => x.ActivePasos);
+        e.Ignore(x => x.IsVuelta);
+        e.Property(x => x.Name).HasMaxLength(150);
+        e.Property(x => x.Carried).HasMaxLength(500);
+        e.Property(x => x.SiteContact).HasMaxLength(150);
+        e.Property(x => x.SitePhone).HasMaxLength(20);
+        e.Property(x => x.DriverNotes).HasMaxLength(500);
+        e.HasIndex(x => x.Name).IsUnique().HasFilter("[active] = 1");
+        e.HasOne(x => x.Ruta).WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+        // Stored as JSON in one column (["Monday","Thursday"]); changing the days never deletes rows.
+        e.PrimitiveCollection(x => x.Days).HasMaxLength(100);
+        e.HasMany(x => x.Pasos).WithOne().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Exceptions).WithOne().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class ParadaFijaPasoConfig : IEntityTypeConfiguration<ParadaFijaPaso>
+{
+    public void Configure(EntityTypeBuilder<ParadaFijaPaso> e)
+    {
+        e.ToTable("ParadaFijaPasos");
+        e.Property(x => x.Address).HasMaxLength(300);
+        e.Property(x => x.Location).HasColumnType("geography");
+        e.Property(x => x.Activity).HasMaxLength(200);
+        e.Property(x => x.Notes).HasMaxLength(500);
+        e.HasOne(x => x.Lugar).WithMany().HasForeignKey(x => x.LugarId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.ParadaFijaId, x.Order }).IsUnique().HasFilter("[active] = 1");
+    }
+}
+
+internal class ParadaFijaExceptionConfig : IEntityTypeConfiguration<ParadaFijaException>
+{
+    public void Configure(EntityTypeBuilder<ParadaFijaException> e)
+    {
+        e.ToTable("ParadaFijaExceptions");
+        e.Property(x => x.Reason).HasMaxLength(200);
+        e.HasIndex(x => new { x.ParadaFijaId, x.Date }).IsUnique().HasFilter("[active] = 1");
     }
 }
 

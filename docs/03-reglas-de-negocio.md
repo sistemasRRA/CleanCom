@@ -102,6 +102,8 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 3. Una vuelta fija genera un `Viaje` con sus pasos en orden.
 4. Regenerar un día reemplaza solo las paradas fijas de ese día que no se hayan iniciado.
 5. Insumos: nota de texto, sin inventario.
+6. La agenda cuenta las fijas también en los días que aún no se generan (más allá de `Fijas.DiasAnticipacion`). Una vez generado un día, cuentan sus paradas como cualquier otra; si oficina quita una de la ruta, no regresa sola.
+7. Pausar, desactivar, cambiar o saltar una fecha de una fija reemplaza sus paradas desde hoy que no se hayan iniciado.
 
 ## Pedidos
 

@@ -1460,6 +1460,304 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/paradas-fijas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    tipo?: components["schemas"]["ParadaKind"];
+                    inactivas?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"][];
+                        "application/json": components["schemas"]["ParadaFijaDto"][];
+                        "text/json": components["schemas"]["ParadaFijaDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveParadaFijaRequest"];
+                    "text/json": components["schemas"]["SaveParadaFijaRequest"];
+                    "application/*+json": components["schemas"]["SaveParadaFijaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"];
+                        "application/json": components["schemas"]["ParadaFijaDto"];
+                        "text/json": components["schemas"]["ParadaFijaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas-fijas/semana": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["FijasWeekDto"];
+                        "application/json": components["schemas"]["FijasWeekDto"];
+                        "text/json": components["schemas"]["FijasWeekDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas-fijas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"];
+                        "application/json": components["schemas"]["ParadaFijaDto"];
+                        "text/json": components["schemas"]["ParadaFijaDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveParadaFijaRequest"];
+                    "text/json": components["schemas"]["SaveParadaFijaRequest"];
+                    "application/*+json": components["schemas"]["SaveParadaFijaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"];
+                        "application/json": components["schemas"]["ParadaFijaDto"];
+                        "text/json": components["schemas"]["ParadaFijaDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas-fijas/{id}/excepciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveParadaFijaExceptionRequest"];
+                    "text/json": components["schemas"]["SaveParadaFijaExceptionRequest"];
+                    "application/*+json": components["schemas"]["SaveParadaFijaExceptionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"];
+                        "application/json": components["schemas"]["ParadaFijaDto"];
+                        "text/json": components["schemas"]["ParadaFijaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas-fijas/{id}/excepciones/{exceptionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    exceptionId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ParadaFijaDto"];
+                        "application/json": components["schemas"]["ParadaFijaDto"];
+                        "text/json": components["schemas"]["ParadaFijaDto"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas-fijas/generar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["GenerateFijasResultDto"];
+                        "application/json": components["schemas"]["GenerateFijasResultDto"];
+                        "text/json": components["schemas"]["GenerateFijasResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tipos-parada": {
         parameters: {
             query?: never;
@@ -2845,6 +3143,8 @@ export interface components {
             garmentsApprox: null | number;
             lineasServicio: string[];
             notes: null | string;
+            activity: null | string;
+            viaje: null | string;
         };
         ChoferRutaDto: {
             /** Format: date */
@@ -2978,6 +3278,61 @@ export interface components {
             zonaAssignedManually: boolean;
             active: boolean;
         };
+        FijasWeekCellDto: {
+            /** Format: int32 */
+            rutaId: number;
+            /** Format: int32 */
+            cupo: number;
+            /** Format: int32 */
+            fijasCupo: number;
+            items: components["schemas"]["FijasWeekItemDto"][];
+        };
+        FijasWeekDayDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            nonWorkingReason: null | string;
+            rutas: components["schemas"]["FijasWeekCellDto"][];
+        };
+        FijasWeekDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            rutas: components["schemas"]["FijasWeekRutaDto"][];
+            days: components["schemas"]["FijasWeekDayDto"][];
+        };
+        FijasWeekItemDto: {
+            /** Format: int32 */
+            paradaFijaId: number;
+            name: string;
+            kind: components["schemas"]["ParadaKind"];
+            turno: components["schemas"]["Turno"];
+            placement: components["schemas"]["ParadaPlacement"];
+            /** Format: int32 */
+            pasos: number;
+            generated: boolean;
+        };
+        FijasWeekRutaDto: {
+            /** Format: int32 */
+            id: number;
+            code: string;
+            name: string;
+            color: string;
+        };
+        GenerateFijasResultDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: int32 */
+            created: number;
+            /** Format: int32 */
+            replaced: number;
+            /** Format: int32 */
+            keptStarted: number;
+            message: string;
+        };
         /** Format: binary */
         IFormFile: string;
         InvitadoDto: {
@@ -3041,8 +3396,60 @@ export interface components {
             /** Format: int32 */
             userId: null | number;
         };
+        ParadaFijaDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            kind: components["schemas"]["ParadaKind"];
+            /** Format: int32 */
+            rutaId: number;
+            rutaCode: string;
+            rutaColor: string;
+            turno: components["schemas"]["Turno"];
+            placement: components["schemas"]["ParadaPlacement"];
+            days: components["schemas"]["DayOfWeek"][];
+            carried: null | string;
+            siteContact: null | string;
+            sitePhone: null | string;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            driverNotes: null | string;
+            /** Format: date */
+            validFrom: null | string;
+            /** Format: date */
+            validUntil: null | string;
+            paused: boolean;
+            active: boolean;
+            isVuelta: boolean;
+            pasos: components["schemas"]["ParadaFijaPasoDto"][];
+            exceptions: components["schemas"]["ParadaFijaExceptionDto"][];
+        };
+        ParadaFijaExceptionDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: date */
+            date: string;
+            label: string;
+            reason: null | string;
+        };
+        ParadaFijaPasoDto: {
+            /** Format: int32 */
+            order: number;
+            /** Format: int32 */
+            lugarId: null | number;
+            lugarName: null | string;
+            address: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            activity: null | string;
+            notes: null | string;
+        };
         /** @enum {unknown} */
         ParadaKind: "Recoleccion" | "Entrega" | "RecoleccionYEntrega" | "Convenio" | "Insumos" | "Traspaso" | "Salida" | "Regreso" | "Comida";
+        /** @enum {unknown} */
+        ParadaPlacement: "Automatica" | "Primera" | "Ultima";
         /** @enum {unknown} */
         ParadaState: "Pendiente" | "EnCamino" | "EnSitio" | "Realizada" | "NoRealizada";
         ParadaTypeDto: {
@@ -3241,6 +3648,44 @@ export interface components {
             usualRutaId: null | number;
             /** @default true */
             active: boolean;
+        };
+        SaveParadaFijaExceptionRequest: {
+            /** Format: date */
+            date: string;
+            reason: null | string;
+        };
+        SaveParadaFijaPasoRequest: {
+            /** Format: int32 */
+            lugarId: null | number;
+            address: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            activity: null | string;
+            notes: null | string;
+        };
+        SaveParadaFijaRequest: {
+            name: string;
+            kind: components["schemas"]["ParadaKind"];
+            /** Format: int32 */
+            rutaId: number;
+            turno: components["schemas"]["Turno"];
+            placement: components["schemas"]["ParadaPlacement"];
+            days: components["schemas"]["DayOfWeek"][];
+            carried: null | string;
+            siteContact: null | string;
+            sitePhone: null | string;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            driverNotes: null | string;
+            /** Format: date */
+            validFrom: null | string;
+            /** Format: date */
+            validUntil: null | string;
+            paused: boolean;
+            active: boolean;
+            pasos: components["schemas"]["SaveParadaFijaPasoRequest"][];
         };
         SaveParadaTypeRequest: {
             name: string;

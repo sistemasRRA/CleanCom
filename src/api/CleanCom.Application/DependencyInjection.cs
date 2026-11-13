@@ -7,6 +7,7 @@ using CleanCom.Application.PostalCodes;
 using CleanCom.Application.Catalogs;
 using CleanCom.Application.Crm;
 using CleanCom.Application.Operations;
+using CleanCom.Application.ParadasFijas;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<PostalCodeService>();
         services.AddScoped<CrmService>();
         services.AddScoped<ChoferService>();
+        services.AddScoped<FijaCalendar>();
+        services.AddScoped<ParadaFijaService>();
         return services;
     }
 }

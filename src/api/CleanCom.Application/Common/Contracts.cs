@@ -33,6 +33,9 @@ public interface ICleanComDbContext
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
     DbSet<Contacto> Contactos { get; }
+    DbSet<ParadaFija> ParadasFijas { get; }
+    DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
+    DbSet<Viaje> Viajes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

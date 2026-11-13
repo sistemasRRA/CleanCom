@@ -70,6 +70,15 @@ public class ChoferService(ICleanComDbContext db, ICurrentUser currentUser, IBus
                 p.Turno,
                 p.Notes,
                 p.PedidoId,
+                p.Placement,
+                p.ViajeId,
+                p.ViajeStep,
+                ViajeName = p.Viaje == null ? null : p.Viaje.Name,
+                p.Title,
+                p.Activity,
+                ParadaAddress = p.Address,
+                ParadaLocation = p.Location,
+                LugarLocation = p.Lugar == null ? null : p.Lugar.Location,
                 SpecificTime = p.Pedido == null ? null : p.Pedido.SpecificTime,
                 Priority = p.Pedido != null && p.Pedido.Priority,
                 GarmentsApprox = p.Pedido == null ? null : p.Pedido.GarmentsApprox,
@@ -89,17 +98,25 @@ public class ChoferService(ICleanComDbContext db, ICurrentUser currentUser, IBus
             .ToListAsync(ct);
 
         var morningEnd = (await settings.GetTimeRangeAsync(SettingKeys.TurnoMorning, ct)).End;
-        var paradas = rows
-            .OrderBy(p => p.Position == 0 ? int.MaxValue : p.Position)
-            .ThenBy(p => ProvisionalOrder.Rank(p.Turno, p.SpecificTime, morningEnd))
-            .ThenBy(p => p.SpecificTime ?? TimeOnly.MaxValue)
-            .ThenByDescending(p => p.Priority)
-            .ThenBy(p => p.Id)
-            .Select((p, i) => new ChoferParadaDto(
-                p.Id, i + 1, p.Kind, p.State, p.Turno, p.SpecificTime, p.Priority, p.PedidoId,
-                p.InvitadoName ?? p.LugarName, p.Phone,
-                p.Street is null ? p.LugarAddress : Address(p.Street, p.Exterior, p.Interior, p.Neighborhood),
-                p.References, p.ZonaCode, p.Location?.Y, p.Location?.X, p.GarmentsApprox, p.Lineas, p.Notes))
+        var viajeSteps = rows.Where(p => p.ViajeId is not null).GroupBy(p => p.ViajeId!.Value).ToDictionary(g => g.Key, g => g.Count());
+        var paradas = ProvisionalOrder.Sort(rows,
+                p => new OrderKey(p.Position, p.Placement, p.Turno, p.SpecificTime, p.Priority, p.ViajeId, p.ViajeStep, p.Id), morningEnd)
+            .Select((p, i) =>
+            {
+                var location = p.Location ?? p.ParadaLocation ?? p.LugarLocation;
+                var name = p.InvitadoName ?? p.Title ?? p.LugarName;
+                // A fija at a lugar shows the lugar too: "Traspaso K · Tienda Florida".
+                if (p.InvitadoName is null && p.Title is not null && p.LugarName is not null)
+                {
+                    name = $"{p.Title} · {p.LugarName}";
+                }
+                return new ChoferParadaDto(
+                    p.Id, i + 1, p.Kind, p.State, p.Turno, p.SpecificTime, p.Priority, p.PedidoId,
+                    name, p.Phone,
+                    p.Street is not null ? Address(p.Street, p.Exterior, p.Interior, p.Neighborhood) : p.ParadaAddress ?? p.LugarAddress,
+                    p.References, p.ZonaCode, location?.Y, location?.X, p.GarmentsApprox, p.Lineas, p.Notes, p.Activity,
+                    p.ViajeId is { } v ? $"{p.ViajeName} · paso {p.ViajeStep} de {viajeSteps[v]}" : null);
+            })
             .ToList();
 
         var notice = nonWorking is not null ? $"Día inhábil: {nonWorking}." : paradas.Count == 0 ? $"La ruta {ruta.Code} no tiene paradas el {label}." : null;

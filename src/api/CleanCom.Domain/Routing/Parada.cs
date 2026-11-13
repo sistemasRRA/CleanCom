@@ -53,6 +53,23 @@ public class Parada : Entity, IActivatable
     public int Position { get; set; }
     public ParadaState State { get; set; } = ParadaState.Pendiente;
     public string? Notes { get; set; }
+    /// <summary>Pinned first or last; routing arranges the rest.</summary>
+    public ParadaPlacement Placement { get; set; } = ParadaPlacement.Automatica;
+    /// <summary>The parada fija that generated it, if any.</summary>
+    public int? ParadaFijaId { get; set; }
+    public ParadaFija? ParadaFija { get; set; }
+    public int? ViajeId { get; set; }
+    public Viaje? Viaje { get; set; }
+    /// <summary>1, 2, 3… inside its <see cref="Viaje"/>; the steps are visited in order and together.</summary>
+    public int? ViajeStep { get; set; }
+    /// <summary>What the chofer sees as the name when there is no invitado (the parada fija's name).</summary>
+    public string? Title { get; set; }
+    /// <summary>What is done there.</summary>
+    public string? Activity { get; set; }
+    /// <summary>Address when it is neither an invitado's direccion nor a lugar.</summary>
+    public string? Address { get; set; }
+    /// <summary>Point in SRID 4326 for <see cref="Address"/>.</summary>
+    public NetTopologySuite.Geometries.Point? Location { get; set; }
 
     /// <summary>Leaving, coming back and lunch do not take cupo; every other parada does, fixed ones included.</summary>
     public static readonly ParadaKind[] KindsWithoutCupo = [ParadaKind.Salida, ParadaKind.Regreso, ParadaKind.Comida];

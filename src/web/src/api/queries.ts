@@ -16,6 +16,7 @@ export const keys = {
   pedidos: ['pedidos'] as const,
   agendaBoard: ['agenda', 'tablero'] as const,
   crm: ['crm'] as const,
+  paradasFijas: ['paradas-fijas'] as const,
   postalCodes: ['postal-codes'] as const,
   users: ['users'] as const,
   operadores: ['operadores'] as const,

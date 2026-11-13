@@ -19,6 +19,7 @@ import { Operadores, UserList, Users } from './pages/users/Users';
 import { RolesPermissions } from './pages/users/Roles';
 import { Agendar } from './pages/agenda/Agendar';
 import { Clientes } from './pages/crm/Clientes';
+import { ParadasFijas } from './pages/fijas/ParadasFijas';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ function App() {
 
         {can('agendar') && <Route path="agendar" element={<Agendar />} />}
         {can('clientes-crm') && <Route path="clientes" element={<Clientes />} />}
+        {can('paradas-fijas') && <Route path="paradas-fijas" element={<ParadasFijas />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

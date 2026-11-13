@@ -129,6 +129,8 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
             {p.zonaCode ? ` · ${p.zonaCode}` : ''}
             {p.priority ? ' · PRIORIDAD' : ''}
           </Text>
+          {p.viaje && <Text style={{ color: colors.brand, fontSize: 13, fontWeight: '600' }}>{p.viaje}</Text>}
+          {p.activity && <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>{p.activity}</Text>}
           {p.address && <Text style={{ color: colors.text, fontSize: 14 }}>{p.address}</Text>}
           {p.references && <Text style={{ color: colors.textMuted, fontSize: 13 }}>Ref.: {p.references}</Text>}
           {(p.lineasServicio.length > 0 || p.garmentsApprox != null) && (
