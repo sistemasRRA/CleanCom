@@ -63,6 +63,8 @@ public class Parada : Entity, IActivatable
     public Turno Turno { get; set; } = Turno.CualquierHora;
     /// <summary>Order in the ruta; 0 until the ruta is optimized.</summary>
     public int Position { get; set; }
+    /// <summary>Moved by hand: optimizing keeps it in <see cref="Position"/> (docs/03-reglas-de-negocio.md, Rutas, rule 4).</summary>
+    public bool PositionFixed { get; set; }
     public ParadaState State { get; set; } = ParadaState.Pendiente;
     public string? Notes { get; set; }
     /// <summary>Pinned first or last; routing arranges the rest.</summary>

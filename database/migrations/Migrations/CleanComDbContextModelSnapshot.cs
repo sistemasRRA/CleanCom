@@ -1547,6 +1547,36 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "21"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Ruta.VelocidadPromedio",
+                            Note = "Valor inicial",
+                            Type = "Decimal",
+                            Value = "18"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Ruta.FactorDistancia",
+                            Note = "Valor inicial",
+                            Type = "Decimal",
+                            Value = "1.4"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Parada.VentanaHoraEspecifica",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "30"
                         });
                 });
 
@@ -2033,6 +2063,10 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int>("Position")
                         .HasColumnType("int")
                         .HasColumnName("position");
+
+                    b.Property<bool>("PositionFixed")
+                        .HasColumnType("bit")
+                        .HasColumnName("position_fixed");
 
                     b.Property<int>("RutaDiaId")
                         .HasColumnType("int")

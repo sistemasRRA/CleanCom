@@ -33,6 +33,9 @@ public static class SettingKeys
     public const string CrmNoAnswerDays = "Crm.DiasNoContesto";
     public const string CrmCallLaterDays = "Crm.DiasLlamarDespues";
     public const string CrmNotNowDays = "Crm.DiasNoPorAhora";
+    public const string RutaAverageSpeed = "Ruta.VelocidadPromedio";
+    public const string RutaDistanceFactor = "Ruta.FactorDistancia";
+    public const string ParadaSpecificTimeWindow = "Parada.VentanaHoraEspecifica";
     public const string BaseAddress = "Base.Direccion";
     public const string BaseLocation = "Base.Ubicacion";
 }

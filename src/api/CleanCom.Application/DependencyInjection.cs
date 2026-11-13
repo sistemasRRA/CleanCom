@@ -8,6 +8,7 @@ using CleanCom.Application.Catalogs;
 using CleanCom.Application.Crm;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
+using CleanCom.Application.Rutas;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<ChoferService>();
         services.AddScoped<FijaCalendar>();
         services.AddScoped<ParadaFijaService>();
+        services.AddScoped<RutaDiaService>();
         return services;
     }
 }
