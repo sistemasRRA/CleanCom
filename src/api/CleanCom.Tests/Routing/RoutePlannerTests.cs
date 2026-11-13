@@ -85,7 +85,7 @@ public class RoutePlannerTests
     }
 
     [Fact]
-    public void A_viaje_of_3_pasos_stays_in_order_and_together_after_optimizing()
+    public void A_viaje_of_3_pasos_stays_in_order_after_optimizing()
     {
         var stops = new[]
         {
@@ -97,9 +97,26 @@ public class RoutePlannerTests
             Stop(12, 3, viaje: 5, step: 2),
         };
         var order = RoutePlanner.Optimize(stops, Settings).Select(s => s.Id).ToList();
-        var first = order.IndexOf(11);
-        Assert.Equal([11, 12, 10], order.Skip(first).Take(3));
+        Assert.True(order.IndexOf(11) < order.IndexOf(12) && order.IndexOf(12) < order.IndexOf(10), string.Join(",", order));
         Assert.Equal(6, order.Count);
+    }
+
+    [Fact]
+    public void A_vuelta_loaded_in_the_morning_is_delivered_in_the_afternoon_with_other_paradas_between()
+    {
+        // Operadora: paso 1 loads in Leones before 12:00, paso 2 delivers in the afternoon before 14:00.
+        var stops = new[]
+        {
+            Stop(20, 0, H(9), H(12), viaje: 7, step: 1),
+            Stop(21, 15, H(13), H(14), viaje: 7, step: 2),
+            Stop(1, 2, H(9), H(13)),
+            Stop(2, 3, H(9), H(13)),
+        };
+        var order = RoutePlanner.Optimize(stops, Settings).Select(s => s.Id).ToList();
+        Assert.Equal(20, order[0]);
+        Assert.Equal(21, order[^1]);
+        var plan = RoutePlanner.Schedule(order.Select(id => stops.Single(s => s.Id == id)).ToList(), Settings);
+        Assert.All(plan.Stops, s => Assert.False(s.OutOfWindow));
     }
 
     [Fact]

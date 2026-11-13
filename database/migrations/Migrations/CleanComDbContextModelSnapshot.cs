@@ -2000,6 +2000,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("address");
 
+                    b.Property<TimeOnly?>("Before")
+                        .HasColumnType("time")
+                        .HasColumnName("before");
+
                     b.Property<string>("Category")
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
@@ -2318,6 +2322,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("address");
 
+                    b.Property<TimeOnly?>("Before")
+                        .HasColumnType("time")
+                        .HasColumnName("before");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -2325,6 +2333,11 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int")
                         .HasColumnName("created_by");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("kind");
 
                     b.Property<Point>("Location")
                         .HasColumnType("geography")
@@ -2354,6 +2367,11 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int>("ParadaFijaId")
                         .HasColumnType("int")
                         .HasColumnName("parada_fija_id");
+
+                    b.Property<string>("Turno")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("turno");
 
                     b.HasKey("Id")
                         .HasName("pk_parada_fija_pasos");

@@ -119,76 +119,59 @@ public static class RoutePlanner
 
     /// <summary>
     /// An order of its own: started paradas first, then the ones pinned first, the rest by nearest feasible next
-    /// stop (favoring windows that close sooner), and the ones pinned last. A viaje moves as one block with its pasos
-    /// in order. A parada moved by hand keeps its position.
+    /// stop (favoring windows that close sooner), and the ones pinned last. The pasos of a viaje keep their order:
+    /// a paso can go only after the previous one. A parada moved by hand keeps its position.
     /// </summary>
     public static IReadOnlyList<PlanStop> Optimize(IReadOnlyList<PlanStop> stops, PlanSettings s)
     {
-        var blocks = stops
-            .GroupBy(x => x.ViajeId is { } v ? $"v{v}" : $"p{x.Id}")
-            .Select(g => g.OrderBy(x => x.ViajeStep ?? 0).ToList())
-            .ToList();
+        var started = stops.Where(x => x.Started).OrderBy(x => x.Position).ToList();
+        var pinned = stops.Where(x => !x.Started && x.PositionFixed && x.Position > 0).OrderBy(x => x.Position).ToList();
+        var rest = stops.Except(started).Except(pinned).ToList();
 
-        var started = blocks.Where(b => b.Any(x => x.Started)).OrderBy(b => b.Min(x => x.Position)).ToList();
-        var rest = blocks.Except(started).ToList();
-        var pinned = rest.Where(b => b.All(x => x.PositionFixed && x.Position > 0)).OrderBy(b => b[0].Position).ToList();
-        rest = rest.Except(pinned).ToList();
-        var firsts = rest.Where(b => b[0].Placement == ParadaPlacement.Primera).ToList();
-        var lasts = rest.Where(b => b[0].Placement == ParadaPlacement.Ultima).ToList();
-        var middle = rest.Except(firsts).Except(lasts).ToList();
-
-        var order = new List<List<PlanStop>>(started);
+        var order = new List<PlanStop>(started);
         GeoPoint? here = s.Base;
         var now = s.Departure;
-        foreach (var group in new[] { firsts, middle, lasts })
+        foreach (var placement in new[] { ParadaPlacement.Primera, ParadaPlacement.Automatica, ParadaPlacement.Ultima })
         {
-            var pending = new List<List<PlanStop>>(group);
+            var pending = rest.Where(x => x.Placement == placement).ToList();
             while (pending.Count > 0)
             {
-                var best = pending.MinBy(b => Score(b, here, now, s))!;
+                // A paso is ready once the earlier pasos of its viaje are no longer pending in this group.
+                var ready = pending.Where(x => x.ViajeId is not { } v
+                    || !pending.Any(o => o.ViajeId == v && o.ViajeStep < x.ViajeStep)).ToList();
+                if (ready.Count == 0)
+                {
+                    ready = pending;
+                }
+                var best = ready.MinBy(x => Score(x, here, now, s))!;
                 pending.Remove(best);
                 order.Add(best);
                 (here, now) = After(best, here, now, s);
             }
         }
 
-        // Paradas moved by hand go back to their position (in paradas, not blocks).
-        var flat = order.SelectMany(b => b).ToList();
-        foreach (var block in pinned)
+        // Paradas moved by hand go back to their position.
+        foreach (var stop in pinned)
         {
-            var index = Math.Clamp(block[0].Position - 1, 0, flat.Count);
-            // Never in the middle of a viaje.
-            while (index > 0 && index < flat.Count && flat[index].ViajeId is { } v && flat[index - 1].ViajeId == v)
-            {
-                index++;
-            }
-            flat.InsertRange(index, block);
+            order.Insert(Math.Clamp(stop.Position - 1, 0, order.Count), stop);
         }
-        return flat;
+        return ProvisionalOrder.KeepViajeOrder(order, x => x.ViajeId, x => x.ViajeStep);
     }
 
-    private static double Score(List<PlanStop> block, GeoPoint? here, int now, PlanSettings s)
+    private static double Score(PlanStop stop, GeoPoint? here, int now, PlanSettings s)
     {
-        var first = block[0];
-        var (_, minutes) = Travel(here, first.Location, s);
+        var (_, minutes) = Travel(here, stop.Location, s);
         var reach = now + minutes;
-        var arrival = Math.Max(reach, first.WindowStart);
-        var late = Math.Max(0, arrival - first.WindowEnd);
-        var slack = Math.Max(0, first.WindowEnd - arrival);
+        var arrival = Math.Max(reach, stop.WindowStart);
+        var late = Math.Max(0, arrival - stop.WindowEnd);
+        var slack = Math.Max(0, stop.WindowEnd - arrival);
         return (arrival - now) + late * 10 + slack * 0.2;
     }
 
-    private static (GeoPoint? Here, int Now) After(List<PlanStop> block, GeoPoint? here, int now, PlanSettings s)
+    private static (GeoPoint? Here, int Now) After(PlanStop stop, GeoPoint? here, int now, PlanSettings s)
     {
-        foreach (var stop in block)
-        {
-            var (_, minutes) = Travel(here, stop.Location, s);
-            now = Math.Max(now + minutes, stop.WindowStart) + stop.ServiceMinutes;
-            if (stop.Location is not null)
-            {
-                here = stop.Location;
-            }
-        }
-        return (here, now);
+        var (_, minutes) = Travel(here, stop.Location, s);
+        now = Math.Max(now + minutes, stop.WindowStart) + stop.ServiceMinutes;
+        return (stop.Location ?? here, now);
     }
 }

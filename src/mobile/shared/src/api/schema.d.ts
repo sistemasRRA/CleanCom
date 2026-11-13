@@ -2422,6 +2422,175 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/rutas/dia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutasDiaDto"];
+                        "application/json": components["schemas"]["RutasDiaDto"];
+                        "text/json": components["schemas"]["RutasDiaDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rutas/{rutaId}/dias/{fecha}/chofer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    rutaId: number;
+                    fecha: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AssignOperadorRequest"];
+                    "text/json": components["schemas"]["AssignOperadorRequest"];
+                    "application/*+json": components["schemas"]["AssignOperadorRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rutas/dia/{id}/optimizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/paradas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PatchParadaRequest"];
+                    "text/json": components["schemas"]["PatchParadaRequest"];
+                    "application/*+json": components["schemas"]["PatchParadaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RutaPlanDto"];
+                        "application/json": components["schemas"]["RutaPlanDto"];
+                        "text/json": components["schemas"]["RutaPlanDto"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/rutas": {
         parameters: {
             query?: never;
@@ -3049,6 +3218,10 @@ export interface components {
             cupo: number;
             available: boolean;
         };
+        AssignOperadorRequest: {
+            /** Format: int32 */
+            operadorId: null | number;
+        };
         AvailabilityDto: {
             /** Format: int32 */
             zonaId: null | number;
@@ -3128,6 +3301,8 @@ export interface components {
             turno: components["schemas"]["Turno"];
             /** Format: time */
             specificTime: null | string;
+            /** Format: time */
+            before: null | string;
             priority: boolean;
             /** Format: int32 */
             pedidoId: null | number;
@@ -3448,6 +3623,10 @@ export interface components {
             lat: null | number;
             /** Format: double */
             lng: null | number;
+            kind: null | components["schemas"]["ParadaKind"];
+            turno: null | components["schemas"]["Turno"];
+            /** Format: time */
+            before: null | string;
             activity: null | string;
             notes: null | string;
         };
@@ -3463,6 +3642,11 @@ export interface components {
             name: string;
             requiredFields: null | string;
             active: boolean;
+        };
+        PatchParadaRequest: {
+            /** Format: int32 */
+            position: null | number;
+            fixed: null | boolean;
         };
         PedidoDto: {
             /** Format: int32 */
@@ -3581,6 +3765,96 @@ export interface components {
             maxReturnTimeSaturday: null | string;
             active: boolean;
         };
+        RutaPlanDto: {
+            /** Format: int32 */
+            rutaId: number;
+            code: string;
+            name: string;
+            color: string;
+            /** Format: int32 */
+            rutaDiaId: null | number;
+            /** Format: int32 */
+            operadorId: null | number;
+            operadorName: null | string;
+            operadorIsUsual: boolean;
+            /** Format: int32 */
+            occupied: number;
+            /** Format: int32 */
+            cupo: number;
+            optimized: boolean;
+            /** Format: time */
+            departure: string;
+            /** Format: time */
+            lunchStart: null | string;
+            /** Format: time */
+            returnAt: string;
+            /** Format: time */
+            maxReturn: string;
+            /** Format: double */
+            km: number;
+            /** Format: int32 */
+            garments: number;
+            /** Format: int32 */
+            capacity: number;
+            alerts: string[];
+            paradas: components["schemas"]["RutaPlanParadaDto"][];
+        };
+        RutaPlanParadaDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: int32 */
+            order: number;
+            kind: components["schemas"]["ParadaKind"];
+            category: null | components["schemas"]["ParadaCategory"];
+            state: components["schemas"]["ParadaState"];
+            turno: components["schemas"]["Turno"];
+            /** Format: time */
+            specificTime: null | string;
+            priority: boolean;
+            name: null | string;
+            address: null | string;
+            zonaCode: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: time */
+            windowStart: string;
+            /** Format: time */
+            windowEnd: string;
+            /** Format: time */
+            arrival: string;
+            /** Format: time */
+            leave: string;
+            /** Format: int32 */
+            waitMinutes: number;
+            /** Format: double */
+            kmFromPrevious: number;
+            outOfWindow: boolean;
+            noLocation: boolean;
+            lunchAfter: boolean;
+            placement: components["schemas"]["ParadaPlacement"];
+            positionFixed: boolean;
+            /** Format: int32 */
+            viajeId: null | number;
+            viaje: null | string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            /** Format: int32 */
+            paradaFijaId: null | number;
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            activity: null | string;
+            notes: null | string;
+        };
+        RutasDiaDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            nonWorkingReason: null | string;
+            estimate: string;
+            rutas: components["schemas"]["RutaPlanDto"][];
+        };
         SaveContactoRequest: {
             channel: components["schemas"]["ContactChannel"];
             result: components["schemas"]["ContactResult"];
@@ -3668,6 +3942,10 @@ export interface components {
             /** Format: double */
             lng: null | number;
             mapsLink: null | string;
+            kind: null | components["schemas"]["ParadaKind"];
+            turno: null | components["schemas"]["Turno"];
+            /** Format: time */
+            before: null | string;
             activity: null | string;
             notes: null | string;
         };

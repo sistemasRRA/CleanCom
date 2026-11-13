@@ -18,6 +18,7 @@ public record ChoferParadaDto(
     ParadaState State,
     Turno Turno,
     TimeOnly? SpecificTime,
+    TimeOnly? Before,
     bool Priority,
     int? PedidoId,
     string? InvitadoName,

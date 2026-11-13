@@ -95,7 +95,7 @@ public class RutaDiaService(
         return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, context, ct);
     }
 
-    /// <summary>Moves a parada (its whole viaje if it has one) and/or pins it. Moving it by hand pins it.</summary>
+    /// <summary>Moves a parada and/or pins it. Moving it by hand pins it; the pasos of a viaje must keep their order.</summary>
     public async Task<RutaPlanDto> PatchParadaAsync(int paradaId, PatchParadaRequest r, CancellationToken ct)
     {
         await patchValidator.ValidateAndThrowAsync(r, ct);
@@ -107,29 +107,25 @@ public class RutaDiaService(
         var paradas = await db.Paradas.Where(p => p.RutaDiaId == rutaDia.Id && p.Active).ToListAsync(ct);
         var order = Sorted(await RowsAsync(rutaDia.Id, ct), context).Select(x => x.Id).ToList();
 
-        var block = parada.ViajeId is { } viajeId
-            ? paradas.Where(p => p.ViajeId == viajeId).OrderBy(p => p.ViajeStep).Select(p => p.Id).ToList()
-            : [parada.Id];
         if (r.Position is { } position)
         {
-            order.RemoveAll(block.Contains);
-            var index = Math.Clamp(position - 1, 0, order.Count);
-            // Never inside another viaje: after it.
-            var byId = paradas.ToDictionary(p => p.Id);
-            while (index > 0 && index < order.Count && byId[order[index]].ViajeId is { } v && byId[order[index - 1]].ViajeId == v)
+            order.Remove(parada.Id);
+            order.Insert(Math.Clamp(position - 1, 0, order.Count), parada.Id);
+            if (parada.ViajeId is { } viajeId)
             {
-                index++;
+                var steps = order.Select(id => paradas.First(p => p.Id == id)).Where(p => p.ViajeId == viajeId).Select(p => p.ViajeStep ?? 0).ToList();
+                if (!steps.SequenceEqual(steps.Order()))
+                {
+                    var name = await db.Viajes.Where(v => v.Id == viajeId).Select(v => v.Name).FirstAsync(ct);
+                    throw new DomainException($"{name}: el paso {parada.ViajeStep} no puede quedar antes o después de ese lugar; los pasos van en orden.");
+                }
             }
-            order.InsertRange(index, block);
         }
         for (var i = 0; i < order.Count; i++)
         {
             paradas.First(p => p.Id == order[i]).Position = i + 1;
         }
-        foreach (var p in paradas.Where(p => block.Contains(p.Id)))
-        {
-            p.PositionFixed = r.Fixed ?? true;
-        }
+        paradas.First(p => p.Id == parada.Id).PositionFixed = r.Fixed ?? true;
         await db.SaveChangesAsync(ct);
         return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, context, ct);
     }
@@ -203,7 +199,7 @@ public class RutaDiaService(
         var paradas = ordered.Select((x, i) =>
         {
             var s = schedule.Stops[i];
-            var (start, end) = Window(x.Turno, x.SpecificTime, plan, context);
+            var (start, end) = Window(x.Turno, x.SpecificTime, x.Before, plan, context);
             return new RutaPlanParadaDto(
                 x.Id, s.Order, x.Kind, x.Category, x.State, x.Turno, x.SpecificTime, x.Priority,
                 x.Name, x.Address, x.ZonaCode, x.Location?.Lat, x.Location?.Lng,
@@ -260,6 +256,7 @@ public class RutaDiaService(
         ParadaState State,
         Turno Turno,
         TimeOnly? SpecificTime,
+        TimeOnly? Before,
         bool Priority,
         ParadaPlacement Placement,
         int? ViajeId,
@@ -281,7 +278,7 @@ public class RutaDiaService(
             .Where(p => p.RutaDiaId == rutaDiaId && p.Active)
             .Select(p => new
             {
-                p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.Placement, p.ViajeId, p.ViajeStep,
+                p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.Before, p.Placement, p.ViajeId, p.ViajeStep,
                 ViajeName = p.Viaje == null ? null : p.Viaje.Name,
                 p.PedidoId, p.ParadaFijaId, p.Title, p.Activity, p.Notes,
                 SpecificTime = p.Pedido == null ? null : p.Pedido.SpecificTime,
@@ -315,7 +312,7 @@ public class RutaDiaService(
                 : p.ParadaAddress ?? p.LugarAddress;
             // A viaje's prendas count once, on its first paso.
             var garments = p.PedidoGarments ?? (p.ViajeStep is null or 1 ? p.FijaGarments : null);
-            return new Row(p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.SpecificTime, p.Priority,
+            return new Row(p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.SpecificTime, p.Before, p.Priority,
                 p.Placement, p.ViajeId, p.ViajeStep, p.ViajeName, p.PedidoId, p.ParadaFijaId, name, address, p.ZonaCode,
                 point is null ? null : new GeoPoint(point.Y, point.X), garments, p.Activity, p.Notes);
         }).ToList();
@@ -329,7 +326,7 @@ public class RutaDiaService(
 
     private static PlanStop ToStop(Row x, PlanSettings plan, DayContext context)
     {
-        var (start, end) = Window(x.Turno, x.SpecificTime, plan, context);
+        var (start, end) = Window(x.Turno, x.SpecificTime, x.Before, plan, context);
         var minutes = x.Kind switch
         {
             ParadaKind.Recoleccion => context.RecoleccionMinutes,
@@ -342,8 +339,14 @@ public class RutaDiaService(
             x.PositionFixed, x.State != ParadaState.Pendiente, x.Garments ?? 0);
     }
 
-    /// <summary>docs/03-reglas-de-negocio.md, Rutas, rule 2.</summary>
-    private static (int Start, int End) Window(Turno turno, TimeOnly? specific, PlanSettings plan, DayContext context) => turno switch
+    /// <summary>docs/03-reglas-de-negocio.md, Rutas, rule 2. A latest time ("Antes: a las 2:00 p.m.") closes it earlier.</summary>
+    private static (int Start, int End) Window(Turno turno, TimeOnly? specific, TimeOnly? before, PlanSettings plan, DayContext context)
+    {
+        var (start, end) = TurnoWindow(turno, specific, plan, context);
+        return before is { } b ? (Math.Min(start, Minutes(b)), Math.Min(end, Minutes(b))) : (start, end);
+    }
+
+    private static (int Start, int End) TurnoWindow(Turno turno, TimeOnly? specific, PlanSettings plan, DayContext context) => turno switch
     {
         Turno.Manana => (Minutes(context.Morning.Start), Minutes(context.Morning.End)),
         Turno.Tarde => (Minutes(context.Afternoon.Start), Minutes(context.Afternoon.End)),

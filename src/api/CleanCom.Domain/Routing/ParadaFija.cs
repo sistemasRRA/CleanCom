@@ -16,7 +16,8 @@ public enum ParadaPlacement
 /// <summary>
 /// Work repeated every week: convenios, insumos and traspasos (docs/03-reglas-de-negocio.md, Paradas fijas).
 /// One record with its pasos in order: a single paso is a fixed parada, several pasos are a vuelta fija
-/// (for example Traspaso K) that generates a <see cref="Viaje"/>. Generated paradas take cupo, one per paso.
+/// (for example Traspaso K) that generates a <see cref="Viaje"/>. Each paso may have its own qué se hace, turno and
+/// latest time; the pasos are visited in order, not necessarily one right after the other. Generated paradas take cupo, one per paso.
 /// </summary>
 public class ParadaFija : Entity, IActivatable
 {
@@ -86,9 +87,10 @@ public class ParadaFija : Entity, IActivatable
         return pasos.Select((paso, i) => new Parada
         {
             RutaDia = rutaDia,
-            Kind = Kind,
+            Kind = paso.Kind ?? Kind,
             Category = Category,
-            Turno = Turno,
+            Turno = paso.Turno ?? Turno,
+            Before = paso.Before,
             Placement = Placement,
             ParadaFijaId = Id,
             Viaje = viaje,
@@ -127,8 +129,14 @@ public class ParadaFijaPaso : Entity, IActivatable
     public string? Address { get; set; }
     /// <summary>Point in SRID 4326 (<c>geography</c> in SQL Server).</summary>
     public Point? Location { get; set; }
-    /// <summary>What is done there: "Recoger traspaso", "Entregar insumos".</summary>
+    /// <summary>Indication for the chofer: "Cargar en Leones".</summary>
     public string? Activity { get; set; }
+    /// <summary>Qué se hace in this paso; null = the parada fija's.</summary>
+    public ParadaKind? Kind { get; set; }
+    /// <summary>Turno of this paso; null = the parada fija's.</summary>
+    public Turno? Turno { get; set; }
+    /// <summary>"Antes: a las 9:30 a.m.": latest time to be there; closes its window.</summary>
+    public TimeOnly? Before { get; set; }
     public string? Notes { get; set; }
 }
 

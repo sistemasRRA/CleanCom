@@ -30,7 +30,7 @@ export const CATEGORIES: { key: Category; name: string; hint?: string; tone: str
   { key: 'ClienteFinal', name: 'Cliente final', tone: 'kind-cliente' },
   { key: 'Convenio', name: 'Convenio', hint: 'Empresa o cliente con convenio y visita fija', tone: 'kind-convenio' },
   { key: 'Insumos', name: 'Insumos', tone: 'kind-insumos' },
-  { key: 'Traspaso', name: 'Traspaso', tone: 'kind-traspaso' },
+  { key: 'Traspaso', name: 'Traspaso', hint: 'Movimiento de ropa entre tiendas 7clean o a Leones', tone: 'kind-traspaso' },
 ];
 /** The schema marks the enum nullable (the chofer's paradas may have none); a parada fija always has one. */
 const categoryOf = (c: Category | null) => CATEGORIES.find((x) => x.key === c) ?? CATEGORIES[0];
@@ -312,8 +312,15 @@ function WeekGrid({ onOpen, canEdit }: { onOpen: (id: number) => void; canEdit: 
   );
 }
 
-type PasoForm = { lugarId: string; address: string; mapsLink: string; activity: string; notes: string };
-const emptyPaso: PasoForm = { lugarId: '', address: '', mapsLink: '', activity: '', notes: '' };
+/** kind and turno '' = same as the parada fija. */
+type PasoForm = { lugarId: string; address: string; mapsLink: string; kind: Kind | ''; turno: Turno | ''; before: string; activity: string; notes: string };
+const emptyPaso: PasoForm = { lugarId: '', address: '', mapsLink: '', kind: '', turno: '', before: '', activity: '', notes: '' };
+
+/** "09:30:00" → "9:30 a.m." */
+function ampm(time: string) {
+  const [h, m] = time.split(':').map(Number);
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+}
 
 function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: boolean; onClose: () => void }) {
   const rutas = useRutas();
@@ -341,6 +348,9 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
       lugarId: p.lugarId?.toString() ?? '',
       address: p.lugarId ? '' : (p.address ?? ''),
       mapsLink: p.lugarId || p.lat == null || p.lng == null ? '' : `${p.lat}, ${p.lng}`,
+      kind: p.kind ?? '',
+      turno: p.turno ?? '',
+      before: p.before?.slice(0, 5) ?? '',
       activity: p.activity ?? '',
       notes: p.notes ?? '',
     })) ?? [{ ...emptyPaso }],
@@ -379,6 +389,9 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
           lat: null,
           lng: null,
           mapsLink: p.lugarId ? null : optional(p.mapsLink),
+          kind: p.kind || null,
+          turno: p.turno || null,
+          before: p.before ? `${p.before}:00` : null,
           activity: optional(p.activity),
           notes: optional(p.notes),
         })),
@@ -484,6 +497,8 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
               count={pasos.length}
               paso={p}
               lugares={lugares.data ?? []}
+              defaultKind={f.kind}
+              defaultTurno={f.turno}
               onChange={(c) => changePaso(i, c)}
               onMove={(by) => move(i, by)}
               onRemove={() => setPasos((list) => list.filter((_, j) => j !== i))}
@@ -499,7 +514,7 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
               type="button"
               className="small"
               disabled={pasos.length >= 10 || !(pasos[0].lugarId || pasos[0].address)}
-              onClick={() => setPasos((list) => [...list, { ...list[0], activity: 'Regresar', notes: '' }])}
+              onClick={() => setPasos((list) => [...list, { ...list[0], activity: 'Regresar', notes: '', before: '' }])}
             >
               + Regresar al inicio
             </button>
@@ -508,8 +523,8 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
 
         <h3 className="form-section">Detalle</h3>
         <div className="form-grid">
-          <Field label="Insumos o carga" wide hint="Texto libre; no hay inventario.">
-            <input value={f.carried} onChange={(e) => change({ carried: e.target.value })} />
+          <Field label={f.category === 'Traspaso' ? 'Qué se mueve' : 'Insumos o carga'} wide hint="Texto libre; no hay inventario.">
+            <input value={f.carried} onChange={(e) => change({ carried: e.target.value })} placeholder={f.category === 'Traspaso' ? '2 galones de 10 L, 1 caja de ganchos' : undefined} />
           </Field>
           <Field label="Contacto en sitio">
             <input value={f.siteContact} onChange={(e) => change({ siteContact: e.target.value })} />
@@ -548,6 +563,8 @@ function PasoEditor({
   count,
   paso,
   lugares,
+  defaultKind,
+  defaultTurno,
   onChange,
   onMove,
   onRemove,
@@ -556,6 +573,8 @@ function PasoEditor({
   count: number;
   paso: PasoForm;
   lugares: Lugar[];
+  defaultKind: Kind;
+  defaultTurno: Turno;
   onChange: (c: Partial<PasoForm>) => void;
   onMove: (by: number) => void;
   onRemove: () => void;
@@ -587,6 +606,29 @@ function PasoEditor({
             </Field>
           </>
         )}
+        <Field label="Qué se hace en este paso">
+          <select value={paso.kind} onChange={(e) => onChange({ kind: e.target.value as Kind | '' })}>
+            <option value="">Igual que la parada ({actionName(defaultKind)})</option>
+            {ACTIONS.map((a) => (
+              <option key={a.key} value={a.key}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Turno de este paso">
+          <select value={paso.turno} onChange={(e) => onChange({ turno: e.target.value as Turno | '' })}>
+            <option value="">Igual que la parada ({turnoName(defaultTurno)})</option>
+            {TURNOS.map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Antes de" hint={paso.before ? `Antes: a las ${ampm(paso.before)}` : 'Hora límite para llegar; vacío = el fin de su turno.'}>
+          <input type="time" value={paso.before} onChange={(e) => onChange({ before: e.target.value })} />
+        </Field>
         <Field label="Nota" wide>
           <input value={paso.notes} onChange={(e) => onChange({ notes: e.target.value })} />
         </Field>

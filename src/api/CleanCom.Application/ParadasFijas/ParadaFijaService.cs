@@ -325,6 +325,10 @@ public class ParadaFijaService(
             paso.Address = source.LugarId is null ? Clean(source.Address) : null;
             paso.Location = source.LugarId is null ? Location(source, i + 1) : null;
             paso.Activity = Clean(source.Activity);
+            // Same as the parada fija: stored as null so changing the parada changes the paso too.
+            paso.Kind = source.Kind == r.Kind ? null : source.Kind;
+            paso.Turno = source.Turno == r.Turno ? null : source.Turno;
+            paso.Before = source.Before;
             paso.Notes = Clean(source.Notes);
             if (i >= current.Count)
             {
@@ -386,7 +390,7 @@ public class ParadaFijaService(
         f.IsVuelta,
         f.ActivePasos.Select(p => new ParadaFijaPasoDto(
             p.Order, p.LugarId, p.Lugar?.Name, p.Lugar?.Address ?? p.Address,
-            (p.Lugar?.Location ?? p.Location)?.Y, (p.Lugar?.Location ?? p.Location)?.X, p.Activity, p.Notes)).ToList(),
+            (p.Lugar?.Location ?? p.Location)?.Y, (p.Lugar?.Location ?? p.Location)?.X, p.Kind, p.Turno, p.Before, p.Activity, p.Notes)).ToList(),
         f.Exceptions.Where(e => e.Active && e.Date >= clock.Today).OrderBy(e => e.Date)
             .Select(e => new ParadaFijaExceptionDto(e.Id, e.Date, AgendaCalculator.Format(e.Date), e.Reason)).ToList());
 }

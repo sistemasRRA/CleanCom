@@ -61,6 +61,8 @@ public class Parada : Entity, IActivatable
     public int? LugarId { get; set; }
     public Lugar? Lugar { get; set; }
     public Turno Turno { get; set; } = Turno.CualquierHora;
+    /// <summary>Latest time to be there ("Antes: a las 2:00 p.m."); closes the window of its turno earlier.</summary>
+    public TimeOnly? Before { get; set; }
     /// <summary>Order in the ruta; 0 until the ruta is optimized.</summary>
     public int Position { get; set; }
     /// <summary>Moved by hand: optimizing keeps it in <see cref="Position"/> (docs/03-reglas-de-negocio.md, Rutas, rule 4).</summary>
@@ -76,7 +78,7 @@ public class Parada : Entity, IActivatable
     public ParadaFija? ParadaFija { get; set; }
     public int? ViajeId { get; set; }
     public Viaje? Viaje { get; set; }
-    /// <summary>1, 2, 3… inside its <see cref="Viaje"/>; the steps are visited in order and together.</summary>
+    /// <summary>1, 2, 3… inside its <see cref="Viaje"/>; the steps are visited in this order.</summary>
     public int? ViajeStep { get; set; }
     /// <summary>What the chofer sees as the name when there is no invitado (the parada fija's name).</summary>
     public string? Title { get; set; }

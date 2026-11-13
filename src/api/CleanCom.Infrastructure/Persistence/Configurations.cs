@@ -379,6 +379,8 @@ internal class ParadaFijaPasoConfig : IEntityTypeConfiguration<ParadaFijaPaso>
         e.Property(x => x.Location).HasColumnType("geography");
         e.Property(x => x.Activity).HasMaxLength(200);
         e.Property(x => x.Notes).HasMaxLength(500);
+        e.Property(x => x.Kind).HasMaxLength(30);
+        e.Property(x => x.Turno).HasMaxLength(30);
         e.HasOne(x => x.Lugar).WithMany().HasForeignKey(x => x.LugarId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.ParadaFijaId, x.Order }).IsUnique().HasFilter("[active] = 1");
     }

@@ -117,6 +117,20 @@ public class ParadaFijaTests
     }
 
     [Fact]
+    public void Each_paso_can_have_its_own_que_se_hace_turno_and_latest_time()
+    {
+        var fija = TraspasoK();
+        fija.Pasos[1].Before = new TimeOnly(9, 30);
+        fija.Pasos[2] = new ParadaFijaPaso { Order = 2, LugarId = 4, Kind = ParadaKind.RecoleccionYEntrega, Before = new TimeOnly(10, 0) };
+        fija.Pasos[0].Kind = ParadaKind.Entrega;
+        fija.Pasos[0].Turno = Turno.Tarde;
+        var paradas = fija.BuildParadas(new RutaDia { Date = Monday });
+        Assert.Equal([ParadaKind.Traslado, ParadaKind.RecoleccionYEntrega, ParadaKind.Entrega], paradas.Select(p => p.Kind));
+        Assert.Equal([Turno.Manana, Turno.Manana, Turno.Tarde], paradas.Select(p => p.Turno));
+        Assert.Equal([new TimeOnly(9, 30), new TimeOnly(10, 0), (TimeOnly?)null], paradas.Select(p => p.Before));
+    }
+
+    [Fact]
     public void Without_pasos_it_cannot_generate()
     {
         var fija = new ParadaFija { Name = "Sin pasos", Days = [DayOfWeek.Monday] };
