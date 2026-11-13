@@ -30,6 +30,9 @@ public static class SettingKeys
     public const string CrmNewDays = "Crm.DiasNuevo";
     public const string CrmInactiveDays = "Crm.DiasInactivo";
     public const string CrmAtRiskFactor = "Crm.FactorEnRiesgo";
+    public const string CrmNoAnswerDays = "Crm.DiasNoContesto";
+    public const string CrmCallLaterDays = "Crm.DiasLlamarDespues";
+    public const string CrmNotNowDays = "Crm.DiasNoPorAhora";
     public const string BaseAddress = "Base.Direccion";
     public const string BaseLocation = "Base.Ubicacion";
 }
