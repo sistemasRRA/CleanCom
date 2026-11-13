@@ -3482,12 +3482,18 @@ export interface components {
             /** Format: int32 */
             paradaFijaId: number;
             name: string;
+            /** Format: int32 */
+            step: null | number;
+            /** Format: int32 */
+            steps: number;
+            place: null | string;
+            activity: null | string;
             category: components["schemas"]["ParadaCategory"];
             kind: components["schemas"]["ParadaKind"];
             turno: components["schemas"]["Turno"];
+            /** Format: time */
+            before: null | string;
             placement: components["schemas"]["ParadaPlacement"];
-            /** Format: int32 */
-            pasos: number;
             generated: boolean;
         };
         FijasWeekRutaDto: {

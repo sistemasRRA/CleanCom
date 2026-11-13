@@ -4,6 +4,7 @@ using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.Routing;
 using CleanCom.Domain.Time;
 using FluentValidation;
@@ -119,8 +120,9 @@ public class ParadaFijaService(
             cupos[ruta.Id] = await settings.GetIntegerAsync(SettingKeys.RutaCupoParadas, ct, ruta.Id);
         }
 
-        var fijas = (await calendar.LoadActiveAsync(null, ct)).OrderBy(f => f.Placement == ParadaPlacement.Primera ? 0 : f.Placement == ParadaPlacement.Ultima ? 2 : 1)
-            .ThenBy(f => f.Turno).ThenBy(f => f.Name).ToList();
+        var fijas = await calendar.LoadActiveAsync(null, ct);
+        var lugarIds = fijas.SelectMany(f => f.ActivePasos).Where(p => p.LugarId is not null).Select(p => p.LugarId!.Value).Distinct().ToList();
+        var lugares = await db.Lugares.AsNoTracking().Where(l => lugarIds.Contains(l.Id)).ToDictionaryAsync(l => l.Id, l => l.Name, ct);
         var nonWorking = await db.NonWorkingDays.AsNoTracking()
             .Where(d => d.Active && d.Date >= from && d.Date <= to)
             .ToDictionaryAsync(d => d.Date, d => d.Reason, ct);
@@ -137,9 +139,19 @@ public class ParadaFijaService(
             return new FijasWeekDayDto(d, AgendaCalculator.Format(d), nonWorking.GetValueOrDefault(d), rutas.Select(ruta =>
             {
                 var items = fijas.Where(f => f.RutaId == ruta.Id && f.AppliesOn(d, nonWorkingSet))
-                    .Select(f => new FijasWeekItemDto(f.Id, f.Name, f.Category, f.Kind, f.Turno, f.Placement, f.ActivePasos.Count, generated.Contains((f.Id, d))))
+                    .SelectMany(f => f.ActivePasos.Select(p => new FijasWeekItemDto(
+                        f.Id, f.Name, f.IsVuelta ? p.Order : null, f.ActivePasos.Count,
+                        p.LugarId is { } l ? lugares.GetValueOrDefault(l) : ShortAddress(p.Address),
+                        p.Activity, f.Category, p.Kind ?? f.Kind, p.Turno ?? f.Turno, p.Before, f.Placement, generated.Contains((f.Id, d)))))
                     .ToList();
-                return new FijasWeekCellDto(ruta.Id, cupos[ruta.Id], items.Sum(x => x.Pasos), items);
+                // Pinned first, then morning, any time and afternoon; the pasos of a vuelta keep their order.
+                var sorted = ProvisionalOrder.KeepViajeOrder(
+                    items.OrderBy(x => ProvisionalOrder.PlacementRank(x.Placement))
+                        .ThenBy(x => x.Turno switch { Turno.Manana => 0, Turno.CualquierHora => 1, _ => 2 })
+                        .ThenBy(x => x.Before ?? TimeOnly.MaxValue)
+                        .ThenBy(x => x.Name).ThenBy(x => x.Step).ToList(),
+                    x => x.Step is null ? null : x.ParadaFijaId, x => x.Step);
+                return new FijasWeekCellDto(ruta.Id, cupos[ruta.Id], sorted.Count, sorted);
             }).ToList());
         }).ToList();
 
@@ -358,6 +370,10 @@ public class ParadaFijaService(
             ? Geo.CreatePoint(a, b)
             : throw new DomainException($"Paso {number}: no encontré coordenadas en el link. Si es un link corto (maps.app.goo.gl), ábrelo y copia el link completo del navegador o las coordenadas (19.36, -99.19).");
     }
+
+    /// <summary>"Durango 216, Roma Norte, …" → "Durango 216, Roma Norte".</summary>
+    private static string? ShortAddress(string? address) =>
+        address is null ? null : string.Join(",", address.Split(',').Take(2)).Trim();
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

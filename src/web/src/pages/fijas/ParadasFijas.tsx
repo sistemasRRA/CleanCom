@@ -216,7 +216,8 @@ function WeekGrid({ onOpen, canEdit }: { onOpen: (id: number) => void; canEdit: 
           <h2>La semana de un vistazo</h2>
           {w && (
             <p className="muted">
-              Del {short(w.from)} al {short(w.to)}. Cada paso ocupa un lugar del cupo.
+              Del {short(w.from)} al {short(w.to)}. Cada tramo ocupa un lugar del cupo · 1° = primera de la ruta · Últ. = última · ☀
+              mañana · ☾ tarde
             </p>
           )}
         </div>
@@ -276,21 +277,37 @@ function WeekGrid({ onOpen, canEdit }: { onOpen: (id: number) => void; canEdit: 
                             <span className="muted">{d.nonWorkingReason}</span>
                           ) : (
                             <div className="fijas-cell">
-                              {cell?.items.map((i) => (
-                                <button
-                                  key={i.paradaFijaId}
-                                  type="button"
-                                  className={`fija-chip ${categoryOf(i.category).tone}`}
-                                  onClick={() => onOpen(i.paradaFijaId)}
-                                  title={`${categoryOf(i.category).name} · ${actionName(i.kind)} · ${turnoName(i.turno)} · ${i.pasos} lugar(es)${i.generated ? ' · ya está en la ruta' : ''}`}
-                                >
-                                  {PLACEMENTS.find((p) => p.key === i.placement)?.short && (
-                                    <b>{PLACEMENTS.find((p) => p.key === i.placement)?.short} </b>
-                                  )}
-                                  {i.name}
-                                  <small> · {turnoName(i.turno)}</small>
-                                </button>
-                              ))}
+                              {cell?.items.map((i) => {
+                                // In a vuelta, "1°" goes on the first tramo only.
+                                const mark = i.placement === 'Primera' && (i.step ?? 1) === 1 ? '1° ' : i.placement === 'Ultima' && (i.step ?? i.steps) === i.steps ? 'Últ. ' : '';
+                                const icon = i.turno === 'Manana' ? '☀ ' : i.turno === 'Tarde' ? '☾ ' : '';
+                                return (
+                                  <button
+                                    key={`${i.paradaFijaId}-${i.step ?? 0}`}
+                                    type="button"
+                                    className={`fija-chip ${categoryOf(i.category).tone}`}
+                                    onClick={() => onOpen(i.paradaFijaId)}
+                                    title={[
+                                      categoryOf(i.category).name,
+                                      actionName(i.kind),
+                                      turnoName(i.turno),
+                                      i.before && `antes de las ${i.before.slice(0, 5)}`,
+                                      i.activity,
+                                      i.generated && 'ya está en la ruta',
+                                    ]
+                                      .filter(Boolean)
+                                      .join(' · ')}
+                                  >
+                                    <b>
+                                      {mark}
+                                      {icon}
+                                    </b>
+                                    {i.name}
+                                    {i.step != null && ` ${i.step}/${i.steps}`}
+                                    {i.place && i.place !== i.name && <small> · {i.place}</small>}
+                                  </button>
+                                );
+                              })}
                               {cell && (
                                 <span className={`muted fijas-cupo${cell.fijasCupo > cell.cupo / 2 ? ' warn' : ''}`}>
                                   {cell.fijasCupo} de {cell.cupo} lugares
@@ -487,7 +504,7 @@ function FijaForm({ fija, canEdit, onClose }: { fija: Fija | null; canEdit: bool
 
         <h3 className="form-section">{pasos.length > 1 ? `Pasos de la vuelta (${pasos.length}), en orden` : 'Dónde'}</h3>
         <p className="muted">
-          Un paso es una parada fija; con varios pasos es una vuelta y se visitan seguidos y en orden. Cada paso ocupa un lugar del cupo.
+          Un paso es una parada fija; con varios pasos es una vuelta (un paso por tramo) y se visitan en orden. Cada paso ocupa un lugar del cupo.
         </p>
         <div className="pasos">
           {pasos.map((p, i) => (
