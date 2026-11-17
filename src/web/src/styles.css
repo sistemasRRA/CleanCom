@@ -542,3 +542,31 @@ button.selected { background: var(--brand-soft); color: var(--brand); border-col
 .inline-form .primary { justify-self: start; }
 .entrega-days { display: flex; flex-wrap: wrap; gap: 6px; }
 .pedido-history li { display: block; font-size: 13px; }
+
+/* Tickets en planta: large targets for a tablet in planta. */
+.planta-scan { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.planta-scan input { font-size: 20px; padding: 12px 14px; }
+.planta-scan button { font-size: 16px; padding: 0 20px; }
+.planta-scan .alert { grid-column: 1 / -1; font-size: 15px; }
+.alert.success { background: var(--success-soft); color: var(--success); }
+.planta-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.planta-stat { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.planta-stat strong { font-size: 24px; }
+.planta-stat span { font-size: 13px; color: var(--text-muted); }
+.planta-stat.danger strong { color: var(--danger); }
+.planta-stat.warning strong { color: var(--warning); }
+.planta-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+.planta-card { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.planta-card.late { border-left: 4px solid var(--danger); }
+.planta-card header { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.planta-card .badge { justify-self: start; white-space: normal; }
+.planta-card button.link { justify-self: start; }
+.planta-tickets { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.planta-tickets li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.planta-tickets li > div { display: grid; gap: 2px; }
+.planta-tickets li.done { opacity: 0.7; }
+.planta-tickets button.primary { min-width: 84px; min-height: 40px; }
+@media (max-width: 600px) {
+  .planta-scan { grid-template-columns: 1fr; }
+  .planta-cards { grid-template-columns: 1fr; }
+}

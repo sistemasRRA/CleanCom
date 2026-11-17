@@ -121,6 +121,11 @@ function PedidoCard({ card: c, onOpen }: { card: Card; onOpen: () => void }) {
         {c.garmentsApprox != null && ` · ${c.garmentsApprox} prendas`}
       </span>
       {c.daysInStore != null && <span className="muted">{c.daysInStore} días en tienda</span>}
+      {c.ticketsTotal > 0 && (
+        <span className={`badge ${c.ticketsReady === c.ticketsTotal ? 'success' : ''}`}>
+          {c.ticketsReady}/{c.ticketsTotal} tickets listos
+        </span>
+      )}
       {c.delayText && <span className={`badge ${c.delayLevel === 'Late' ? 'danger' : 'warning'}`}>{c.delayText}</span>}
       {c.failedAttempts > 0 && c.etapa !== 'Entregado' && (
         <span className="badge danger">
@@ -204,6 +209,20 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
             {action === 'no-entregado' && <NoEntregadoForm id={id} onDone={() => setAction(null)} />}
             {action === 'comentar' && <CommentForm id={id} onDone={() => setAction(null)} />}
 
+            {d.tickets.length > 0 && (
+              <>
+                <h3 className="form-section">Tickets</h3>
+                <ul className="plain-list">
+                  {d.tickets.map((t) => (
+                    <li key={t.id}>
+                      <strong>{t.folio}</strong> · {t.lineaName} · {t.garments} prenda{t.garments === 1 ? '' : 's'} ·{' '}
+                      {t.state === 'Listo' ? `listo ${formatDateTime(t.readyAt)}` : 'en proceso'}
+                      {t.delayText && <span className={`badge ${t.delayLevel === 'Late' ? 'danger' : 'warning'}`}>{t.delayText}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             <h3 className="form-section">Visitas</h3>
             <ul className="plain-list">
               {d.paradas.map((p) => (

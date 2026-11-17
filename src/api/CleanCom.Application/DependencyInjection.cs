@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<ParadaFijaService>();
         services.AddScoped<RutaDiaService>();
         services.AddScoped<PedidoBoardService>();
+        services.AddScoped<PlantaService>();
         return services;
     }
 }

@@ -95,9 +95,10 @@ public class PedidoBoardService(
             .Select(p => new { p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active })
             .ToListAsync(ct);
 
+        var tickets = (await TicketQueries.ByPedidoAsync(db, settings, [id], clock.Today, ct)).GetValueOrDefault(id) ?? [];
         var address = info.Street + (info.ExteriorNumber is null ? "" : $" {info.ExteriorNumber}")
             + (info.InteriorNumber is null ? "" : $" int. {info.InteriorNumber}") + (info.Neighborhood is null ? "" : $", {info.Neighborhood}");
-        return new PedidoDetailDto(card, address, info.DriverNotes, info.Origin, info.RegisteredAt, history,
+        return new PedidoDetailDto(card, address, info.DriverNotes, info.Origin, info.RegisteredAt, history, tickets,
             paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active)).ToList());
     }
 
@@ -144,7 +145,8 @@ public class PedidoBoardService(
 
     private static bool IsLateOrFailed(PedidoCardDto c) => c.DelayLevel == DelayLevel.Late || c.FailedAttempts > 0 && c.Etapa != PedidoEtapa.Entregado;
 
-    private async Task<List<PedidoCardDto>> CardsAsync(IQueryable<Pedido> query, CancellationToken ct)
+    /// <summary>Cards of the pedidos in the query (also used by Tickets en planta).</summary>
+    public async Task<List<PedidoCardDto>> CardsAsync(IQueryable<Pedido> query, CancellationToken ct)
     {
         var rows = await query
             .Select(p => new
@@ -162,6 +164,8 @@ public class PedidoBoardService(
                     .FirstOrDefault(),
                 CollectedAt = db.PedidoEventos.Where(e => e.PedidoId == p.Id && e.ToEtapa == PedidoEtapa.Recolectado)
                     .Min(e => (DateTimeOffset?)e.CreatedAt),
+                TicketsTotal = db.Tickets.Count(t => t.PedidoId == p.Id && t.Active),
+                TicketsReady = db.Tickets.Count(t => t.PedidoId == p.Id && t.Active && t.State == TicketState.Listo),
                 PlantaAt = db.PedidoEventos.Where(e => e.PedidoId == p.Id && e.ToEtapa == PedidoEtapa.EnPlanta)
                     .Min(e => (DateTimeOffset?)e.CreatedAt),
             })
@@ -180,7 +184,7 @@ public class PedidoBoardService(
             return new PedidoCardDto(
                 p.Id, p.Id.ToString(), x.Ruta?.RutaId, x.Ruta?.Code, x.Ruta?.Color, p.InvitadoId, x.InvitadoName, x.Phone, x.ZonaCode,
                 p.Etapa, p.GarmentsApprox, x.Lineas, p.RecoleccionDate, p.EntregaDate, p.EtapaSince, daysInStore,
-                delay.Level, delay.Text, p.FailedAttempts, p.Priority);
+                delay.Level, delay.Text, p.FailedAttempts, p.Priority, x.TicketsTotal, x.TicketsReady);
         }).ToList();
     }
 
@@ -197,6 +201,8 @@ public class PedidoBoardService(
             PedidoEventoKind.EntregaProgramada => $"Entrega programada el {(e.Date is { } d ? AgendaCalculator.Format(d) : "—")}{tail}",
             PedidoEventoKind.NoEntregado => $"No se entregó{(e.Date is { } d2 ? $" el {AgendaCalculator.Format(d2)}" : "")}{tail}",
             PedidoEventoKind.Comentario => $"Comentario{tail}",
+            PedidoEventoKind.Ticket => e.Note ?? "Ticket",
+            PedidoEventoKind.AtrasoPlanta => $"Atraso en planta{tail}",
             _ => e.Kind.ToString(),
         };
     }

@@ -2,7 +2,10 @@
 
 ## Por confirmar con CleanCom
 
-- [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo).
+- [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo). Mientras tanto los tickets se capturan a mano en Tickets en planta.
+- [ ] Tickets en planta: escanear con la cámara de la tableta (hoy funciona con escáner de código de barras o teclado). Confirmar qué código trae impreso el ticket del POS.
+- [ ] Tickets en planta: no hay "deshacer listo"; si se marca por error, se regresa el pedido a En planta en Pedidos. Confirmar si se necesita.
+- [ ] Un pedido Listo que recibe otro ticket: hoy hay que regresarlo a En planta a mano primero. Confirmar si debe regresar solo.
 - [ ] Base de datos que usa la app actual y respaldo para migrar.
 - [ ] Cobertura de cada zona (F1 a K3): qué códigos postales y colonias atiende cada una, para capturarla en Operación › Cobertura. Ya no viene del Excel máster.
 - [ ] Dirección de la base (`Base.Direccion`): dice "Los Alpes, 01710", pero en el catálogo oficial de Correos de México Los Alpes es el CP 01010 y el 01710 es Ampliación Alpes o Las Águilas. Confirmar cuál es la correcta.

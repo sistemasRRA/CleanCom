@@ -251,6 +251,8 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
 | Pedidos | `GET /pedidos/tablero`, `GET /pedidos/{id}`, `GET /pedidos/{id}/fechas-entrega` | Pedidos: View |
 | Pedidos | `POST /pedidos/{id}/etapa`, `/programar-entrega`, `/no-entregado`, `/comentarios` | Pedidos: Edit |
+| Planta | `GET /planta/tickets?vista=` (`EnProceso` o `Listos`) | Tickets en planta: View |
+| Planta | `POST /planta/tickets` (captura manual mientras no está el POS), `POST /planta/tickets/{folio}/listo`, `POST /planta/tickets/{id}/baja`, `POST /planta/comentarios` | Tickets en planta: Edit |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |

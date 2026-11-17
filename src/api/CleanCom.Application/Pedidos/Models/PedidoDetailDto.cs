@@ -9,4 +9,5 @@ public record PedidoDetailDto(
     PedidoOrigin Origin,
     DateTimeOffset RegisteredAt,
     IReadOnlyList<PedidoEventoDto> History,
+    IReadOnlyList<TicketDto> Tickets,
     IReadOnlyList<PedidoParadaDto> Paradas);

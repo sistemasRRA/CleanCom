@@ -13,6 +13,10 @@ public enum PedidoEventoKind
     NoEntregado,
     /// <summary>Comment from the office or planta.</summary>
     Comentario,
+    /// <summary>A ticket arrived, was marked ready or was given de baja.</summary>
+    Ticket,
+    /// <summary>Planta explains why the pedido is late ("¿Por qué se atrasa?").</summary>
+    AtrasoPlanta,
 }
 
 /// <summary>

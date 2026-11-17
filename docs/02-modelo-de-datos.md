@@ -37,8 +37,8 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | --- | --- | --- |
 | `Pedido` | Folio, InvitadoId, DireccionId, Etapa, LineasServicio, PrendasAprox, Turno, HoraEspecifica?, Prioridad, NotasChofer, HoraRegistro, Origen (Oficina, App), FechaRecoleccion, FechaEntrega?, BeneficioId? | Etapas en reglas de negocio |
 | `PedidoHistorial` | PedidoId, EtapaAnterior, EtapaNueva, Motivo?, UsuarioId, Fecha | Todo cambio de etapa |
-| `Ticket` | Folio (del POS), PedidoId, LineaServicioId, Prendas, Estado (EnProceso, Listo), ListoEn, Monto? | Llega del POS |
-| `ComentarioAtraso` | TicketId o PedidoId, MotivoId?, Texto, UsuarioId | Visible en Pedidos |
+| `Ticket` | Folio (del POS), PedidoId, LineaServicioId, Prendas, Estado (EnProceso, Listo), ListoEn, Monto?, Origen (Manual, Pos), Activo | Llega del POS; mientras tanto se captura a mano. Folio único entre activos |
+| `ComentarioAtraso` | TicketId o PedidoId, MotivoId?, Texto, UsuarioId | Visible en Pedidos. Se guarda como evento `AtrasoPlanta` del historial del pedido |
 | `RutaDia` | RutaId, Fecha, OperadorId, UnidadId, KmInicial?, KmFinal?, InicioTurno?, FinTurno?, Estado | Una por ruta y fecha |
 | `Parada` | RutaDiaId, Tipo (Recoleccion, Entrega, RecoleccionYEntrega, Convenio, Insumos, Traspaso, Salida, Regreso, Comida), PedidoId?, LugarId?, DireccionId?, ViajeId?, PasoViaje?, ParadaFijaId?, Turno, Ventana, Posicion, PosicionFija, HoraEstimada, EnCaminoEn?, LlegadaEn?, CerradaEn?, Estado (Pendiente, EnCamino, EnSitio, Realizada, NoRealizada), MotivoNoRealizadaId?, Insumos (texto), Notas | Una parada ocupa cupo salvo Salida, Regreso y Comida |
 | `Viaje` | RutaDiaId, Tipo (Traspaso, Insumos), QueSeLleva | Pasos encadenados en orden |

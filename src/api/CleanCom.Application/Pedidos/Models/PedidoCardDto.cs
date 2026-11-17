@@ -5,6 +5,7 @@ namespace CleanCom.Application.Pedidos;
 /// <summary>A card of the Pedidos board.</summary>
 /// <param name="Folio">The pedido's folio; its format is still to be defined (docs/09-pendientes.md), so it is the id.</param>
 /// <param name="DaysInStore">Days since it was collected (the prendas left home); null before that.</param>
+/// <param name="TicketsTotal">Active tickets of the POS (or captured in planta); <paramref name="TicketsReady"/> of them are ready.</param>
 /// <param name="DelayText">"Atrasado 6 días · tocaba la entrega el mar 27 oct"; null when on time.</param>
 public record PedidoCardDto(
     int Id,
@@ -26,4 +27,6 @@ public record PedidoCardDto(
     DelayLevel DelayLevel,
     string? DelayText,
     int FailedAttempts,
-    bool Priority);
+    bool Priority,
+    int TicketsTotal,
+    int TicketsReady);

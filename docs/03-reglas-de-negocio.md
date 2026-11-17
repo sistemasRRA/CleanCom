@@ -131,7 +131,9 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 
 ## Planta
 
-- Los tickets llegan del POS con folio, línea de servicio y prendas.
+- Los tickets llegan del POS con folio, línea de servicio y prendas. Mientras se define la conexión con el POS, planta los captura a mano en Tickets en planta. El folio es único entre tickets activos.
+- El primer ticket pasa el pedido a En planta; un pedido Listo o más adelante no recibe tickets hasta regresarlo a En planta con motivo.
+- Un ticket capturado por error se da de baja con motivo, solo mientras está en proceso.
 - Planta marca cada ticket como listo escaneando o escribiendo el folio.
 - El atraso de un ticket se mide contra los días de proceso de su línea de servicio.
 - Un comentario de atraso tiene motivo de catálogo opcional y texto libre; aparece en Pedidos.

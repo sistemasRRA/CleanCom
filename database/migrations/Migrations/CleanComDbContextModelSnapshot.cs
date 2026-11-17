@@ -1782,6 +1782,91 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("pedido_lineas_servicio", (string)null);
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Pedidos.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<decimal?>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Folio")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("folio");
+
+                    b.Property<int>("Garments")
+                        .HasColumnType("int")
+                        .HasColumnName("garments");
+
+                    b.Property<int>("LineaServicioId")
+                        .HasColumnType("int")
+                        .HasColumnName("linea_servicio_id");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("pedido_id");
+
+                    b.Property<DateTimeOffset?>("ReadyAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("ready_at");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("state");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tickets");
+
+                    b.HasIndex("Folio")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tickets_folio")
+                        .HasFilter("[active] = 1");
+
+                    b.HasIndex("LineaServicioId")
+                        .HasDatabaseName("ix_tickets_linea_servicio_id");
+
+                    b.HasIndex("PedidoId", "State")
+                        .HasDatabaseName("ix_tickets_pedido_id_state");
+
+                    b.ToTable("tickets", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.People.Direccion", b =>
                 {
                     b.Property<int>("Id")
@@ -3104,6 +3189,27 @@ namespace CleanCom.Migrations.Migrations
                         .HasConstraintName("fk_pedido_lineas_servicio_pedidos_pedido_id");
 
                     b.Navigation("LineaServicio");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Pedidos.Ticket", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Catalogs.LineaServicio", "LineaServicio")
+                        .WithMany()
+                        .HasForeignKey("LineaServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_tickets_lineas_servicio_linea_servicio_id");
+
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_tickets_pedidos_pedido_id");
+
+                    b.Navigation("LineaServicio");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.People.Direccion", b =>

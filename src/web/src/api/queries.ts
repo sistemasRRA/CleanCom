@@ -18,6 +18,7 @@ export const keys = {
   crm: ['crm'] as const,
   paradasFijas: ['paradas-fijas'] as const,
   rutasDia: ['rutas', 'dia'] as const,
+  planta: ['planta'] as const,
   postalCodes: ['postal-codes'] as const,
   users: ['users'] as const,
   operadores: ['operadores'] as const,

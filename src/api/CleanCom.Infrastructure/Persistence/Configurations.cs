@@ -300,6 +300,20 @@ internal class PedidoEventoConfig : IEntityTypeConfiguration<PedidoEvento>
     }
 }
 
+internal class TicketConfig : IEntityTypeConfiguration<Ticket>
+{
+    public void Configure(EntityTypeBuilder<Ticket> e)
+    {
+        e.ToTable("Tickets");
+        e.Property(x => x.Folio).HasMaxLength(40);
+        e.Property(x => x.Amount).HasPrecision(12, 2);
+        e.HasIndex(x => x.Folio).IsUnique().HasFilter("[active] = 1");
+        e.HasIndex(x => new { x.PedidoId, x.State });
+        e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.LineaServicio).WithMany().HasForeignKey(x => x.LineaServicioId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
 internal class PedidoLineaServicioConfig : IEntityTypeConfiguration<PedidoLineaServicio>
 {
     public void Configure(EntityTypeBuilder<PedidoLineaServicio> e)

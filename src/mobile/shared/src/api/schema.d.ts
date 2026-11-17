@@ -2316,6 +2316,199 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/planta/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    vista?: components["schemas"]["PlantaView"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantaBoardDto"];
+                        "application/json": components["schemas"]["PlantaBoardDto"];
+                        "text/json": components["schemas"]["PlantaBoardDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CaptureTicketRequest"];
+                    "text/json": components["schemas"]["CaptureTicketRequest"];
+                    "application/*+json": components["schemas"]["CaptureTicketRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantaCardDto"];
+                        "application/json": components["schemas"]["PlantaCardDto"];
+                        "text/json": components["schemas"]["PlantaCardDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/planta/tickets/{folio}/listo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    folio: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TicketReadyResultDto"];
+                        "application/json": components["schemas"]["TicketReadyResultDto"];
+                        "text/json": components["schemas"]["TicketReadyResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/planta/tickets/{id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["DeactivateTicketRequest"];
+                    "text/json": components["schemas"]["DeactivateTicketRequest"];
+                    "application/*+json": components["schemas"]["DeactivateTicketRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantaCardDto"];
+                        "application/json": components["schemas"]["PlantaCardDto"];
+                        "text/json": components["schemas"]["PlantaCardDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/planta/comentarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PlantaCommentRequest"];
+                    "text/json": components["schemas"]["PlantaCommentRequest"];
+                    "application/*+json": components["schemas"]["PlantaCommentRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantaCardDto"];
+                        "application/json": components["schemas"]["PlantaCardDto"];
+                        "text/json": components["schemas"]["PlantaCardDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/codigos-postales/{code}": {
         parameters: {
             query?: never;
@@ -3782,6 +3975,17 @@ export interface components {
             name: string;
             color: string;
         };
+        CaptureTicketRequest: {
+            folio: string;
+            /** Format: int32 */
+            pedidoId: number;
+            /** Format: int32 */
+            lineaServicioId: number;
+            /** Format: int32 */
+            garments: number;
+            /** Format: double */
+            amount: null | number;
+        };
         ChangePasswordRequest: {
             currentPassword: string;
             newPassword: string;
@@ -3962,6 +4166,9 @@ export interface components {
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+        DeactivateTicketRequest: {
+            reason: string;
+        };
         /** @enum {unknown} */
         DelayLevel: "None" | "Warning" | "Late";
         DireccionDto: {
@@ -4240,6 +4447,10 @@ export interface components {
             /** Format: int32 */
             failedAttempts: number;
             priority: boolean;
+            /** Format: int32 */
+            ticketsTotal: number;
+            /** Format: int32 */
+            ticketsReady: number;
         };
         PedidoColumnDto: {
             etapa: components["schemas"]["PedidoEtapa"];
@@ -4259,6 +4470,7 @@ export interface components {
             /** Format: date-time */
             registeredAt: string;
             history: components["schemas"]["PedidoEventoDto"][];
+            tickets: components["schemas"]["TicketDto"][];
             paradas: components["schemas"]["PedidoParadaDto"][];
         };
         PedidoDto: {
@@ -4307,7 +4519,7 @@ export interface components {
             text: string;
         };
         /** @enum {unknown} */
-        PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario";
+        PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario" | "Ticket" | "AtrasoPlanta";
         /** @enum {unknown} */
         PedidoOrigin: "Oficina" | "App";
         PedidoParadaDto: {
@@ -4323,6 +4535,48 @@ export interface components {
             arrivedAt: null | string;
             active: boolean;
         };
+        PlantaBoardDto: {
+            /** Format: date */
+            today: string;
+            view: components["schemas"]["PlantaView"];
+            indicators: components["schemas"]["PlantaIndicatorsDto"];
+            cards: components["schemas"]["PlantaCardDto"][];
+        };
+        PlantaCardDto: {
+            pedido: components["schemas"]["PedidoCardDto"];
+            /** Format: int32 */
+            daysInPlanta: number;
+            entregaDueOrLate: boolean;
+            /** Format: int32 */
+            ticketsReady: number;
+            /** Format: int32 */
+            ticketsTotal: number;
+            tickets: components["schemas"]["TicketDto"][];
+            lastDelayNote: null | string;
+        };
+        PlantaCommentRequest: {
+            /** Format: int32 */
+            pedidoId: number;
+            /** Format: int32 */
+            reasonId: null | number;
+            note: null | string;
+        };
+        PlantaIndicatorsDto: {
+            /** Format: int32 */
+            ticketsInProcess: number;
+            /** Format: int32 */
+            pedidosReady: number;
+            /** Format: int32 */
+            pedidosPartial: number;
+            /** Format: int32 */
+            entregaDueOrLate: number;
+            /** Format: int32 */
+            manyDaysInPlanta: number;
+            /** Format: int32 */
+            thresholdDays: number;
+        };
+        /** @enum {unknown} */
+        PlantaView: "EnProceso" | "Listos";
         PostalCodeDto: {
             code: string;
             settlement: string;
@@ -4763,6 +5017,37 @@ export interface components {
         };
         /** @enum {unknown} */
         SettingValueType: "Text" | "Integer" | "Decimal" | "Boolean" | "Time" | "TimeRange" | "Coordinate";
+        TicketDto: {
+            /** Format: int32 */
+            id: number;
+            folio: string;
+            /** Format: int32 */
+            pedidoId: number;
+            /** Format: int32 */
+            lineaServicioId: number;
+            lineaName: string;
+            /** Format: int32 */
+            garments: number;
+            /** Format: double */
+            amount: null | number;
+            state: components["schemas"]["TicketState"];
+            source: components["schemas"]["TicketSource"];
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            readyAt: null | string;
+            delayLevel: components["schemas"]["DelayLevel"];
+            delayText: null | string;
+        };
+        TicketReadyResultDto: {
+            message: string;
+            pedidoReady: boolean;
+            card: components["schemas"]["PlantaCardDto"];
+        };
+        /** @enum {unknown} */
+        TicketSource: "Manual" | "Pos";
+        /** @enum {unknown} */
+        TicketState: "EnProceso" | "Listo";
         /** @enum {unknown} */
         Turno: "CualquierHora" | "Manana" | "Tarde" | "HoraEspecifica";
         UpdateUserRequest: {
