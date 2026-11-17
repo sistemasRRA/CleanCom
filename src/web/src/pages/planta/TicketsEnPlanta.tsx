@@ -35,7 +35,10 @@ export function TicketsEnPlanta() {
 
   return (
     <div className="stack">
-      <PageHeader title="Tickets en planta" description="Escanea o escribe el folio cuando el ticket quede listo. Con el último ticket, el pedido pasa a Listo.">
+      <PageHeader
+        title="Tickets en planta"
+        description="Marca cada ticket cuando quede listo. Cuando todos los tickets de un pedido están listos, el pedido pasa a «Listo» y Logística confirma la entrega con el invitado. Si una prenda se atrasa, deja un comentario: Logística lo ve en el tablero de Pedidos."
+      >
         {canEdit && (
           <button type="button" onClick={() => setCapture(true)}>
             Capturar ticket
@@ -43,17 +46,21 @@ export function TicketsEnPlanta() {
         )}
       </PageHeader>
 
-      {canEdit && <ScanBox />}
-
       {i && (
         <div className="planta-stats">
-          <Stat value={i.ticketsInProcess} label="Tickets en proceso" />
-          <Stat value={i.pedidosReady} label="Pedidos 100% listos" />
-          <Stat value={i.pedidosPartial} label="Pedidos parciales" />
-          <Stat value={i.entregaDueOrLate} label="Entrega hoy o atrasada" tone={i.entregaDueOrLate > 0 ? 'danger' : undefined} />
-          <Stat value={i.manyDaysInPlanta} label={`Con ${i.thresholdDays} días o más`} tone={i.manyDaysInPlanta > 0 ? 'warning' : undefined} />
+          <Stat value={i.ticketsInProcess} label="Tickets en proceso" tone="brand" />
+          <Stat value={i.pedidosReady} label="Pedidos 100% listos" tone="success" />
+          <Stat value={i.pedidosPartial} label="Pedidos parciales" tone="warning" />
+          <Stat
+            value={i.entregaDueOrLate}
+            label="Con entrega hoy o atrasada"
+            tone="danger"
+            note={`${i.manyDaysInPlanta} con ${i.thresholdDays} días o más en planta`}
+          />
         </div>
       )}
+
+      {canEdit && <ScanBox />}
 
       <div className="actions tight">
         <button type="button" className={`small${view === 'EnProceso' ? ' selected' : ''}`} onClick={() => setView('EnProceso')}>
@@ -82,11 +89,12 @@ export function TicketsEnPlanta() {
   );
 }
 
-function Stat({ value, label, tone }: { value: number; label: string; tone?: 'danger' | 'warning' }) {
+function Stat({ value, label, tone, note }: { value: number; label: string; tone: 'brand' | 'success' | 'warning' | 'danger'; note?: string }) {
   return (
-    <div className={`planta-stat${tone ? ` ${tone}` : ''}`}>
+    <div className={`planta-stat ${tone}`}>
+      <span className="planta-stat__label">{label}</span>
       <strong>{value}</strong>
-      <span>{label}</span>
+      {note && <span className="planta-stat__note">{note}</span>}
     </div>
   );
 }
