@@ -32,7 +32,18 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "backgroundColor": "#FFFFFF",
-          "dark": { "image": "./assets/splash-icon-dark.png", "backgroundColor": "#14276D" }
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#14276D"
+          }
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CleanCom Chofer usa tu ubicación durante el turno para registrar tu llegada a cada parada y avisarte cuando estás cerca.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
         }
       ]
     ],

@@ -328,6 +328,7 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.Property(x => x.Activity).HasMaxLength(200);
         e.Property(x => x.Address).HasMaxLength(300);
         e.Property(x => x.Location).HasColumnType("geography");
+        e.Property(x => x.ArrivedLocation).HasColumnType("geography");
         // Rows created before placement existed are placed by routing.
         e.Property(x => x.Placement).HasDefaultValue(ParadaPlacement.Automatica).HasSentinel(ParadaPlacement.Automatica);
         e.HasOne(x => x.ParadaFija).WithMany().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);

@@ -2000,6 +2000,22 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("address");
 
+                    b.Property<DateTimeOffset?>("ArrivedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("arrived_at");
+
+                    b.Property<int?>("ArrivedDistanceMeters")
+                        .HasColumnType("int")
+                        .HasColumnName("arrived_distance_meters");
+
+                    b.Property<Point>("ArrivedLocation")
+                        .HasColumnType("geography")
+                        .HasColumnName("arrived_location");
+
+                    b.Property<bool>("ArrivedOutsideRadius")
+                        .HasColumnType("bit")
+                        .HasColumnName("arrived_outside_radius");
+
                     b.Property<TimeOnly?>("Before")
                         .HasColumnType("time")
                         .HasColumnName("before");
@@ -2020,6 +2036,10 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("DireccionId")
                         .HasColumnType("int")
                         .HasColumnName("direccion_id");
+
+                    b.Property<DateTimeOffset?>("EnCaminoAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("en_camino_at");
 
                     b.Property<string>("Kind")
                         .IsRequired()

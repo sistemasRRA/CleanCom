@@ -18,6 +18,7 @@ public record RutaPlanParadaDto(
     ParadaState State,
     Turno Turno,
     TimeOnly? SpecificTime,
+    TimeOnly? Before,
     bool Priority,
     string? Name,
     string? Address,
@@ -41,4 +42,7 @@ public record RutaPlanParadaDto(
     int? ParadaFijaId,
     int? GarmentsApprox,
     string? Activity,
-    string? Notes);
+    string? Notes,
+    DateTimeOffset? EnCaminoAt,
+    DateTimeOffset? ArrivedAt,
+    bool ArrivedOutsideRadius);

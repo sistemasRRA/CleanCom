@@ -374,6 +374,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chofer/paradas/{id}/en-camino": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChoferLocationRequest"];
+                    "text/json": components["schemas"]["ChoferLocationRequest"];
+                    "application/*+json": components["schemas"]["ChoferLocationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/paradas/{id}/llegue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ArriveRequest"];
+                    "text/json": components["schemas"]["ArriveRequest"];
+                    "application/*+json": components["schemas"]["ArriveRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cobertura": {
         parameters: {
             query?: never;
@@ -3341,6 +3431,13 @@ export interface components {
             cupo: number;
             available: boolean;
         };
+        ArriveRequest: {
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            confirmOutsideRadius: boolean;
+        };
         AssignOperadorRequest: {
             /** Format: int32 */
             operadorId: null | number;
@@ -3413,6 +3510,12 @@ export interface components {
             effectiveFrom: null | string;
             note: null | string;
         };
+        ChoferLocationRequest: {
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+        };
         ChoferParadaDto: {
             /** Format: int32 */
             id: number;
@@ -3444,6 +3547,15 @@ export interface components {
             notes: null | string;
             activity: null | string;
             viaje: null | string;
+            /** Format: time */
+            estimatedArrival: null | string;
+            /** Format: date-time */
+            enCaminoAt: null | string;
+            /** Format: date-time */
+            arrivedAt: null | string;
+            /** Format: int32 */
+            arrivedDistanceMeters: null | number;
+            arrivedOutsideRadius: boolean;
         };
         ChoferRutaDto: {
             /** Format: date */
@@ -3454,6 +3566,17 @@ export interface components {
             assignedByOffice: boolean;
             notice: null | string;
             paradas: components["schemas"]["ChoferParadaDto"][];
+            /** @default false */
+            isToday: boolean;
+            /** Format: int32 */
+            nextParadaId?: null | number;
+            /** @default true */
+            orderRequired: boolean;
+            /**
+             * Format: int32
+             * @default 300
+             */
+            toleranceMeters: number;
         };
         ChoferRutaInfoDto: {
             /** Format: int32 */
@@ -3939,6 +4062,8 @@ export interface components {
             turno: components["schemas"]["Turno"];
             /** Format: time */
             specificTime: null | string;
+            /** Format: time */
+            before: null | string;
             priority: boolean;
             name: null | string;
             address: null | string;
@@ -3975,6 +4100,11 @@ export interface components {
             garmentsApprox: null | number;
             activity: null | string;
             notes: null | string;
+            /** Format: date-time */
+            enCaminoAt: null | string;
+            /** Format: date-time */
+            arrivedAt: null | string;
+            arrivedOutsideRadius: boolean;
         };
         RutasDiaDto: {
             /** Format: date */

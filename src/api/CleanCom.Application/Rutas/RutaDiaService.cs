@@ -222,6 +222,13 @@ public class RutaDiaService(
         return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, await ContextAsync(rutaDia.Date, ct), ct);
     }
 
+    /// <summary>The plan of one ruta day (estimated times), for the chofer app.</summary>
+    public async Task<RutaPlanDto> PlanAsync(int rutaDiaId, CancellationToken ct)
+    {
+        var rutaDia = await db.RutaDias.AsNoTracking().Include(d => d.Ruta).FirstAsync(d => d.Id == rutaDiaId, ct);
+        return await PlanAsync(rutaDia.Ruta!, rutaDia.Date, rutaDia, await ContextAsync(rutaDia.Date, ct), ct);
+    }
+
     // ---------------- plan ----------------
 
     /// <summary>General values for a day, read once.</summary>
@@ -293,12 +300,12 @@ public class RutaDiaService(
             var s = schedule.Stops[i];
             var (start, end) = Window(x.Turno, x.SpecificTime, x.Before, plan, context);
             return new RutaPlanParadaDto(
-                x.Id, s.Order, x.Kind, x.Category, x.State, x.Turno, x.SpecificTime, x.Priority,
+                x.Id, s.Order, x.Kind, x.Category, x.State, x.Turno, x.SpecificTime, x.Before, x.Priority,
                 x.Name, x.Address, x.ZonaCode, x.Location?.Lat, x.Location?.Lng,
                 Time(start), Time(end), Time(s.Arrival), Time(s.Leave), s.WaitMinutes, s.KmFromPrevious,
                 s.OutOfWindow, s.NoLocation, s.LunchAfter, x.Placement, x.PositionFixed, x.ViajeId,
                 x.ViajeId is { } v ? $"{x.ViajeName} · paso {x.ViajeStep} de {rows.Count(r => r.ViajeId == v)}" : null,
-                x.PedidoId, x.ParadaFijaId, x.Garments, x.Activity, x.Notes);
+                x.PedidoId, x.ParadaFijaId, x.Garments, x.Activity, x.Notes, x.EnCaminoAt, x.ArrivedAt, x.ArrivedOutsideRadius);
         }).ToList();
 
         var alerts = new List<string>();
@@ -362,7 +369,10 @@ public class RutaDiaService(
         GeoPoint? Location,
         int? Garments,
         string? Activity,
-        string? Notes);
+        string? Notes,
+        DateTimeOffset? EnCaminoAt,
+        DateTimeOffset? ArrivedAt,
+        bool ArrivedOutsideRadius);
 
     private async Task<List<Row>> RowsAsync(int rutaDiaId, CancellationToken ct)
     {
@@ -372,7 +382,7 @@ public class RutaDiaService(
             {
                 p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.Before, p.Placement, p.ViajeId, p.ViajeStep,
                 ViajeName = p.Viaje == null ? null : p.Viaje.Name,
-                p.PedidoId, p.ParadaFijaId, p.Title, p.Activity, p.Notes,
+                p.PedidoId, p.ParadaFijaId, p.Title, p.Activity, p.Notes, p.EnCaminoAt, p.ArrivedAt, p.ArrivedOutsideRadius,
                 SpecificTime = p.Pedido == null ? null : p.Pedido.SpecificTime,
                 Priority = p.Pedido != null && p.Pedido.Priority,
                 PedidoGarments = p.Pedido == null ? null : p.Pedido.GarmentsApprox,
@@ -406,7 +416,7 @@ public class RutaDiaService(
             var garments = p.PedidoGarments ?? (p.ViajeStep is null or 1 ? p.FijaGarments : null);
             return new Row(p.Id, p.Position, p.PositionFixed, p.Kind, p.Category, p.State, p.Turno, p.SpecificTime, p.Before, p.Priority,
                 p.Placement, p.ViajeId, p.ViajeStep, p.ViajeName, p.PedidoId, p.ParadaFijaId, name, address, p.ZonaCode,
-                point is null ? null : new GeoPoint(point.Y, point.X), garments, p.Activity, p.Notes);
+                point is null ? null : new GeoPoint(point.Y, point.X), garments, p.Activity, p.Notes, p.EnCaminoAt, p.ArrivedAt, p.ArrivedOutsideRadius);
         }).ToList();
     }
 

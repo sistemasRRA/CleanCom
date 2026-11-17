@@ -40,6 +40,9 @@ const CATEGORY: Record<NonNullable<Schemas['ParadaCategory']>, string> = {
 };
 
 const hm = (t?: string | null) => (t ? t.slice(0, 5) : '—');
+const clockFormat = new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
+/** UTC instant from the API in Mexico City time. */
+const clock = (iso?: string | null) => (iso ? clockFormat.format(new Date(iso)) : '');
 
 function today() {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date());
@@ -291,6 +294,13 @@ function ParadaRow({
         </div>
         {p.notes && <div className="muted">Nota: {p.notes}</div>}
         {p.noLocation && <div className="badge warning ruta-flag">Sin coordenadas</div>}
+        {p.state === 'EnCamino' && <div className="badge brand ruta-flag">En camino desde las {clock(p.enCaminoAt)}</div>}
+        {p.state === 'EnSitio' && (
+          <div className={`badge ${p.arrivedOutsideRadius ? 'warning' : 'success'} ruta-flag`}>
+            Llegó a las {clock(p.arrivedAt)}
+            {p.arrivedOutsideRadius && ' · fuera de radio'}
+          </div>
+        )}
       </td>
       <td>
         {p.category && p.category !== 'ClienteFinal' && <div className="muted">{CATEGORY[p.category]}</div>}

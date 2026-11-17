@@ -68,6 +68,16 @@ public class Parada : Entity, IActivatable
     /// <summary>Moved by hand: optimizing keeps it in <see cref="Position"/> (docs/03-reglas-de-negocio.md, Rutas, rule 4).</summary>
     public bool PositionFixed { get; set; }
     public ParadaState State { get; set; } = ParadaState.Pendiente;
+    /// <summary>When the chofer marked "en camino" (UTC).</summary>
+    public DateTimeOffset? EnCaminoAt { get; set; }
+    /// <summary>When the chofer marked "llegué" (UTC): the real time.</summary>
+    public DateTimeOffset? ArrivedAt { get; set; }
+    /// <summary>Where the phone was when marking "llegué"; null without GPS.</summary>
+    public NetTopologySuite.Geometries.Point? ArrivedLocation { get; set; }
+    /// <summary>Meters from the parada when marking "llegué"; null when unknown.</summary>
+    public int? ArrivedDistanceMeters { get; set; }
+    /// <summary>The chofer confirmed "llegué" farther than Gps.ToleranciaMetros; the office reviews it.</summary>
+    public bool ArrivedOutsideRadius { get; set; }
     public string? Notes { get; set; }
     /// <summary>Pinned first or last; routing arranges the rest.</summary>
     public ParadaPlacement Placement { get; set; } = ParadaPlacement.Automatica;

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert as RNAlert, Linking, Pressable, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Alert, Body, Card, Title, api, radius, space, touch, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
+import { Alert, ApiError, Body, Button, Card, Title, api, radius, space, touch, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
+import { currentPosition, openNavigation, useDistanceTo } from './ubicacion';
 
 type Ruta = Schemas['ChoferRutaDto'];
 type Parada = Schemas['ChoferParadaDto'];
@@ -37,9 +38,13 @@ function addDays(iso: string, n: number) {
   return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
 }
 
+const clock = new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
+const at = (iso?: string | null) => (iso ? clock.format(new Date(iso)) : '');
+const pointOf = (p: Parada) => (p.lat != null && p.lng != null ? { lat: p.lat, lng: p.lng } : null);
+
 /**
- * The chofer's paradas on a day (GET /chofer/ruta). The first load asks for today: the API decides what today is
- * in Mexico City, and the arrows move from there.
+ * The chofer's paradas on a day (GET /chofer/ruta) with "En camino" and "Llegué" for today's ruta. The API decides
+ * the order, which parada is next and whether an arrival is close enough; the app only asks and shows.
  */
 export function RutaDelDia() {
   const { colors } = useTheme();
@@ -47,6 +52,7 @@ export function RutaDelDia() {
   const [ruta, setRuta] = useState<Ruta | null>(null);
   const [today, setToday] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (fecha: string | null) => {
@@ -67,8 +73,51 @@ export function RutaDelDia() {
     void load(date);
   }, [date, load]);
 
+  async function enCamino(p: Parada) {
+    setBusyId(p.id);
+    setError(null);
+    try {
+      const position = await currentPosition();
+      setRuta(await unwrap(api.POST('/chofer/paradas/{id}/en-camino', { params: { path: { id: p.id } }, body: { lat: position?.lat ?? null, lng: position?.lng ?? null } })));
+      openNavigation(p.invitadoName ?? KIND[p.kind], pointOf(p), p.address ?? null);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function llegue(p: Parada, confirmOutsideRadius = false) {
+    setBusyId(p.id);
+    setError(null);
+    try {
+      const position = await currentPosition();
+      setRuta(
+        await unwrap(
+          api.POST('/chofer/paradas/{id}/llegue', {
+            params: { path: { id: p.id } },
+            body: { lat: position?.lat ?? null, lng: position?.lng ?? null, confirmOutsideRadius },
+          }),
+        ),
+      );
+    } catch (e) {
+      // Farther than the tolerance: the API asks to confirm; the office will see it marked.
+      if (e instanceof ApiError && e.status === 409) {
+        RNAlert.alert('¿Registrar tu llegada?', e.message, [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Registrar', onPress: () => void llegue(p, true) },
+        ]);
+      } else {
+        setError((e as Error).message);
+      }
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const current = ruta?.date ?? date;
   const pending = ruta?.paradas.filter((p) => p.state !== 'Realizada' && p.state !== 'NoRealizada').length ?? 0;
+  const enRoute = ruta?.isToday ? ruta.paradas.find((p) => p.state === 'EnCamino') : undefined;
 
   return (
     <Card>
@@ -92,24 +141,79 @@ export function RutaDelDia() {
       {loading && !ruta && <ActivityIndicator color={colors.brand} style={{ padding: space.lg }} />}
       {error && <Alert>{error}</Alert>}
       {ruta?.notice && <Alert tone="info">{ruta.notice}</Alert>}
-      {ruta?.ruta && ruta.paradas.length > 0 && !ruta.assignedByOffice && (
-        <Body muted>Es tu ruta habitual. El orden es provisional por turno hasta que oficina optimice la ruta.</Body>
-      )}
+      {ruta?.ruta && ruta.paradas.length > 0 && !ruta.isToday && <Body muted>Solo consulta: "En camino" y "Llegué" son para la ruta de hoy.</Body>}
+      {enRoute && <EnRouteBanner parada={enRoute} tolerance={ruta!.toleranceMeters} busy={busyId === enRoute.id} onArrive={() => void llegue(enRoute)} />}
 
       <View style={{ gap: space.sm, opacity: loading ? 0.5 : 1 }}>
         {ruta?.paradas.map((p) => (
-          <ParadaCard key={p.id} parada={p} color={ruta.ruta?.color} />
+          <ParadaCard
+            key={p.id}
+            parada={p}
+            color={ruta.ruta?.color}
+            isNext={ruta.isToday && p.id === ruta.nextParadaId}
+            canStart={ruta.isToday && !enRoute && p.state === 'Pendiente' && (!ruta.orderRequired || p.id === ruta.nextParadaId)}
+            busy={busyId === p.id}
+            onEnCamino={() => void enCamino(p)}
+            onLlegue={() => void llegue(p)}
+          />
         ))}
       </View>
     </Card>
   );
 }
 
-function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
+/** While en camino: how far the parada is, and "Llegué" highlighted once inside the tolerance. */
+function EnRouteBanner({ parada: p, tolerance, busy, onArrive }: { parada: Parada; tolerance: number; busy: boolean; onArrive: () => void }) {
+  const { colors } = useTheme();
+  const distance = useDistanceTo(pointOf(p));
+  const near = distance != null && distance <= tolerance;
+  return (
+    <View
+      style={{
+        gap: space.sm,
+        padding: space.md,
+        borderRadius: radius.md,
+        backgroundColor: near ? colors.brand : colors.brandSoft,
+      }}
+    >
+      <Text style={{ color: near ? colors.onBrand : colors.brand, fontWeight: '700', fontSize: 16 }}>
+        {near ? `Ya estás a ${distance} m de ${p.invitadoName}` : `En camino a la parada ${p.order}: ${p.invitadoName}`}
+      </Text>
+      {!near && (
+        <Text style={{ color: colors.brand }}>
+          {distance != null ? `A ${distance >= 1000 ? `${(distance / 1000).toFixed(1)} km` : `${distance} m`}` : 'Sin ubicación del teléfono'}
+          {p.estimatedArrival && ` · hora estimada ${p.estimatedArrival.slice(0, 5)}`}
+        </Text>
+      )}
+      <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
+        <Button title="Llegué" icon={<Ionicons name="flag" size={18} color={near ? colors.brand : colors.onBrand} />} busy={busy} onPress={onArrive}
+          variant={near ? 'secondary' : 'primary'} />
+        <Button title="Navegar" variant="ghost" onPress={() => openNavigation(p.invitadoName ?? KIND[p.kind], pointOf(p), p.address ?? null)} />
+      </View>
+    </View>
+  );
+}
+
+function ParadaCard({
+  parada: p,
+  color,
+  isNext,
+  canStart,
+  busy,
+  onEnCamino,
+  onLlegue,
+}: {
+  parada: Parada;
+  color?: string;
+  isNext: boolean;
+  canStart: boolean;
+  busy: boolean;
+  onEnCamino: () => void;
+  onLlegue: () => void;
+}) {
   const { colors } = useTheme();
   const when = p.turno === 'HoraEspecifica' && p.specificTime ? p.specificTime.slice(0, 5) : TURNO[p.turno];
   const done = p.state === 'Realizada' || p.state === 'NoRealizada';
-  const destination = p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : p.address;
 
   return (
     <View
@@ -117,8 +221,8 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
         gap: space.sm,
         padding: space.md,
         borderRadius: radius.md,
-        borderWidth: 1,
-        borderColor: colors.border,
+        borderWidth: isNext ? 2 : 1,
+        borderColor: isNext ? colors.brand : colors.border,
         borderLeftWidth: 5,
         borderLeftColor: color ?? colors.brand,
         backgroundColor: colors.surface,
@@ -126,8 +230,11 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
       }}
     >
       <View style={{ flexDirection: 'row', gap: space.md, alignItems: 'flex-start' }}>
-        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: colors.brand, fontWeight: '700' }}>{p.order}</Text>
+        <View style={{ alignItems: 'center', gap: 2 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: colors.brand, fontWeight: '700' }}>{p.order}</Text>
+          </View>
+          {p.estimatedArrival && <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: '600' }}>{p.estimatedArrival.slice(0, 5)}</Text>}
         </View>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>{p.invitadoName ?? KIND[p.kind]}</Text>
@@ -137,6 +244,7 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
             {p.zonaCode ? ` · ${p.zonaCode}` : ''}
             {p.priority ? ' · PRIORIDAD' : ''}
           </Text>
+          <StateLine parada={p} />
           {p.viaje && <Text style={{ color: colors.brand, fontSize: 13, fontWeight: '600' }}>{p.viaje}</Text>}
           {p.activity && <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>{p.activity}</Text>}
           {p.before && <Text style={{ color: colors.warning, fontSize: 13, fontWeight: '600' }}>Antes de las {p.before.slice(0, 5)}</Text>}
@@ -151,19 +259,38 @@ function ParadaCard({ parada: p, color }: { parada: Parada; color?: string }) {
           {p.notes && <Text style={{ color: colors.warning, fontSize: 13 }}>Nota: {p.notes}</Text>}
         </View>
       </View>
+      {canStart && (
+        <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
+          <Button title="En camino" icon={<Ionicons name="car" size={18} color={colors.onBrand} />} busy={busy} onPress={onEnCamino} />
+          <Button title="Llegué" variant="secondary" disabled={busy} onPress={onLlegue} />
+        </View>
+      )}
       <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
         {p.phone && <Action icon="call" label="Llamar" onPress={() => void Linking.openURL(`tel:${p.phone}`)} />}
         {p.phone && <Action icon="logo-whatsapp" label="WhatsApp" onPress={() => void Linking.openURL(`https://wa.me/52${p.phone}`)} />}
-        {destination && (
-          <Action
-            icon="navigate"
-            label="Cómo llegar"
-            onPress={() => void Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`)}
-          />
+        {(pointOf(p) || p.address) && (
+          <Action icon="navigate" label="Cómo llegar" onPress={() => openNavigation(p.invitadoName ?? KIND[p.kind], pointOf(p), p.address ?? null)} />
         )}
       </View>
     </View>
   );
+}
+
+function StateLine({ parada: p }: { parada: Parada }) {
+  const { colors } = useTheme();
+  if (p.state === 'EnCamino') {
+    return <Text style={{ color: colors.brand, fontSize: 13, fontWeight: '700' }}>En camino desde las {at(p.enCaminoAt)}</Text>;
+  }
+  if (p.state === 'EnSitio') {
+    return (
+      <Text style={{ color: p.arrivedOutsideRadius ? colors.warning : colors.success, fontSize: 13, fontWeight: '700' }}>
+        Llegaste a las {at(p.arrivedAt)}
+        {p.arrivedOutsideRadius && p.arrivedDistanceMeters != null && ` · a ${p.arrivedDistanceMeters} m (fuera de radio)`}
+        {' · falta cerrar la visita'}
+      </Text>
+    );
+  }
+  return null;
 }
 
 function Action({ icon, label, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void }) {
