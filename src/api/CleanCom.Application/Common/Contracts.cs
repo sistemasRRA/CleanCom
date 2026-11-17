@@ -36,6 +36,7 @@ public interface ICleanComDbContext
     DbSet<ParadaFija> ParadasFijas { get; }
     DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
     DbSet<Viaje> Viajes { get; }
+    DbSet<PedidoEvento> PedidoEventos { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

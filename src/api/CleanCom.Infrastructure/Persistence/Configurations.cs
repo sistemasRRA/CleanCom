@@ -285,6 +285,18 @@ internal class PedidoConfig : IEntityTypeConfiguration<Pedido>
         e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.LineasServicio).WithOne().HasForeignKey(l => l.PedidoId).OnDelete(DeleteBehavior.Cascade);
         e.HasIndex(x => new { x.Etapa, x.RecoleccionDate });
+        e.HasMany(x => x.Eventos).WithOne().HasForeignKey(v => v.PedidoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class PedidoEventoConfig : IEntityTypeConfiguration<PedidoEvento>
+{
+    public void Configure(EntityTypeBuilder<PedidoEvento> e)
+    {
+        e.ToTable("PedidoEventos");
+        e.Property(x => x.Note).HasMaxLength(1000);
+        e.HasOne<Reason>().WithMany().HasForeignKey(x => x.ReasonId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.PedidoId, x.CreatedAt });
     }
 }
 

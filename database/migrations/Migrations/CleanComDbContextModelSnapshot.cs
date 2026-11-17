@@ -1622,6 +1622,14 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("etapa");
 
+                    b.Property<DateTimeOffset?>("EtapaSince")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("etapa_since");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int")
+                        .HasColumnName("failed_attempts");
+
                     b.Property<int?>("GarmentsApprox")
                         .HasColumnType("int")
                         .HasColumnName("garments_approx");
@@ -1679,6 +1687,80 @@ namespace CleanCom.Migrations.Migrations
                         .HasDatabaseName("ix_pedidos_etapa_recoleccion_date");
 
                     b.ToTable("pedidos", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Pedidos.PedidoEvento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Automatic")
+                        .HasColumnType("bit")
+                        .HasColumnName("automatic");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly?>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<string>("FromEtapa")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("from_etapa");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("pedido_id");
+
+                    b.Property<int?>("ReasonId")
+                        .HasColumnType("int")
+                        .HasColumnName("reason_id");
+
+                    b.Property<string>("ToEtapa")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("to_etapa");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pedido_eventos");
+
+                    b.HasIndex("ReasonId")
+                        .HasDatabaseName("ix_pedido_eventos_reason_id");
+
+                    b.HasIndex("PedidoId", "CreatedAt")
+                        .HasDatabaseName("ix_pedido_eventos_pedido_id_created_at");
+
+                    b.ToTable("pedido_eventos", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Pedidos.PedidoLineaServicio", b =>
@@ -2989,6 +3071,22 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("Invitado");
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Pedidos.PedidoEvento", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", null)
+                        .WithMany("Eventos")
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_pedido_eventos_pedidos_pedido_id");
+
+                    b.HasOne("CleanCom.Domain.Catalogs.Reason", null)
+                        .WithMany()
+                        .HasForeignKey("ReasonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_pedido_eventos_reasons_reason_id");
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Pedidos.PedidoLineaServicio", b =>
                 {
                     b.HasOne("CleanCom.Domain.Catalogs.LineaServicio", "LineaServicio")
@@ -3263,6 +3361,8 @@ namespace CleanCom.Migrations.Migrations
 
             modelBuilder.Entity("CleanCom.Domain.Pedidos.Pedido", b =>
                 {
+                    b.Navigation("Eventos");
+
                     b.Navigation("LineasServicio");
                 });
 

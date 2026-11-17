@@ -9,4 +9,7 @@ public interface IUserService
 
     /// <summary>Roles the current user can assign: never Invitado, and SuperUser only to another SuperUser.</summary>
     Task<IReadOnlyList<RoleOptionDto>> ListAssignableRolesAsync(CancellationToken ct);
+
+    /// <summary>Full names by user id, to show who did something (histories).</summary>
+    Task<IReadOnlyDictionary<int, string>> NamesAsync(IReadOnlyCollection<int> ids, CancellationToken ct);
 }

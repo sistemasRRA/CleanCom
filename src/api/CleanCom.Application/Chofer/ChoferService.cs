@@ -6,6 +6,7 @@ using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
 using CleanCom.Domain.Routing;
 using CleanCom.Domain.Time;
@@ -96,6 +97,12 @@ public class ChoferService(
         ChoferFlow.EnsureCanStart(ordered.First(p => p.Id == paradaId), ordered, orderRequired);
         parada.State = ParadaState.EnCamino;
         parada.EnCaminoAt = clock.UtcNow;
+        // EntregaConfirmada → EnCamino when the chofer goes to that entrega (Pedidos › Etapas).
+        if (parada.Kind == ParadaKind.Entrega && parada.PedidoId is { } pedidoId
+            && await db.Pedidos.FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct) is { } pedido)
+        {
+            PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, clock.UtcNow, "El chofer va en camino.");
+        }
         await db.SaveChangesAsync(ct);
         return await RutaAsync(clock.Today, ct);
     }

@@ -152,6 +152,18 @@ public class AgendaService(
             RegisteredAt = registeredAt,
             Origin = origin,
             RecoleccionDate = date,
+            EtapaSince = clock.UtcNow,
+            Eventos =
+            [
+                new PedidoEvento
+                {
+                    Kind = PedidoEventoKind.Etapa,
+                    ToEtapa = PedidoEtapa.Agendado,
+                    Date = date,
+                    Automatic = origin == PedidoOrigin.App,
+                    Note = origin == PedidoOrigin.App ? "Desde la app del invitado." : null,
+                },
+            ],
             LineasServicio = (r.LineaServicioIds ?? []).Distinct().Select(id => new PedidoLineaServicio { LineaServicioId = id }).ToList(),
         };
         var parada = new Parada
@@ -173,6 +185,155 @@ public class AgendaService(
         return new ScheduleResultDto(true, pedido.Id, parada.Id, date, place,
             $"Recolección agendada el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.",
             availability);
+    }
+
+    // ---------------- entregas ----------------
+
+    /// <summary>Etapas from which an entrega can be scheduled: in planta (partial entrega), ready, or already scheduled (change date).</summary>
+    private static readonly PedidoEtapa[] EntregaEtapas = [PedidoEtapa.EnPlanta, PedidoEtapa.Listo, PedidoEtapa.EntregaConfirmada];
+
+    /// <summary>Days with cupo for the entrega of a pedido, with the same rules as a recolección.</summary>
+    public async Task<AvailabilityDto> EntregaAvailabilityAsync(int pedidoId, CancellationToken ct)
+    {
+        var pedido = await db.Pedidos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct)
+            ?? throw new NotFoundException($"El pedido {pedidoId} no existe.");
+        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        return await CalculateAsync(location, clock.UtcNow, ct);
+    }
+
+    /// <summary>
+    /// "Programar entrega" or "cambiar fecha" (Listo → EntregaConfirmada). Takes cupo like a recolección; a new date
+    /// replaces the pending entrega parada.
+    /// </summary>
+    public async Task<EntregaResultDto> ScheduleEntregaAsync(int pedidoId, ScheduleEntregaRequest r, CancellationToken ct)
+    {
+        var pedido = await db.Pedidos.Include(p => p.LineasServicio).FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct)
+            ?? throw new NotFoundException($"El pedido {pedidoId} no existe.");
+        if (!EntregaEtapas.Contains(pedido.Etapa))
+        {
+            throw new DomainException($"El pedido está en {PedidoFlow.Name(pedido.Etapa)}; la entrega se programa cuando está en planta o listo.");
+        }
+        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var result = await PlaceEntregaAsync(pedido, location, clock.UtcNow, r.Date, ct);
+        if (result.Scheduled)
+        {
+            var partial = pedido.Etapa == PedidoEtapa.EnPlanta;
+            PedidoFlow.Advance(pedido, PedidoEtapa.EntregaConfirmada, clock.UtcNow, partial ? "Al programar la entrega parcial (lo que está listo)." : "Al programar la entrega.");
+            await db.SaveChangesAsync(ct);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// "No se entregó" (Pedidos › No se entregó): the attempt goes to the history, the entrega parada is marked as not
+    /// done and the pedido is rescheduled to the next day with cupo of its zona, from tomorrow. There is no limit of
+    /// attempts. The notice to the office and the invitado arrives with notifications (week 6).
+    /// </summary>
+    public async Task<EntregaResultDto> NoEntregadoAsync(int pedidoId, NoEntregadoRequest r, CancellationToken ct)
+    {
+        var pedido = await db.Pedidos.FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct)
+            ?? throw new NotFoundException($"El pedido {pedidoId} no existe.");
+        if (pedido.Etapa is not (PedidoEtapa.EntregaConfirmada or PedidoEtapa.EnCamino))
+        {
+            throw new DomainException("Solo un pedido con entrega programada o en camino puede marcarse como no entregado.");
+        }
+        if (r.ReasonId is null && string.IsNullOrWhiteSpace(r.Note))
+        {
+            throw new DomainException("Indica el motivo por el que no se entregó.");
+        }
+        if (r.ReasonId is { } reasonId && !await db.Reasons.AnyAsync(x => x.Id == reasonId && x.Type == ReasonType.FailedEntrega && x.Active, ct))
+        {
+            throw new DomainException("El motivo no existe o no es de entregas fallidas.");
+        }
+
+        foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedidoId && p.Active && p.Kind == ParadaKind.Entrega
+                     && p.State != ParadaState.Realizada && p.State != ParadaState.NoRealizada).ToListAsync(ct))
+        {
+            parada.State = ParadaState.NoRealizada;
+        }
+        pedido.FailedAttempts++;
+        var from = pedido.Etapa;
+        pedido.Etapa = PedidoEtapa.EntregaConfirmada;
+        pedido.EtapaSince = clock.UtcNow;
+        pedido.Eventos.Add(new PedidoEvento
+        {
+            Kind = PedidoEventoKind.NoEntregado,
+            FromEtapa = from,
+            ToEtapa = PedidoEtapa.EntregaConfirmada,
+            Date = pedido.EntregaDate,
+            ReasonId = r.ReasonId,
+            Note = string.IsNullOrWhiteSpace(r.Note) ? null : r.Note.Trim(),
+        });
+        await db.SaveChangesAsync(ct);
+
+        // From tomorrow: registering at the start of tomorrow gives tomorrow as the minimum date.
+        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var result = await PlaceEntregaAsync(pedido, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
+        return result with { Message = $"Intento {pedido.FailedAttempts} sin entregar. {result.Message}" };
+    }
+
+    /// <summary>Creates the entrega parada on the chosen (or first available) day, inside the agenda lock.</summary>
+    private async Task<EntregaResultDto> PlaceEntregaAsync(Pedido pedido, ZonaLocation location, DateTimeOffset from, DateOnly? chosen, CancellationToken ct)
+    {
+        var availability = await CalculateAsync(location, from, ct);
+        if (availability.OutOfCoverage)
+        {
+            throw new DomainException("La dirección está fuera de cobertura. Asigna la zona a mano en la dirección del invitado.");
+        }
+        var date = chosen ?? availability.Date
+            ?? throw new DomainException($"No hay días con cupo en los siguientes {SearchDays} días para la zona {availability.ZonaCode}.");
+        if (chosen is not null)
+        {
+            await EnsureDayCanBeChosenAsync(chosen.Value, location.Zona!, availability, ct);
+        }
+
+        var rutaId = availability.RutaId!.Value;
+        var cupo = availability.Cupo!.Value;
+        await using var handle = await agendaLock.AcquireAsync(rutaId, date, ct);
+        var occupied = await OccupancyQuery(rutaId, date, date).CountAsync(ct)
+            + (await fijas.PendingCupoAsync(rutaId, date, date, ct)).GetValueOrDefault((rutaId, date));
+        if (occupied >= cupo)
+        {
+            return new EntregaResultDto(false, null, null,
+                $"El {AgendaCalculator.Format(date)} ya no tiene cupo ({occupied} de {cupo}). Siguiente fecha disponible: "
+                + (availability.Date is { } next && next != date ? $"{AgendaCalculator.Format(next)}." : "elige otro día."),
+                availability);
+        }
+
+        // A new date replaces the pending entrega.
+        foreach (var old in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.Kind == ParadaKind.Entrega
+                     && p.State == ParadaState.Pendiente).ToListAsync(ct))
+        {
+            old.Active = false;
+        }
+        var rutaDia = await db.RutaDias.FirstOrDefaultAsync(d => d.RutaId == rutaId && d.Date == date, ct);
+        if (rutaDia is null)
+        {
+            rutaDia = new RutaDia { RutaId = rutaId, Date = date };
+            db.RutaDias.Add(rutaDia);
+        }
+        db.Paradas.Add(new Parada
+        {
+            RutaDia = rutaDia,
+            Kind = ParadaKind.Entrega,
+            PedidoId = pedido.Id,
+            DireccionId = pedido.DireccionId,
+            Turno = pedido.Turno,
+            Notes = pedido.DriverNotes,
+        });
+        var previous = pedido.EntregaDate;
+        pedido.EntregaDate = date;
+        pedido.Eventos.Add(new PedidoEvento
+        {
+            Kind = PedidoEventoKind.EntregaProgramada,
+            Date = date,
+            Note = previous is { } p && p != date ? $"Antes: {AgendaCalculator.Format(p)}" : null,
+        });
+        await db.SaveChangesAsync(ct);
+        await handle.CommitAsync(ct);
+
+        var place = occupied + 1;
+        return new EntregaResultDto(true, date, place, $"Entrega el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.", availability);
     }
 
     private async Task<ZonaLocation> LocateAsync(AvailabilityRequest r, CancellationToken ct)

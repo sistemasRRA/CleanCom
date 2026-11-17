@@ -55,6 +55,12 @@ public class Pedido : Entity, IActivatable
     public PedidoOrigin Origin { get; set; }
     public DateOnly RecoleccionDate { get; set; }
     public DateOnly? EntregaDate { get; set; }
+    /// <summary>Failed entrega attempts; there is no limit (Pedidos › No se entregó).</summary>
+    public int FailedAttempts { get; set; }
+    /// <summary>When it entered its current etapa (UTC), for the board; null on rows from before the history.</summary>
+    public DateTimeOffset? EtapaSince { get; set; }
+
+    public List<PedidoEvento> Eventos { get; set; } = [];
 
     public List<PedidoLineaServicio> LineasServicio { get; set; } = [];
 }

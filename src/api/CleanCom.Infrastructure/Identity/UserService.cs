@@ -138,6 +138,11 @@ public class UserService(
         await transaction.CommitAsync(ct);
     }
 
+    public async Task<IReadOnlyDictionary<int, string>> NamesAsync(IReadOnlyCollection<int> ids, CancellationToken ct) =>
+        ids.Count == 0
+            ? new Dictionary<int, string>()
+            : await db.Users.AsNoTracking().Where(u => ids.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.FullName, ct);
+
     public async Task<IReadOnlyList<RoleOptionDto>> ListAssignableRolesAsync(CancellationToken ct)
     {
         var isSuperUser = await CallerIsSuperUserAsync(ct);
