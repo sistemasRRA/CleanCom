@@ -254,6 +254,11 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
+| App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
+| Rutas | `GET /rutas/dia?fecha=` | Rutas: View |
+| Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |
+| Paradas fijas | `GET /paradas-fijas` (`?tipo=&inactivas=`), `GET /paradas-fijas/{id}`, `GET /paradas-fijas/semana?fecha=` | Paradas fijas: View |
+| Paradas fijas | `POST /paradas-fijas`, `PUT /paradas-fijas/{id}`, `POST /paradas-fijas/{id}/excepciones`, `DELETE /paradas-fijas/{id}/excepciones/{excepcionId}` (baja lógica), `POST /paradas-fijas/generar?fecha=` | Paradas fijas: Edit |
 
 El motor de agenda está en `CleanCom.Domain/Agenda` (cortes y búsqueda de fecha, sin base de datos) y `CleanCom.Application/Agenda` (`AgendaService`, `ZonaLocator`). `agendar` repite el cálculo dentro de una transacción con `sp_getapplock` por ruta y fecha (`AgendaLock`), así dos personas no toman el último lugar del mismo día.
 

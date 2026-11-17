@@ -35,6 +35,9 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<RutaDia> RutaDias => Set<RutaDia>();
     public DbSet<Parada> Paradas => Set<Parada>();
     public DbSet<Contacto> Contactos => Set<Contacto>();
+    public DbSet<ParadaFija> ParadasFijas => Set<ParadaFija>();
+    public DbSet<ParadaFijaException> ParadaFijaExceptions => Set<ParadaFijaException>();
+    public DbSet<Viaje> Viajes => Set<Viaje>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -51,6 +54,8 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<Turno>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaState>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ParadaPlacement>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<ParadaCategory>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);

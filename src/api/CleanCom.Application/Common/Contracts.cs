@@ -33,6 +33,9 @@ public interface ICleanComDbContext
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
     DbSet<Contacto> Contactos { get; }
+    DbSet<ParadaFija> ParadasFijas { get; }
+    DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
+    DbSet<Viaje> Viajes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -50,6 +53,9 @@ public class NotFoundException(string message) : Exception(message);
 
 /// <summary>409: clashes with something that already exists.</summary>
 public class ConflictException(string message) : Exception(message);
+
+/// <summary>409: the action needs the user to confirm it (the request is repeated with the confirmation).</summary>
+public class ConfirmationRequiredException(string message) : Exception(message);
 
 /// <summary>401: invalid credentials or token.</summary>
 public class UnauthorizedException(string message) : Exception(message);

@@ -44,6 +44,9 @@ public static class SettingCatalog
         new(CrmNoAnswerDays, T.Integer, "1", "Días para volver a llamar si no contestó"),
         new(CrmCallLaterDays, T.Integer, "3", "Días para volver a llamar si pidió que le llamaran después"),
         new(CrmNotNowDays, T.Integer, "21", "Días para volver a llamar si dijo que no por ahora"),
+        new(RutaAverageSpeed, T.Decimal, "18", "Velocidad promedio en km/h para estimar traslados mientras no se conecta Google"),
+        new(RutaDistanceFactor, T.Decimal, "1.4", "Distancia en calle respecto a la línea recta, para estimar traslados mientras no se conecta Google"),
+        new(ParadaSpecificTimeWindow, T.Integer, "30", "Minutos antes y después de una hora específica que forman su ventana"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

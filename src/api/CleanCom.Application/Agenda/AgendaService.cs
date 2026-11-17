@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Pedidos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
@@ -25,6 +26,7 @@ public class AgendaService(
     ZonaLocator locator,
     IAgendaLock agendaLock,
     PedidoService pedidos,
+    FijaCalendar fijas,
     IValidator<AvailabilityRequest> availabilityValidator,
     IValidator<ScheduleRequest> scheduleValidator)
 {
@@ -68,6 +70,7 @@ public class AgendaService(
         var nonWorking = await db.NonWorkingDays.AsNoTracking()
             .Where(d => d.Active && d.Date >= start && d.Date <= end)
             .ToDictionaryAsync(d => d.Date, d => d.Reason, ct);
+        var pendingFijas = await fijas.PendingCupoAsync(null, start, end, ct);
 
         var boardDays = Enumerable.Range(0, count).Select(i =>
         {
@@ -78,7 +81,7 @@ public class AgendaService(
                 nonWorking.GetValueOrDefault(date),
                 rutas.Select(r => new BoardRutaDayDto(
                     r.Id,
-                    occupancy.FirstOrDefault(o => o.RutaId == r.Id && o.Date == date)?.Count ?? 0,
+                    (occupancy.FirstOrDefault(o => o.RutaId == r.Id && o.Date == date)?.Count ?? 0) + pendingFijas.GetValueOrDefault((r.Id, date)),
                     cupos[r.Id])).ToList());
         }).ToList();
 
@@ -118,7 +121,8 @@ public class AgendaService(
         await using var handle = await agendaLock.AcquireAsync(rutaId, date, ct);
 
         // Same calculation again inside the lock: someone may have taken the place meanwhile.
-        var occupied = await OccupancyQuery(rutaId, date, date).CountAsync(ct);
+        var occupied = await OccupancyQuery(rutaId, date, date).CountAsync(ct)
+            + (await fijas.PendingCupoAsync(rutaId, date, date, ct)).GetValueOrDefault((rutaId, date));
         if (occupied >= cupo)
         {
             var next = await CalculateAsync(location, registeredAt, ct);
@@ -218,6 +222,11 @@ public class AgendaService(
             .GroupBy(p => p.RutaDia!.Date)
             .Select(g => new { Date = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.Date, x => x.Count, ct);
+        // Paradas fijas take cupo even on days not generated yet.
+        foreach (var ((_, date), count) in await fijas.PendingCupoAsync(zona.RutaId, minimum, until, ct))
+        {
+            occupancy[date] = occupancy.GetValueOrDefault(date) + count;
+        }
 
         var result = AgendaCalculator.FindAvailability(new AvailabilityQuery(
             minimum, zona.EffectiveVisitDays(), nonWorking.ToHashSet(), occupancy, cupo, OtherDays, SearchDays));
@@ -238,7 +247,7 @@ public class AgendaService(
             explanation);
     }
 
-    /// <summary>Active paradas of the ruta that take cupo in the range, fixed paradas included.</summary>
+    /// <summary>Active paradas of the ruta that take cupo in the range, generated paradas fijas included.</summary>
     private IQueryable<Parada> OccupancyQuery(int rutaId, DateOnly from, DateOnly to) =>
         db.Paradas.AsNoTracking().Where(p =>
             p.Active

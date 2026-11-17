@@ -4,6 +4,11 @@
     <ProjectReference Include="..\CleanCom.Application\CleanCom.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Hosting and logging abstractions; the API already runs on this framework. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

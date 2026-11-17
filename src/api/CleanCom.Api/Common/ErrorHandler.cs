@@ -25,6 +25,7 @@ public sealed class ErrorHandler(IProblemDetailsService problems) : IExceptionHa
             },
             DomainException => Problem(StatusCodes.Status400BadRequest, "No se puede realizar la operación.", exception.Message),
             NotFoundException => Problem(StatusCodes.Status404NotFound, "No encontrado.", exception.Message),
+            ConfirmationRequiredException => Problem(StatusCodes.Status409Conflict, "Confirma para continuar.", exception.Message),
             ConflictException => Problem(StatusCodes.Status409Conflict, "Ya existe.", exception.Message),
             UnauthorizedException => Problem(StatusCodes.Status401Unauthorized, "No autorizado.", exception.Message),
             BadHttpRequestException b => Problem(b.StatusCode, "Petición no válida.", "Revisa el formato de los datos enviados."),

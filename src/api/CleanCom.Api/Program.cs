@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using CleanCom.Api.Common;
 using CleanCom.Application;
 using CleanCom.Infrastructure;
+using CleanCom.Jobs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Serilog;
@@ -19,6 +20,7 @@ try
 
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddJobs();
     builder.Services.AddSecurity();
     builder.Services.AddProblemDetails();
     builder.Services.AddExceptionHandler<ErrorHandler>();
