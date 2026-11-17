@@ -464,6 +464,228 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chofer/evidencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** Format: int32 */
+                        ParadaId?: number;
+                        File?: components["schemas"]["IFormFile"];
+                        LocalId?: string;
+                        /** Format: double */
+                        Lat?: number;
+                        /** Format: double */
+                        Lng?: number;
+                        /** Format: date-time */
+                        TakenAt?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EvidenciaDto"];
+                        "application/json": components["schemas"]["EvidenciaDto"];
+                        "text/json": components["schemas"]["EvidenciaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/motivos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferReasonDto"][];
+                        "application/json": components["schemas"]["ChoferReasonDto"][];
+                        "text/json": components["schemas"]["ChoferReasonDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/evidencias/firma": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SignatureRequest"];
+                    "text/json": components["schemas"]["SignatureRequest"];
+                    "application/*+json": components["schemas"]["SignatureRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EvidenciaDto"];
+                        "application/json": components["schemas"]["EvidenciaDto"];
+                        "text/json": components["schemas"]["EvidenciaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/paradas/{id}/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CloseVisitRequest"];
+                    "text/json": components["schemas"]["CloseVisitRequest"];
+                    "application/*+json": components["schemas"]["CloseVisitRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/paradas/{id}/no-realizada": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NotDoneRequest"];
+                    "text/json": components["schemas"]["NotDoneRequest"];
+                    "application/*+json": components["schemas"]["NotDoneRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cobertura": {
         parameters: {
             query?: never;
@@ -825,6 +1047,45 @@ export interface paths {
                 };
             };
         };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evidencias/{id}/archivo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["FileStreamResult"];
+                        "application/json": components["schemas"]["FileStreamResult"];
+                        "text/json": components["schemas"]["FileStreamResult"];
+                    };
+                };
+            };
+        };
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -4043,6 +4304,20 @@ export interface components {
             /** Format: int32 */
             arrivedDistanceMeters: null | number;
             arrivedOutsideRadius: boolean;
+            /** Format: date-time */
+            closedAt?: null | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            photos: number;
+            /** @default false */
+            signed: boolean;
+        };
+        ChoferReasonDto: {
+            /** Format: int32 */
+            id: number;
+            text: string;
         };
         ChoferRutaDto: {
             /** Format: date */
@@ -4064,6 +4339,9 @@ export interface components {
              * @default 300
              */
             toleranceMeters: number;
+            /** @default true */
+            photoRequired: boolean;
+            message?: null | string;
         };
         ChoferRutaInfoDto: {
             /** Format: int32 */
@@ -4071,6 +4349,19 @@ export interface components {
             code: string;
             name: string;
             color: string;
+        };
+        CloseVisitRequest: {
+            localId: null | string;
+            /** Format: int32 */
+            garments: null | number;
+            notes: null | string;
+            paymentMethod: null | components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            paymentAmount: null | number;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
         };
         /** @enum {unknown} */
         ContactChannel: "Llamada" | "WhatsApp";
@@ -4192,6 +4483,10 @@ export interface components {
             zonaAssignedManually: boolean;
             active: boolean;
         };
+        EntityTagHeaderValue: {
+            tag?: components["schemas"]["StringSegment"];
+            isWeak?: boolean;
+        };
         EntregaResultDto: {
             scheduled: boolean;
             /** Format: date */
@@ -4200,6 +4495,28 @@ export interface components {
             place: null | number;
             message: string;
             availability: components["schemas"]["AvailabilityDto"];
+        };
+        EvidenciaDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: int32 */
+            paradaId: number;
+            kind: components["schemas"]["EvidenciaKind"];
+            /** Format: date-time */
+            takenAt: string;
+            /** Format: int32 */
+            distanceMeters: null | number;
+        };
+        /** @enum {unknown} */
+        EvidenciaKind: "Foto" | "Firma";
+        EvidenciaRefDto: {
+            /** Format: int32 */
+            id: number;
+            kind: components["schemas"]["EvidenciaKind"];
+            /** Format: date-time */
+            takenAt: string;
+            /** Format: int32 */
+            distanceMeters: null | number;
         };
         FijasWeekCellDto: {
             /** Format: int32 */
@@ -4249,6 +4566,15 @@ export interface components {
             code: string;
             name: string;
             color: string;
+        };
+        FileStreamResult: {
+            fileStream?: components["schemas"]["Stream"];
+            contentType?: null | string;
+            fileDownloadName?: null | string;
+            /** Format: date-time */
+            lastModified?: null | string;
+            entityTag?: null | components["schemas"]["EntityTagHeaderValue"];
+            enableRangeProcessing?: boolean;
         };
         GenerateFijasResultDto: {
             /** Format: date */
@@ -4323,6 +4649,16 @@ export interface components {
             /** Format: date */
             date: string;
             reason: string;
+        };
+        NotDoneRequest: {
+            localId: null | string;
+            /** Format: int32 */
+            reasonId: null | number;
+            note: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
         };
         OperadorDto: {
             /** Format: int32 */
@@ -4410,6 +4746,8 @@ export interface components {
             position: null | number;
             fixed: null | boolean;
         };
+        /** @enum {unknown} */
+        PaymentMethod: "Efectivo" | "Tarjeta" | "Transferencia" | null;
         PedidoBoardDto: {
             /** Format: date */
             today: string;
@@ -4519,7 +4857,7 @@ export interface components {
             text: string;
         };
         /** @enum {unknown} */
-        PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario" | "Ticket" | "AtrasoPlanta";
+        PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario" | "Ticket" | "AtrasoPlanta" | "NoRecolectado" | "RecoleccionProgramada";
         /** @enum {unknown} */
         PedidoOrigin: "Oficina" | "App";
         PedidoParadaDto: {
@@ -4534,6 +4872,15 @@ export interface components {
             /** Format: date-time */
             arrivedAt: null | string;
             active: boolean;
+            /** Format: date-time */
+            closedAt?: null | string;
+            /** Format: int32 */
+            garmentsCollected?: null | number;
+            closeNote?: null | string;
+            paymentMethod?: null | components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            paymentAmount?: null | number;
+            evidencias?: null | components["schemas"]["EvidenciaRefDto"][];
         };
         PlantaBoardDto: {
             /** Format: date */
@@ -5017,6 +5364,29 @@ export interface components {
         };
         /** @enum {unknown} */
         SettingValueType: "Text" | "Integer" | "Decimal" | "Boolean" | "Time" | "TimeRange" | "Coordinate";
+        SignatureRequest: {
+            /** Format: int32 */
+            paradaId: number;
+            localId: null | string;
+            /** Format: double */
+            width: number;
+            /** Format: double */
+            height: number;
+            strokes: number[][];
+            /** Format: date-time */
+            takenAt: null | string;
+        };
+        /** Format: binary */
+        Stream: string;
+        StringSegment: {
+            buffer?: null | string;
+            /** Format: int32 */
+            offset?: number;
+            /** Format: int32 */
+            length?: number;
+            value?: null | string;
+            hasValue?: boolean;
+        };
         TicketDto: {
             /** Format: int32 */
             id: number;

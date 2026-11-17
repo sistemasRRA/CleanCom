@@ -99,6 +99,20 @@ public class Parada : Entity, IActivatable
     /// <summary>Point in SRID 4326 for <see cref="Address"/>.</summary>
     public NetTopologySuite.Geometries.Point? Location { get; set; }
 
+    /// <summary>When the chofer closed the visit, done or not done (UTC).</summary>
+    public DateTimeOffset? ClosedAt { get; set; }
+    public NetTopologySuite.Geometries.Point? ClosedLocation { get; set; }
+    /// <summary>Prendas the chofer counted at a recolección.</summary>
+    public int? GarmentsCollected { get; set; }
+    /// <summary>Chofer's notes when closing, or the detail of why it was not done.</summary>
+    public string? CloseNotes { get; set; }
+    /// <summary>Motivo of the catalog when the visit was not done.</summary>
+    public int? NoRealizadaReasonId { get; set; }
+    /// <summary>Id the app gave the closing, so a resend after losing signal is answered without closing twice.</summary>
+    public string? CloseLocalId { get; set; }
+
+    public List<Evidencia> Evidencias { get; set; } = [];
+
     /// <summary>Leaving, coming back and lunch do not take cupo; every other parada does, fixed ones included.</summary>
     public static readonly ParadaKind[] KindsWithoutCupo = [ParadaKind.Salida, ParadaKind.Regreso, ParadaKind.Comida];
 

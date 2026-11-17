@@ -33,7 +33,7 @@ Tablero del camino de cada pedido, de la recolección a la entrega, y bitácora 
 - **Cambiar etapa** (`POST /pedidos/{id}/etapa`): avanzar es libre; regresar, entregar a mano o cancelar pide motivo. Cancelar quita sus visitas pendientes de las rutas; un cancelado no se reabre. En lugar de arrastrar la tarjeta se elige la etapa en su ficha.
 - **Programar entrega** (`GET /pedidos/{id}/fechas-entrega`, `POST /pedidos/{id}/programar-entrega`): días con cupo de su zona con el mismo motor de la agenda; la entrega ocupa cupo. Desde En planta (entrega parcial), Listo o para cambiar la fecha; una fecha nueva reemplaza la entrega pendiente. Pasa a Entrega confirmada.
 - **No se entregó** (`POST /pedidos/{id}/no-entregado`): motivo de catálogo o texto; la visita queda "no realizada", suma un intento y se reprograma al siguiente día con cupo desde mañana, sin límite. El aviso a oficina e invitado llega con las notificaciones (semana 6).
-- **Automático:** al marcar el chofer "en camino" a una entrega, el pedido pasa a En camino. Cerrar recolección y entrega llega con el cierre de visita en la app. En planta y Listo los mueven los tickets (ver [Tickets en planta](tickets-en-planta.md)); la tarjeta muestra "2/3 tickets listos" y la ficha, los tickets y los comentarios de atraso de planta.
+- **Automático:** al marcar el chofer "en camino" a una entrega, el pedido pasa a En camino. Al cerrar el chofer la visita en la app, el pedido pasa a Recolectado o Entregado, y la ficha muestra prendas, notas, pago de referencia, fotos y firma. En planta y Listo los mueven los tickets (ver [Tickets en planta](tickets-en-planta.md)); la tarjeta muestra "2/3 tickets listos" y la ficha, los tickets y los comentarios de atraso de planta.
 
 ## Endpoints
 

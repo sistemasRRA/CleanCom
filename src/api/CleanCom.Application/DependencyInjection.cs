@@ -38,6 +38,8 @@ public static class DependencyInjection
         services.AddScoped<RutaDiaService>();
         services.AddScoped<PedidoBoardService>();
         services.AddScoped<PlantaService>();
+        services.AddScoped<ChoferVisitService>();
+        services.AddScoped<EvidenciaService>();
         return services;
     }
 }

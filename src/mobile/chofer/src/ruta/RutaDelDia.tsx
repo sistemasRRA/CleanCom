@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert as RNAlert, Linking, Pressable, Text, View } f
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, ApiError, Body, Button, Card, Title, api, radius, space, touch, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { currentPosition, openNavigation, useDistanceTo } from './ubicacion';
+import { CerrarVisita } from './CerrarVisita';
 
 type Ruta = Schemas['ChoferRutaDto'];
 type Parada = Schemas['ChoferParadaDto'];
@@ -54,6 +55,7 @@ export function RutaDelDia() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [closing, setClosing] = useState<Parada | null>(null);
 
   const load = useCallback(async (fecha: string | null) => {
     setLoading(true);
@@ -155,9 +157,23 @@ export function RutaDelDia() {
             busy={busyId === p.id}
             onEnCamino={() => void enCamino(p)}
             onLlegue={() => void llegue(p)}
+            canClose={!!ruta.isToday && (p.state === 'EnCamino' || p.state === 'EnSitio')}
+            onClose={() => setClosing(p)}
           />
         ))}
       </View>
+      {closing && ruta && (
+        <CerrarVisita
+          parada={closing}
+          photoRequired={ruta.photoRequired}
+          onClose={() => setClosing(null)}
+          onDone={(next) => {
+            setClosing(null);
+            setRuta(next);
+            if (next.message) RNAlert.alert('Visita cerrada', next.message);
+          }}
+        />
+      )}
     </Card>
   );
 }
@@ -202,6 +218,8 @@ function ParadaCard({
   busy,
   onEnCamino,
   onLlegue,
+  canClose,
+  onClose,
 }: {
   parada: Parada;
   color?: string;
@@ -210,6 +228,8 @@ function ParadaCard({
   busy: boolean;
   onEnCamino: () => void;
   onLlegue: () => void;
+  canClose: boolean;
+  onClose: () => void;
 }) {
   const { colors } = useTheme();
   const when = p.turno === 'HoraEspecifica' && p.specificTime ? p.specificTime.slice(0, 5) : TURNO[p.turno];
@@ -263,7 +283,11 @@ function ParadaCard({
         <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
           <Button title="En camino" icon={<Ionicons name="car" size={18} color={colors.onBrand} />} busy={busy} onPress={onEnCamino} />
           <Button title="Llegué" variant="secondary" disabled={busy} onPress={onLlegue} />
+          <Button title="Cerrar visita" variant="ghost" disabled={busy} onPress={onClose} />
         </View>
+      )}
+      {canClose && (
+        <Button title="Cerrar visita" icon={<Ionicons name="checkmark-done" size={18} color={colors.onBrand} />} onPress={onClose} />
       )}
       <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
         {p.phone && <Action icon="call" label="Llamar" onPress={() => void Linking.openURL(`tel:${p.phone}`)} />}
@@ -287,6 +311,17 @@ function StateLine({ parada: p }: { parada: Parada }) {
         Llegaste a las {at(p.arrivedAt)}
         {p.arrivedOutsideRadius && p.arrivedDistanceMeters != null && ` · a ${p.arrivedDistanceMeters} m (fuera de radio)`}
         {' · falta cerrar la visita'}
+      </Text>
+    );
+  }
+  if (p.state === 'Realizada' || p.state === 'NoRealizada') {
+    const done = p.state === 'Realizada';
+    return (
+      <Text style={{ color: done ? colors.success : colors.danger, fontSize: 13, fontWeight: '700' }}>
+        {done ? 'Realizada' : 'No realizada'}
+        {p.closedAt && ` a las ${at(p.closedAt)}`}
+        {p.photos > 0 && ` · ${p.photos} foto${p.photos === 1 ? '' : 's'}`}
+        {p.signed && ' · firmada'}
       </Text>
     );
   }

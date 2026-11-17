@@ -51,8 +51,14 @@ Cada pantalla se decide con `useLayout()` de `src/mobile/shared` (`isTablet`, `l
 - `POST /chofer/paradas/{id}/en-camino` (semana 3, hecho): solo en la ruta de hoy, en el orden asignado si `Visita.OrdenObligatorio` está activo y una a la vez. La app pregunta Google Maps o Waze y abre la navegación. El aviso al invitado llega con las notificaciones (semana 6).
 - `POST /chofer/paradas/{id}/llegue` (semana 3, hecho): hora real y ubicación del teléfono. Más lejos que `Gps.ToleranciaMetros` responde 409 y la app pide confirmar; confirmada, queda marcada "fuera de radio" para oficina (en Rutas). Sin permiso de ubicación o sin coordenadas de la parada se registra sin distancia. Se puede marcar llegada sin haber marcado en camino. Mientras va en camino, la app mide la distancia (solo con la app abierta) y resalta "Llegué" al entrar al radio.
 - `GET /chofer/ruta` trae además la hora estimada de cada parada (la misma de Rutas), la siguiente parada, si el orden es obligatorio y la tolerancia.
-- `POST /chofer/paradas/{id}/cerrar`, `/no-realizada` (semana 4).
-- `POST /chofer/evidencias` (multipart), `POST /chofer/ubicacion`, `POST /chofer/sincronizar` (lote de la cola offline).
+- **Cerrar la visita** (semana 4, hecho). Botón "Cerrar visita" en la parada en camino o en sitio (o directo desde una pendiente que ya le toca). Pantalla con "Se realizó" o "No se realizó":
+    - `POST /chofer/evidencias` (multipart): foto con la cámara, comprimida en el teléfono (calidad 50 %), con ubicación y distancia a la parada. JPG, PNG o WebP hasta 8 MB; el API revisa que de verdad sea imagen. Se guarda en disco (`Archivos:Ruta`).
+    - `POST /chofer/evidencias/firma`: la firma con el dedo en la entrega; la app manda solo los trazos y el API dibuja un SVG.
+    - `POST /chofer/paradas/{id}/cerrar`: recolección con prendas (obligatorias si es de un pedido) → pedido Recolectado y sus prendas actualizadas; entrega con firma y forma y monto de pago de referencia → pedido Entregado; traslado, convenio o insumos solo confirma. Notas opcionales.
+    - `POST /chofer/paradas/{id}/no-realizada`: motivo de catálogo (`GET /chofer/motivos`) o escrito, y foto. Entrega → intento fallido y reprogramada; recolección → reprogramada; parada fija → solo queda no realizada.
+    - Foto obligatoria según `Visita.FotoObligatoria`, en toda visita. Cada acción lleva `localId`: si la app reenvía (sin señal), el API responde lo mismo sin duplicar.
+    - En oficina, la ficha del pedido muestra cuándo se cerró, prendas, notas o motivo, pago y las fotos y la firma (`GET /evidencias/{id}/archivo`).
+- `POST /chofer/ubicacion`, `POST /chofer/sincronizar` (lote de la cola offline).
 - `POST /chofer/fallas`, `POST /chofer/solicitudes-cambio`.
 
 ## Criterios de aceptación

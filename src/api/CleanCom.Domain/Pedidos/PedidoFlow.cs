@@ -17,6 +17,10 @@ public enum PedidoEventoKind
     Ticket,
     /// <summary>Planta explains why the pedido is late ("¿Por qué se atrasa?").</summary>
     AtrasoPlanta,
+    /// <summary>The chofer could not do the recolección; it was rescheduled.</summary>
+    NoRecolectado,
+    /// <summary>New recolección date after a recolección not done.</summary>
+    RecoleccionProgramada,
 }
 
 /// <summary>

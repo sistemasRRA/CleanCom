@@ -214,7 +214,7 @@ public class AgendaService(
             throw new DomainException($"El pedido está en {PedidoFlow.Name(pedido.Etapa)}; la entrega se programa cuando está en planta o listo.");
         }
         var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
-        var result = await PlaceEntregaAsync(pedido, location, clock.UtcNow, r.Date, ct);
+        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, clock.UtcNow, r.Date, ct);
         if (result.Scheduled)
         {
             var partial = pedido.Etapa == PedidoEtapa.EnPlanta;
@@ -268,12 +268,46 @@ public class AgendaService(
 
         // From tomorrow: registering at the start of tomorrow gives tomorrow as the minimum date.
         var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
-        var result = await PlaceEntregaAsync(pedido, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
+        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
         return result with { Message = $"Intento {pedido.FailedAttempts} sin entregar. {result.Message}" };
     }
 
-    /// <summary>Creates the entrega parada on the chosen (or first available) day, inside the agenda lock.</summary>
-    private async Task<EntregaResultDto> PlaceEntregaAsync(Pedido pedido, ZonaLocation location, DateTimeOffset from, DateOnly? chosen, CancellationToken ct)
+    /// <summary>
+    /// The chofer could not do the recolección (app del chofer › No realizada): it goes to the history, the parada is
+    /// marked as not done and the recolección is rescheduled to the next day with cupo of its zona, from tomorrow.
+    /// It is not counted as a failed entrega attempt.
+    /// </summary>
+    public async Task<EntregaResultDto> NoRecolectadoAsync(int pedidoId, int? reasonId, string? note, CancellationToken ct)
+    {
+        var pedido = await db.Pedidos.FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct)
+            ?? throw new NotFoundException($"El pedido {pedidoId} no existe.");
+        if (pedido.Etapa != PedidoEtapa.Agendado)
+        {
+            throw new DomainException($"El pedido está en {PedidoFlow.Name(pedido.Etapa)}; solo una recolección agendada puede quedar no realizada.");
+        }
+        foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedidoId && p.Active && p.Kind == ParadaKind.Recoleccion
+                     && p.State != ParadaState.Realizada && p.State != ParadaState.NoRealizada).ToListAsync(ct))
+        {
+            parada.State = ParadaState.NoRealizada;
+        }
+        pedido.Eventos.Add(new PedidoEvento
+        {
+            Kind = PedidoEventoKind.NoRecolectado,
+            Date = pedido.RecoleccionDate,
+            ReasonId = reasonId,
+            Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+        });
+        await db.SaveChangesAsync(ct);
+
+        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        return await PlaceVisitAsync(pedido, ParadaKind.Recoleccion, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
+    }
+
+    /// <summary>
+    /// Creates the entrega (or rescheduled recolección) parada on the chosen (or first available) day, inside the
+    /// agenda lock. It replaces the pending one of the same kind.
+    /// </summary>
+    private async Task<EntregaResultDto> PlaceVisitAsync(Pedido pedido, ParadaKind kind, ZonaLocation location, DateTimeOffset from, DateOnly? chosen, CancellationToken ct)
     {
         var availability = await CalculateAsync(location, from, ct);
         if (availability.OutOfCoverage)
@@ -300,8 +334,8 @@ public class AgendaService(
                 availability);
         }
 
-        // A new date replaces the pending entrega.
-        foreach (var old in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.Kind == ParadaKind.Entrega
+        // A new date replaces the pending visit.
+        foreach (var old in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.Kind == kind
                      && p.State == ParadaState.Pendiente).ToListAsync(ct))
         {
             old.Active = false;
@@ -315,17 +349,25 @@ public class AgendaService(
         db.Paradas.Add(new Parada
         {
             RutaDia = rutaDia,
-            Kind = ParadaKind.Entrega,
+            Kind = kind,
             PedidoId = pedido.Id,
             DireccionId = pedido.DireccionId,
             Turno = pedido.Turno,
             Notes = pedido.DriverNotes,
         });
-        var previous = pedido.EntregaDate;
-        pedido.EntregaDate = date;
+        var entrega = kind == ParadaKind.Entrega;
+        var previous = entrega ? pedido.EntregaDate : pedido.RecoleccionDate;
+        if (entrega)
+        {
+            pedido.EntregaDate = date;
+        }
+        else
+        {
+            pedido.RecoleccionDate = date;
+        }
         pedido.Eventos.Add(new PedidoEvento
         {
-            Kind = PedidoEventoKind.EntregaProgramada,
+            Kind = entrega ? PedidoEventoKind.EntregaProgramada : PedidoEventoKind.RecoleccionProgramada,
             Date = date,
             Note = previous is { } p && p != date ? $"Antes: {AgendaCalculator.Format(p)}" : null,
         });
@@ -333,7 +375,8 @@ public class AgendaService(
         await handle.CommitAsync(ct);
 
         var place = occupied + 1;
-        return new EntregaResultDto(true, date, place, $"Entrega el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.", availability);
+        return new EntregaResultDto(true, date, place,
+            $"{(entrega ? "Entrega" : "Recolección")} el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.", availability);
     }
 
     private async Task<ZonaLocation> LocateAsync(AvailabilityRequest r, CancellationToken ct)

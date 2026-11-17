@@ -39,7 +39,10 @@ public record ChoferParadaDto(
     DateTimeOffset? EnCaminoAt,
     DateTimeOffset? ArrivedAt,
     int? ArrivedDistanceMeters,
-    bool ArrivedOutsideRadius);
+    bool ArrivedOutsideRadius,
+    DateTimeOffset? ClosedAt = null,
+    int Photos = 0,
+    bool Signed = false);
 
 /// <summary>
 /// Answer of <c>GET /chofer/ruta</c>: what the signed-in chofer does on a day.
@@ -50,6 +53,7 @@ public record ChoferParadaDto(
 /// <param name="IsToday">En camino and Llegué are only for today's ruta.</param>
 /// <param name="NextParadaId">The parada to go to next (first pending in order); null when none or not today.</param>
 /// <param name="OrderRequired">Visita.OrdenObligatorio: only the next parada can be started.</param>
+/// <param name="PhotoRequired">Visita.FotoObligatoria: a visit is closed (done or not) only with a photo.</param>
 /// <param name="ToleranceMeters">Gps.ToleranciaMetros: Llegué is suggested inside this radius.</param>
 public record ChoferRutaDto(
     DateOnly Date,
@@ -62,4 +66,6 @@ public record ChoferRutaDto(
     bool IsToday = false,
     int? NextParadaId = null,
     bool OrderRequired = true,
-    int ToleranceMeters = 300);
+    int ToleranceMeters = 300,
+    bool PhotoRequired = true,
+    string? Message = null);

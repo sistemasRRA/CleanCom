@@ -21,7 +21,7 @@ El API, la web, los procesos programados y la base de datos se alojan en el VPS 
 | Web de oficina | Archivos estáticos servidos por el proxy |
 | Proxy inverso | Nginx o Caddy, con HTTPS de Let's Encrypt; WebSockets habilitados para SignalR |
 | SQL Server Express | Servicio en el mismo VPS (o contenedor oficial) |
-| Archivos | Carpeta en disco configurada en el API |
+| Archivos | Carpeta en disco configurada en el API (`Archivos__Ruta`; por omisión `archivos` junto al API). Fotos y firmas en `evidencias/aaaa/mm` |
 | Hangfire | Dentro del proceso del API, con su panel protegido para Administración |
 
 ## Dominios sugeridos

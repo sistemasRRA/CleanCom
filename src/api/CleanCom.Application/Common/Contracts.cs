@@ -38,6 +38,8 @@ public interface ICleanComDbContext
     DbSet<Viaje> Viajes { get; }
     DbSet<PedidoEvento> PedidoEventos { get; }
     DbSet<Ticket> Tickets { get; }
+    DbSet<Evidencia> Evidencias { get; }
+    DbSet<CobroReferencia> CobrosReferencia { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -45,6 +47,18 @@ public interface ICleanComDbContext
 /// <summary>
 /// User making the request (null in background jobs or anonymous requests).
 /// </summary>
+/// <summary>
+/// Photos and documents on the server's disk (Archivos:Ruta), never in SQL Server. Paths are relative to that folder.
+/// </summary>
+public interface IFileStore
+{
+    /// <summary>Saves the content under <paramref name="folder"/> with a new name and returns its relative path.</summary>
+    Task<string> SaveAsync(Stream content, string folder, string extension, CancellationToken ct);
+
+    /// <summary>Opens a saved file; null when it is not there.</summary>
+    Stream? OpenRead(string relativePath);
+}
+
 public interface ICurrentUser
 {
     int? Id { get; }

@@ -92,14 +92,24 @@ public class PedidoBoardService(
 
         var paradas = await db.Paradas.AsNoTracking().Where(p => p.PedidoId == id)
             .OrderBy(p => p.RutaDia!.Date).ThenBy(p => p.Id)
-            .Select(p => new { p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active })
+            .Select(p => new
+            {
+                p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes,
+                Reason = p.NoRealizadaReasonId == null ? null : db.Reasons.Where(x => x.Id == p.NoRealizadaReasonId).Select(x => x.Text).FirstOrDefault(),
+                Cobro = db.CobrosReferencia.Where(c => c.ParadaId == p.Id && c.Active).Select(c => new { c.Method, c.Amount }).FirstOrDefault(),
+                Evidencias = p.Evidencias.Where(e => e.Active).OrderBy(e => e.TakenAt)
+                    .Select(e => new EvidenciaRefDto(e.Id, e.Kind, e.TakenAt, e.DistanceMeters)).ToList(),
+            })
             .ToListAsync(ct);
 
         var tickets = (await TicketQueries.ByPedidoAsync(db, settings, [id], clock.Today, ct)).GetValueOrDefault(id) ?? [];
         var address = info.Street + (info.ExteriorNumber is null ? "" : $" {info.ExteriorNumber}")
             + (info.InteriorNumber is null ? "" : $" int. {info.InteriorNumber}") + (info.Neighborhood is null ? "" : $", {info.Neighborhood}");
         return new PedidoDetailDto(card, address, info.DriverNotes, info.Origin, info.RegisteredAt, history, tickets,
-            paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active)).ToList());
+            paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active,
+                p.ClosedAt, p.GarmentsCollected,
+                string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
+                p.Cobro?.Method, p.Cobro?.Amount, p.Evidencias)).ToList());
     }
 
     /// <summary>
@@ -203,6 +213,8 @@ public class PedidoBoardService(
             PedidoEventoKind.Comentario => $"Comentario{tail}",
             PedidoEventoKind.Ticket => e.Note ?? "Ticket",
             PedidoEventoKind.AtrasoPlanta => $"Atraso en planta{tail}",
+            PedidoEventoKind.NoRecolectado => $"No se recolectó{(e.Date is { } d3 ? $" el {AgendaCalculator.Format(d3)}" : "")}{tail}",
+            PedidoEventoKind.RecoleccionProgramada => $"Recolección reprogramada el {(e.Date is { } d4 ? AgendaCalculator.Format(d4) : "—")}{tail}",
             _ => e.Kind.ToString(),
         };
     }

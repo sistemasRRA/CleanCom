@@ -3,6 +3,12 @@
 ## Por confirmar con CleanCom
 
 - [ ] Sistema POS y cómo llega hoy su información (API, base de datos o archivo). Mientras tanto los tickets se capturan a mano en Tickets en planta.
+- [ ] Cerrar visita: formas de pago de referencia (hoy Efectivo, Tarjeta y Transferencia). Confirmar la lista y si hay "ya pagado" o "a crédito".
+- [ ] Cerrar visita: los motivos de "no realizada" usan el catálogo de entregas fallidas también para recolecciones. Confirmar si se separan.
+- [ ] Cerrar visita: `Visita.FotoObligatoria` pide foto también en traslados, convenios e insumos. Confirmar si solo aplica a invitados.
+- [ ] Cerrar visita: la firma del invitado es opcional en la entrega (el KPI "Tickets firmados" mide cuántas la tienen). Confirmar.
+- [ ] Cerrar visita: una recolección no realizada se reprograma sola y no cuenta como intento fallido. Confirmar.
+- [ ] App del chofer sin señal: el API ya acepta reenvíos sin duplicar (`localId`); falta la cola en SQLite de la app.
 - [ ] Tickets en planta: escanear con la cámara de la tableta (hoy funciona con escáner de código de barras o teclado). Confirmar qué código trae impreso el ticket del POS.
 - [ ] Tickets en planta: no hay "deshacer listo"; si se marca por error, se regresa el pedido a En planta en Pedidos. Confirmar si se necesita.
 - [ ] Un pedido Listo que recibe otro ticket: hoy hay que regresarlo a En planta a mano primero. Confirmar si debe regresar solo.
@@ -33,7 +39,7 @@
 - [ ] Lavafan (ruta K, viernes): confirmar dirección completa (la colonia no venía) y hora real; la plantilla decía 4:00.
 - [ ] Rutas: horas y km son estimados en línea recta hasta conectar Google (proyecto de Google Cloud con facturación, Routes API y Route Optimization con cuenta de servicio). Ajustar `Ruta.VelocidadPromedio` y `Ruta.FactorDistancia` con lo real mientras tanto.
 - [ ] App del chofer: no hay "deshacer en camino" si lo marcó por error; mientras, oficina puede pedirle que marque Llegué al llegar. Confirmar si se necesita.
-- [ ] App del chofer: una parada "en sitio" espera a cerrar la visita (semana 4) y no bloquea la siguiente.
+- [ ] App del chofer: una parada "en sitio" sin cerrar no bloquea la siguiente; oficina la ve en Rutas. Confirmar si debe bloquear.
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
 - [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Días de visita de zona: al cambiarlos se borran filas de `zona_visit_days` (código de la semana 1). Contradice la regla de solo baja lógica; corregir guardándolos como lista o con baja lógica.
