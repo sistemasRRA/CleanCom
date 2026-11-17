@@ -521,3 +521,24 @@ fieldset.plain { border: none; padding: 0; margin: 0; min-width: 0; }
 div.ruta-flag { margin: 4px 0 0; display: inline-block; }
 .ruta-viaje { color: var(--brand); font-size: 12.5px; font-weight: 600; }
 button.selected { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+
+/* Pedidos */
+.pedidos-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.pedidos-column { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+.pedidos-column header { display: flex; justify-content: space-between; align-items: center; }
+.pedidos-cards { display: grid; gap: 8px; align-content: start; }
+.pedidos-hint { margin: 0; font-size: 12px; }
+.pedido-card { display: grid; gap: 4px; text-align: left; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: 13px; }
+.pedido-card:hover { border-color: var(--brand); }
+.pedido-card.late { border-left: 4px solid var(--danger); }
+.pedido-card.warn { border-left: 4px solid var(--warning); }
+.pedido-card .badge { justify-self: start; white-space: normal; }
+.pedido-card__top { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.pedido-summary { display: flex; flex-wrap: wrap; gap: 6px; }
+.pedido-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13.5px; }
+.pedido-facts dt { color: var(--text-muted); }
+.pedido-facts dd { margin: 0; }
+.inline-form { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+.inline-form .primary { justify-self: start; }
+.entrega-days { display: flex; flex-wrap: wrap; gap: 6px; }
+.pedido-history li { display: block; font-size: 13px; }

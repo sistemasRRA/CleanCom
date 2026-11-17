@@ -1957,6 +1957,324 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pedidos/tablero": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    ruta?: number;
+                    q?: string;
+                    atrasados?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoBoardDto"];
+                        "application/json": components["schemas"]["PedidoBoardDto"];
+                        "text/json": components["schemas"]["PedidoBoardDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoDetailDto"];
+                        "application/json": components["schemas"]["PedidoDetailDto"];
+                        "text/json": components["schemas"]["PedidoDetailDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/etapa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MoveEtapaRequest"];
+                    "text/json": components["schemas"]["MoveEtapaRequest"];
+                    "application/*+json": components["schemas"]["MoveEtapaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoDetailDto"];
+                        "application/json": components["schemas"]["PedidoDetailDto"];
+                        "text/json": components["schemas"]["PedidoDetailDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/comentarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PedidoCommentRequest"];
+                    "text/json": components["schemas"]["PedidoCommentRequest"];
+                    "application/*+json": components["schemas"]["PedidoCommentRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoDetailDto"];
+                        "application/json": components["schemas"]["PedidoDetailDto"];
+                        "text/json": components["schemas"]["PedidoDetailDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/fechas-entrega": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvailabilityDto"];
+                        "application/json": components["schemas"]["AvailabilityDto"];
+                        "text/json": components["schemas"]["AvailabilityDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/programar-entrega": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ScheduleEntregaRequest"];
+                    "text/json": components["schemas"]["ScheduleEntregaRequest"];
+                    "application/*+json": components["schemas"]["ScheduleEntregaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EntregaResultDto"];
+                        "application/json": components["schemas"]["EntregaResultDto"];
+                        "text/json": components["schemas"]["EntregaResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/no-entregado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NoEntregadoRequest"];
+                    "text/json": components["schemas"]["NoEntregadoRequest"];
+                    "application/*+json": components["schemas"]["NoEntregadoRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EntregaResultDto"];
+                        "application/json": components["schemas"]["EntregaResultDto"];
+                        "text/json": components["schemas"]["EntregaResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pedidos": {
         parameters: {
             query?: never;
@@ -1993,41 +2311,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/pedidos/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         options?: never;
         head?: never;
         patch?: never;
@@ -3679,6 +3962,8 @@ export interface components {
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+        /** @enum {unknown} */
+        DelayLevel: "None" | "Warning" | "Late";
         DireccionDto: {
             /** Format: int32 */
             id: number;
@@ -3699,6 +3984,15 @@ export interface components {
             zonaCode: null | string;
             zonaAssignedManually: boolean;
             active: boolean;
+        };
+        EntregaResultDto: {
+            scheduled: boolean;
+            /** Format: date */
+            date: null | string;
+            /** Format: int32 */
+            place: null | number;
+            message: string;
+            availability: components["schemas"]["AvailabilityDto"];
         };
         FijasWeekCellDto: {
             /** Format: int32 */
@@ -3807,6 +4101,15 @@ export interface components {
         };
         /** @enum {unknown} */
         LugarType: "Base" | "Bodega" | "Tienda";
+        MoveEtapaRequest: {
+            etapa: components["schemas"]["PedidoEtapa"];
+            reason: null | string;
+        };
+        NoEntregadoRequest: {
+            /** Format: int32 */
+            reasonId: null | number;
+            note: null | string;
+        };
         NonWorkingDayDto: {
             /** Format: int32 */
             id: number;
@@ -3900,6 +4203,64 @@ export interface components {
             position: null | number;
             fixed: null | boolean;
         };
+        PedidoBoardDto: {
+            /** Format: date */
+            today: string;
+            /** Format: int32 */
+            lateCount: number;
+            columns: components["schemas"]["PedidoColumnDto"][];
+        };
+        PedidoCardDto: {
+            /** Format: int32 */
+            id: number;
+            folio: string;
+            /** Format: int32 */
+            rutaId: null | number;
+            rutaCode: null | string;
+            rutaColor: null | string;
+            /** Format: int32 */
+            invitadoId: number;
+            invitadoName: string;
+            phone: null | string;
+            zonaCode: null | string;
+            etapa: components["schemas"]["PedidoEtapa"];
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            lineas: string[];
+            /** Format: date */
+            recoleccionDate: string;
+            /** Format: date */
+            entregaDate: null | string;
+            /** Format: date-time */
+            etapaSince: null | string;
+            /** Format: int32 */
+            daysInStore: null | number;
+            delayLevel: components["schemas"]["DelayLevel"];
+            delayText: null | string;
+            /** Format: int32 */
+            failedAttempts: number;
+            priority: boolean;
+        };
+        PedidoColumnDto: {
+            etapa: components["schemas"]["PedidoEtapa"];
+            name: string;
+            /** Format: int32 */
+            count: number;
+            cards: components["schemas"]["PedidoCardDto"][];
+        };
+        PedidoCommentRequest: {
+            note: string;
+        };
+        PedidoDetailDto: {
+            card: components["schemas"]["PedidoCardDto"];
+            address: string;
+            driverNotes: null | string;
+            origin: components["schemas"]["PedidoOrigin"];
+            /** Format: date-time */
+            registeredAt: string;
+            history: components["schemas"]["PedidoEventoDto"][];
+            paradas: components["schemas"]["PedidoParadaDto"][];
+        };
         PedidoDto: {
             /** Format: int32 */
             id: number;
@@ -3929,8 +4290,39 @@ export interface components {
         };
         /** @enum {unknown} */
         PedidoEtapa: "Agendado" | "Recolectado" | "EnPlanta" | "Listo" | "EntregaConfirmada" | "EnCamino" | "Entregado" | "Cancelado";
+        PedidoEventoDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: date-time */
+            at: string;
+            by: null | string;
+            kind: components["schemas"]["PedidoEventoKind"];
+            fromEtapa: null | components["schemas"]["PedidoEtapa"];
+            toEtapa: null | components["schemas"]["PedidoEtapa"];
+            /** Format: date */
+            date: null | string;
+            automatic: boolean;
+            reason: null | string;
+            note: null | string;
+            text: string;
+        };
+        /** @enum {unknown} */
+        PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario";
         /** @enum {unknown} */
         PedidoOrigin: "Oficina" | "App";
+        PedidoParadaDto: {
+            /** Format: int32 */
+            id: number;
+            kind: components["schemas"]["ParadaKind"];
+            /** Format: date */
+            date: string;
+            label: string;
+            rutaCode: string;
+            state: components["schemas"]["ParadaState"];
+            /** Format: date-time */
+            arrivedAt: null | string;
+            active: boolean;
+        };
         PostalCodeDto: {
             code: string;
             settlement: string;
@@ -4286,6 +4678,10 @@ export interface components {
             value: string;
             /** Format: date-time */
             effectiveFrom: string;
+        };
+        ScheduleEntregaRequest: {
+            /** Format: date */
+            date: null | string;
         };
         ScheduleRequest: {
             /** Format: int32 */

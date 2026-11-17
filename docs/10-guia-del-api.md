@@ -249,6 +249,8 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{direccionId}` | Agendar: View para leer, Edit para cambiar |
 | Invitados y pedidos | `DELETE /invitados/{id}` (con sus direcciones y pedidos), `DELETE /pedidos/{id}` | Solo SuperUser y Administración (política `Administrators`, fija en código). Son baja lógica; liberan el cupo |
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
+| Pedidos | `GET /pedidos/tablero`, `GET /pedidos/{id}`, `GET /pedidos/{id}/fechas-entrega` | Pedidos: View |
+| Pedidos | `POST /pedidos/{id}/etapa`, `/programar-entrega`, `/no-entregado`, `/comentarios` | Pedidos: Edit |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |

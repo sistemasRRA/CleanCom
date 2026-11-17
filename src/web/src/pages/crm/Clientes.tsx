@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
@@ -54,7 +54,9 @@ export function Clientes() {
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   const [contacting, setContacting] = useState<Row | null>(null);
-  const [ficha, setFicha] = useState<number | null>(null);
+  // Other screens open a ficha with ?invitado= (Pedidos › Ver en CRM).
+  const [params] = useSearchParams();
+  const [ficha, setFicha] = useState<number | null>(() => Number(params.get('invitado')) || null);
   const rutas = useRutas();
 
   useEffect(() => {
