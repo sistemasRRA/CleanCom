@@ -260,7 +260,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
 | App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
 | App del chofer | `GET /chofer/motivos` | App del chofer: View |
-| App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId`; un reenvío no duplica | App del chofer: Edit |
+| App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId` y la hora del teléfono (`at`); un reenvío no duplica. `en-camino` y `llegue` también aceptan `localId` y `at` | App del chofer: Edit |
 | Evidencias | `GET /evidencias/{id}/archivo` | Pedidos: View |
 | Rutas | `GET /rutas/dia?fecha=` | Rutas: View |
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |

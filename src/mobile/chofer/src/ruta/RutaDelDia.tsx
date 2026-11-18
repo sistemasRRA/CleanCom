@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert as RNAlert, Linking, Pressable, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, ApiError, Body, Button, Card, Title, api, radius, space, touch, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { currentPosition, openNavigation, useDistanceTo } from './ubicacion';
 import { CerrarVisita } from './CerrarVisita';
+import { ACTION_NAME, discard, flush, newLocalId, onRuta, saveRuta, savedRuta, submit, useQueue, withPending, type Action } from '../offline/cola';
 
 type Ruta = Schemas['ChoferRutaDto'];
 type Parada = Schemas['ChoferParadaDto'];
@@ -50,22 +51,41 @@ const pointOf = (p: Parada) => (p.lat != null && p.lng != null ? { lat: p.lat, l
 export function RutaDelDia() {
   const { colors } = useTheme();
   const [date, setDate] = useState<string | null>(null);
-  const [ruta, setRuta] = useState<Ruta | null>(null);
+  // As the API (or the saved copy) sent it; the screen shows it with the actions that still wait for signal.
+  const [base, setBase] = useState<Ruta | null>(null);
   const [today, setToday] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [closing, setClosing] = useState<Parada | null>(null);
+  // Without signal: when the ruta on screen was saved.
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const queue = useQueue();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ruta = useMemo(() => (base ? withPending(base) : null), [base, queue]);
 
   const load = useCallback(async (fecha: string | null) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await unwrap(api.GET('/chofer/ruta', { params: { query: fecha ? { fecha } : {} } }));
-      setRuta(data);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15_000);
+      const data = await unwrap(api.GET('/chofer/ruta', { params: { query: fecha ? { fecha } : {} }, signal: controller.signal })).finally(() =>
+        clearTimeout(timer),
+      );
+      saveRuta(fecha, data);
+      setBase(data);
+      setSavedAt(null);
       if (!fecha) setToday(data.date);
     } catch (e) {
-      setError((e as Error).message);
+      const saved = e instanceof ApiError && e.status === 0 ? savedRuta(fecha) : null;
+      if (saved) {
+        setBase(saved.ruta);
+        setSavedAt(saved.savedAt);
+        if (!fecha) setToday(saved.ruta.date);
+      } else {
+        setError((e as Error).message);
+      }
     } finally {
       setLoading(false);
     }
@@ -75,12 +95,38 @@ export function RutaDelDia() {
     void load(date);
   }, [date, load]);
 
+  // Answers of actions sent in the background (signal is back).
+  useEffect(
+    () =>
+      onRuta((r) => {
+        setBase((current) => (current && current.date === r.date ? r : current));
+        setSavedAt(null);
+      }),
+    [],
+  );
+
+  /** Sends an action, or keeps it for when the signal is back and shows it as done. */
+  async function run(action: Action) {
+    const result = await submit(action);
+    // Queued: the screen already shows it through the pending actions.
+    if (!result.queued && result.ruta) {
+      saveRuta(null, result.ruta);
+      setBase(result.ruta);
+      setSavedAt(null);
+    }
+    return result;
+  }
+
   async function enCamino(p: Parada) {
     setBusyId(p.id);
     setError(null);
     try {
       const position = await currentPosition();
-      setRuta(await unwrap(api.POST('/chofer/paradas/{id}/en-camino', { params: { path: { id: p.id } }, body: { lat: position?.lat ?? null, lng: position?.lng ?? null } })));
+      await run({
+        kind: 'en-camino',
+        paradaId: p.id,
+        body: { lat: position?.lat ?? null, lng: position?.lng ?? null, localId: newLocalId(), at: new Date().toISOString() },
+      });
       openNavigation(p.invitadoName ?? KIND[p.kind], pointOf(p), p.address ?? null);
     } catch (e) {
       setError((e as Error).message);
@@ -94,14 +140,11 @@ export function RutaDelDia() {
     setError(null);
     try {
       const position = await currentPosition();
-      setRuta(
-        await unwrap(
-          api.POST('/chofer/paradas/{id}/llegue', {
-            params: { path: { id: p.id } },
-            body: { lat: position?.lat ?? null, lng: position?.lng ?? null, confirmOutsideRadius },
-          }),
-        ),
-      );
+      await run({
+        kind: 'llegue',
+        paradaId: p.id,
+        body: { lat: position?.lat ?? null, lng: position?.lng ?? null, confirmOutsideRadius, localId: newLocalId(), at: new Date().toISOString() },
+      });
     } catch (e) {
       // Farther than the tolerance: the API asks to confirm; the office will see it marked.
       if (e instanceof ApiError && e.status === 409) {
@@ -142,6 +185,36 @@ export function RutaDelDia() {
 
       {loading && !ruta && <ActivityIndicator color={colors.brand} style={{ padding: space.lg }} />}
       {error && <Alert>{error}</Alert>}
+      {savedAt && (
+        <Alert tone="warning">
+          Sin señal: ves la ruta guardada a las {at(savedAt)}. Puedes seguir trabajando; lo que hagas se envía solo al volver la señal.
+        </Alert>
+      )}
+      {queue.pending > 0 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' }}>
+          <View style={{ flex: 1, minWidth: 180 }}>
+            <Alert tone="info">
+              {queue.pending === 1 ? '1 acción espera señal' : `${queue.pending} acciones esperan señal`}. Se envían solas en orden.
+            </Alert>
+          </View>
+          <Button title="Enviar ahora" variant="secondary" onPress={() => void flush().then(() => load(date))} />
+        </View>
+      )}
+      {queue.failed.map((f) => (
+        <View key={f.id} style={{ gap: space.xs }}>
+          <Alert>
+            No se guardó "{ACTION_NAME[f.kind]}" de la parada {ruta?.paradas.find((p) => p.id === f.paradaId)?.order ?? ''}: {f.error}
+          </Alert>
+          <Button
+            title="Entendido"
+            variant="ghost"
+            onPress={() => {
+              discard(f.id);
+              void load(date);
+            }}
+          />
+        </View>
+      ))}
       {ruta?.notice && <Alert tone="info">{ruta.notice}</Alert>}
       {ruta?.ruta && ruta.paradas.length > 0 && !ruta.isToday && <Body muted>Solo consulta: "En camino" y "Llegué" son para la ruta de hoy.</Body>}
       {enRoute && <EnRouteBanner parada={enRoute} tolerance={ruta!.toleranceMeters} busy={busyId === enRoute.id} onArrive={() => void llegue(enRoute)} />}
@@ -167,10 +240,16 @@ export function RutaDelDia() {
           parada={closing}
           photoRequired={ruta.photoRequired}
           onClose={() => setClosing(null)}
-          onDone={(next) => {
+          onDone={(next, queued) => {
             setClosing(null);
-            setRuta(next);
-            if (next.message) RNAlert.alert('Visita cerrada', next.message);
+            if (next) {
+              saveRuta(null, next);
+              setBase(next);
+            }
+            RNAlert.alert(
+              'Visita cerrada',
+              queued ? 'Sin señal: quedó guardada en el teléfono y se envía sola al volver la señal.' : (next?.message ?? 'Visita cerrada.'),
+            );
           }}
         />
       )}

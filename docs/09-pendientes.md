@@ -8,7 +8,7 @@
 - [ ] Cerrar visita: `Visita.FotoObligatoria` pide foto también en traslados, convenios e insumos. Confirmar si solo aplica a invitados.
 - [ ] Cerrar visita: la firma del invitado es opcional en la entrega (el KPI "Tickets firmados" mide cuántas la tienen). Confirmar.
 - [ ] Cerrar visita: una recolección no realizada se reprograma sola y no cuenta como intento fallido. Confirmar.
-- [ ] App del chofer sin señal: el API ya acepta reenvíos sin duplicar (`localId`); falta la cola en SQLite de la app.
+- [ ] App del chofer sin señal: un "Llegué" guardado sin señal que al enviarse queda fuera de radio se rechaza (pide confirmar) y se muestra como no guardado; el chofer lo vuelve a marcar. Confirmar si se registra directo como "fuera de radio".
 - [ ] Tickets en planta: escanear con la cámara de la tableta (hoy funciona con escáner de código de barras o teclado). Confirmar qué código trae impreso el ticket del POS.
 - [ ] Tickets en planta: no hay "deshacer listo"; si se marca por error, se regresa el pedido a En planta en Pedidos. Confirmar si se necesita.
 - [ ] Un pedido Listo que recibe otro ticket: hoy hay que regresarlo a En planta a mano primero. Confirmar si debe regresar solo.

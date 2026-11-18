@@ -89,3 +89,25 @@ public class VisitClosingTests
         Assert.Throws<DomainException>(() => ChoferVisitService.SignatureSvg(new SignatureRequest(1, null, 300, 150, [[1, 1]], null)));
     }
 }
+
+/// <summary>docs/pantallas/apps/chofer.md, Requisitos técnicos (sin señal).</summary>
+public class ActionTimeTests
+{
+    private static readonly DateTimeOffset Now = new(2026, 11, 17, 20, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset DayStart = new(2026, 11, 17, 6, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void An_action_saved_without_signal_keeps_the_time_it_happened()
+    {
+        var earlier = Now.AddHours(-2);
+        Assert.Equal(earlier, ChoferFlow.ActionTime(earlier, Now, DayStart));
+    }
+
+    [Fact]
+    public void A_time_in_the_future_or_before_the_day_is_taken_as_now()
+    {
+        Assert.Equal(Now, ChoferFlow.ActionTime(Now.AddMinutes(5), Now, DayStart));
+        Assert.Equal(Now, ChoferFlow.ActionTime(DayStart.AddMinutes(-1), Now, DayStart));
+        Assert.Equal(Now, ChoferFlow.ActionTime(null, Now, DayStart));
+    }
+}

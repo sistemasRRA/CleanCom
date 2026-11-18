@@ -4174,6 +4174,9 @@ export interface components {
             /** Format: double */
             lng: null | number;
             confirmOutsideRadius: boolean;
+            localId?: null | string;
+            /** Format: date-time */
+            at?: null | string;
         };
         AssignOperadorRequest: {
             /** Format: int32 */
@@ -4263,6 +4266,9 @@ export interface components {
             lat: null | number;
             /** Format: double */
             lng: null | number;
+            localId?: null | string;
+            /** Format: date-time */
+            at?: null | string;
         };
         ChoferParadaDto: {
             /** Format: int32 */
@@ -4362,6 +4368,8 @@ export interface components {
             lat: null | number;
             /** Format: double */
             lng: null | number;
+            /** Format: date-time */
+            at?: null | string;
         };
         /** @enum {unknown} */
         ContactChannel: "Llamada" | "WhatsApp";
@@ -4659,6 +4667,8 @@ export interface components {
             lat: null | number;
             /** Format: double */
             lng: null | number;
+            /** Format: date-time */
+            at?: null | string;
         };
         OperadorDto: {
             /** Format: int32 */

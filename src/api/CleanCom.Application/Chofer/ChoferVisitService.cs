@@ -93,7 +93,7 @@ public class ChoferVisitService(
         VisitClosing.EnsureComplete(parada.Kind, parada.PedidoId is not null,
             new VisitCloseData(r.Garments, r.PaymentMethod, r.PaymentAmount, photos), photoRequired);
 
-        var at = clock.UtcNow;
+        var at = chofer.ActionTime(r.At, date);
         Close(parada, ParadaState.Realizada, r.LocalId, r.Notes, r.Lat, r.Lng, at);
         parada.GarmentsCollected = r.Garments;
         if (r.PaymentMethod is { } method && r.PaymentAmount is { } amount)
@@ -141,7 +141,7 @@ public class ChoferVisitService(
             throw new DomainException("El motivo no existe o no es de visitas no realizadas.");
         }
 
-        Close(parada, parada.State, r.LocalId, r.Note, r.Lat, r.Lng, clock.UtcNow);
+        Close(parada, parada.State, r.LocalId, r.Note, r.Lat, r.Lng, chofer.ActionTime(r.At, date));
         parada.NoRealizadaReasonId = r.ReasonId;
         var etapa = parada.PedidoId is { } id
             ? await db.Pedidos.Where(p => p.Id == id && p.Active).Select(p => (PedidoEtapa?)p.Etapa).FirstOrDefaultAsync(ct)

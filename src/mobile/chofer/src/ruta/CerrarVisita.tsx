@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Alert, Button, api, radius, space, touch, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { Firma, type Signature } from './Firma';
 import { currentPosition } from './ubicacion';
+import { newLocalId, submit as submitAction } from '../offline/cola';
 
 type Parada = Schemas['ChoferParadaDto'];
 type Ruta = Schemas['ChoferRutaDto'];
@@ -15,9 +16,6 @@ const METHODS: { key: Method; label: string }[] = [
   { key: 'Tarjeta', label: 'Tarjeta' },
   { key: 'Transferencia', label: 'Transferencia' },
 ];
-
-/** Id of each action, so a resend after losing signal is not saved twice by the API. */
-const newLocalId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 /**
  * Cerrar la visita (docs/pantallas/apps/chofer.md, step 5): done or not done, with what each kind needs. The API
@@ -32,7 +30,8 @@ export function CerrarVisita({
   parada: Parada;
   photoRequired: boolean;
   onClose: () => void;
-  onDone: (ruta: Ruta) => void;
+  /** The API's answer, or null with queued = true when it waits for signal. */
+  onDone: (ruta: Ruta | null, queued: boolean) => void;
 }) {
   const { colors } = useTheme();
   const [done, setDone] = useState(true);
@@ -40,6 +39,7 @@ export function CerrarVisita({
   const [uploading, setUploading] = useState(false);
   const [garments, setGarments] = useState(p.garmentsApprox != null ? String(p.garmentsApprox) : '');
   const [notes, setNotes] = useState('');
+  const [queuedPhotos, setQueuedPhotos] = useState(false);
   const [signature, setSignature] = useState<Signature | null>(null);
   const [method, setMethod] = useState<Method | null>(null);
   const [amount, setAmount] = useState('');
@@ -75,23 +75,13 @@ export function CerrarVisita({
     setUploading(true);
     try {
       const position = await currentPosition();
-      const form = new FormData();
-      form.append('ParadaId', String(p.id));
-      form.append('LocalId', newLocalId());
-      form.append('TakenAt', new Date().toISOString());
-      if (position) {
-        form.append('Lat', String(position.lat));
-        form.append('Lng', String(position.lng));
-      }
-      // React Native's FormData takes the file as { uri, name, type }.
-      form.append('File', { uri: asset.uri, name: 'foto.jpg', type: asset.mimeType ?? 'image/jpeg' } as unknown as Blob);
-      await unwrap(
-        api.POST('/chofer/evidencias', {
-          body: {} as never,
-          bodySerializer: () => form,
-          headers: { 'Content-Type': null },
-        }),
-      );
+      const result = await submitAction({
+        kind: 'foto',
+        paradaId: p.id,
+        body: { localId: newLocalId(), at: new Date().toISOString(), lat: position?.lat ?? null, lng: position?.lng ?? null },
+        fileUri: asset.uri,
+      });
+      if (result.queued) setQueuedPhotos(true);
       setPhotos((list) => [...list, asset.uri]);
     } catch (e) {
       setError((e as Error).message);
@@ -107,34 +97,37 @@ export function CerrarVisita({
       const position = await currentPosition();
       const lat = position?.lat ?? null;
       const lng = position?.lng ?? null;
-      let ruta: Ruta;
+      const at = new Date().toISOString();
+      let result;
       if (done) {
         if (signature) {
-          await unwrap(api.POST('/chofer/evidencias/firma', { body: { paradaId: p.id, localId: ids.current.signature, ...signature, takenAt: new Date().toISOString() } }));
+          await submitAction({ kind: 'firma', paradaId: p.id, body: { paradaId: p.id, localId: ids.current.signature, ...signature, takenAt: at } });
+          // Not sent twice if the closing below fails and the chofer tries again.
+          ids.current.signature = newLocalId();
+          setSignature(null);
         }
-        ruta = await unwrap(
-          api.POST('/chofer/paradas/{id}/cerrar', {
-            params: { path: { id: p.id } },
-            body: {
-              localId: ids.current.close,
-              garments: asksGarments && garments.trim() ? Number(garments) : null,
-              notes: notes.trim() || null,
-              paymentMethod: method,
-              paymentAmount: method && amount.trim() ? Number(amount.replace(',', '.')) : null,
-              lat,
-              lng,
-            },
-          }),
-        );
+        result = await submitAction({
+          kind: 'cerrar',
+          paradaId: p.id,
+          body: {
+            localId: ids.current.close,
+            garments: asksGarments && garments.trim() ? Number(garments) : null,
+            notes: notes.trim() || null,
+            paymentMethod: method,
+            paymentAmount: method && amount.trim() ? Number(amount.replace(',', '.')) : null,
+            lat,
+            lng,
+            at,
+          },
+        });
       } else {
-        ruta = await unwrap(
-          api.POST('/chofer/paradas/{id}/no-realizada', {
-            params: { path: { id: p.id } },
-            body: { localId: ids.current.notDone, reasonId, note: notes.trim() || null, lat, lng },
-          }),
-        );
+        result = await submitAction({
+          kind: 'no-realizada',
+          paradaId: p.id,
+          body: { localId: ids.current.notDone, reasonId, note: notes.trim() || null, lat, lng, at },
+        });
       }
-      onDone(ruta);
+      onDone(result.queued ? null : result.ruta, result.queued);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -170,6 +163,7 @@ export function CerrarVisita({
               ))}
             </View>
             {p.photos > 0 && <Text style={{ color: colors.textMuted }}>{p.photos} foto(s) ya guardadas.</Text>}
+            {queuedPhotos && <Text style={{ color: colors.warning }}>Sin señal: las fotos se envían solas al volver la señal.</Text>}
             <Button
               title={existingPhotos > 0 ? 'Tomar otra foto' : done ? 'Tomar foto' : 'Tomar foto (por ejemplo, de la puerta)'}
               variant="secondary"

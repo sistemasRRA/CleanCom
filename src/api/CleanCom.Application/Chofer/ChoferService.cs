@@ -99,17 +99,24 @@ public class ChoferService(
     public async Task<ChoferRutaDto> EnCaminoAsync(int paradaId, ChoferLocationRequest r, CancellationToken ct)
     {
         var (parada, ordered, orderRequired) = await LoadForFlowAsync(paradaId, ct);
+        var date = parada.RutaDia!.Date;
+        // A resend of an action that already reached the API (sin señal) is answered without an error.
+        if (r.LocalId is not null && parada.EnCaminoAt is not null)
+        {
+            return await RutaAsync(date, ct);
+        }
         ChoferFlow.EnsureCanStart(ordered.First(p => p.Id == paradaId), ordered, orderRequired);
+        var at = ActionTime(r.At, date);
         parada.State = ParadaState.EnCamino;
-        parada.EnCaminoAt = clock.UtcNow;
+        parada.EnCaminoAt = at;
         // EntregaConfirmada → EnCamino when the chofer goes to that entrega (Pedidos › Etapas).
         if (parada.Kind == ParadaKind.Entrega && parada.PedidoId is { } pedidoId
             && await db.Pedidos.FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct) is { } pedido)
         {
-            PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, clock.UtcNow, "El chofer va en camino.");
+            PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, at, "El chofer va en camino.");
         }
         await db.SaveChangesAsync(ct);
-        return await RutaAsync(clock.Today, ct);
+        return await RutaAsync(date, ct);
     }
 
     /// <summary>
@@ -119,6 +126,11 @@ public class ChoferService(
     public async Task<ChoferRutaDto> ArriveAsync(int paradaId, ArriveRequest r, CancellationToken ct)
     {
         var (parada, ordered, orderRequired) = await LoadForFlowAsync(paradaId, ct);
+        var date = parada.RutaDia!.Date;
+        if (r.LocalId is not null && parada.ArrivedAt is not null)
+        {
+            return await RutaAsync(date, ct);
+        }
         var target = ordered.First(p => p.Id == paradaId);
         ChoferFlow.EnsureCanArrive(target, ordered, orderRequired);
 
@@ -135,33 +147,33 @@ public class ChoferService(
                 $"Estás a {Distance(distance!.Value)} de {target.Name}; la llegada se registra a menos de {tolerance} m. ¿Registrar de todos modos? Oficina lo verá.");
         }
 
+        var at = ActionTime(r.At, date);
         parada.State = ParadaState.EnSitio;
-        parada.EnCaminoAt ??= clock.UtcNow;
-        parada.ArrivedAt = clock.UtcNow;
+        parada.EnCaminoAt ??= at;
+        parada.ArrivedAt = at;
         parada.ArrivedLocation = phone;
         parada.ArrivedDistanceMeters = distance;
         parada.ArrivedOutsideRadius = !inside;
         await db.SaveChangesAsync(ct);
-        return await RutaAsync(clock.Today, ct);
+        return await RutaAsync(date, ct);
     }
 
-    /// <summary>The parada (tracked) and today's ruta in the assigned order; the parada must be in the chofer's ruta today.</summary>
+    /// <summary>
+    /// When an action happened: the time the phone recorded (it may sync later, sin señal), never in the future nor
+    /// before the day of the visit.
+    /// </summary>
+    internal DateTimeOffset ActionTime(DateTimeOffset? at, DateOnly date) =>
+        ChoferFlow.ActionTime(at, clock.UtcNow, BusinessTime.ToUtc(date, TimeOnly.MinValue));
+
+    /// <summary>
+    /// The parada (tracked) and its ruta in the assigned order. The order rule only applies to today's ruta, so an
+    /// action that syncs later is not blocked by it.
+    /// </summary>
     private async Task<(Parada Parada, IReadOnlyList<FlowParada> Ordered, bool OrderRequired)> LoadForFlowAsync(int paradaId, CancellationToken ct)
     {
-        var resolved = await ResolveAsync(clock.Today, ct);
-        if (resolved.RutaDia is not { } rutaDia)
-        {
-            throw new DomainException(resolved.Problem ?? "Hoy no tienes paradas.");
-        }
-        var parada = await db.Paradas.FirstOrDefaultAsync(p => p.Id == paradaId && p.Active, ct)
-            ?? throw new NotFoundException("La parada no existe.");
-        if (parada.RutaDiaId != rutaDia.Id)
-        {
-            throw new DomainException("Esta parada no es de tu ruta de hoy.");
-        }
-        var plan = await plans.PlanAsync(rutaDia.Id, ct);
-        var ordered = plan.Paradas.Select(p => new FlowParada(p.Id, p.Order, p.Name ?? "", p.State)).ToList();
-        return (parada, ordered, await settings.GetBooleanAsync(SettingKeys.VisitOrderRequired, ct));
+        var (parada, ordered) = await OwnParadaAsync(paradaId, ct);
+        var orderRequired = parada.RutaDia!.Date == clock.Today && await settings.GetBooleanAsync(SettingKeys.VisitOrderRequired, ct);
+        return (parada, ordered, orderRequired);
     }
 
     /// <summary>
