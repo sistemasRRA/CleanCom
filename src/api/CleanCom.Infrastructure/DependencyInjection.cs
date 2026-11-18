@@ -40,6 +40,7 @@ public static class DependencyInjection
             .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
         services.AddScoped<ICleanComDbContext>(sp => sp.GetRequiredService<CleanComDbContext>());
         services.AddScoped<IAgendaLock, AgendaLock>();
+        services.AddScoped<IBulkInserter, BulkInserter>();
         services.AddSingleton<IFileStore, Files.LocalFileStore>();
 
         services.AddIdentityCore<User>(o =>

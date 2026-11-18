@@ -59,6 +59,15 @@ public interface IFileStore
     Stream? OpenRead(string relativePath);
 }
 
+/// <summary>
+/// Inserts many new rows in one go (SqlBulkCopy), for imports of catalogs like the postal codes. Audit fields are
+/// set by the caller; nothing else goes through the change tracker.
+/// </summary>
+public interface IBulkInserter
+{
+    Task InsertAsync<T>(IReadOnlyCollection<T> rows, CancellationToken ct) where T : class;
+}
+
 public interface ICurrentUser
 {
     int? Id { get; }
