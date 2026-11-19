@@ -281,7 +281,10 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); }
 .checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-.form-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); align-items: end; }
+/* Fields line up at the top, so a hint under one field ("10 dígitos") doesn't push its neighbor down. */
+.form-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); align-items: start; }
+/* A checkbox or button in the grid still sits at the bottom, next to the inputs. */
+.form-grid > .checkbox, .form-grid > button { align-self: end; min-height: 38px; }
 .form-grid .wide { grid-column: 1 / -1; }
 
 /* ---- Tables ---- */
