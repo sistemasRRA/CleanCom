@@ -68,7 +68,11 @@ public class ZonaService(
         }
 
         var newDays = r.Days.Distinct().ToHashSet();
-        db.ZonaVisitDays.RemoveRange(zona.VisitDays.Where(d => !newDays.Contains(d.DayOfWeek)));
+        // Soft delete: a removed day is deactivated, and a day that comes back reactivates its row.
+        foreach (var existing in zona.VisitDays)
+        {
+            existing.Active = newDays.Contains(existing.DayOfWeek);
+        }
         foreach (var day in newDays.Where(n => zona.VisitDays.All(d => d.DayOfWeek != n)))
         {
             zona.VisitDays.Add(new ZonaVisitDay { DayOfWeek = day });
@@ -119,7 +123,7 @@ public class ZonaService(
         z.ZonaNucleoId,
         z.ZonaNucleo?.Code,
         z.Active,
-        z.VisitDays.Select(d => d.DayOfWeek).Order().ToList(),
+        z.OwnVisitDays(),
         z.EffectiveVisitDays(),
         z.Polygon is null ? null : Geo.ToVertices(z.Polygon));
 }

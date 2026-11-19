@@ -45,7 +45,16 @@
           "isAndroidBackgroundLocationEnabled": false,
           "isIosBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "CleanCom Chofer usa la cámara para tomar la foto de evidencia de cada visita.",
+          "photosPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true

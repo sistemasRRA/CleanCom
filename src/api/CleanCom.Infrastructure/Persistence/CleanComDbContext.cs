@@ -38,6 +38,10 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<ParadaFija> ParadasFijas => Set<ParadaFija>();
     public DbSet<ParadaFijaException> ParadaFijaExceptions => Set<ParadaFijaException>();
     public DbSet<Viaje> Viajes => Set<Viaje>();
+    public DbSet<PedidoEvento> PedidoEventos => Set<PedidoEvento>();
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<Evidencia> Evidencias => Set<Evidencia>();
+    public DbSet<CobroReferencia> CobrosReferencia => Set<CobroReferencia>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -56,6 +60,11 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<ParadaState>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaPlacement>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ParadaCategory>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PedidoEventoKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<TicketState>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<TicketSource>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<EvidenciaKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PaymentMethod>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);

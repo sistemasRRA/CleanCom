@@ -60,6 +60,13 @@ public static class ChoferFlow
     public static bool WithinTolerance(int? distanceMeters, int toleranceMeters) =>
         distanceMeters is null || distanceMeters <= toleranceMeters;
 
+    /// <summary>
+    /// When an action happened: the phone's time (it may sync later, sin señal), never in the future nor before the
+    /// start of the day of the visit; otherwise now.
+    /// </summary>
+    public static DateTimeOffset ActionTime(DateTimeOffset? at, DateTimeOffset now, DateTimeOffset dayStart) =>
+        at is { } t && t <= now && t >= dayStart ? t : now;
+
     public static int DistanceMeters(GeoPoint a, GeoPoint b) => (int)Math.Round(RoutePlanner.Km(a, b) * 1000);
 
     private static void EnsureOrder(FlowParada target, IReadOnlyList<FlowParada> ordered, bool orderRequired)

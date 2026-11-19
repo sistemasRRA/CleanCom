@@ -75,6 +75,8 @@ internal class ZonaVisitDayConfig : IEntityTypeConfiguration<ZonaVisitDay>
     public void Configure(EntityTypeBuilder<ZonaVisitDay> e)
     {
         e.ToTable("ZonaVisitDays");
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // One row per zona and day, active or not: a day that comes back reactivates its row.
         e.HasIndex(x => new { x.ZonaId, x.DayOfWeek }).IsUnique();
     }
 }
@@ -285,6 +287,32 @@ internal class PedidoConfig : IEntityTypeConfiguration<Pedido>
         e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.LineasServicio).WithOne().HasForeignKey(l => l.PedidoId).OnDelete(DeleteBehavior.Cascade);
         e.HasIndex(x => new { x.Etapa, x.RecoleccionDate });
+        e.HasMany(x => x.Eventos).WithOne().HasForeignKey(v => v.PedidoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class PedidoEventoConfig : IEntityTypeConfiguration<PedidoEvento>
+{
+    public void Configure(EntityTypeBuilder<PedidoEvento> e)
+    {
+        e.ToTable("PedidoEventos");
+        e.Property(x => x.Note).HasMaxLength(1000);
+        e.HasOne<Reason>().WithMany().HasForeignKey(x => x.ReasonId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.PedidoId, x.CreatedAt });
+    }
+}
+
+internal class TicketConfig : IEntityTypeConfiguration<Ticket>
+{
+    public void Configure(EntityTypeBuilder<Ticket> e)
+    {
+        e.ToTable("Tickets");
+        e.Property(x => x.Folio).HasMaxLength(40);
+        e.Property(x => x.Amount).HasPrecision(12, 2);
+        e.HasIndex(x => x.Folio).IsUnique().HasFilter("[active] = 1");
+        e.HasIndex(x => new { x.PedidoId, x.State });
+        e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.LineaServicio).WithMany().HasForeignKey(x => x.LineaServicioId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 
@@ -334,6 +362,36 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.HasOne(x => x.ParadaFija).WithMany().HasForeignKey(x => x.ParadaFijaId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Viaje).WithMany().HasForeignKey(x => x.ViajeId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.ParadaFijaId, x.RutaDiaId });
+        e.Property(x => x.ClosedLocation).HasColumnType("geography");
+        e.Property(x => x.CloseNotes).HasMaxLength(1000);
+        e.Property(x => x.CloseLocalId).HasMaxLength(64);
+        e.HasOne<Reason>().WithMany().HasForeignKey(x => x.NoRealizadaReasonId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Evidencias).WithOne(v => v.Parada).HasForeignKey(v => v.ParadaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class EvidenciaConfig : IEntityTypeConfiguration<Evidencia>
+{
+    public void Configure(EntityTypeBuilder<Evidencia> e)
+    {
+        e.ToTable("Evidencias");
+        e.Property(x => x.FilePath).HasMaxLength(300);
+        e.Property(x => x.ContentType).HasMaxLength(100);
+        e.Property(x => x.LocalId).HasMaxLength(64);
+        e.Property(x => x.Location).HasColumnType("geography");
+        e.HasIndex(x => x.LocalId).IsUnique().HasFilter("[local_id] IS NOT NULL");
+        e.HasIndex(x => new { x.ParadaId, x.Kind });
+    }
+}
+
+internal class CobroReferenciaConfig : IEntityTypeConfiguration<CobroReferencia>
+{
+    public void Configure(EntityTypeBuilder<CobroReferencia> e)
+    {
+        e.ToTable("CobrosReferencia");
+        e.Property(x => x.Amount).HasPrecision(12, 2);
+        e.HasOne<Parada>().WithMany().HasForeignKey(x => x.ParadaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => x.ParadaId);
     }
 }
 

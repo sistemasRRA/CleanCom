@@ -39,6 +39,16 @@ public class ZonaTests
     }
 
     [Fact]
+    public void A_visit_day_given_de_baja_no_longer_counts()
+    {
+        var k1 = ZonaWith(1, "K1", 2, DayOfWeek.Monday, DayOfWeek.Thursday);
+        k1.VisitDays.Single(d => d.DayOfWeek == DayOfWeek.Thursday).Active = false;
+
+        Assert.Equal([DayOfWeek.Monday], k1.EffectiveVisitDays());
+        Assert.Equal([DayOfWeek.Monday], k1.OwnVisitDays());
+    }
+
+    [Fact]
     public void The_zona_nucleo_must_belong_to_the_same_ruta()
     {
         var f1 = ZonaWith(1, "F1", 1);

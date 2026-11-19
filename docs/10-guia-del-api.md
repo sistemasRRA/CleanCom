@@ -249,12 +249,19 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{direccionId}` | Agendar: View para leer, Edit para cambiar |
 | Invitados y pedidos | `DELETE /invitados/{id}` (con sus direcciones y pedidos), `DELETE /pedidos/{id}` | Solo SuperUser y Administración (política `Administrators`, fija en código). Son baja lógica; liberan el cupo |
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
+| Pedidos | `GET /pedidos/tablero`, `GET /pedidos/{id}`, `GET /pedidos/{id}/fechas-entrega` | Pedidos: View |
+| Pedidos | `POST /pedidos/{id}/etapa`, `/programar-entrega`, `/no-entregado`, `/comentarios` | Pedidos: Edit |
+| Planta | `GET /planta/tickets?vista=` (`EnProceso` o `Listos`) | Tickets en planta: View |
+| Planta | `POST /planta/tickets` (captura manual mientras no está el POS), `POST /planta/tickets/{folio}/listo`, `POST /planta/tickets/{id}/baja`, `POST /planta/comentarios` | Tickets en planta: Edit |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
 | App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
+| App del chofer | `GET /chofer/motivos` | App del chofer: View |
+| App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId` y la hora del teléfono (`at`); un reenvío no duplica. `en-camino` y `llegue` también aceptan `localId` y `at` | App del chofer: Edit |
+| Evidencias | `GET /evidencias/{id}/archivo` | Pedidos: View |
 | Rutas | `GET /rutas/dia?fecha=` | Rutas: View |
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |
 | Paradas fijas | `GET /paradas-fijas` (`?tipo=&inactivas=`), `GET /paradas-fijas/{id}`, `GET /paradas-fijas/semana?fecha=` | Paradas fijas: View |

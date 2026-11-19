@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Domain.Catalogs;
+using CleanCom.Domain.Time;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanCom.Application.PostalCodes;
@@ -7,7 +8,7 @@ namespace CleanCom.Application.PostalCodes;
 /// <summary>
 /// Official postal code catalog (Correos de México). Imported from its TXT export; used to fill colonia and alcaldía.
 /// </summary>
-public class PostalCodeService(ICleanComDbContext db)
+public class PostalCodeService(ICleanComDbContext db, IBulkInserter bulk, IBusinessClock clock, ICurrentUser currentUser)
 {
     private const int SearchLimit = 100;
 
@@ -40,11 +41,23 @@ public class PostalCodeService(ICleanComDbContext db)
 
     public async Task<PostalCodeSummaryDto> SummaryAsync(CancellationToken ct)
     {
-        var states = await db.PostalCodes.AsNoTracking()
+        // Two plain aggregates: a distinct count inside each group becomes one subquery per state and times out with
+        // the catalog of the whole country.
+        var settlements = await db.PostalCodes.AsNoTracking()
             .Where(p => p.Active)
             .GroupBy(p => p.State)
-            .Select(g => new PostalCodeStateDto(g.Key, g.Count(), g.Select(p => p.Code).Distinct().Count()))
+            .Select(g => new { State = g.Key, Count = g.Count() })
             .ToListAsync(ct);
+        var codesByState = await db.PostalCodes.AsNoTracking()
+            .Where(p => p.Active)
+            .Select(p => new { p.State, p.Code })
+            .Distinct()
+            .GroupBy(p => p.State)
+            .Select(g => new { State = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.State, x => x.Count, ct);
+        var states = settlements
+            .Select(s => new PostalCodeStateDto(s.State, s.Count, codesByState.GetValueOrDefault(s.State)))
+            .ToList();
         var last = await db.PostalCodes.AsNoTracking()
             .Select(p => (DateTimeOffset?)(p.ModifiedAt ?? p.CreatedAt))
             .MaxAsync(ct);
@@ -65,21 +78,27 @@ public class PostalCodeService(ICleanComDbContext db)
             .ToDictionary(g => g.Key, g => g.Last());
         var stateCodes = incoming.Values.Select(p => p.StateCode).Distinct().ToList();
 
-        var existing = (await db.PostalCodes.Where(p => stateCodes.Contains(p.StateCode)).ToListAsync(ct))
+        // Not tracked: only the rows that change are attached, so a file of the whole country stays fast.
+        var existing = (await db.PostalCodes.AsNoTracking().Where(p => stateCodes.Contains(p.StateCode)).ToListAsync(ct))
             .GroupBy(SepomexFile.Key)
             .ToDictionary(g => g.Key, g => g.First());
 
-        int added = 0, updated = 0, deactivated = 0;
+        int updated = 0, deactivated = 0;
+        var now = clock.UtcNow;
+        var newRows = new List<PostalCode>();
         foreach (var (key, row) in incoming)
         {
             if (!existing.TryGetValue(key, out var current))
             {
-                db.PostalCodes.Add(row);
-                added++;
+                // Inserted in bulk below, so the audit fields are set here.
+                row.CreatedAt = now;
+                row.CreatedBy = currentUser.Id;
+                newRows.Add(row);
                 continue;
             }
             if (Differs(current, row))
             {
+                db.PostalCodes.Attach(current);
                 current.Code = row.Code;
                 current.Settlement = row.Settlement;
                 current.SettlementType = row.SettlementType;
@@ -95,14 +114,16 @@ public class PostalCodeService(ICleanComDbContext db)
         {
             if (current.Active && !incoming.ContainsKey(key))
             {
+                db.PostalCodes.Attach(current);
                 current.Active = false;
                 deactivated++;
             }
         }
 
         await db.SaveChangesAsync(ct);
+        await bulk.InsertAsync(newRows, ct);
         return new PostalCodeImportDto(
-            incoming.Count, added, updated, deactivated,
+            incoming.Count, newRows.Count, updated, deactivated,
             incoming.Values.Select(p => p.State).Distinct().Order().ToList());
     }
 

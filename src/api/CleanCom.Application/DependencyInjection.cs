@@ -36,6 +36,10 @@ public static class DependencyInjection
         services.AddScoped<FijaCalendar>();
         services.AddScoped<ParadaFijaService>();
         services.AddScoped<RutaDiaService>();
+        services.AddScoped<PedidoBoardService>();
+        services.AddScoped<PlantaService>();
+        services.AddScoped<ChoferVisitService>();
+        services.AddScoped<EvidenciaService>();
         return services;
     }
 }

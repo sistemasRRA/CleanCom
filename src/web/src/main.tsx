@@ -21,6 +21,8 @@ import { Agendar } from './pages/agenda/Agendar';
 import { Clientes } from './pages/crm/Clientes';
 import { ParadasFijas } from './pages/fijas/ParadasFijas';
 import { Rutas as RutasDelDia } from './pages/rutas/Rutas';
+import { Pedidos } from './pages/pedidos/Pedidos';
+import { TicketsEnPlanta } from './pages/planta/TicketsEnPlanta';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -74,6 +76,8 @@ function App() {
         {can('clientes-crm') && <Route path="clientes" element={<Clientes />} />}
         {can('paradas-fijas') && <Route path="paradas-fijas" element={<ParadasFijas />} />}
         {can('rutas') && <Route path="rutas" element={<RutasDelDia />} />}
+        {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}
+        {can('tickets-en-planta') && <Route path="tickets-en-planta" element={<TicketsEnPlanta />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

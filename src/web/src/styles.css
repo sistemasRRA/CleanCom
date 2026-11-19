@@ -521,3 +521,62 @@ fieldset.plain { border: none; padding: 0; margin: 0; min-width: 0; }
 div.ruta-flag { margin: 4px 0 0; display: inline-block; }
 .ruta-viaje { color: var(--brand); font-size: 12.5px; font-weight: 600; }
 button.selected { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+
+/* Pedidos */
+.pedidos-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.pedidos-column { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+.pedidos-column header { display: flex; justify-content: space-between; align-items: center; }
+.pedidos-cards { display: grid; gap: 8px; align-content: start; }
+.pedidos-hint { margin: 0; font-size: 12px; }
+.pedido-card { display: grid; gap: 4px; text-align: left; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: 13px; }
+.pedido-card:hover { border-color: var(--brand); }
+.pedido-card.late { border-left: 4px solid var(--danger); }
+.pedido-card.warn { border-left: 4px solid var(--warning); }
+.pedido-card .badge { justify-self: start; white-space: normal; }
+.pedido-card__top { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.pedido-summary { display: flex; flex-wrap: wrap; gap: 6px; }
+.pedido-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13.5px; }
+.pedido-facts dt { color: var(--text-muted); }
+.pedido-facts dd { margin: 0; }
+.inline-form { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+.inline-form .primary { justify-self: start; }
+.entrega-days { display: flex; flex-wrap: wrap; gap: 6px; }
+.pedido-history li { display: block; font-size: 13px; }
+
+/* Tickets en planta: large targets for a tablet in planta. */
+.planta-scan { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.planta-scan input { font-size: 20px; padding: 12px 14px; }
+.planta-scan button { font-size: 16px; padding: 0 20px; }
+.planta-scan .alert { grid-column: 1 / -1; font-size: 15px; }
+.alert.success { background: var(--success-soft); color: var(--success); }
+.planta-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.planta-stat { display: flex; flex-direction: column; gap: 6px; min-height: 140px; padding: 22px 22px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.planta-stat__label { font-size: 12.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+.planta-stat strong { font-size: 40px; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.planta-stat__note { margin-top: auto; font-size: 14px; color: var(--text-muted); }
+.planta-stat.brand strong { color: var(--brand); }
+.planta-stat.success strong { color: var(--success); }
+.planta-stat.warning strong { color: var(--warning); }
+.planta-stat.danger strong { color: var(--danger); }
+@media (max-width: 900px) { .planta-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.planta-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+.planta-card { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.planta-card.late { border-left: 4px solid var(--danger); }
+.planta-card header { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.planta-card .badge { justify-self: start; white-space: normal; }
+.planta-card button.link { justify-self: start; }
+.planta-tickets { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.planta-tickets li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.planta-tickets li > div { display: grid; gap: 2px; }
+.planta-tickets li.done { opacity: 0.7; }
+.planta-tickets button.primary { min-width: 84px; min-height: 40px; }
+@media (max-width: 600px) {
+  .planta-scan { grid-template-columns: 1fr; }
+  .planta-cards { grid-template-columns: 1fr; }
+}
+
+/* Evidence of a visit in the Pedidos card. */
+.evidencias { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.evidencia { display: grid; gap: 2px; width: 110px; font-size: 12px; color: var(--text-muted); text-decoration: none; }
+.evidencia img { width: 110px; height: 82px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; }
+.evidencia.firma img { object-fit: contain; }

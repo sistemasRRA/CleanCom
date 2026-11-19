@@ -36,6 +36,10 @@ public interface ICleanComDbContext
     DbSet<ParadaFija> ParadasFijas { get; }
     DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
     DbSet<Viaje> Viajes { get; }
+    DbSet<PedidoEvento> PedidoEventos { get; }
+    DbSet<Ticket> Tickets { get; }
+    DbSet<Evidencia> Evidencias { get; }
+    DbSet<CobroReferencia> CobrosReferencia { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -43,6 +47,27 @@ public interface ICleanComDbContext
 /// <summary>
 /// User making the request (null in background jobs or anonymous requests).
 /// </summary>
+/// <summary>
+/// Photos and documents on the server's disk (Archivos:Ruta), never in SQL Server. Paths are relative to that folder.
+/// </summary>
+public interface IFileStore
+{
+    /// <summary>Saves the content under <paramref name="folder"/> with a new name and returns its relative path.</summary>
+    Task<string> SaveAsync(Stream content, string folder, string extension, CancellationToken ct);
+
+    /// <summary>Opens a saved file; null when it is not there.</summary>
+    Stream? OpenRead(string relativePath);
+}
+
+/// <summary>
+/// Inserts many new rows in one go (SqlBulkCopy), for imports of catalogs like the postal codes. Audit fields are
+/// set by the caller; nothing else goes through the change tracker.
+/// </summary>
+public interface IBulkInserter
+{
+    Task InsertAsync<T>(IReadOnlyCollection<T> rows, CancellationToken ct) where T : class;
+}
+
 public interface ICurrentUser
 {
     int? Id { get; }

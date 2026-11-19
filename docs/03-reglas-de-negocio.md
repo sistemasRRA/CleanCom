@@ -124,6 +124,8 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 | EnCamino → Entregado | El chofer cierra la entrega con evidencia |
 
 - Mover una tarjeta a mano está permitido; regresarla o entregarla a mano pide motivo y queda en el historial.
+- **Cerrar la visita (app del chofer):** cerrar una recolección pide las prendas y pasa el pedido a Recolectado; cerrar una entrega pasa el pedido a Entregado (firma y pago de referencia opcionales). `Visita.FotoObligatoria` aplica a toda visita, realizada o no. Una visita se puede cerrar sin haber marcado en camino o llegué, con la misma regla de orden.
+- **Recolección no realizada:** el chofer registra motivo y foto; la recolección se reprograma al siguiente día con cupo de su zona desde mañana y queda en el historial. No cuenta como intento fallido de entrega.
 - **No se entregó:** el chofer registra motivo y foto. El pedido se reprograma a la siguiente fecha disponible de su zona y se avisa a oficina y al invitado. **Sin límite de intentos**; cada intento queda en el historial y el pedido aparece en el filtro de intentos fallidos.
 - **Atraso:** un pedido está atrasado si pasa los días permitidos de su etapa o si su fecha de entrega ya pasó. La tarjeta muestra semáforo antes de vencerse.
 - **Entrega parcial:** si hay tickets listos y otros no, oficina decide entregar lo listo o esperar.
@@ -131,7 +133,9 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 
 ## Planta
 
-- Los tickets llegan del POS con folio, línea de servicio y prendas.
+- Los tickets llegan del POS con folio, línea de servicio y prendas. Mientras se define la conexión con el POS, planta los captura a mano en Tickets en planta. El folio es único entre tickets activos.
+- El primer ticket pasa el pedido a En planta; un pedido Listo o más adelante no recibe tickets hasta regresarlo a En planta con motivo.
+- Un ticket capturado por error se da de baja con motivo, solo mientras está en proceso.
 - Planta marca cada ticket como listo escaneando o escribiendo el folio.
 - El atraso de un ticket se mide contra los días de proceso de su línea de servicio.
 - Un comentario de atraso tiene motivo de catálogo opcional y texto libre; aparece en Pedidos.

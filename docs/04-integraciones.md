@@ -48,7 +48,7 @@ Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, par
 ## POS
 
 - Fuente oficial de tickets, cobros y facturación.
-- Hoy los tickets ya llegan del POS al sistema actual. **Pendiente:** confirmar el sistema y el mecanismo (API, base de datos o archivo). Ver [09-pendientes.md](09-pendientes.md).
+- Hoy los tickets ya llegan del POS al sistema actual. **Pendiente:** confirmar el sistema y el mecanismo (API, base de datos o archivo). Ver [09-pendientes.md](09-pendientes.md). Mientras tanto, planta los captura a mano en Tickets en planta (`POST /planta/tickets`); la tabla `tickets` ya distingue el origen (`Manual` o `Pos`).
 - Lo que el API necesita recibir: tickets (folio, invitado o pedido, línea de servicio, prendas, monto, fecha), pagos (forma, monto, fecha) y facturación por periodo.
 - Diseño: un `IProveedorPos` con un proceso de Hangfire que sincroniza cada pocos minutos, guarda la última marca de tiempo leída y no duplica tickets (folio único).
 - Fase 2: el POS lee el código de cada beneficio para registrar canjes.
