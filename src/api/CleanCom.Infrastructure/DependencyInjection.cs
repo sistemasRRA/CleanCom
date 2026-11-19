@@ -2,6 +2,7 @@ using System.Text;
 using CleanCom.Application.Access;
 using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
+using CleanCom.Application.Geography;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Time;
 using CleanCom.Infrastructure.Identity;
@@ -42,6 +43,16 @@ public static class DependencyInjection
         services.AddScoped<IAgendaLock, AgendaLock>();
         services.AddScoped<IBulkInserter, BulkInserter>();
         services.AddSingleton<IFileStore, Files.LocalFileStore>();
+
+        // Map of the address form: OpenStreetMap's Nominatim until the Google Cloud keys exist.
+        services.AddMemoryCache();
+        services.AddHttpClient<IGeocoder, Geography.NominatimGeocoder>(http =>
+        {
+            http.BaseAddress = new Uri(configuration["Geocoding:Nominatim:Url"] ?? "https://nominatim.openstreetmap.org/");
+            // Nominatim asks for a User-Agent that identifies the application (with a contact in production).
+            http.DefaultRequestHeaders.UserAgent.ParseAdd(configuration["Geocoding:UserAgent"] ?? "CleanCom/1.0");
+            http.Timeout = TimeSpan.FromSeconds(10);
+        });
 
         services.AddIdentityCore<User>(o =>
             {

@@ -29,6 +29,7 @@
 ## Decisiones de implementación por revisar
 
 - [ ] Restablecer contraseña por link o código (usuarios.md): necesita WhatsApp o correo (semana 6). Mientras, oficina asigna una contraseña temporal.
+- [ ] Mapa de la dirección con OpenStreetMap (Nominatim y mosaicos públicos) mientras no estén las llaves de Google. Su política de uso es para poco volumen: en producción poner en `Geocoding:UserAgent` un correo de contacto de CleanCom, y pasar a Google Geocoding (o un servidor propio) cuando lleguen las llaves o crezca el uso, por ejemplo con la app del invitado.
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
