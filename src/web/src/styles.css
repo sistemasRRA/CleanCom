@@ -477,12 +477,15 @@ dialog.ficha { width: min(1000px, calc(100vw - 32px)); }
 .badge.kind-cliente, .fija-chip.kind-cliente { background: var(--success-soft); color: var(--success); }
 [data-theme='dark'] .badge.kind-convenio, [data-theme='dark'] .fija-chip.kind-convenio { color: #c4b5fd; }
 .fija-pasos { max-width: 360px; }
-.fijas-week th, .fijas-week td { vertical-align: top; min-width: 130px; }
-.fijas-week th:first-child { min-width: 60px; }
+/* The week fits the screen: equal day columns that wrap their chips instead of a horizontal scroll. */
+.fijas-week { table-layout: fixed; }
+.fijas-week th, .fijas-week td { vertical-align: top; padding: 8px 6px; }
+.fijas-week thead th:first-child { width: 64px; }
 .fijas-week .off { background: var(--surface-2); }
 .fijas-week thead th { text-transform: capitalize; }
-.fijas-cell { display: grid; gap: 4px; }
-.fija-chip { border: none; border-radius: 6px; padding: 3px 7px; font-size: 12px; text-align: left; line-height: 1.3; }
+.fijas-cell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+/* Chips are <button>s: undo the button's nowrap so long names wrap inside the day column. */
+.fija-chip { display: block; width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; border: none; border-radius: 6px; padding: 3px 7px; font-size: 12px; text-align: left; line-height: 1.3; }
 .fija-chip small { opacity: 0.75; }
 .fijas-cupo { font-size: 11.5px; }
 .fijas-cupo.warn { color: var(--warning); font-weight: 600; }
