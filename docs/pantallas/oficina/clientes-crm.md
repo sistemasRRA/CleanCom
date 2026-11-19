@@ -7,7 +7,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Lista: se conserva
 
 - Indicadores por estatus: Le toca, En riesgo, Nuevo, Activo, Inactivo, Prospecto (hoy 26, 76, 18, 31, 264 y 240 de 655).
-- "Llamar hoy" y "Todos"; búsqueda por nombre, colonia o teléfono; filtro por ruta; "Nuevo cliente".
+- "Llamar hoy" y "Todos"; búsqueda por nombre, colonia o teléfono; filtro por ruta; "Nuevo cliente" (ventana en la misma pantalla, con el mismo formulario de Agendar: datos, primera dirección, colonia del catálogo y mapa; al guardar se abre su ficha, desde donde se puede agendar. Pide el permiso de editar Agendar, como `POST /invitados`).
 - Columnas: invitado con teléfono y colonia, zona, estatus, por qué ("Pide cada 7 días; su último servicio fue hace 9"), visita sugerida; acciones WhatsApp, Ficha y Agendar.
 
 ## Lista: mejora

@@ -566,7 +566,8 @@ function DireccionForm({ invitadoId, onClose }: { invitadoId: number; onClose: (
   );
 }
 
-function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onClose: () => void; onSaved: (i: Invitado) => void }) {
+/** Capture or edit an invitado (with the first address when new). Also used by Clientes (CRM) for "Nuevo cliente". */
+export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onClose: () => void; onSaved: (i: Invitado) => void }) {
   const [name, setName] = useState(invitado?.name ?? '');
   const [phone, setPhone] = useState(invitado?.whatsAppPhone ?? '');
   const [otherPhone, setOtherPhone] = useState(invitado?.otherPhone ?? '');
@@ -593,7 +594,7 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
         ? unwrap(api.PUT('/invitados/{id}', { params: { path: { id: invitado.id } }, body }))
         : unwrap(api.POST('/invitados', { body }));
     },
-    { refetch: [['invitados']], message: invitado ? 'Invitado actualizado.' : 'Invitado capturado.', onDone: onSaved },
+    { refetch: [['invitados'], keys.crm], message: invitado ? 'Invitado actualizado.' : 'Invitado capturado.', onDone: onSaved },
   );
 
   return (
