@@ -4666,10 +4666,11 @@ export interface components {
             campaign: null | string;
             notes: null | string;
             active: boolean;
+            receivesWhatsApp: boolean;
             direcciones: components["schemas"]["DireccionDto"][];
         };
         /** @enum {unknown} */
-        InvitadoType: "ClienteFinal" | "Empresa" | "TiendaInterna";
+        InvitadoType: "ClienteFinal" | "Convenio" | "Empresa" | "TiendaInterna";
         LineaServicioDto: {
             /** Format: int32 */
             id: number;
@@ -5032,7 +5033,7 @@ export interface components {
             active: boolean;
         };
         /** @enum {unknown} */
-        ReasonType: "FailedEntrega" | "PlantaDelay" | "ContactResult";
+        ReasonType: "FailedEntrega" | "PlantaDelay" | "ContactResult" | "HowFoundUs";
         RefreshSessionRequest: {
             refreshToken: string;
         };
@@ -5216,6 +5217,8 @@ export interface components {
             campaign: null | string;
             notes: null | string;
             direccion?: null | components["schemas"]["SaveDireccionRequest"];
+            /** @default true */
+            receivesWhatsApp: boolean;
         };
         SaveLineaServicioRequest: {
             name: string;

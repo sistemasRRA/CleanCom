@@ -98,6 +98,7 @@ try
     app.MapControllers();
 
     await app.Services.SeedAdministratorAsync(app.Configuration);
+    await app.Services.SeedCatalogsAsync();
     await app.RunAsync();
 }
 catch (Exception ex) when (ex is not HostAbortedException)

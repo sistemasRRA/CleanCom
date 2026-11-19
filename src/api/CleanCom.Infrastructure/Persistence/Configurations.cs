@@ -246,6 +246,7 @@ internal class InvitadoConfig : IEntityTypeConfiguration<Invitado>
         e.Property(x => x.Email).HasMaxLength(150);
         e.Property(x => x.HowFoundUs).HasMaxLength(100);
         e.Property(x => x.Campaign).HasMaxLength(100);
+        e.Property(x => x.ReceivesWhatsApp).HasDefaultValue(true);
         e.Property(x => x.Notes).HasMaxLength(1000);
         // One active ficha per WhatsApp: the app signs in with it and the office searches by it.
         // Invitados given de baja keep their number, and it can be captured again.

@@ -10,6 +10,15 @@ import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 import { AgendaBoard } from './AgendaBoard';
 
 type Invitado = Schemas['InvitadoDto'];
+type InvitadoType = Schemas['InvitadoType'];
+
+/** Tienda interna is not offered for new invitados; one that already is keeps it. */
+export const INVITADO_TYPES: { key: InvitadoType; name: string }[] = [
+  { key: 'ClienteFinal', name: 'Cliente final (servicio a domicilio)' },
+  { key: 'Convenio', name: 'Convenio' },
+  { key: 'Empresa', name: 'Empresa' },
+  { key: 'TiendaInterna', name: 'Tienda interna' },
+];
 type Direccion = Schemas['DireccionDto'];
 type Turno = Schemas['Turno'];
 
@@ -488,7 +497,16 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
   const [howFoundUs, setHowFoundUs] = useState(invitado?.howFoundUs ?? '');
   const [campaign, setCampaign] = useState(invitado?.campaign ?? '');
   const [notes, setNotes] = useState(invitado?.notes ?? '');
+  const [type, setType] = useState<InvitadoType>(invitado?.type ?? 'ClienteFinal');
+  const [receivesWhatsApp, setReceivesWhatsApp] = useState(invitado?.receivesWhatsApp ?? true);
   const [direccion, setDireccion] = useState(emptyDireccion);
+  // "Cómo nos conoció" comes from its catalog (Operación › Catálogos › Motivos).
+  const howFoundUsOptions = useQuery({
+    queryKey: [...keys.reasons, 'HowFoundUs'],
+    queryFn: () => unwrap(api.GET('/motivos', { params: { query: { type: 'HowFoundUs' } } })),
+    staleTime: 5 * 60_000,
+  });
+  const options = howFoundUsOptions.data?.filter((o) => o.active).map((o) => o.text) ?? [];
 
   const save = useSave(
     () => {
@@ -497,11 +515,12 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         whatsAppPhone: phone,
         otherPhone: optional(otherPhone),
         email: optional(email),
-        type: invitado?.type ?? 'ClienteFinal',
+        type,
         howFoundUs: optional(howFoundUs),
         campaign: optional(campaign),
         notes: optional(notes),
         direccion: invitado ? null : toDireccionRequest(direccion),
+        receivesWhatsApp,
       };
       return invitado
         ? unwrap(api.PUT('/invitados/{id}', { params: { path: { id: invitado.id } }, body }))
@@ -531,8 +550,26 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         <Field label="Correo">
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
+        <Field label="Tipo">
+          <select value={type} onChange={(e) => setType(e.target.value as InvitadoType)}>
+            {INVITADO_TYPES.filter((t) => t.key !== 'TiendaInterna' || type === 'TiendaInterna').map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </Field>
         <Field label="Cómo nos conoció">
-          <input value={howFoundUs} onChange={(e) => setHowFoundUs(e.target.value)} />
+          <select value={howFoundUs} onChange={(e) => setHowFoundUs(e.target.value)}>
+            <option value="">Elige una opción</option>
+            {/* An invitado captured before the catalog keeps its text. */}
+            {howFoundUs && !options.includes(howFoundUs) && <option value={howFoundUs}>{howFoundUs}</option>}
+            {options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Campaña">
           <input value={campaign} onChange={(e) => setCampaign(e.target.value)} />
@@ -540,6 +577,9 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         <Field label="Observaciones" wide>
           <input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
+        <Checkbox wide checked={receivesWhatsApp} onChange={setReceivesWhatsApp}>
+          Recibe avisos por WhatsApp
+        </Checkbox>
       </div>
       {!invitado && (
         <>

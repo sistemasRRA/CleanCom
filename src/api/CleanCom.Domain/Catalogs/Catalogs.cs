@@ -76,6 +76,8 @@ public enum ReasonType
     FailedEntrega,
     PlantaDelay,
     ContactResult,
+    /// <summary>"Cómo nos conoció" options for the invitado form.</summary>
+    HowFoundUs,
 }
 
 /// <summary>
@@ -86,4 +88,21 @@ public class Reason : Entity, IActivatable
     public ReasonType Type { get; set; }
     public string Text { get; set; } = "";
     public bool Active { get; set; } = true;
+
+    /// <summary>
+    /// Initial "Cómo nos conoció" options, from the client capture of the current system. Inserted once when the
+    /// catalog has none of this type; after that they are edited in Operación › Catálogos.
+    /// </summary>
+    public static readonly string[] HowFoundUsDefaults =
+    [
+        "Marketing digital (Meta / Instagram / Facebook)",
+        "Google (búsqueda o Maps)",
+        "Recomendación de otro invitado",
+        "Tienda 7clean",
+        "Convenio o empresa",
+        "Prospección de Logística",
+        "WhatsApp directo",
+        "Volanteo o evento",
+        "Otro",
+    ];
 }

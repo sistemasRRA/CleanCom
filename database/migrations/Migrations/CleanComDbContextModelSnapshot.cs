@@ -2050,6 +2050,12 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("other_phone");
 
+                    b.Property<bool>("ReceivesWhatsApp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("receives_whats_app");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(30)

@@ -13,4 +13,5 @@ public record InvitadoDto(
     string? Campaign,
     string? Notes,
     bool Active,
+    bool ReceivesWhatsApp,
     IReadOnlyList<DireccionDto> Direcciones);

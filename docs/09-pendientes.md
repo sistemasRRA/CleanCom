@@ -20,7 +20,9 @@
 - [ ] Días de proceso prometidos por línea de servicio (planchaduría, lavandería, tintorería, sastrería, calzado).
 - [ ] Días permitidos por etapa del pedido antes de marcarlo atrasado.
 - [ ] Destinatarios de cada aviso de flota.
-- [ ] Textos iniciales del catálogo de motivos (no entrega, atraso en planta, resultado de contacto). El catálogo existe pero arranca vacío.
+- [ ] Textos iniciales del catálogo de motivos (no entrega, atraso en planta, resultado de contacto). El catálogo existe pero arranca vacío. "Cómo nos conoció" ya arranca con las 9 opciones del sistema actual.
+- [ ] Tipo de invitado Convenio frente a Empresa: la regla decía "Empresa (convenio)" como uno solo; se separaron como en el sistema actual. Confirmar qué cambia entre ellos (precios, facturación con `Empresa`, métricas) y si un convenio se liga a su empresa.
+- [ ] "Recibe avisos por WhatsApp": confirmar si apagarlo también evita los avisos operativos (en camino, listo) o solo los promocionales.
 - [ ] Permisos iniciales de Administración (todo menos Roles y permisos), Gerencia (ver todo menos Usuarios y Operación), Logística (rutas, paradas, pedidos, panel y unidades), Telemarketing (agendar, CRM, WhatsApp) y Planta (tickets en planta y ver pedidos). Son una propuesta; se ajustan en Usuarios › Roles y permisos.
 - [ ] Equipo de los choferes: tableta de la empresa, celular (propio o de la empresa) o ambos; Android, iPhone o ambos. La app es responsiva, pero cambia cómo se distribuye.
 - [ ] Distribución de la app del chofer (no se publica en búsquedas de las tiendas). Propuesta: Android con APK interno o prueba interna de Google Play; iOS con Ad Hoc mientras sean menos de 100 equipos y después como app no listada en el App Store. Cambios de JavaScript con EAS Update.

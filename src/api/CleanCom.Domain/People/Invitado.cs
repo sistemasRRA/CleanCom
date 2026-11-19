@@ -5,7 +5,10 @@ namespace CleanCom.Domain.People;
 
 public enum InvitadoType
 {
+    /// <summary>Servicio a domicilio.</summary>
     ClienteFinal,
+    /// <summary>Comes through an agreement (convenio); counts in the CRM like a cliente final.</summary>
+    Convenio,
     Empresa,
     TiendaInterna,
 }
@@ -21,8 +24,13 @@ public class Invitado : Entity, IActivatable
     public string? OtherPhone { get; set; }
     public string? Email { get; set; }
     public InvitadoType Type { get; set; } = InvitadoType.ClienteFinal;
-    /// <summary>Cómo nos conoció.</summary>
+    /// <summary>Cómo nos conoció: an option of the catalog (Reason type HowFoundUs), kept as text.</summary>
     public string? HowFoundUs { get; set; }
+    /// <summary>
+    /// Accepts notices by WhatsApp (cita agendada, en camino, listo…). Captured now; the notices arrive in week 6.
+    /// Different from <see cref="DoNotContact"/>, which keeps the invitado out of calls and campaigns.
+    /// </summary>
+    public bool ReceivesWhatsApp { get; set; } = true;
     public string? Campaign { get; set; }
     public string? Notes { get; set; }
     public bool Active { get; set; } = true;

@@ -441,6 +441,7 @@ const REASON_TYPES: Record<Reason['type'], string> = {
   FailedEntrega: 'No entrega',
   PlantaDelay: 'Atraso en planta',
   ContactResult: 'Resultado de contacto',
+  HowFoundUs: 'Cómo nos conoció',
 };
 
 export function OtherCatalogs() {

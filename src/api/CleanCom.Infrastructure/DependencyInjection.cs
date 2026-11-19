@@ -87,6 +87,26 @@ public static class DependencyInjection
     }
 
     /// <summary>
+    /// Initial options of editable catalogs that start with content: today "Cómo nos conoció". Inserted only when the
+    /// catalog has no row of that type (active or not), so the office's edits are never undone. Not done with HasData
+    /// because Reasons already has rows captured by hand and fixed ids would clash with them.
+    /// </summary>
+    public static async Task SeedCatalogsAsync(this IServiceProvider provider)
+    {
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CleanComDbContext>();
+        if (await db.Reasons.AnyAsync(r => r.Type == Domain.Catalogs.ReasonType.HowFoundUs))
+        {
+            return;
+        }
+        db.Reasons.AddRange(Domain.Catalogs.Reason.HowFoundUsDefaults.Select(text =>
+            new Domain.Catalogs.Reason { Type = Domain.Catalogs.ReasonType.HowFoundUs, Text = text }));
+        await db.SaveChangesAsync();
+        scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Seed")
+            .LogInformation("Catalog \"Cómo nos conoció\" created with {Count} options", Domain.Catalogs.Reason.HowFoundUsDefaults.Length);
+    }
+
+    /// <summary>
     /// Creates the first SuperUser user when there is none and Seed:Admin:UserName and
     /// Seed:Admin:Password are configured. The password must be changed on first sign-in.
     /// </summary>
