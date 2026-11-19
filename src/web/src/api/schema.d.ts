@@ -5171,6 +5171,10 @@ export interface components {
             nonWorkingReason: null | string;
             estimate: string;
             rutas: components["schemas"]["RutaPlanDto"][];
+            /** Format: double */
+            baseLat: number;
+            /** Format: double */
+            baseLng: number;
         };
         SaveContactoRequest: {
             channel: components["schemas"]["ContactChannel"];

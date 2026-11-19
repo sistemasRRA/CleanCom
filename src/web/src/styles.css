@@ -520,6 +520,15 @@ fieldset.plain { border: none; padding: 0; margin: 0; min-width: 0; }
 
 /* Rutas */
 .rutas-note { margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+/* Map of the day's rutas: numbered stops in each ruta's color and the base. */
+.routes-map { display: grid; gap: 10px; }
+.routes-map__legend { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.routes-map__canvas { height: 520px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; z-index: 0; }
+.routes-map__canvas.leaflet-container { font: inherit; font-size: 12px; }
+.routes-map__stop span, .routes-map__base span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 999px; color: #fff; font-weight: 700; font-size: 12px; border: 2px solid #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 40%); }
+.routes-map__stop span.done { opacity: 0.55; }
+.routes-map__base span { border-radius: 8px; background: #1e2a78; font-size: 14px; }
+@media (max-width: 700px) { .routes-map__canvas { height: 380px; } }
 .rutas-day { color: var(--text); text-transform: capitalize; font-size: 15px; }
 .ruta-title { display: flex; gap: 12px; align-items: center; }
 .ruta-title h2 { margin: 0; }

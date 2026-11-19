@@ -39,7 +39,9 @@ public class RutaDiaService(
         var nonWorking = await db.NonWorkingDays.AsNoTracking().Where(d => d.Active && d.Date == day).Select(d => d.Reason).FirstOrDefaultAsync(ct);
         return new RutasDiaDto(day, AgendaCalculator.Format(day), nonWorking,
             $"Horas y km estimados en línea recta × {context.Base.DistanceFactor:0.##} a {context.Base.SpeedKmh:0.#} km/h, hasta conectar Google.",
-            plans);
+            plans,
+            context.Base.Base.Lat,
+            context.Base.Base.Lng);
     }
 
     /// <summary>The chofer of a ruta on a day; null goes back to the operador whose usual ruta it is.</summary>

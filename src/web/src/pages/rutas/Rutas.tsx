@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, lazy, Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useOperadores } from '../../api/queries';
@@ -38,6 +38,9 @@ const CATEGORY: Record<NonNullable<Schemas['ParadaCategory']>, string> = {
   Insumos: 'Insumos',
   Traspaso: 'Traspaso',
 };
+
+// Leaflet loads only with the map.
+const RoutesMap = lazy(() => import('../../components/RoutesMap').then((m) => ({ default: m.RoutesMap })));
 
 const hm = (t?: string | null) => (t ? t.slice(0, 5) : '—');
 const clockFormat = new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
@@ -91,6 +94,19 @@ export function Rutas() {
             {d.rutas.map((r) => (
               <RutaCard key={r.rutaId} plan={r} date={d.date} />
             ))}
+            {d.rutas.length > 0 && (
+              <section className="card">
+                <div className="card__header">
+                  <h2>Mapa</h2>
+                  <span className="muted">Los números siguen el orden de visita de cada ruta; las líneas van en línea recta hasta conectar Google.</span>
+                </div>
+                <div className="card__body">
+                  <Suspense fallback={<div className="routes-map__canvas" />}>
+                    <RoutesMap base={{ lat: d.baseLat, lng: d.baseLng }} rutas={d.rutas} />
+                  </Suspense>
+                </div>
+              </section>
+            )}
           </>
         )}
       </QueryState>
