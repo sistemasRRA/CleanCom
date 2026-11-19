@@ -91,9 +91,12 @@ export function Rutas() {
               <strong className="rutas-day">{d.label}</strong>
               {d.nonWorkingReason && <span className="badge warning">Día inhábil: {d.nonWorkingReason}</span>} {d.estimate}
             </p>
-            {d.rutas.map((r) => (
-              <RutaCard key={r.rutaId} plan={r} date={d.date} />
-            ))}
+            {/* Side by side on a wide screen (F, K…), one under the other on a narrow one; the map goes below. */}
+            <div className="rutas-grid">
+              {d.rutas.map((r) => (
+                <RutaCard key={r.rutaId} plan={r} date={d.date} />
+              ))}
+            </div>
             {d.rutas.length > 0 && (
               <section className="card">
                 <div className="card__header">

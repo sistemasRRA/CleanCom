@@ -520,6 +520,13 @@ fieldset.plain { border: none; padding: 0; margin: 0; min-width: 0; }
 
 /* Rutas */
 .rutas-note { margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+/* Rutas side by side: two columns from about 1250px of content, compact so each table fits its half. */
+.rutas-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr)); align-items: start; }
+.rutas-grid > .card { min-width: 0; }
+.rutas-grid .card__header { flex-wrap: wrap; gap: 10px; }
+.rutas-grid .ruta-table th, .rutas-grid .ruta-table td { padding: 7px 6px; font-size: 13px; }
+.rutas-grid .ruta-table th { font-size: 11px; }
+.rutas-grid .ruta-table td.end .actions { flex-wrap: wrap; max-width: 150px; margin-left: auto; }
 /* Map of the day's rutas: numbered stops in each ruta's color and the base. */
 .routes-map { display: grid; gap: 10px; }
 .routes-map__legend { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
