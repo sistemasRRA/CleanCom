@@ -41,7 +41,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 
 ## Endpoints
 
-- `GET /invitados?estatus=&ruta=&q=`, `GET /invitados/llamar-hoy` (semana 2, hecho): filas con estatus, por qué, frecuencia, le toca, visita sugerida, próxima recolección y próximo contacto, más los conteos por estatus (sin tiendas) y cuántos hay en "Llamar hoy". Permiso Clientes (CRM): View.
+- `GET /invitados?estatus=&ruta=&q=`, `GET /invitados/llamar-hoy` (semana 2, hecho): filas con estatus, por qué, frecuencia, le toca, visita sugerida, próxima recolección y próximo contacto, más los conteos por estatus (sin tiendas) y cuántos hay en "Llamar hoy". Paginado: `pagina` (desde 1) y `porPagina` (50 por omisión, máximo 200); responde `rowCount` (filas con los filtros, en todas las páginas), `page` y `pageSize`. Los conteos no dependen de la página. La pantalla pide 25 por página y vuelve a la 1 al cambiar de pestaña, filtro o búsqueda. Permiso Clientes (CRM): View.
 - `GET /invitados/{id}/ficha` (hecho): datos, direcciones, evaluación del CRM, pedidos y contactos.
 - `GET /invitados/{id}`, `PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/fusionar`.
 - `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` (hecho; Clientes (CRM): Edit). Seguimiento: estatus manual, frecuencia fija, próximo contacto y no contactar.

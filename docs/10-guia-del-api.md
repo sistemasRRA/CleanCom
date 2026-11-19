@@ -217,6 +217,8 @@ Con el API corriendo: `cd src/web`, `npm install` y `npm run dev`, y abre http:/
 
 El JSON del API usa números estrictos (`NumberHandling = Strict`): un id enviado como texto (`"5"`) es un 400. Así el cliente generado tipa los números como `number`. En producción, la web vive en otro subdominio y su origen va en `Cors:Origins`.
 
+Paginado en las tablas: las listas que pueden crecer a miles (hoy Clientes CRM) se paginan en el API con `pagina` y `porPagina`, y la web usa `<Pagination>`. Los catálogos y listas cortas llegan completos y se paginan en la web con `usePaged` (25 por página; la barra no aparece si todo cabe en una). Ambos están en `src/web/src/components/Pagination.tsx`.
+
 ## Compilar, probar y publicar
 
 Se compila la solución y se publica solo `CleanCom.Api`; los demás proyectos se copian como `.dll`.

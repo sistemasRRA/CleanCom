@@ -6,6 +6,7 @@ import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, formatDateTime, optional, useSave } from '../../components/Common';
 import { InvitadoForm } from '../agenda/Agendar';
+import { PAGE_SIZE, Pagination } from '../../components/Pagination';
 
 type Row = Schemas['CrmRowDto'];
 type Status = Schemas['CrmStatus'];
@@ -68,12 +69,20 @@ export function Clientes() {
     return () => clearTimeout(t);
   }, [text]);
 
+  // Paged in the API (there can be thousands of invitados); a new tab, filter or search starts at page 1.
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [tab, status, rutaId, q]);
+
   const list = useQuery({
-    queryKey: [...keys.crm, tab, status, rutaId, q],
+    queryKey: [...keys.crm, tab, status, rutaId, q, page],
     queryFn: () =>
       tab === 'llamar'
-        ? unwrap(api.GET('/invitados/llamar-hoy', { params: { query: { ruta: rutaId ?? undefined, q } } }))
-        : unwrap(api.GET('/invitados', { params: { query: { estatus: status ?? undefined, ruta: rutaId ?? undefined, q } } })),
+        ? unwrap(api.GET('/invitados/llamar-hoy', { params: { query: { ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE } } }))
+        : unwrap(
+            api.GET('/invitados', {
+              params: { query: { estatus: status ?? undefined, ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE } },
+            }),
+          ),
     placeholderData: (previous) => previous,
   });
   const d = list.data;
@@ -217,6 +226,15 @@ export function Clientes() {
               <div className="empty">{tab === 'llamar' ? 'Nadie por llamar hoy.' : 'Sin invitados con estos filtros.'}</div>
             )}
           </div>
+          {d && (
+            <Pagination
+              page={d.page}
+              pageCount={Math.max(1, Math.ceil(d.rowCount / d.pageSize))}
+              total={d.rowCount}
+              pageSize={d.pageSize}
+              setPage={setPage}
+            />
+          )}
         </QueryState>
       </section>
 

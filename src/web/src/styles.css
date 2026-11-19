@@ -289,6 +289,8 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 
 /* ---- Tables ---- */
 .table-wrap { overflow-x: auto; }
+.pagination { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; padding: 10px 12px; font-size: 13px; }
+.pagination__page { padding: 0 6px; font-variant-numeric: tabular-nums; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 600; background: var(--surface-2); }

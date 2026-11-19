@@ -30,7 +30,9 @@ public class CrmService(
     private static readonly CrmStatus[] CallStatuses = [CrmStatus.LeToca, CrmStatus.EnRiesgo];
 
     /// <param name="callToday">Only "Llamar hoy": le toca or en riesgo, their ruta comes tomorrow, no future contact date, not "do not contact".</param>
-    public async Task<CrmListDto> ListAsync(bool callToday, CrmStatus? status, int? rutaId, string? q, CancellationToken ct)
+    /// <param name="page">1-based; a page past the end returns the last one.</param>
+    /// <param name="pageSize">Rows per page, from 1 to <see cref="MaxPageSize"/>.</param>
+    public async Task<CrmListDto> ListAsync(bool callToday, CrmStatus? status, int? rutaId, string? q, CancellationToken ct, int page = 1, int pageSize = DefaultPageSize)
     {
         var today = clock.Today;
         var all = await EvaluateAsync(null, ct);
@@ -59,7 +61,20 @@ public class CrmService(
             .Select(r => r.Dto)
             .ToList();
 
-        return new CrmListDto(today, counted.Count, all.Count(InCallToday), counts, rows);
+        var (pageRows, currentPage, size) = Paginate(rows, page, pageSize);
+        return new CrmListDto(today, counted.Count, all.Count(InCallToday), counts, pageRows, rows.Count, currentPage, size);
+    }
+
+    public const int DefaultPageSize = 50;
+    public const int MaxPageSize = 200;
+
+    /// <summary>The requested page, clamped: size between 1 and <see cref="MaxPageSize"/>, page between 1 and the last one.</summary>
+    public static (IReadOnlyList<T> Rows, int Page, int PageSize) Paginate<T>(IReadOnlyList<T> rows, int page, int pageSize)
+    {
+        var size = Math.Clamp(pageSize, 1, MaxPageSize);
+        var lastPage = Math.Max(1, (rows.Count + size - 1) / size);
+        var current = Math.Clamp(page, 1, lastPage);
+        return (rows.Skip((current - 1) * size).Take(size).ToList(), current, size);
     }
 
     public async Task<CrmFichaDto> FichaAsync(int id, CancellationToken ct)

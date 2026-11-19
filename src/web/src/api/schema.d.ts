@@ -830,6 +830,8 @@ export interface paths {
                     estatus?: components["schemas"]["CrmStatus"];
                     ruta?: number;
                     q?: string;
+                    pagina?: number;
+                    porPagina?: number;
                 };
                 header?: never;
                 path?: never;
@@ -897,6 +899,8 @@ export interface paths {
                 query?: {
                     ruta?: number;
                     q?: string;
+                    pagina?: number;
+                    porPagina?: number;
                 };
                 header?: never;
                 path?: never;
@@ -4470,6 +4474,12 @@ export interface components {
             callTodayCount: number;
             counts: components["schemas"]["CrmStatusCountDto"][];
             rows: components["schemas"]["CrmRowDto"][];
+            /** Format: int32 */
+            rowCount: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
         };
         CrmRowDto: {
             /** Format: int32 */

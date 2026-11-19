@@ -4,6 +4,7 @@ import { api, unwrap } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { QueryState, formatDateTime, useSave } from '../../components/Common';
+import { Pagination, usePaged } from '../../components/Pagination';
 
 const OFFICIAL_URL = 'https://www.correosdemexico.gob.mx/SSLServicios/ConsultaCP/CodigoPostal_Exportar.aspx';
 
@@ -48,6 +49,7 @@ export function PostalCodes() {
   );
   const r = upload.data;
 
+  const pagedResults = usePaged(results.data, search);
   return (
     <div className="stack">
       <section className="card">
@@ -138,7 +140,7 @@ export function PostalCodes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.data?.map((p) => (
+                  {pagedResults.rows.map((p) => (
                     <tr key={`${p.code}-${p.settlement}-${p.borough}`}>
                       <td>
                         <strong>{p.code}</strong>
@@ -153,6 +155,7 @@ export function PostalCodes() {
               </table>
               {results.data?.length === 0 && <div className="empty">Sin resultados.</div>}
             </div>
+            <Pagination {...pagedResults} />
           </QueryState>
         )}
       </section>

@@ -15,6 +15,7 @@ import {
   useSave,
 } from '../../components/Common';
 import { useSession } from '../../session/Session';
+import { Pagination, usePaged } from '../../components/Pagination';
 
 const useCanEdit = () => useSession().can('operacion', 'edit');
 
@@ -36,6 +37,7 @@ export function Lugares() {
     'Lugar desactivado.',
   );
 
+  const pagedLugares = usePaged(lugares.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -61,7 +63,7 @@ export function Lugares() {
               </tr>
             </thead>
             <tbody>
-              {lugares.data?.map((l) => (
+              {pagedLugares.rows.map((l) => (
                 <tr key={l.id} className={l.active ? '' : 'inactive'}>
                   <td>
                     <strong>{l.name}</strong>
@@ -97,6 +99,7 @@ export function Lugares() {
             </tbody>
           </table>
         </div>
+        <Pagination {...pagedLugares} />
       </QueryState>
       {editing && <LugarForm lugar={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </section>
@@ -179,6 +182,7 @@ export function NonWorkingDays() {
     'Día inhábil quitado.',
   );
 
+  const pagedDays = usePaged(days.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -203,7 +207,7 @@ export function NonWorkingDays() {
               </tr>
             </thead>
             <tbody>
-              {days.data?.map((d) => (
+              {pagedDays.rows.map((d) => (
                 <tr key={d.id}>
                   <td>
                     <strong>{formatDate(d.date)}</strong>
@@ -227,6 +231,7 @@ export function NonWorkingDays() {
           </table>
           {days.data?.length === 0 && <div className="empty">No hay días inhábiles registrados.</div>}
         </div>
+        <Pagination {...pagedDays} />
       </QueryState>
       {adding && <NonWorkingDayForm onClose={() => setAdding(false)} />}
     </section>
@@ -279,6 +284,7 @@ export function CoveragePage() {
     'Registro quitado.',
   );
 
+  const pagedCoverage = usePaged(coverage.data, `${search}|${zonaId}`);
   return (
     <section className="card">
       <div className="card__header">
@@ -316,7 +322,7 @@ export function CoveragePage() {
               </tr>
             </thead>
             <tbody>
-              {coverage.data?.map((c) => (
+              {pagedCoverage.rows.map((c) => (
                 <tr key={c.id}>
                   <td className="num">
                     <strong>{c.postalCode}</strong>
@@ -349,6 +355,7 @@ export function CoveragePage() {
           </table>
           {coverage.data?.length === 0 && <div className="empty">Sin resultados.</div>}
         </div>
+        <Pagination {...pagedCoverage} />
       </QueryState>
       {editing && <CoverageForm coverage={editing === 'new' ? null : editing} zonas={zonas.data ?? []} onClose={() => setEditing(null)} />}
     </section>
@@ -443,6 +450,7 @@ function Reasons() {
   const reasons = useQuery({ queryKey: keys.reasons, queryFn: () => unwrap(api.GET('/motivos')) });
   const [editing, setEditing] = useState<Reason | 'new' | null>(null);
 
+  const pagedReasons = usePaged(reasons.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -465,7 +473,7 @@ function Reasons() {
               </tr>
             </thead>
             <tbody>
-              {reasons.data?.map((m) => (
+              {pagedReasons.rows.map((m) => (
                 <tr key={m.id} className={m.active ? '' : 'inactive'}>
                   <td>{REASON_TYPES[m.type]}</td>
                   <td>{m.text}</td>
@@ -485,6 +493,7 @@ function Reasons() {
           </table>
           {reasons.data?.length === 0 && <div className="empty">Sin motivos.</div>}
         </div>
+        <Pagination {...pagedReasons} />
       </QueryState>
       {editing && <ReasonForm reason={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </section>

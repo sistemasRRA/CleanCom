@@ -17,6 +17,7 @@ import {
   useSave,
   type Weekday,
 } from '../../components/Common';
+import { Pagination, usePaged } from '../../components/Pagination';
 
 type Fija = Schemas['ParadaFijaDto'];
 type Kind = Schemas['ParadaKind'];
@@ -86,6 +87,7 @@ export function ParadasFijas() {
   });
   const open = async (id: number) => setEditing(await unwrap(api.GET('/paradas-fijas/{id}', { params: { path: { id } } })));
 
+  const pagedList = usePaged(list.data, `${category}|${inactive}`);
   return (
     <div className="stack">
       <PageHeader title="Paradas fijas" description="El trabajo que se repite cada semana. Se generan solas cada noche para los próximos días y cuentan dentro del cupo de cada ruta.">
@@ -131,7 +133,7 @@ export function ParadasFijas() {
                 </tr>
               </thead>
               <tbody>
-                {list.data?.map((f) => (
+                {pagedList.rows.map((f) => (
                   <tr key={f.id} className={f.active ? '' : 'inactive'}>
                     <td>
                       <strong>{f.name}</strong>
@@ -165,6 +167,7 @@ export function ParadasFijas() {
             </table>
             {list.data?.length === 0 && <div className="empty">Sin paradas fijas con estos filtros.</div>}
           </div>
+          <Pagination {...pagedList} />
         </QueryState>
       </section>
 
