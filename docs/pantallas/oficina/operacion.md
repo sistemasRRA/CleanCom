@@ -9,7 +9,7 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - Horarios y reglas: hora de corte (13:00), salida de Leones (09:00), regreso máximo (18:00), regreso los sábados (14:00), turno mañana (09:00 a 13:00), turno tarde (13:00 a 18:00), comida (60 min desde 13:00), meta de recolecciones (10), cupo de paradas (14), capacidad de la unidad (140 prendas), días de proceso en tienda (3), minutos por recolección (15), entrega (10) y traslado o insumos (12), tolerancia GPS (300 m).
 - Dirección y coordenadas de la base.
 - Foto obligatoria en cada visita; el chofer registra las paradas en orden.
-- Tiendas y bodegas: nombre, tipo (base, bodega / insumos, tienda 7clean), dirección; agregar y quitar.
+- Tiendas y bodegas: nombre, tipo (base, bodega / insumos, tienda 7clean), dirección; agregar y quitar. Arranca con Leones, la Bodega EXO y las 21 tiendas 7clean (migración `SeedTiendasYBodegas`); las que no traen ubicación se colocan con el mapa.
 - Días de visita por zona (lunes a domingo), con nota de que las EXT siguen a su núcleo.
 - Días inhábiles con fecha y motivo.
 - Cobertura: CP, colonia, alcaldía y zona; búsqueda y alta (156 registros).
