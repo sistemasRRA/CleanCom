@@ -1,6 +1,6 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Geography;
-using CleanCom.Domain.Access;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -18,7 +18,7 @@ public class DireccionesController(IGeocoder geocoder) : ControllerBase
     /// to the house; the coordinates that decide the zona are the ones saved with the address.
     /// </summary>
     [HttpGet("ubicar")]
-    [RequireScreen(Screens.Agendar, AccessLevel.Edit)]
+    [Authorize(Policies.CapturesAddresses)]
     public async Task<UbicacionDto> Locate(
         [FromQuery] string? street,
         [FromQuery] string? exteriorNumber,

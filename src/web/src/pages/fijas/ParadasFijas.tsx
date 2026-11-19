@@ -18,6 +18,7 @@ import {
   type Weekday,
 } from '../../components/Common';
 import { Pagination, usePaged } from '../../components/Pagination';
+import { AddressLocation } from '../../components/AddressLocation';
 
 type Fija = Schemas['ParadaFijaDto'];
 type Kind = Schemas['ParadaKind'];
@@ -626,9 +627,16 @@ export function PasoEditor({
             <Field label="Dirección" wide>
               <input value={paso.address} onChange={(e) => onChange({ address: e.target.value })} required />
             </Field>
-            <Field label="Link de Google Maps o coordenadas" wide hint="El link completo del navegador o 19.36, -99.19. Para el mapa y el ruteo.">
-              <input value={paso.mapsLink} onChange={(e) => onChange({ mapsLink: e.target.value })} />
-            </Field>
+            {/* The whole address goes as one text: the map search takes it as typed. */}
+            <AddressLocation
+              label="Link de Google Maps o coordenadas"
+              placeholder="19.36, -99.19"
+              hint="Mueve el pin o haz clic en el mapa donde está el lugar. También acepta el link completo de Google Maps. Para el mapa y el ruteo."
+              query={{ street: paso.address }}
+              canLocate={paso.address.trim().length >= 8}
+              value={paso.mapsLink}
+              onChange={(mapsLink) => onChange({ mapsLink })}
+            />
           </>
         )}
         <Field label="Qué se hace en este paso">
