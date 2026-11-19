@@ -4,6 +4,7 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useOperadores } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Dialog, Field, PageHeader, QueryState, optional, useAction, useSave } from '../../components/Common';
+import { Loader } from '../../components/Loader';
 import {
   ACTIONS,
   CATEGORIES,
@@ -104,7 +105,13 @@ export function Rutas() {
                   <span className="muted">Los números siguen el orden de visita de cada ruta; las líneas van en línea recta hasta conectar Google.</span>
                 </div>
                 <div className="card__body">
-                  <Suspense fallback={<div className="routes-map__canvas" />}>
+                  <Suspense
+                    fallback={
+                      <div className="routes-map__canvas">
+                        <Loader label="Cargando mapa…" />
+                      </div>
+                    }
+                  >
                     <RoutesMap base={{ lat: d.baseLat, lng: d.baseLng }} rutas={d.rutas} />
                   </Suspense>
                 </div>

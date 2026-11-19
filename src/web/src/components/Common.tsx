@@ -1,6 +1,7 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { useNotify } from './Toasts';
+import { Loader } from './Loader';
 
 export function PageHeader({ title, description, children }: { title: string; description?: ReactNode; children?: ReactNode }) {
   return (
@@ -17,7 +18,7 @@ export function PageHeader({ title, description, children }: { title: string; de
 /** Query state: loading, error or the content. */
 export function QueryState({ loading, error, children }: { loading: boolean; error: Error | null; children: ReactNode }) {
   if (error) return <div className="alert error">{error.message}</div>;
-  if (loading) return <div className="empty">Cargando…</div>;
+  if (loading) return <Loader />;
   return <>{children}</>;
 }
 

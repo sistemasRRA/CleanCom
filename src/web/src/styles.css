@@ -320,6 +320,28 @@ tr.inactive td { color: var(--text-muted); }
 .alert.error { background: var(--danger-soft); color: var(--danger); }
 .alert.info { background: var(--brand-soft); color: var(--brand); }
 .empty { padding: 32px 16px; text-align: center; color: var(--text-muted); }
+
+/* ---- Loader: animated CleanCom mark ---- */
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px 16px; color: var(--text); }
+.loader__mark { width: 72px; height: auto; overflow: visible; }
+.loader__label { color: var(--text-muted); font-size: 13px; letter-spacing: 0.02em; }
+.loader--small { flex-direction: row; gap: 8px; padding: 6px; }
+.loader--small .loader__mark { width: 28px; }
+.loader--small .loader__label { font-size: 12px; }
+.loader__cube-edge { stroke: var(--surface); }
+.loader__ring { transform-origin: 52px 56px; animation: loader-turn 1.4s cubic-bezier(0.55, 0.1, 0.45, 0.9) infinite; }
+.loader__dot { transform-origin: 52px 56px; animation: loader-pulse 1.4s ease-in-out infinite; }
+.loader__cube { transform-origin: 102px 68px; animation: loader-float 1.4s ease-in-out infinite; }
+@keyframes loader-turn { to { transform: rotate(360deg); } }
+@keyframes loader-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.72); } }
+@keyframes loader-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@media (prefers-reduced-motion: reduce) {
+  .loader__ring, .loader__dot, .loader__cube { animation: none; }
+  .loader__mark { animation: loader-fade 1.6s ease-in-out infinite; }
+}
+@keyframes loader-fade { 50% { opacity: 0.45; } }
+/* Map placeholders show the loader centered while Leaflet arrives. */
+.location-map > .loader, .routes-map__canvas > .loader { height: 100%; padding: 0; }
 .muted { color: var(--text-muted); }
 
 /* ---- Toasts ---- */

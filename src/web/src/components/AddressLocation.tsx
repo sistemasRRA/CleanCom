@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { api, unwrap, type Schemas } from '../api/client';
 import { Field } from './Common';
+import { Loader } from './Loader';
 import type { Point } from './LocationMap';
 
 // Leaflet (~150 kB) loads only when an address form opens.
@@ -119,7 +120,13 @@ export function AddressLocation({
       <button type="button" className="small" disabled={!canLocate || locating} onClick={() => void locate()} title={canLocate ? undefined : 'Captura la dirección primero'}>
         Ubicar con la dirección
       </button>
-      <Suspense fallback={<div className="location-map" />}>
+      <Suspense
+        fallback={
+          <div className="location-map">
+            <Loader label="Cargando mapa…" />
+          </div>
+        }
+      >
         <LocationMap
           point={parsePoint(value)}
           onChange={(p) => {
