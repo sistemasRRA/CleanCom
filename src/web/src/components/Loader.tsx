@@ -1,25 +1,86 @@
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Logo } from './Brand';
+
 /**
- * "Cargando…" with the CleanCom mark drawn in SVG (from public/brand/cleancom-mark.png) so its parts can move:
- * the C turns, the dot pulses and the cube floats. With reduced motion it only fades in and out.
- * The C and the dot follow the text color (dark mode included); the cube keeps the brand blue.
+ * Small "Cargando…" with the CleanCom mark, for places that load while the user keeps working:
+ * searches as you type, panels inside a form, evidence photos and maps.
  */
 export function Loader({ label = 'Cargando…', size = 'normal' }: { label?: string; size?: 'normal' | 'small' }) {
   return (
     <div className={`loader loader--${size}`} role="status" aria-live="polite">
-      <svg className="loader__mark" viewBox="0 0 132 112" aria-hidden="true">
-        {/* The C: a thick ring open to the right, where the cube sits. */}
-        <g className="loader__ring">
-          <circle cx="52" cy="56" r="40" fill="none" stroke="currentColor" strokeWidth="21" strokeDasharray="200 51.3" transform="rotate(37 52 56)" />
-        </g>
-        <circle className="loader__dot" cx="52" cy="56" r="13" fill="currentColor" />
-        <g className="loader__cube">
-          <polygon points="102,44 122.8,56 102,68 81.2,56" fill="#8fb4ea" />
-          <polygon points="81.2,56 102,68 102,92 81.2,80" fill="#6f9fe0" />
-          <polygon points="102,68 122.8,56 122.8,80 102,92" fill="#5a8fd6" />
-          <polygon points="102,44 122.8,56 122.8,80 102,92 81.2,80 81.2,56" fill="none" className="loader__cube-edge" strokeWidth="3.5" strokeLinejoin="round" />
-        </g>
-      </svg>
+      <Logo variant="mark" className="loader__mark" />
       {label && <span className="loader__label">{label}</span>}
     </div>
+  );
+}
+
+// ---- Full-screen loading ----
+// Screens and dialogs report while their data loads; one overlay for the whole app shows the CleanCom logo.
+
+let pending = 0;
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+const subscribe = (l: () => void) => {
+  listeners.add(l);
+  return () => listeners.delete(l);
+};
+
+/** Keeps the full-screen loader up while <paramref name="active"/> is true. */
+export function useScreenLoading(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    pending++;
+    notify();
+    return () => {
+      pending--;
+      notify();
+    };
+  }, [active]);
+}
+
+/** Below this a load is not shown, so fast answers don't flash. Once shown, it stays at least MIN_VISIBLE. */
+const SHOW_AFTER = 250;
+const MIN_VISIBLE = 500;
+
+/**
+ * The full-screen loader, mounted once at the root. It is a modal <dialog> so it also covers other open dialogs
+ * (a native modal dialog sits above any z-index), and Esc does not close it.
+ */
+export function LoadingOverlay() {
+  const loading = useSyncExternalStore(subscribe, () => pending > 0);
+  const [visible, setVisible] = useState(false);
+  const shownAt = useRef(0);
+
+  useEffect(() => {
+    if (loading) {
+      const t = setTimeout(() => {
+        shownAt.current = Date.now();
+        setVisible(true);
+      }, SHOW_AFTER);
+      return () => clearTimeout(t);
+    }
+    if (!visible) return;
+    const t = setTimeout(() => setVisible(false), Math.max(0, MIN_VISIBLE - (Date.now() - shownAt.current)));
+    return () => clearTimeout(t);
+  }, [loading, visible]);
+
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (visible && !d.open) d.showModal();
+    if (!visible && d.open) d.close();
+  }, [visible]);
+
+  return (
+    <dialog ref={ref} className="loading-overlay" onCancel={(e) => e.preventDefault()} aria-label="Cargando">
+      <div className="loading-overlay__content" role="status" aria-live="polite">
+        <Logo variant="full" className="loading-overlay__logo" />
+        <div className="loading-overlay__bar">
+          <span />
+        </div>
+        <span className="loading-overlay__label">Cargando…</span>
+      </div>
+    </dialog>
   );
 }

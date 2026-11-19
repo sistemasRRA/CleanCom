@@ -321,25 +321,30 @@ tr.inactive td { color: var(--text-muted); }
 .alert.info { background: var(--brand-soft); color: var(--brand); }
 .empty { padding: 32px 16px; text-align: center; color: var(--text-muted); }
 
-/* ---- Loader: animated CleanCom mark ---- */
-.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px 16px; color: var(--text); }
-.loader__mark { width: 72px; height: auto; overflow: visible; }
+/* ---- Loading: full-screen CleanCom logo, and a small inline version ---- */
+dialog.loading-overlay { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: none; border-radius: 0; box-shadow: none; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(6px); display: none; }
+dialog.loading-overlay[open] { display: grid; place-items: center; animation: loading-in 0.2s ease-out; }
+dialog.loading-overlay::backdrop { background: transparent; }
+.loading-overlay__content { display: grid; justify-items: center; gap: 18px; }
+.loading-overlay__logo { width: min(320px, 70vw); height: auto; animation: loading-breathe 1.8s ease-in-out infinite; }
+.loading-overlay__bar { width: min(220px, 50vw); height: 4px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.loading-overlay__bar span { display: block; width: 40%; height: 100%; border-radius: 999px; background: #6f9fe0; animation: loading-slide 1.2s ease-in-out infinite; }
+.loading-overlay__label { color: var(--text-muted); font-size: 14px; letter-spacing: 0.04em; }
+.loading-placeholder { min-height: 200px; }
+@keyframes loading-in { from { opacity: 0; } }
+@keyframes loading-breathe { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.97); opacity: 0.8; } }
+@keyframes loading-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px 16px; }
+.loader__mark { width: 56px; height: auto; animation: loading-breathe 1.4s ease-in-out infinite; }
 .loader__label { color: var(--text-muted); font-size: 13px; letter-spacing: 0.02em; }
 .loader--small { flex-direction: row; gap: 8px; padding: 6px; }
-.loader--small .loader__mark { width: 28px; }
+.loader--small .loader__mark { width: 24px; }
 .loader--small .loader__label { font-size: 12px; }
-.loader__cube-edge { stroke: var(--surface); }
-.loader__ring { transform-origin: 52px 56px; animation: loader-turn 1.4s cubic-bezier(0.55, 0.1, 0.45, 0.9) infinite; }
-.loader__dot { transform-origin: 52px 56px; animation: loader-pulse 1.4s ease-in-out infinite; }
-.loader__cube { transform-origin: 102px 68px; animation: loader-float 1.4s ease-in-out infinite; }
-@keyframes loader-turn { to { transform: rotate(360deg); } }
-@keyframes loader-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.72); } }
-@keyframes loader-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @media (prefers-reduced-motion: reduce) {
-  .loader__ring, .loader__dot, .loader__cube { animation: none; }
-  .loader__mark { animation: loader-fade 1.6s ease-in-out infinite; }
+  .loading-overlay__logo, .loader__mark { animation: none; }
+  .loading-overlay__bar span { animation: loading-fade 1.6s ease-in-out infinite; width: 100%; }
 }
-@keyframes loader-fade { 50% { opacity: 0.45; } }
+@keyframes loading-fade { 50% { opacity: 0.35; } }
 /* Map placeholders show the loader centered while Leaflet arrives. */
 .location-map > .loader, .routes-map__canvas > .loader { height: 100%; padding: 0; }
 .muted { color: var(--text-muted); }

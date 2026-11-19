@@ -325,7 +325,7 @@ function EntregaForm({ id, onDone }: { id: number; onDone: () => void }) {
   );
   return (
     <div className="inline-form">
-      <QueryState loading={days.isPending} error={days.error}>
+      <QueryState inline loading={days.isPending} error={days.error}>
         {days.data && (
           <>
             <p className="muted">

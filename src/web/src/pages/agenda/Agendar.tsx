@@ -167,7 +167,7 @@ function InvitadoSearch({ onChoose, onNew, canEdit }: { onChoose: (id: number) =
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ana López o 55 1234 5678" autoFocus />
         </Field>
         {q.length >= 2 && (
-          <QueryState loading={results.isPending} error={results.error}>
+          <QueryState inline loading={results.isPending} error={results.error}>
             {results.data?.length === 0 ? (
               <div className="muted">Sin resultados. {canEdit && 'Captúralo con "Nuevo invitado".'}</div>
             ) : (
@@ -639,7 +639,7 @@ function Schedule({
         )}
       </div>
       <div className="card__body stack">
-        <QueryState loading={availability.isPending} error={availability.error}>
+        <QueryState inline loading={availability.isPending} error={availability.error}>
           {a?.outOfCoverage ? (
             <div className="alert">{a.explanation[0]} Asígnala en la dirección del invitado.</div>
           ) : (

@@ -127,7 +127,7 @@ export function PostalCodes() {
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Código postal o colonia" style={{ maxWidth: 280 }} />
         </div>
         {search.length >= 2 && (
-          <QueryState loading={results.isPending} error={results.error}>
+          <QueryState inline loading={results.isPending} error={results.error}>
             <div className="table-wrap">
               <table>
                 <thead>
