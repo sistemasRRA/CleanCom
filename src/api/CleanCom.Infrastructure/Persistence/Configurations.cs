@@ -75,6 +75,8 @@ internal class ZonaVisitDayConfig : IEntityTypeConfiguration<ZonaVisitDay>
     public void Configure(EntityTypeBuilder<ZonaVisitDay> e)
     {
         e.ToTable("ZonaVisitDays");
+        e.Property(x => x.Active).HasDefaultValue(true);
+        // One row per zona and day, active or not: a day that comes back reactivates its row.
         e.HasIndex(x => new { x.ZonaId, x.DayOfWeek }).IsUnique();
     }
 }

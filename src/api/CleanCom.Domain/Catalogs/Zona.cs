@@ -36,8 +36,12 @@ public class Zona : Entity, IActivatable
             return ZonaNucleo.EffectiveVisitDays();
         }
 
-        return VisitDays.Select(d => d.DayOfWeek).Distinct().Order().ToList();
+        return OwnVisitDays();
     }
+
+    /// <summary>The zona's own active visit days, ignoring the ones given de baja.</summary>
+    public IReadOnlyList<DayOfWeek> OwnVisitDays() =>
+        VisitDays.Where(d => d.Active).Select(d => d.DayOfWeek).Distinct().Order().ToList();
 
     /// <summary>
     /// Checks that <paramref name="nucleo"/> can be the zona núcleo of this zona.
@@ -59,8 +63,12 @@ public class Zona : Entity, IActivatable
     }
 }
 
-public class ZonaVisitDay : Entity
+/// <summary>
+/// A day the ruta comes by the zona. A removed day keeps its row with <c>Active = false</c> and is reactivated if it comes back.
+/// </summary>
+public class ZonaVisitDay : Entity, IActivatable
 {
     public int ZonaId { get; set; }
     public DayOfWeek DayOfWeek { get; set; }
+    public bool Active { get; set; } = true;
 }
