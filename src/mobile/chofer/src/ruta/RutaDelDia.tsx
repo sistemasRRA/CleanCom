@@ -48,7 +48,7 @@ const pointOf = (p: Parada) => (p.lat != null && p.lng != null ? { lat: p.lat, l
  * The chofer's paradas on a day (GET /chofer/ruta) with "En camino" and "Llegué" for today's ruta. The API decides
  * the order, which parada is next and whether an arrival is close enough; the app only asks and shows.
  */
-export function RutaDelDia() {
+export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void } = {}) {
   const { colors } = useTheme();
   const [date, setDate] = useState<string | null>(null);
   // As the API (or the saved copy) sent it; the screen shows it with the actions that still wait for signal.
@@ -63,6 +63,9 @@ export function RutaDelDia() {
   const queue = useQueue();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const ruta = useMemo(() => (base ? withPending(base) : null), [base, queue]);
+
+  // The map shows the same paradas, with the actions still waiting for signal.
+  useEffect(() => onShown?.(ruta), [ruta, onShown]);
 
   const load = useCallback(async (fecha: string | null) => {
     setLoading(true);

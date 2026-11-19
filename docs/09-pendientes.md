@@ -41,6 +41,7 @@
 - [ ] Viajes: la regla decía "en orden y seguidos"; con las vueltas reales (Operadora carga en Leones en la mañana y entrega en Cuautitlán en la tarde) quedó "en orden", cada paso con su turno y hora límite. Confirmar.
 - [ ] Lavafan (ruta K, viernes): confirmar dirección completa (la colonia no venía) y hora real; la plantilla decía 4:00.
 - [ ] Rutas: horas y km son estimados en línea recta hasta conectar Google (proyecto de Google Cloud con facturación, Routes API y Route Optimization con cuenta de servicio). Ajustar `Ruta.VelocidadPromedio` y `Ruta.FactorDistancia` con lo real mientras tanto.
+- [ ] App del chofer en Android: el mapa usa Google Maps y en la app instalada (no en Expo Go) necesita una llave de Maps SDK for Android en `android.config.googleMaps.apiKey` de `app.json`. Llega con las llaves de Google. En iPhone usa Apple Maps y no necesita llave.
 - [ ] App del chofer: no hay "deshacer en camino" si lo marcó por error; mientras, oficina puede pedirle que marque Llegué al llegar. Confirmar si se necesita.
 - [ ] App del chofer: una parada "en sitio" sin cerrar no bloquea la siguiente; oficina la ve en Rutas. Confirmar si debe bloquear.
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.

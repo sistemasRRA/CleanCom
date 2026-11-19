@@ -1,41 +1,28 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Body, Button, Card, Logo, Title, radius, space, touch, useLayout, useSession, useTheme } from '@cleancom/mobile-shared';
+import { Body, Button, Card, Logo, Title, radius, space, touch, useLayout, useSession, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { RutaDelDia } from '../../ruta/RutaDelDia';
+import { MapaRuta } from '../../ruta/MapaRuta';
 
 /**
  * Driver's day. Tablet in landscape: stops and map side by side (docs/pantallas/apps/chofer.md).
- * Phone or portrait: one above the other. Stops come from GET /chofer/ruta; the map arrives in week 3.
+ * Phone or portrait: one above the other. Stops come from GET /chofer/ruta; the map shows the same day the list shows.
  */
 export default function Turno() {
   const { user, logout } = useSession();
   const { colors, scheme, toggleScheme } = useTheme();
   const { gutter, isTablet, landscape } = useLayout();
   const sideBySide = isTablet && landscape;
+  const [ruta, setRuta] = useState<Schemas['ChoferRutaDto'] | null>(null);
 
-  const stops = <RutaDelDia />;
+  const stops = <RutaDelDia onShown={setRuta} />;
 
   const map = (
     <Panel title="Mapa" icon="map" grow>
-      <View
-        style={{
-          flex: 1,
-          minHeight: 220,
-          borderRadius: radius.md,
-          backgroundColor: colors.surface2,
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: space.sm,
-        }}
-      >
-        <Ionicons name="navigate-circle-outline" size={48} color={colors.textMuted} />
-        <Body muted center>
-          El mapa con tus paradas y la navegación llegan en la semana 3.
-        </Body>
-      </View>
+      <MapaRuta ruta={ruta} />
     </Panel>
   );
 
