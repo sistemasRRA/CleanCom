@@ -20,7 +20,7 @@ Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, par
 
 ### Mientras no estén las llaves: OpenStreetMap
 
-- **Mapa de la dirección** (Agendar: capturar o agregar dirección; pasos de Paradas fijas y "Agregar viaje" en Rutas): Leaflet con el mapa de OpenStreetMap y un pin que se arrastra al lugar. Sin llaves ni costo. Componente `AddressLocation` en la web.
+- **Mapa de la dirección** (Agendar: capturar o agregar dirección; pasos de Paradas fijas y "Agregar viaje" en Rutas; Lugares en Operación): Leaflet con el mapa de OpenStreetMap y un pin que se arrastra al lugar. Sin llaves ni costo. Componente `AddressLocation` en la web.
 - **Permiso:** `GET /direcciones/ubicar` pide editar cualquiera de las pantallas que capturan direcciones (Agendar, Paradas fijas, Rutas u Operación), con la política `CapturesAddresses`.
 - **Geocoding:** `GET /direcciones/ubicar` usa `IGeocoder`, hoy `NominatimGeocoder` (Nominatim de OpenStreetMap). Prueba de lo más preciso a lo menos (calle y número, calle, colonia, código postal) y responde qué tan preciso fue. Respeta la política de uso de Nominatim: máximo una petición por segundo, `User-Agent` propio (`Geocoding:UserAgent`) y resultados en caché (7 días; 1 hora si no encontró nada). Si no responde, la oficina coloca el pin a mano.
 - Al conectar Google se cambia `NominatimGeocoder` por uno de Google Geocoding sin tocar la pantalla; el mapa puede pasar a Maps JavaScript API.

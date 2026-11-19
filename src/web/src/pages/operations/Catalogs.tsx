@@ -16,6 +16,7 @@ import {
 } from '../../components/Common';
 import { useSession } from '../../session/Session';
 import { Pagination, usePaged } from '../../components/Pagination';
+import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 
 const useCanEdit = () => useSession().can('operacion', 'edit');
 
@@ -111,20 +112,24 @@ function LugarForm({ lugar, onClose }: { lugar: Lugar | null; onClose: () => voi
     name: lugar?.name ?? '',
     type: lugar?.type ?? ('Tienda' as Lugar['type']),
     address: lugar?.address ?? '',
-    lat: lugar?.lat?.toString() ?? '',
-    lng: lugar?.lng?.toString() ?? '',
+    // One "latitud, longitud" field with the map instead of two boxes.
+    coordinates: lugar?.lat != null && lugar?.lng != null ? `${lugar.lat}, ${lugar.lng}` : '',
     openingHours: lugar?.openingHours ?? '',
     active: lugar?.active ?? true,
   });
   const change = (c: Partial<typeof f>) => setF((v) => ({ ...v, ...c }));
   const save = useSave(
     () => {
+      const point = parsePoint(f.coordinates);
+      if (f.coordinates.trim() !== '' && !point) {
+        return Promise.reject(new Error('La ubicación no es válida: usa "latitud, longitud", el link completo de Google Maps o el pin del mapa.'));
+      }
       const body = {
         name: f.name.trim(),
         type: f.type,
         address: f.address.trim(),
-        lat: optionalNumber(f.lat),
-        lng: optionalNumber(f.lng),
+        lat: point?.lat ?? null,
+        lng: point?.lng ?? null,
         openingHours: optional(f.openingHours),
         active: f.active,
       };
@@ -153,12 +158,15 @@ function LugarForm({ lugar, onClose }: { lugar: Lugar | null; onClose: () => voi
         <Field label="Dirección" wide>
           <input value={f.address} onChange={(e) => change({ address: e.target.value })} required />
         </Field>
-        <Field label="Latitud">
-          <input inputMode="decimal" value={f.lat} onChange={(e) => change({ lat: e.target.value })} />
-        </Field>
-        <Field label="Longitud">
-          <input inputMode="decimal" value={f.lng} onChange={(e) => change({ lng: e.target.value })} />
-        </Field>
+        <AddressLocation
+          label="Ubicación (latitud, longitud)"
+          placeholder="19.36, -99.19"
+          hint="Mueve el pin o haz clic en el mapa donde está el lugar. También acepta el link completo de Google Maps."
+          query={{ street: f.address }}
+          canLocate={f.address.trim().length >= 8}
+          value={f.coordinates}
+          onChange={(coordinates) => change({ coordinates })}
+        />
         <Field label="Horario" wide>
           <input value={f.openingHours} onChange={(e) => change({ openingHours: e.target.value })} placeholder="L a V 9:00 a 19:00" />
         </Field>

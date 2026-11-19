@@ -33,3 +33,5 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - `GET /codigos-postales/{cp}` (colonias del CP), `GET /codigos-postales?search=`, `GET /codigos-postales/resumen`: solo sesión. `POST /codigos-postales/importar` (multipart, campo `file`): solo SuperUser y Administración.
 
 Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` siempre es baja lógica (lugares, zonas, días inhábiles y cobertura); nada se borra de la base. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`.
+
+Lugares: la ubicación se captura en un solo campo "latitud, longitud" con el mapa de OpenStreetMap (el mismo de Agendar y Paradas fijas): con la dirección escrita el pin se coloca solo y se arrastra al lugar; también acepta el link completo de Google Maps. Al guardar, la web lo convierte en `lat` y `lng`.
