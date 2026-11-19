@@ -1,6 +1,7 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { useNotify } from './Toasts';
+import { Loader, useScreenLoading } from './Loader';
 
 export function PageHeader({ title, description, children }: { title: string; description?: ReactNode; children?: ReactNode }) {
   return (
@@ -14,10 +15,15 @@ export function PageHeader({ title, description, children }: { title: string; de
   );
 }
 
-/** Query state: loading, error or the content. */
-export function QueryState({ loading, error, children }: { loading: boolean; error: Error | null; children: ReactNode }) {
+/**
+ * Query state: loading, error or the content. While loading, a screen or dialog shows the full-screen CleanCom
+ * loader; <paramref name="inline"/> keeps a small one in place instead, for searches as you type and panels inside
+ * a form, where covering the screen would interrupt the user.
+ */
+export function QueryState({ loading, error, children, inline }: { loading: boolean; error: Error | null; children: ReactNode; inline?: boolean }) {
+  useScreenLoading(loading && !error && !inline);
   if (error) return <div className="alert error">{error.message}</div>;
-  if (loading) return <div className="empty">Cargando…</div>;
+  if (loading) return inline ? <Loader size="small" /> : <div className="loading-placeholder" />;
   return <>{children}</>;
 }
 

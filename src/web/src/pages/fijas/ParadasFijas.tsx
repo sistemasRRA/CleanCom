@@ -17,6 +17,8 @@ import {
   useSave,
   type Weekday,
 } from '../../components/Common';
+import { Pagination, usePaged } from '../../components/Pagination';
+import { AddressLocation } from '../../components/AddressLocation';
 
 type Fija = Schemas['ParadaFijaDto'];
 type Kind = Schemas['ParadaKind'];
@@ -86,6 +88,7 @@ export function ParadasFijas() {
   });
   const open = async (id: number) => setEditing(await unwrap(api.GET('/paradas-fijas/{id}', { params: { path: { id } } })));
 
+  const pagedList = usePaged(list.data, `${category}|${inactive}`);
   return (
     <div className="stack">
       <PageHeader title="Paradas fijas" description="El trabajo que se repite cada semana. Se generan solas cada noche para los próximos días y cuentan dentro del cupo de cada ruta.">
@@ -131,7 +134,7 @@ export function ParadasFijas() {
                 </tr>
               </thead>
               <tbody>
-                {list.data?.map((f) => (
+                {pagedList.rows.map((f) => (
                   <tr key={f.id} className={f.active ? '' : 'inactive'}>
                     <td>
                       <strong>{f.name}</strong>
@@ -165,6 +168,7 @@ export function ParadasFijas() {
             </table>
             {list.data?.length === 0 && <div className="empty">Sin paradas fijas con estos filtros.</div>}
           </div>
+          <Pagination {...pagedList} />
         </QueryState>
       </section>
 
@@ -623,9 +627,16 @@ export function PasoEditor({
             <Field label="Dirección" wide>
               <input value={paso.address} onChange={(e) => onChange({ address: e.target.value })} required />
             </Field>
-            <Field label="Link de Google Maps o coordenadas" wide hint="El link completo del navegador o 19.36, -99.19. Para el mapa y el ruteo.">
-              <input value={paso.mapsLink} onChange={(e) => onChange({ mapsLink: e.target.value })} />
-            </Field>
+            {/* The whole address goes as one text: the map search takes it as typed. */}
+            <AddressLocation
+              label="Link de Google Maps o coordenadas"
+              placeholder="19.36, -99.19"
+              hint="Mueve el pin o haz clic en el mapa donde está el lugar. También acepta el link completo de Google Maps. Para el mapa y el ruteo."
+              query={{ street: paso.address }}
+              canLocate={paso.address.trim().length >= 8}
+              value={paso.mapsLink}
+              onChange={(mapsLink) => onChange({ mapsLink })}
+            />
           </>
         )}
         <Field label="Qué se hace en este paso">

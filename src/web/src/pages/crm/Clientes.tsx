@@ -5,6 +5,8 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, formatDateTime, optional, useSave } from '../../components/Common';
+import { InvitadoForm } from '../agenda/Agendar';
+import { PAGE_SIZE, Pagination } from '../../components/Pagination';
 
 type Row = Schemas['CrmRowDto'];
 type Status = Schemas['CrmStatus'];
@@ -57,6 +59,9 @@ export function Clientes() {
   // Other screens open a ficha with ?invitado= (Pedidos › Ver en CRM).
   const [params] = useSearchParams();
   const [ficha, setFicha] = useState<number | null>(() => Number(params.get('invitado')) || null);
+  // Capturing an invitado is an Agendar permission in the API (POST /invitados).
+  const canCapture = useSession().can('agendar', 'edit');
+  const [capturing, setCapturing] = useState(false);
   const rutas = useRutas();
 
   useEffect(() => {
@@ -64,12 +69,20 @@ export function Clientes() {
     return () => clearTimeout(t);
   }, [text]);
 
+  // Paged in the API (there can be thousands of invitados); a new tab, filter or search starts at page 1.
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [tab, status, rutaId, q]);
+
   const list = useQuery({
-    queryKey: [...keys.crm, tab, status, rutaId, q],
+    queryKey: [...keys.crm, tab, status, rutaId, q, page],
     queryFn: () =>
       tab === 'llamar'
-        ? unwrap(api.GET('/invitados/llamar-hoy', { params: { query: { ruta: rutaId ?? undefined, q } } }))
-        : unwrap(api.GET('/invitados', { params: { query: { estatus: status ?? undefined, ruta: rutaId ?? undefined, q } } })),
+        ? unwrap(api.GET('/invitados/llamar-hoy', { params: { query: { ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE } } }))
+        : unwrap(
+            api.GET('/invitados', {
+              params: { query: { estatus: status ?? undefined, ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE } },
+            }),
+          ),
     placeholderData: (previous) => previous,
   });
   const d = list.data;
@@ -77,10 +90,22 @@ export function Clientes() {
   return (
     <div className="stack">
       <PageHeader title="Clientes (CRM)" description="Estatus de cada invitado por su frecuencia real y la lista de a quién llamar un día antes de que pase su ruta.">
-        <Link to="/agendar" className="button primary">
-          Nuevo cliente
-        </Link>
+        {canCapture && (
+          <button type="button" className="primary" onClick={() => setCapturing(true)}>
+            Nuevo cliente
+          </button>
+        )}
       </PageHeader>
+      {/* Captured here; then its ficha opens, with "Agendar" if it already wants a recolección. */}
+      {capturing && (
+        <InvitadoForm
+          onClose={() => setCapturing(false)}
+          onSaved={(i) => {
+            setCapturing(false);
+            setFicha(i.id);
+          }}
+        />
+      )}
 
       {d && (
         <div className="crm-counts">
@@ -201,6 +226,15 @@ export function Clientes() {
               <div className="empty">{tab === 'llamar' ? 'Nadie por llamar hoy.' : 'Sin invitados con estos filtros.'}</div>
             )}
           </div>
+          {d && (
+            <Pagination
+              page={d.page}
+              pageCount={Math.max(1, Math.ceil(d.rowCount / d.pageSize))}
+              total={d.rowCount}
+              pageSize={d.pageSize}
+              setPage={setPage}
+            />
+          )}
         </QueryState>
       </section>
 

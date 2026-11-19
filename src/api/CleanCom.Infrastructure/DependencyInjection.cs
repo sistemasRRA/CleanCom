@@ -2,6 +2,7 @@ using System.Text;
 using CleanCom.Application.Access;
 using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
+using CleanCom.Application.Geography;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Time;
 using CleanCom.Infrastructure.Identity;
@@ -43,6 +44,16 @@ public static class DependencyInjection
         services.AddScoped<IBulkInserter, BulkInserter>();
         services.AddSingleton<IFileStore, Files.LocalFileStore>();
 
+        // Map of the address form: OpenStreetMap's Nominatim until the Google Cloud keys exist.
+        services.AddMemoryCache();
+        services.AddHttpClient<IGeocoder, Geography.NominatimGeocoder>(http =>
+        {
+            http.BaseAddress = new Uri(configuration["Geocoding:Nominatim:Url"] ?? "https://nominatim.openstreetmap.org/");
+            // Nominatim asks for a User-Agent that identifies the application (with a contact in production).
+            http.DefaultRequestHeaders.UserAgent.ParseAdd(configuration["Geocoding:UserAgent"] ?? "CleanCom/1.0");
+            http.Timeout = TimeSpan.FromSeconds(10);
+        });
+
         services.AddIdentityCore<User>(o =>
             {
                 // Docs: passwords need at least 8 characters, nothing else.
@@ -73,6 +84,26 @@ public static class DependencyInjection
         services.AddScoped<IRoleService, RoleService>();
         services.AddSingleton<IPermissionStore, PermissionStore>();
         return services;
+    }
+
+    /// <summary>
+    /// Initial options of editable catalogs that start with content: today "Cómo nos conoció". Inserted only when the
+    /// catalog has no row of that type (active or not), so the office's edits are never undone. Not done with HasData
+    /// because Reasons already has rows captured by hand and fixed ids would clash with them.
+    /// </summary>
+    public static async Task SeedCatalogsAsync(this IServiceProvider provider)
+    {
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CleanComDbContext>();
+        if (await db.Reasons.AnyAsync(r => r.Type == Domain.Catalogs.ReasonType.HowFoundUs))
+        {
+            return;
+        }
+        db.Reasons.AddRange(Domain.Catalogs.Reason.HowFoundUsDefaults.Select(text =>
+            new Domain.Catalogs.Reason { Type = Domain.Catalogs.ReasonType.HowFoundUs, Text = text }));
+        await db.SaveChangesAsync();
+        scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Seed")
+            .LogInformation("Catalog \"Cómo nos conoció\" created with {Count} options", Domain.Catalogs.Reason.HowFoundUsDefaults.Length);
     }
 
     /// <summary>

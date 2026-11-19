@@ -15,6 +15,8 @@ import {
   useSave,
 } from '../../components/Common';
 import { useSession } from '../../session/Session';
+import { Pagination, usePaged } from '../../components/Pagination';
+import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 
 const useCanEdit = () => useSession().can('operacion', 'edit');
 
@@ -36,6 +38,7 @@ export function Lugares() {
     'Lugar desactivado.',
   );
 
+  const pagedLugares = usePaged(lugares.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -61,7 +64,7 @@ export function Lugares() {
               </tr>
             </thead>
             <tbody>
-              {lugares.data?.map((l) => (
+              {pagedLugares.rows.map((l) => (
                 <tr key={l.id} className={l.active ? '' : 'inactive'}>
                   <td>
                     <strong>{l.name}</strong>
@@ -97,6 +100,7 @@ export function Lugares() {
             </tbody>
           </table>
         </div>
+        <Pagination {...pagedLugares} />
       </QueryState>
       {editing && <LugarForm lugar={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </section>
@@ -108,20 +112,24 @@ function LugarForm({ lugar, onClose }: { lugar: Lugar | null; onClose: () => voi
     name: lugar?.name ?? '',
     type: lugar?.type ?? ('Tienda' as Lugar['type']),
     address: lugar?.address ?? '',
-    lat: lugar?.lat?.toString() ?? '',
-    lng: lugar?.lng?.toString() ?? '',
+    // One "latitud, longitud" field with the map instead of two boxes.
+    coordinates: lugar?.lat != null && lugar?.lng != null ? `${lugar.lat}, ${lugar.lng}` : '',
     openingHours: lugar?.openingHours ?? '',
     active: lugar?.active ?? true,
   });
   const change = (c: Partial<typeof f>) => setF((v) => ({ ...v, ...c }));
   const save = useSave(
     () => {
+      const point = parsePoint(f.coordinates);
+      if (f.coordinates.trim() !== '' && !point) {
+        return Promise.reject(new Error('La ubicación no es válida: usa "latitud, longitud", el link completo de Google Maps o el pin del mapa.'));
+      }
       const body = {
         name: f.name.trim(),
         type: f.type,
         address: f.address.trim(),
-        lat: optionalNumber(f.lat),
-        lng: optionalNumber(f.lng),
+        lat: point?.lat ?? null,
+        lng: point?.lng ?? null,
         openingHours: optional(f.openingHours),
         active: f.active,
       };
@@ -150,12 +158,15 @@ function LugarForm({ lugar, onClose }: { lugar: Lugar | null; onClose: () => voi
         <Field label="Dirección" wide>
           <input value={f.address} onChange={(e) => change({ address: e.target.value })} required />
         </Field>
-        <Field label="Latitud">
-          <input inputMode="decimal" value={f.lat} onChange={(e) => change({ lat: e.target.value })} />
-        </Field>
-        <Field label="Longitud">
-          <input inputMode="decimal" value={f.lng} onChange={(e) => change({ lng: e.target.value })} />
-        </Field>
+        <AddressLocation
+          label="Ubicación (latitud, longitud)"
+          placeholder="19.36, -99.19"
+          hint="Mueve el pin o haz clic en el mapa donde está el lugar. También acepta el link completo de Google Maps."
+          query={{ street: f.address }}
+          canLocate={f.address.trim().length >= 8}
+          value={f.coordinates}
+          onChange={(coordinates) => change({ coordinates })}
+        />
         <Field label="Horario" wide>
           <input value={f.openingHours} onChange={(e) => change({ openingHours: e.target.value })} placeholder="L a V 9:00 a 19:00" />
         </Field>
@@ -179,6 +190,7 @@ export function NonWorkingDays() {
     'Día inhábil quitado.',
   );
 
+  const pagedDays = usePaged(days.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -203,7 +215,7 @@ export function NonWorkingDays() {
               </tr>
             </thead>
             <tbody>
-              {days.data?.map((d) => (
+              {pagedDays.rows.map((d) => (
                 <tr key={d.id}>
                   <td>
                     <strong>{formatDate(d.date)}</strong>
@@ -227,6 +239,7 @@ export function NonWorkingDays() {
           </table>
           {days.data?.length === 0 && <div className="empty">No hay días inhábiles registrados.</div>}
         </div>
+        <Pagination {...pagedDays} />
       </QueryState>
       {adding && <NonWorkingDayForm onClose={() => setAdding(false)} />}
     </section>
@@ -279,6 +292,7 @@ export function CoveragePage() {
     'Registro quitado.',
   );
 
+  const pagedCoverage = usePaged(coverage.data, `${search}|${zonaId}`);
   return (
     <section className="card">
       <div className="card__header">
@@ -316,7 +330,7 @@ export function CoveragePage() {
               </tr>
             </thead>
             <tbody>
-              {coverage.data?.map((c) => (
+              {pagedCoverage.rows.map((c) => (
                 <tr key={c.id}>
                   <td className="num">
                     <strong>{c.postalCode}</strong>
@@ -349,6 +363,7 @@ export function CoveragePage() {
           </table>
           {coverage.data?.length === 0 && <div className="empty">Sin resultados.</div>}
         </div>
+        <Pagination {...pagedCoverage} />
       </QueryState>
       {editing && <CoverageForm coverage={editing === 'new' ? null : editing} zonas={zonas.data ?? []} onClose={() => setEditing(null)} />}
     </section>
@@ -426,6 +441,7 @@ const REASON_TYPES: Record<Reason['type'], string> = {
   FailedEntrega: 'No entrega',
   PlantaDelay: 'Atraso en planta',
   ContactResult: 'Resultado de contacto',
+  HowFoundUs: 'Cómo nos conoció',
 };
 
 export function OtherCatalogs() {
@@ -443,6 +459,7 @@ function Reasons() {
   const reasons = useQuery({ queryKey: keys.reasons, queryFn: () => unwrap(api.GET('/motivos')) });
   const [editing, setEditing] = useState<Reason | 'new' | null>(null);
 
+  const pagedReasons = usePaged(reasons.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -465,7 +482,7 @@ function Reasons() {
               </tr>
             </thead>
             <tbody>
-              {reasons.data?.map((m) => (
+              {pagedReasons.rows.map((m) => (
                 <tr key={m.id} className={m.active ? '' : 'inactive'}>
                   <td>{REASON_TYPES[m.type]}</td>
                   <td>{m.text}</td>
@@ -485,6 +502,7 @@ function Reasons() {
           </table>
           {reasons.data?.length === 0 && <div className="empty">Sin motivos.</div>}
         </div>
+        <Pagination {...pagedReasons} />
       </QueryState>
       {editing && <ReasonForm reason={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </section>

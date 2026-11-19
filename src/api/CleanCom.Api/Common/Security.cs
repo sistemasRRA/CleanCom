@@ -21,6 +21,11 @@ public static class Policies
     /// </summary>
     public const string Administrators = "Administrators";
 
+    /// <summary>
+    /// Capturing an address with the map (GET /direcciones/ubicar): editing any screen that captures addresses.
+    /// </summary>
+    public const string CapturesAddresses = "CapturesAddresses";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -52,6 +57,26 @@ public class ScreenPolicyProvider(IOptions<AuthorizationOptions> options) : Defa
 }
 
 public record ScreenRequirement(string Screen, AccessLevel Level) : IAuthorizationRequirement;
+
+/// <summary>Any one of the screens at that level is enough (several RequireScreen attributes would need all of them).</summary>
+public record AnyScreenRequirement(IReadOnlyList<string> Screens, AccessLevel Level) : IAuthorizationRequirement;
+
+public class AnyScreenRequirementHandler(IPermissionStore store) : AuthorizationHandler<AnyScreenRequirement>
+{
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AnyScreenRequirement requirement)
+    {
+        var role = context.User.FindFirst(CleanComClaims.Role)?.Value;
+        if (string.IsNullOrEmpty(role))
+        {
+            return;
+        }
+        var permissions = await store.GetAsync(role, CancellationToken.None);
+        if (requirement.Screens.Any(s => Permissions.Allows(permissions, s, requirement.Level)))
+        {
+            context.Succeed(requirement);
+        }
+    }
+}
 
 public class ScreenRequirementHandler(IPermissionStore store) : AuthorizationHandler<ScreenRequirement>
 {
@@ -122,6 +147,7 @@ public static class Security
 
         services.AddSingleton<IAuthorizationPolicyProvider, ScreenPolicyProvider>();
         services.AddSingleton<IAuthorizationHandler, ScreenRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, AnyScreenRequirementHandler>();
         services.AddAuthorizationBuilder()
             .SetDefaultPolicy(WithActiveSession(new AuthorizationPolicyBuilder()).Build())
             // Every endpoint requires a session except those marked AllowAnonymous.
@@ -130,7 +156,10 @@ public static class Security
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser())
             .AddPolicy(Policies.Administrators, p => WithActiveSession(p)
-                .RequireRole(Roles.SuperUser, Roles.Administracion));
+                .RequireRole(Roles.SuperUser, Roles.Administracion))
+            .AddPolicy(Policies.CapturesAddresses, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement(
+                    [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)));
 
         return services;
     }

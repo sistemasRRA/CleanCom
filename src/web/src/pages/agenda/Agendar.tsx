@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
@@ -6,9 +6,19 @@ import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { useNotify } from '../../components/Toasts';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
+import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 import { AgendaBoard } from './AgendaBoard';
 
 type Invitado = Schemas['InvitadoDto'];
+type InvitadoType = Schemas['InvitadoType'];
+
+/** Tienda interna is not offered for new invitados; one that already is keeps it. */
+export const INVITADO_TYPES: { key: InvitadoType; name: string }[] = [
+  { key: 'ClienteFinal', name: 'Cliente final (servicio a domicilio)' },
+  { key: 'Convenio', name: 'Convenio' },
+  { key: 'Empresa', name: 'Empresa' },
+  { key: 'TiendaInterna', name: 'Tienda interna' },
+];
 type Direccion = Schemas['DireccionDto'];
 type Turno = Schemas['Turno'];
 
@@ -78,13 +88,15 @@ export function Agendar() {
           </Link>
         )}
       </PageHeader>
-      <div className="agendar">
-        <div className="stack">
-          <InvitadoSearch onChoose={choose} onNew={() => { choose(null); setCapturing(true); }} canEdit={canEdit} />
-          {capturing && <InvitadoForm onClose={() => setCapturing(false)} onSaved={(i) => choose(i.id)} />}
-          {invitadoId !== null && (
-            <QueryState loading={invitado.isPending} error={invitado.error}>
-              {invitado.data && (
+      <div className="agendar-search">
+        <InvitadoSearch onChoose={choose} onNew={() => { choose(null); setCapturing(true); }} canEdit={canEdit} />
+      </div>
+      {capturing && <InvitadoForm onClose={() => setCapturing(false)} onSaved={(i) => choose(i.id)} />}
+      {invitadoId !== null && (
+        <AgendarDialog key={invitadoId} onClose={() => choose(null)}>
+          <QueryState loading={invitado.isPending} error={invitado.error}>
+            {invitado.data && (
+              <div className="agendar">
                 <InvitadoCard
                   invitado={invitado.data}
                   direccionId={direccionId}
@@ -92,20 +104,44 @@ export function Agendar() {
                   onRemoved={() => choose(null)}
                   canEdit={canEdit}
                 />
-              )}
-            </QueryState>
-          )}
-        </div>
-        {invitado.data && direccionId !== null ? (
-          <Schedule invitado={invitado.data} direccionId={direccionId} canEdit={canEdit} />
-        ) : (
-          <section className="card">
-            <div className="empty">Busca o captura al invitado para ver cómo se agenda.</div>
-          </section>
-        )}
-      </div>
+                {direccionId !== null ? (
+                  <Schedule invitado={invitado.data} direccionId={direccionId} canEdit={canEdit} onScheduled={() => choose(null)} />
+                ) : (
+                  <section className="card">
+                    <div className="empty">Agrega una dirección para ver cómo se agenda.</div>
+                  </section>
+                )}
+              </div>
+            )}
+          </QueryState>
+        </AgendarDialog>
+      )}
       <AgendaBoard />
     </div>
+  );
+}
+
+/**
+ * Invitado and "Así se agenda" in a modal: closing it (Cerrar, Esc) drops the invitado without scheduling.
+ * Not a <Dialog>: that one wraps its body in a <form>, and Schedule and the address dialogs have their own.
+ */
+function AgendarDialog({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+  }, []);
+
+  return (
+    <dialog ref={ref} onClose={onClose} className="agendar-dialog">
+      <div className="dialog__header agendar-dialog__header">
+        <h2>Agendar recolección</h2>
+        <button type="button" onClick={onClose}>
+          Cerrar sin agendar
+        </button>
+      </div>
+      <div className="dialog__body">{children}</div>
+    </dialog>
   );
 }
 
@@ -140,7 +176,7 @@ function InvitadoSearch({ onChoose, onNew, canEdit }: { onChoose: (id: number) =
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ana López o 55 1234 5678" autoFocus />
         </Field>
         {q.length >= 2 && (
-          <QueryState loading={results.isPending} error={results.error}>
+          <QueryState inline loading={results.isPending} error={results.error}>
             {results.data?.length === 0 ? (
               <div className="muted">Sin resultados. {canEdit && 'Captúralo con "Nuevo invitado".'}</div>
             ) : (
@@ -319,10 +355,11 @@ const emptyDireccion: DireccionFields = {
   label: '', street: '', exteriorNumber: '', interiorNumber: '', postalCode: '', neighborhood: '', borough: '', references: '', coordinates: '',
 };
 
-/** "19.3608, -99.1968" (copied from Google Maps) to latitude and longitude. Autocomplete arrives with the Google keys. */
 function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest'] {
-  const [lat, lng] = f.coordinates.split(',').map((x) => Number(x.trim()));
-  const hasPoint = f.coordinates.trim() !== '' && Number.isFinite(lat) && Number.isFinite(lng);
+  const point = parsePoint(f.coordinates);
+  const lat = point?.lat;
+  const lng = point?.lng;
+  const hasPoint = point !== null;
   return {
     label: optional(f.label),
     street: f.street.trim(),
@@ -332,8 +369,8 @@ function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest']
     neighborhood: optional(f.neighborhood),
     borough: optional(f.borough),
     references: optional(f.references),
-    lat: hasPoint ? lat : null,
-    lng: hasPoint ? lng : null,
+    lat: hasPoint ? lat! : null,
+    lng: hasPoint ? lng! : null,
     zonaId: null,
   };
 }
@@ -360,7 +397,10 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
     // Only when the catalog answers or the colonia changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colonias.data, value.neighborhood]);
-  const listId = `colonias-${cp}`;
+
+  // The map answers after a request: write on top of the latest fields, not the ones of that render.
+  const latest = useRef(value);
+  latest.current = value;
 
   return (
     <div className="form-grid">
@@ -383,17 +423,35 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
             : undefined
         }
       >
-        <input value={value.postalCode} onChange={set('postalCode')} inputMode="numeric" maxLength={5} required />
+        <input
+          value={value.postalCode}
+          // Another postal code means other colonias: the chosen colonia and alcaldía start over.
+          onChange={(e) =>
+            onChange({ ...value, postalCode: e.target.value, ...(e.target.value !== value.postalCode ? { neighborhood: '', borough: '' } : {}) })
+          }
+          inputMode="numeric"
+          maxLength={5}
+          required
+        />
       </Field>
       <Field label="Colonia">
-        <input value={value.neighborhood} onChange={set('neighborhood')} list={listId} autoComplete="off" />
-        <datalist id={listId}>
-          {options.map((o) => (
-            <option key={`${o.settlement}-${o.borough}`} value={o.settlement}>
-              {o.settlementType}
-            </option>
-          ))}
-        </datalist>
+        {colonias.data && options.length === 0 ? (
+          // Postal code not in the official catalog: the colonia is typed by hand.
+          <input value={value.neighborhood} onChange={set('neighborhood')} autoComplete="off" />
+        ) : (
+          <select value={value.neighborhood} onChange={set('neighborhood')} disabled={options.length === 0}>
+            <option value="">{options.length ? 'Elige la colonia' : 'Captura el código postal'}</option>
+            {/* An address saved with a colonia that is not in the catalog keeps it. */}
+            {value.neighborhood && !options.some((o) => o.settlement === value.neighborhood) && (
+              <option value={value.neighborhood}>{value.neighborhood}</option>
+            )}
+            {options.map((o) => (
+              <option key={`${o.settlement}-${o.borough}`} value={o.settlement}>
+                {o.settlement} ({o.settlementType})
+              </option>
+            ))}
+          </select>
+        )}
       </Field>
       <Field label="Alcaldía">
         <input value={value.borough} onChange={set('borough')} />
@@ -401,9 +459,15 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
       <Field label="Etiqueta">
         <input value={value.label} onChange={set('label')} placeholder="Casa" />
       </Field>
-      <Field label="Ubicación (latitud, longitud)" hint="Cópiala de Google Maps. Decide la zona; sin ella se usa el código postal." wide>
-        <input value={value.coordinates} onChange={set('coordinates')} placeholder="19.3608, -99.1968" />
-      </Field>
+      <AddressLocation
+        label="Ubicación (latitud, longitud)"
+        placeholder="19.3608, -99.1968"
+        hint="Mueve el pin o haz clic en el mapa donde está la casa. Decide la zona; sin ella se usa el código postal."
+        query={value}
+        canLocate={value.street.trim() !== '' && /^\d{5}$/.test(cp)}
+        value={value.coordinates}
+        onChange={(coordinates) => onChange({ ...latest.current, coordinates })}
+      />
       <Field label="Referencias" wide>
         <input value={value.references} onChange={set('references')} />
       </Field>
@@ -424,7 +488,8 @@ function DireccionForm({ invitadoId, onClose }: { invitadoId: number; onClose: (
   );
 }
 
-function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onClose: () => void; onSaved: (i: Invitado) => void }) {
+/** Capture or edit an invitado (with the first address when new). Also used by Clientes (CRM) for "Nuevo cliente". */
+export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onClose: () => void; onSaved: (i: Invitado) => void }) {
   const [name, setName] = useState(invitado?.name ?? '');
   const [phone, setPhone] = useState(invitado?.whatsAppPhone ?? '');
   const [otherPhone, setOtherPhone] = useState(invitado?.otherPhone ?? '');
@@ -432,7 +497,16 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
   const [howFoundUs, setHowFoundUs] = useState(invitado?.howFoundUs ?? '');
   const [campaign, setCampaign] = useState(invitado?.campaign ?? '');
   const [notes, setNotes] = useState(invitado?.notes ?? '');
+  const [type, setType] = useState<InvitadoType>(invitado?.type ?? 'ClienteFinal');
+  const [receivesWhatsApp, setReceivesWhatsApp] = useState(invitado?.receivesWhatsApp ?? true);
   const [direccion, setDireccion] = useState(emptyDireccion);
+  // "Cómo nos conoció" comes from its catalog (Operación › Catálogos › Motivos).
+  const howFoundUsOptions = useQuery({
+    queryKey: [...keys.reasons, 'HowFoundUs'],
+    queryFn: () => unwrap(api.GET('/motivos', { params: { query: { type: 'HowFoundUs' } } })),
+    staleTime: 5 * 60_000,
+  });
+  const options = howFoundUsOptions.data?.filter((o) => o.active).map((o) => o.text) ?? [];
 
   const save = useSave(
     () => {
@@ -441,17 +515,18 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
         whatsAppPhone: phone,
         otherPhone: optional(otherPhone),
         email: optional(email),
-        type: invitado?.type ?? 'ClienteFinal',
+        type,
         howFoundUs: optional(howFoundUs),
         campaign: optional(campaign),
         notes: optional(notes),
         direccion: invitado ? null : toDireccionRequest(direccion),
+        receivesWhatsApp,
       };
       return invitado
         ? unwrap(api.PUT('/invitados/{id}', { params: { path: { id: invitado.id } }, body }))
         : unwrap(api.POST('/invitados', { body }));
     },
-    { refetch: [['invitados']], message: invitado ? 'Invitado actualizado.' : 'Invitado capturado.', onDone: onSaved },
+    { refetch: [['invitados'], keys.crm], message: invitado ? 'Invitado actualizado.' : 'Invitado capturado.', onDone: onSaved },
   );
 
   return (
@@ -475,8 +550,26 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
         <Field label="Correo">
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
+        <Field label="Tipo">
+          <select value={type} onChange={(e) => setType(e.target.value as InvitadoType)}>
+            {INVITADO_TYPES.filter((t) => t.key !== 'TiendaInterna' || type === 'TiendaInterna').map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </Field>
         <Field label="Cómo nos conoció">
-          <input value={howFoundUs} onChange={(e) => setHowFoundUs(e.target.value)} />
+          <select value={howFoundUs} onChange={(e) => setHowFoundUs(e.target.value)}>
+            <option value="">Elige una opción</option>
+            {/* An invitado captured before the catalog keeps its text. */}
+            {howFoundUs && !options.includes(howFoundUs) && <option value={howFoundUs}>{howFoundUs}</option>}
+            {options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Campaña">
           <input value={campaign} onChange={(e) => setCampaign(e.target.value)} />
@@ -484,6 +577,9 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
         <Field label="Observaciones" wide>
           <input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
+        <Checkbox wide checked={receivesWhatsApp} onChange={setReceivesWhatsApp}>
+          Recibe avisos por WhatsApp
+        </Checkbox>
       </div>
       {!invitado && (
         <>
@@ -497,7 +593,18 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
 
 // ---- Schedule ----
 
-function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; direccionId: number; canEdit: boolean }) {
+function Schedule({
+  invitado,
+  direccionId,
+  canEdit,
+  onScheduled,
+}: {
+  invitado: Invitado;
+  direccionId: number;
+  canEdit: boolean;
+  onScheduled: () => void;
+}) {
+  const notify = useNotify();
   const [turno, setTurno] = useState<Turno>('CualquierHora');
   const [specificTime, setSpecificTime] = useState('');
   const [garments, setGarments] = useState('');
@@ -549,13 +656,14 @@ function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; dire
     {
       refetch: [['agenda'], keys.pedidos],
       onDone: (r) => {
+        // Scheduled: close the modal and confirm with a toast. Not scheduled: keep it open with the engine's reason.
+        if (r.scheduled) {
+          notify(r.message);
+          onScheduled();
+          return;
+        }
         setNotice(r.message);
         setDate(null);
-        if (r.scheduled) {
-          setGarments('');
-          setNotes('');
-          setPriority(false);
-        }
       },
     },
   );
@@ -571,7 +679,7 @@ function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; dire
         )}
       </div>
       <div className="card__body stack">
-        <QueryState loading={availability.isPending} error={availability.error}>
+        <QueryState inline loading={availability.isPending} error={availability.error}>
           {a?.outOfCoverage ? (
             <div className="alert">{a.explanation[0]} Asígnala en la dirección del invitado.</div>
           ) : (

@@ -39,7 +39,9 @@ Planeación del día por ruta: chofer, unidad y paradas en orden, con horas esti
 - **Chofer del día** (`PUT /rutas/{rutaId}/dias/{fecha}/chofer`): vacío regresa al habitual; un operador no puede tener dos rutas el mismo día. La app del chofer ve exactamente el mismo orden.
 - **Agregar** (un solo botón con selector): **parada de un día** (`POST /paradas`, un lugar) o **viaje de un día** (`POST /viajes`, dos o más pasos en orden, con "+ Otro paso" y "+ Regresar al inicio"). Se capturan igual que las paradas fijas: tipo, qué se hace, turno, lugar en la ruta, insumos o qué se lleva y, por paso, lugar o dirección con link de Maps, qué se hace, turno, "antes de", indicación y nota. Ocupan cupo; pasarse del cupo sale en las alertas. No se agregan a días pasados ni inhábiles.
 - **Quitar** (`DELETE /paradas/{id}`, baja lógica): quita la parada ese día; un paso quita todo su viaje. No aplica a la recolección de un pedido (se elimina desde la agenda) ni a lo que el chofer ya inició. Una parada fija quitada un día no regresa con la generación nocturna; "Agregar las fijas del día" la repone.
-- **Pendiente en esta pantalla:** mapa y trazo por calles (con Google), tablero para arrastrar entre rutas, simular, unidad y solicitudes de cambio del chofer.
+- **Acomodo:** las rutas van lado a lado en pantallas anchas (F a la izquierda, K a la derecha, en orden de código) y una debajo de otra en pantallas angostas; el mapa del día va abajo de ambas.
+- **Mapa del día** (OpenStreetMap mientras no estén las llaves de Google): la base (B, `Base.Ubicacion`, que `GET /rutas/dia` manda en `baseLat` y `baseLng`) y las paradas de cada ruta con su número de orden y el color de la ruta, unidas en ese orden desde la base y de regreso, en línea recta. Al pasar el mouse sobre una parada se ve el nombre, la dirección, la hora estimada y la ventana; las cerradas se ven más claras. Botones por ruta para mostrarla u ocultarla; avisa cuántas paradas no tienen ubicación. Se actualiza al reordenar u optimizar.
+- **Pendiente en esta pantalla:** trazo por calles (con Google), tablero para arrastrar entre rutas, simular, unidad y solicitudes de cambio del chofer.
 
 ## Endpoints
 

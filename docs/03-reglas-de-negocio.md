@@ -185,7 +185,9 @@ El periodo en curso se marca como parcial y se compara contra los mismos días d
 
 ### Tipos de invitado
 
-Cliente final, Empresa (convenio) y Tienda / uso interno. Las tiendas no cuentan en las métricas del CRM.
+Cliente final (servicio a domicilio), Convenio, Empresa y Tienda / uso interno, como en la captura de clientes del sistema actual. Las tiendas no cuentan en las métricas del CRM; convenio y empresa sí. Tienda interna no se ofrece al capturar un invitado nuevo.
+
+Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "Cómo nos conoció" (Operación › Catálogos › Motivos, editable; arranca con las 9 opciones del sistema actual), y si **recibe avisos por WhatsApp** (sí por omisión). Los avisos llegan con las notificaciones (semana 6) y solo se mandan a quien lo acepta; es distinto de "No contactar" del CRM, que lo saca de llamadas y campañas.
 
 ## Promociones
 

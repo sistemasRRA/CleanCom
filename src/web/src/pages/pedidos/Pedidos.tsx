@@ -5,6 +5,7 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDateTime, optional, useSave } from '../../components/Common';
+import { Loader } from '../../components/Loader';
 
 type Card = Schemas['PedidoCardDto'];
 type Etapa = Schemas['PedidoEtapa'];
@@ -269,7 +270,13 @@ function EvidenciaThumb({ id, kind, distance }: { id: number; kind: Schemas['Evi
   const label = kind === 'Firma' ? 'Firma' : `Foto${distance != null ? ` · a ${distance} m` : ''}`;
   return (
     <a href={file.data} target="_blank" rel="noreferrer" className={`evidencia${kind === 'Firma' ? ' firma' : ''}`} title={label}>
-      {file.data ? <img src={file.data} alt={label} /> : <span className="muted">{file.isError ? 'No disponible' : 'Cargando…'}</span>}
+      {file.data ? (
+        <img src={file.data} alt={label} />
+      ) : file.isError ? (
+        <span className="muted">No disponible</span>
+      ) : (
+        <Loader size="small" label="" />
+      )}
       <span>{label}</span>
     </a>
   );
@@ -318,7 +325,7 @@ function EntregaForm({ id, onDone }: { id: number; onDone: () => void }) {
   );
   return (
     <div className="inline-form">
-      <QueryState loading={days.isPending} error={days.error}>
+      <QueryState inline loading={days.isPending} error={days.error}>
         {days.data && (
           <>
             <p className="muted">

@@ -830,6 +830,8 @@ export interface paths {
                     estatus?: components["schemas"]["CrmStatus"];
                     ruta?: number;
                     q?: string;
+                    pagina?: number;
+                    porPagina?: number;
                 };
                 header?: never;
                 path?: never;
@@ -897,6 +899,8 @@ export interface paths {
                 query?: {
                     ruta?: number;
                     q?: string;
+                    pagina?: number;
+                    porPagina?: number;
                 };
                 header?: never;
                 path?: never;
@@ -1047,6 +1051,49 @@ export interface paths {
                 };
             };
         };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/direcciones/ubicar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    street?: string;
+                    exteriorNumber?: string;
+                    neighborhood?: string;
+                    borough?: string;
+                    postalCode?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UbicacionDto"];
+                        "application/json": components["schemas"]["UbicacionDto"];
+                        "text/json": components["schemas"]["UbicacionDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -4427,6 +4474,12 @@ export interface components {
             callTodayCount: number;
             counts: components["schemas"]["CrmStatusCountDto"][];
             rows: components["schemas"]["CrmRowDto"][];
+            /** Format: int32 */
+            rowCount: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
         };
         CrmRowDto: {
             /** Format: int32 */
@@ -4597,6 +4650,8 @@ export interface components {
             keptStarted: number;
             message: string;
         };
+        /** @enum {unknown} */
+        GeocodePrecision: "Direccion" | "Calle" | "Colonia" | "CodigoPostal" | null;
         /** Format: binary */
         IFormFile: string;
         InvitadoDto: {
@@ -4611,10 +4666,11 @@ export interface components {
             campaign: null | string;
             notes: null | string;
             active: boolean;
+            receivesWhatsApp: boolean;
             direcciones: components["schemas"]["DireccionDto"][];
         };
         /** @enum {unknown} */
-        InvitadoType: "ClienteFinal" | "Empresa" | "TiendaInterna";
+        InvitadoType: "ClienteFinal" | "Convenio" | "Empresa" | "TiendaInterna";
         LineaServicioDto: {
             /** Format: int32 */
             id: number;
@@ -4977,7 +5033,7 @@ export interface components {
             active: boolean;
         };
         /** @enum {unknown} */
-        ReasonType: "FailedEntrega" | "PlantaDelay" | "ContactResult";
+        ReasonType: "FailedEntrega" | "PlantaDelay" | "ContactResult" | "HowFoundUs";
         RefreshSessionRequest: {
             refreshToken: string;
         };
@@ -5116,6 +5172,10 @@ export interface components {
             nonWorkingReason: null | string;
             estimate: string;
             rutas: components["schemas"]["RutaPlanDto"][];
+            /** Format: double */
+            baseLat: number;
+            /** Format: double */
+            baseLng: number;
         };
         SaveContactoRequest: {
             channel: components["schemas"]["ContactChannel"];
@@ -5157,6 +5217,8 @@ export interface components {
             campaign: null | string;
             notes: null | string;
             direccion?: null | components["schemas"]["SaveDireccionRequest"];
+            /** @default true */
+            receivesWhatsApp: boolean;
         };
         SaveLineaServicioRequest: {
             name: string;
@@ -5430,6 +5492,14 @@ export interface components {
         TicketState: "EnProceso" | "Listo";
         /** @enum {unknown} */
         Turno: "CualquierHora" | "Manana" | "Tarde" | "HoraEspecifica";
+        UbicacionDto: {
+            found: boolean;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            precision: null | components["schemas"]["GeocodePrecision"];
+        };
         UpdateUserRequest: {
             fullName: string;
             email: null | string;

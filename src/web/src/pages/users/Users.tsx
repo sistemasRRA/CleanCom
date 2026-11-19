@@ -5,6 +5,7 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useOperadores, useRutas } from '../../api/queries';
 import { ActiveBadge, Checkbox, Dialog, Field, PageHeader, QueryState, formatDateTime, optional, useSave } from '../../components/Common';
 import { useSession } from '../../session/Session';
+import { Pagination, usePaged } from '../../components/Pagination';
 
 type User = Schemas['UserDto'];
 type Operador = Schemas['OperadorDto'];
@@ -49,6 +50,7 @@ export function UserList() {
   const [editing, setEditing] = useState<User | null>(null);
   const [resetting, setResetting] = useState<User | null>(null);
 
+  const pagedUsers = usePaged(users.data);
   return (
     <section className="card">
       <div className="card__header">
@@ -79,7 +81,7 @@ export function UserList() {
               </tr>
             </thead>
             <tbody>
-              {users.data?.map((u) => (
+              {pagedUsers.rows.map((u) => (
                 <tr key={u.id} className={u.active ? '' : 'inactive'}>
                   <td>
                     <strong>{u.fullName}</strong>
@@ -115,6 +117,7 @@ export function UserList() {
           </table>
           {users.data?.length === 0 && <div className="empty">Sin usuarios.</div>}
         </div>
+        <Pagination {...pagedUsers} />
       </QueryState>
       {creating && <NewUser onClose={() => setCreating(false)} />}
       {editing && <EditUser user={editing} onClose={() => setEditing(null)} />}
@@ -337,6 +340,7 @@ function ResetPassword({ user, onClose }: { user: User; onClose: () => void }) {
 export function Operadores() {
   const canEdit = useSession().can('usuarios', 'edit');
   const operadores = useOperadores();
+  const pagedOperadores = usePaged(operadores.data);
   const rutas = useRutas();
   const [editing, setEditing] = useState<Operador | 'new' | null>(null);
   const findRuta = (id?: number | null) => rutas.data?.find((r) => r.id === id);
@@ -368,7 +372,7 @@ export function Operadores() {
               </tr>
             </thead>
             <tbody>
-              {operadores.data?.map((o) => {
+              {pagedOperadores.rows.map((o) => {
                 const ruta = findRuta(o.usualRutaId);
                 return (
                   <tr key={o.id} className={o.active ? '' : 'inactive'}>
@@ -404,6 +408,7 @@ export function Operadores() {
           </table>
           {operadores.data?.length === 0 && <div className="empty">Sin operadores.</div>}
         </div>
+        <Pagination {...pagedOperadores} />
       </QueryState>
       {editing && <OperadorForm operador={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </section>

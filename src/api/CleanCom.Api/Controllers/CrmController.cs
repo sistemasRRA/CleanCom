@@ -17,14 +17,25 @@ public class CrmController(CrmService service) : ControllerBase
     /// <summary>Invitados with their calculated status. Filters: status, ruta and text (name, colonia or phone).</summary>
     [HttpGet]
     [RequireScreen(Screens.ClientesCrm, AccessLevel.View)]
-    public Task<CrmListDto> List([FromQuery(Name = "estatus")] CrmStatus? status, [FromQuery(Name = "ruta")] int? rutaId, [FromQuery] string? q, CancellationToken ct) =>
-        service.ListAsync(false, status, rutaId, q, ct);
+    public Task<CrmListDto> List(
+        [FromQuery(Name = "estatus")] CrmStatus? status,
+        [FromQuery(Name = "ruta")] int? rutaId,
+        [FromQuery] string? q,
+        CancellationToken ct,
+        [FromQuery(Name = "pagina")] int page = 1,
+        [FromQuery(Name = "porPagina")] int pageSize = CrmService.DefaultPageSize) =>
+        service.ListAsync(false, status, rutaId, q, ct, page, pageSize);
 
     /// <summary>Le toca or en riesgo whose ruta comes tomorrow, without a future contact date and not "do not contact".</summary>
     [HttpGet("llamar-hoy")]
     [RequireScreen(Screens.ClientesCrm, AccessLevel.View)]
-    public Task<CrmListDto> CallToday([FromQuery(Name = "ruta")] int? rutaId, [FromQuery] string? q, CancellationToken ct) =>
-        service.ListAsync(true, null, rutaId, q, ct);
+    public Task<CrmListDto> CallToday(
+        [FromQuery(Name = "ruta")] int? rutaId,
+        [FromQuery] string? q,
+        CancellationToken ct,
+        [FromQuery(Name = "pagina")] int page = 1,
+        [FromQuery(Name = "porPagina")] int pageSize = CrmService.DefaultPageSize) =>
+        service.ListAsync(true, null, rutaId, q, ct, page, pageSize);
 
     [HttpGet("{id:int}/ficha")]
     [RequireScreen(Screens.ClientesCrm, AccessLevel.View)]
