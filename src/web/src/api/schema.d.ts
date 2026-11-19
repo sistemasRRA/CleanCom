@@ -1054,6 +1054,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/direcciones/ubicar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    street?: string;
+                    exteriorNumber?: string;
+                    neighborhood?: string;
+                    borough?: string;
+                    postalCode?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UbicacionDto"];
+                        "application/json": components["schemas"]["UbicacionDto"];
+                        "text/json": components["schemas"]["UbicacionDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evidencias/{id}/archivo": {
         parameters: {
             query?: never;
@@ -4597,6 +4640,8 @@ export interface components {
             keptStarted: number;
             message: string;
         };
+        /** @enum {unknown} */
+        GeocodePrecision: "Direccion" | "Calle" | "Colonia" | "CodigoPostal" | null;
         /** Format: binary */
         IFormFile: string;
         InvitadoDto: {
@@ -5430,6 +5475,14 @@ export interface components {
         TicketState: "EnProceso" | "Listo";
         /** @enum {unknown} */
         Turno: "CualquierHora" | "Manana" | "Tarde" | "HoraEspecifica";
+        UbicacionDto: {
+            found: boolean;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            precision: null | components["schemas"]["GeocodePrecision"];
+        };
         UpdateUserRequest: {
             fullName: string;
             email: null | string;

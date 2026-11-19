@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
@@ -6,7 +6,11 @@ import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { useNotify } from '../../components/Toasts';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
+import type { Point } from '../../components/LocationMap';
 import { AgendaBoard } from './AgendaBoard';
+
+// Leaflet (~150 kB) loads only when an address form opens.
+const LocationMap = lazy(() => import('../../components/LocationMap').then((m) => ({ default: m.LocationMap })));
 
 type Invitado = Schemas['InvitadoDto'];
 type Direccion = Schemas['DireccionDto'];
@@ -78,13 +82,15 @@ export function Agendar() {
           </Link>
         )}
       </PageHeader>
-      <div className="agendar">
-        <div className="stack">
-          <InvitadoSearch onChoose={choose} onNew={() => { choose(null); setCapturing(true); }} canEdit={canEdit} />
-          {capturing && <InvitadoForm onClose={() => setCapturing(false)} onSaved={(i) => choose(i.id)} />}
-          {invitadoId !== null && (
-            <QueryState loading={invitado.isPending} error={invitado.error}>
-              {invitado.data && (
+      <div className="agendar-search">
+        <InvitadoSearch onChoose={choose} onNew={() => { choose(null); setCapturing(true); }} canEdit={canEdit} />
+      </div>
+      {capturing && <InvitadoForm onClose={() => setCapturing(false)} onSaved={(i) => choose(i.id)} />}
+      {invitadoId !== null && (
+        <AgendarDialog key={invitadoId} onClose={() => choose(null)}>
+          <QueryState loading={invitado.isPending} error={invitado.error}>
+            {invitado.data && (
+              <div className="agendar">
                 <InvitadoCard
                   invitado={invitado.data}
                   direccionId={direccionId}
@@ -92,20 +98,44 @@ export function Agendar() {
                   onRemoved={() => choose(null)}
                   canEdit={canEdit}
                 />
-              )}
-            </QueryState>
-          )}
-        </div>
-        {invitado.data && direccionId !== null ? (
-          <Schedule invitado={invitado.data} direccionId={direccionId} canEdit={canEdit} />
-        ) : (
-          <section className="card">
-            <div className="empty">Busca o captura al invitado para ver cómo se agenda.</div>
-          </section>
-        )}
-      </div>
+                {direccionId !== null ? (
+                  <Schedule invitado={invitado.data} direccionId={direccionId} canEdit={canEdit} onScheduled={() => choose(null)} />
+                ) : (
+                  <section className="card">
+                    <div className="empty">Agrega una dirección para ver cómo se agenda.</div>
+                  </section>
+                )}
+              </div>
+            )}
+          </QueryState>
+        </AgendarDialog>
+      )}
       <AgendaBoard />
     </div>
+  );
+}
+
+/**
+ * Invitado and "Así se agenda" in a modal: closing it (Cerrar, Esc) drops the invitado without scheduling.
+ * Not a <Dialog>: that one wraps its body in a <form>, and Schedule and the address dialogs have their own.
+ */
+function AgendarDialog({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+  }, []);
+
+  return (
+    <dialog ref={ref} onClose={onClose} className="agendar-dialog">
+      <div className="dialog__header agendar-dialog__header">
+        <h2>Agendar recolección</h2>
+        <button type="button" onClick={onClose}>
+          Cerrar sin agendar
+        </button>
+      </div>
+      <div className="dialog__body">{children}</div>
+    </dialog>
   );
 }
 
@@ -319,10 +349,25 @@ const emptyDireccion: DireccionFields = {
   label: '', street: '', exteriorNumber: '', interiorNumber: '', postalCode: '', neighborhood: '', borough: '', references: '', coordinates: '',
 };
 
-/** "19.3608, -99.1968" (copied from Google Maps) to latitude and longitude. Autocomplete arrives with the Google keys. */
+/** "19.3608, -99.1968" (from the map or copied from Google Maps) to a point; null when it is empty or not valid. */
+function parsePoint(coordinates: string): Point | null {
+  const [lat, lng] = coordinates.split(',').map((x) => Number(x.trim()));
+  const valid = coordinates.trim() !== '' && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+  return valid ? { lat, lng } : null;
+}
+
+const PRECISION: Record<NonNullable<Schemas['GeocodePrecision']>, string> = {
+  Direccion: 'Ubicada por la dirección. Revisa que el pin esté en la casa.',
+  Calle: 'Ubicada por la calle; el número no está en el mapa. Mueve el pin a la casa.',
+  Colonia: 'Solo se encontró la colonia. Mueve el pin a la casa.',
+  CodigoPostal: 'Solo se encontró el código postal. Mueve el pin a la casa.',
+};
+
 function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest'] {
-  const [lat, lng] = f.coordinates.split(',').map((x) => Number(x.trim()));
-  const hasPoint = f.coordinates.trim() !== '' && Number.isFinite(lat) && Number.isFinite(lng);
+  const point = parsePoint(f.coordinates);
+  const lat = point?.lat;
+  const lng = point?.lng;
+  const hasPoint = point !== null;
   return {
     label: optional(f.label),
     street: f.street.trim(),
@@ -332,8 +377,8 @@ function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest']
     neighborhood: optional(f.neighborhood),
     borough: optional(f.borough),
     references: optional(f.references),
-    lat: hasPoint ? lat : null,
-    lng: hasPoint ? lng : null,
+    lat: hasPoint ? lat! : null,
+    lng: hasPoint ? lng! : null,
     zonaId: null,
   };
 }
@@ -360,7 +405,56 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
     // Only when the catalog answers or the colonia changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colonias.data, value.neighborhood]);
-  const listId = `colonias-${cp}`;
+
+  // Map: the API places the pin from the typed address; the user drags it to the house. A point the user placed
+  // (or an address that already had one) is not overwritten by the automatic search, only by "Ubicar con la dirección".
+  const latest = useRef(value);
+  latest.current = value;
+  const [manual, setManual] = useState(value.coordinates.trim() !== '');
+  const [locating, setLocating] = useState(false);
+  const [locateNote, setLocateNote] = useState<string | null>(null);
+
+  async function locate() {
+    const v = latest.current;
+    setLocating(true);
+    try {
+      const r = await unwrap(
+        api.GET('/direcciones/ubicar', {
+          params: {
+            query: {
+              street: optional(v.street) ?? undefined,
+              exteriorNumber: optional(v.exteriorNumber) ?? undefined,
+              neighborhood: optional(v.neighborhood) ?? undefined,
+              borough: optional(v.borough) ?? undefined,
+              postalCode: optional(v.postalCode) ?? undefined,
+            },
+          },
+        }),
+      );
+      if (r.found && r.lat != null && r.lng != null) {
+        onChange({ ...latest.current, coordinates: `${r.lat}, ${r.lng}` });
+        setManual(false);
+        setLocateNote(r.precision ? PRECISION[r.precision] : null);
+      } else {
+        setLocateNote('No se encontró en el mapa. Haz clic en el mapa donde está la casa.');
+      }
+    } catch (e) {
+      setLocateNote((e as Error).message);
+    } finally {
+      setLocating(false);
+    }
+  }
+
+  const canLocate = value.street.trim() !== '' && /^\d{5}$/.test(cp);
+  useEffect(() => {
+    if (manual || !canLocate) return;
+    const t = setTimeout(() => void locate(), 1000);
+    return () => clearTimeout(t);
+    // Again when the typed address changes, after a pause.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [manual, canLocate, value.street, value.exteriorNumber, value.neighborhood, value.borough, cp]);
+
+  const point = parsePoint(value.coordinates);
 
   return (
     <div className="form-grid">
@@ -383,17 +477,35 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
             : undefined
         }
       >
-        <input value={value.postalCode} onChange={set('postalCode')} inputMode="numeric" maxLength={5} required />
+        <input
+          value={value.postalCode}
+          // Another postal code means other colonias: the chosen colonia and alcaldía start over.
+          onChange={(e) =>
+            onChange({ ...value, postalCode: e.target.value, ...(e.target.value !== value.postalCode ? { neighborhood: '', borough: '' } : {}) })
+          }
+          inputMode="numeric"
+          maxLength={5}
+          required
+        />
       </Field>
       <Field label="Colonia">
-        <input value={value.neighborhood} onChange={set('neighborhood')} list={listId} autoComplete="off" />
-        <datalist id={listId}>
-          {options.map((o) => (
-            <option key={`${o.settlement}-${o.borough}`} value={o.settlement}>
-              {o.settlementType}
-            </option>
-          ))}
-        </datalist>
+        {colonias.data && options.length === 0 ? (
+          // Postal code not in the official catalog: the colonia is typed by hand.
+          <input value={value.neighborhood} onChange={set('neighborhood')} autoComplete="off" />
+        ) : (
+          <select value={value.neighborhood} onChange={set('neighborhood')} disabled={options.length === 0}>
+            <option value="">{options.length ? 'Elige la colonia' : 'Captura el código postal'}</option>
+            {/* An address saved with a colonia that is not in the catalog keeps it. */}
+            {value.neighborhood && !options.some((o) => o.settlement === value.neighborhood) && (
+              <option value={value.neighborhood}>{value.neighborhood}</option>
+            )}
+            {options.map((o) => (
+              <option key={`${o.settlement}-${o.borough}`} value={o.settlement}>
+                {o.settlement} ({o.settlementType})
+              </option>
+            ))}
+          </select>
+        )}
       </Field>
       <Field label="Alcaldía">
         <input value={value.borough} onChange={set('borough')} />
@@ -401,9 +513,39 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
       <Field label="Etiqueta">
         <input value={value.label} onChange={set('label')} placeholder="Casa" />
       </Field>
-      <Field label="Ubicación (latitud, longitud)" hint="Cópiala de Google Maps. Decide la zona; sin ella se usa el código postal." wide>
-        <input value={value.coordinates} onChange={set('coordinates')} placeholder="19.3608, -99.1968" />
-      </Field>
+      <div className="wide location-field">
+        <Field
+          label="Ubicación (latitud, longitud)"
+          hint={
+            locating
+              ? 'Buscando la dirección en el mapa…'
+              : locateNote ?? 'Mueve el pin o haz clic en el mapa donde está la casa. Decide la zona; sin ella se usa el código postal.'
+          }
+        >
+          <input
+            value={value.coordinates}
+            onChange={(e) => {
+              setManual(e.target.value.trim() !== '');
+              setLocateNote(null);
+              set('coordinates')(e);
+            }}
+            placeholder="19.3608, -99.1968"
+          />
+        </Field>
+        <button type="button" className="small" disabled={!canLocate || locating} onClick={() => void locate()} title={canLocate ? undefined : 'Captura la calle y el código postal'}>
+          Ubicar con la dirección
+        </button>
+        <Suspense fallback={<div className="location-map" />}>
+          <LocationMap
+            point={point}
+            onChange={(p) => {
+              setManual(true);
+              setLocateNote('Pin colocado a mano.');
+              onChange({ ...latest.current, coordinates: `${p.lat}, ${p.lng}` });
+            }}
+          />
+        </Suspense>
+      </div>
       <Field label="Referencias" wide>
         <input value={value.references} onChange={set('references')} />
       </Field>
@@ -497,7 +639,18 @@ function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invitado; onC
 
 // ---- Schedule ----
 
-function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; direccionId: number; canEdit: boolean }) {
+function Schedule({
+  invitado,
+  direccionId,
+  canEdit,
+  onScheduled,
+}: {
+  invitado: Invitado;
+  direccionId: number;
+  canEdit: boolean;
+  onScheduled: () => void;
+}) {
+  const notify = useNotify();
   const [turno, setTurno] = useState<Turno>('CualquierHora');
   const [specificTime, setSpecificTime] = useState('');
   const [garments, setGarments] = useState('');
@@ -549,13 +702,14 @@ function Schedule({ invitado, direccionId, canEdit }: { invitado: Invitado; dire
     {
       refetch: [['agenda'], keys.pedidos],
       onDone: (r) => {
+        // Scheduled: close the modal and confirm with a toast. Not scheduled: keep it open with the engine's reason.
+        if (r.scheduled) {
+          notify(r.message);
+          onScheduled();
+          return;
+        }
         setNotice(r.message);
         setDate(null);
-        if (r.scheduled) {
-          setGarments('');
-          setNotes('');
-          setPriority(false);
-        }
       },
     },
   );

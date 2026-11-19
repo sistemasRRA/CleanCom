@@ -33,10 +33,13 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 
 ## Pantalla (semana 2)
 
-- Buscar invitado o capturarlo con su primera dirección. Mientras no estén las llaves de Google, la ubicación se pega como "latitud, longitud" desde Google Maps; sin ella la zona sale del código postal.
+- Buscar invitado o capturarlo con su primera dirección. Sin la ubicación, la zona sale del código postal.
+- Colonia: se elige de una lista con las colonias del catálogo oficial para ese código postal (si solo hay una, se elige sola) y llena la alcaldía. Cambiar el código postal vacía la colonia y la alcaldía. Si el código postal no está en el catálogo, la colonia se escribe a mano.
+- Ubicación con mapa (OpenStreetMap mientras no estén las llaves de Google): con la calle y el código postal capturados, `GET /direcciones/ubicar` coloca el pin solo y dice qué tan preciso fue (dirección, calle, colonia o código postal). La oficina arrastra el pin o hace clic en el mapa donde está la casa. Un pin colocado a mano, o la ubicación que ya tenía la dirección, no se sobrescribe al seguir escribiendo; "Ubicar con la dirección" lo vuelve a buscar. Las coordenadas se pueden seguir pegando como "latitud, longitud".
 - Elegir la dirección; si está fuera de cobertura, elegir la zona a mano ahí mismo.
 - Panel "Así se agenda" con la fecha, el lugar, la explicación y los otros días de la zona para cambiar con un clic.
 - Botón "Agendar el …".
+- Al elegir o capturar al invitado se abre una ventana con sus direcciones y el panel "Así se agenda". "Cerrar sin agendar" (o Esc) la cierra sin crear nada; al agendar se cierra sola y avisa la fecha. Si el motor no pudo agendar, la ventana sigue abierta con el motivo.
 - Agenda con ‹ Hoy ›, selector de fecha y vista **Semana** (7 días con la ocupación de cada ruta, por ejemplo "K 14/14 lleno", y sus tarjetas) o **Día** (una columna por ruta y filas por turno: mañana, tarde, hora específica y cualquier hora). Las tarjetas llevan el color de la ruta; al abrirlas se ve el detalle y, solo para SuperUser y Administración, Eliminar. Cuando existan horas estimadas (semana 3) la vista Día puede pasar a un eje de horas.
 
 ## Criterios de aceptación
