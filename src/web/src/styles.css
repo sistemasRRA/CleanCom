@@ -713,3 +713,11 @@ dialog:has(.unidad-detail) { width: min(920px, calc(100vw - 32px)); }
 .unidad-avatar { flex: none; display: grid; place-items: center; width: 72px; height: 56px; border-radius: var(--radius-sm); background: var(--brand-soft); color: var(--brand); overflow: hidden; }
 .unidad-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .unidad-card.pending .unidad-avatar { background: var(--warning-soft); color: var(--warning); }
+/* Cards and day bars are buttons: keep them in their column, let their text wrap and undo the hover background. */
+.unidad-card, .panel-load__day { white-space: normal; min-width: 0; }
+.unidad-card { grid-template-columns: minmax(0, 1fr); overflow: hidden; }
+.unidad-card:hover:not(:disabled) { background: var(--surface); }
+.unidad-cards > * { min-width: 0; }
+.unidad-card__head { display: grid; grid-template-columns: auto minmax(0, 1fr); min-width: 0; }
+.unidad-card__head .muted { display: block; }
+.unidad-card .muted, .unidad-alerts li, .unidad-facts dd { overflow-wrap: anywhere; }

@@ -91,7 +91,7 @@ public static class FleetRules
             return null;
         }
         var daysLeft = end.DayNumber - today.DayNumber;
-        var period = $"{AgendaCalculator.Format(start)} al {AgendaCalculator.Format(end)}";
+        var period = $"{On(start, today)} al {On(end, today)}";
         return daysLeft >= 0
             ? new FleetAlert(FleetAlertEvent.Verificacion, FleetAlertLevel.PorVencer,
                 $"Toca verificar: del {period}.", end, today == start || daysBefore.Contains(daysLeft))
@@ -110,11 +110,11 @@ public static class FleetRules
         if (daysLeft < 0)
         {
             return new FleetAlert(kind, FleetAlertLevel.Vencido,
-                $"{Capitalize(name)}: venció el {AgendaCalculator.Format(until)}.", until, ShouldNotify(daysLeft, daysBefore));
+                $"{Capitalize(name)}: venció el {On(until, today)}.", until, ShouldNotify(daysLeft, daysBefore));
         }
         return daysBefore.Count > 0 && daysLeft <= daysBefore[0]
             ? new FleetAlert(kind, FleetAlertLevel.PorVencer,
-                $"{Capitalize(name)} vence el {AgendaCalculator.Format(until)} ({Days(daysLeft)}).", until, daysBefore.Contains(daysLeft))
+                $"{Capitalize(name)} vence el {On(until, today)} ({Days(daysLeft)}).", until, daysBefore.Contains(daysLeft))
             : null;
     }
 
@@ -125,11 +125,11 @@ public static class FleetRules
         if (daysLeft < 0)
         {
             return new FleetAlert(FleetAlertEvent.PagoRecurrente, FleetAlertLevel.Vencido,
-                $"{concept}: pago vencido desde el {AgendaCalculator.Format(nextDate)}.", nextDate, ShouldNotify(daysLeft, daysBefore));
+                $"{concept}: pago vencido desde el {On(nextDate, today)}.", nextDate, ShouldNotify(daysLeft, daysBefore));
         }
         return daysBefore.Count > 0 && daysLeft <= daysBefore[0]
             ? new FleetAlert(FleetAlertEvent.PagoRecurrente, FleetAlertLevel.PorVencer,
-                $"{concept}: pago el {AgendaCalculator.Format(nextDate)} ({Days(daysLeft)}).", nextDate, daysBefore.Contains(daysLeft))
+                $"{concept}: pago el {On(nextDate, today)} ({Days(daysLeft)}).", nextDate, daysBefore.Contains(daysLeft))
             : null;
     }
 
@@ -160,11 +160,11 @@ public static class FleetRules
         if (daysLeft < 0)
         {
             return new FleetAlert(FleetAlertEvent.Servicio, FleetAlertLevel.Vencido,
-                $"Servicio vencido desde el {AgendaCalculator.Format(date)}.", date, ShouldNotify(daysLeft, daysBefore));
+                $"Servicio vencido desde el {On(date, today)}.", date, ShouldNotify(daysLeft, daysBefore));
         }
         return daysBefore.Count > 0 && daysLeft <= daysBefore[0]
             ? new FleetAlert(FleetAlertEvent.Servicio, FleetAlertLevel.PorVencer,
-                $"Servicio el {AgendaCalculator.Format(date)} ({Days(daysLeft)}).", date, daysBefore.Contains(daysLeft))
+                $"Servicio el {On(date, today)} ({Days(daysLeft)}).", date, daysBefore.Contains(daysLeft))
             : null;
     }
 
@@ -181,6 +181,10 @@ public static class FleetRules
     /// <summary>The year's spending over the km driven in the year; null while no km were driven.</summary>
     public static decimal? CostPerKm(decimal spentThisYear, int? kmAtStartOfYear, int kmNow) =>
         kmAtStartOfYear is { } start && kmNow > start ? Math.Round(spentThisYear / (kmNow - start), 2) : null;
+
+    /// <summary>"lun 28 jul", with the year when it is not this year ("lun 28 jul 2025").</summary>
+    private static string On(DateOnly date, DateOnly today) =>
+        date.Year == today.Year ? AgendaCalculator.Format(date) : $"{AgendaCalculator.Format(date)} {date.Year}";
 
     private static string Days(int days) => days switch { 0 => "hoy", 1 => "mañana", _ => $"en {days} días" };
 
