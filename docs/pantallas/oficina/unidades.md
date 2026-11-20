@@ -29,7 +29,7 @@ Por correo y notificación en la web (y push si el usuario tiene app). Calendari
 API y pantalla hechos en la semana 5 (`/unidades`): tarjetas con avisos, ficha con bitácora, documentos (subir y ver archivo) y pagos recurrentes ("Registrar pago" mueve la fecha), alta y edición, fuera de servicio, baja lógica y las reglas de aviso.
 
 - `GET /unidades` (`?includeInactive=`): tarjetas con alertas, último y próximo servicio, gasto del año, costo por km y `withPending` (para el contador del Panel del día). `GET /unidades/{id}`: tarjeta, documentos, bitácora y pagos recurrentes.
-- `POST /unidades`, `PUT /unidades/{id}` (datos, fuera de servicio y baja lógica con `active: false`). La placa se guarda sin espacios ni guiones, en mayúsculas, y no se repite entre unidades activas.
+- `POST /unidades`, `PUT /unidades/{id}` (datos, fuera de servicio, exenta de verificación y baja lógica con `active: false`). La placa se guarda sin espacios ni guiones, en mayúsculas, y no se repite entre unidades activas.
 - `POST /unidades/{id}/eventos`: servicio, reparación, falla (con gravedad), pago (de un pago recurrente o suelto) o kilometraje. Un kilometraje mayor actualiza el de la unidad. `POST /unidades/{id}/eventos/{eventoId}/resolver` cierra una falla.
 - `POST /unidades/{id}/documentos` (multipart): seguro y tarjeta con su vigencia, verificación con la fecha en que se hizo, comprobantes. Archivo opcional: PDF, JPG, PNG o WebP hasta 15 MB, en disco. `GET /unidades/{id}/documentos/{documentoId}/archivo`, `DELETE` (baja lógica).
 - `POST /unidades/{id}/pagos`, `PUT /unidades/{id}/pagos/{pagoId}`: pagos recurrentes.

@@ -6309,6 +6309,8 @@ export interface components {
             notes: null | string;
             /** @default true */
             active: boolean;
+            /** @default false */
+            verificationExempt: boolean;
         };
         SaveZonaRequest: {
             code: string;
@@ -6524,6 +6526,7 @@ export interface components {
             lastVerifiedOn: null | string;
             /** Format: int32 */
             openFailures: number;
+            verificationExempt: boolean;
         };
         UnidadDetailDto: {
             card: components["schemas"]["UnidadCardDto"];

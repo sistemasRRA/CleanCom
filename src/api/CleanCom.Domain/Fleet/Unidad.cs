@@ -21,6 +21,8 @@ public class Unidad : Entity, IActivatable
     public int Km { get; set; }
     public DateTimeOffset? KmUpdatedAt { get; set; }
     public UnidadState State { get; set; } = UnidadState.Activa;
+    /// <summary>Does not verify (for example the trimotos): no verificación notice.</summary>
+    public bool VerificationExempt { get; set; }
     /// <summary>Service every this many km; Unidad.ServicioCadaKm when null.</summary>
     public int? ServiceEveryKm { get; set; }
     /// <summary>Service every this many months; Unidad.ServicioCadaMeses when null.</summary>

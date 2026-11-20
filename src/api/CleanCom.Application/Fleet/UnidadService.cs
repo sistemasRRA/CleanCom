@@ -80,6 +80,7 @@ public class UnidadService(
         unidad.ServiceEveryKm = r.ServiceEveryKm;
         unidad.ServiceEveryMonths = r.ServiceEveryMonths;
         unidad.State = r.State;
+        unidad.VerificationExempt = r.VerificationExempt;
         unidad.Notes = Clean(r.Notes);
         unidad.Active = r.Active;
         if (id is null)
@@ -344,7 +345,7 @@ public class UnidadService(
 
         var alerts = new List<FleetAlert?>
         {
-            FleetRules.Verification(u.Plate, verified, c.Today, Days(FleetAlertEvent.Verificacion)),
+            FleetRules.Verification(u.Plate, verified, c.Today, Days(FleetAlertEvent.Verificacion), u.VerificationExempt),
             FleetRules.Document(FleetAlertEvent.Seguro, "seguro", insurance, c.Today, Days(FleetAlertEvent.Seguro)),
             FleetRules.Document(FleetAlertEvent.TarjetaCirculacion, "tarjeta de circulación", card, c.Today, Days(FleetAlertEvent.TarjetaCirculacion)),
             FleetRules.Service(due, u.Km, c.Today, Days(FleetAlertEvent.Servicio)),
@@ -368,7 +369,7 @@ public class UnidadService(
             list.Any(a => a.Level != FleetAlertLevel.PorVencer),
             lastService?.Date, lastService?.Km, due?.Date, due?.Km,
             spent, FleetRules.CostPerKm(spent, kmAtStart, u.Km),
-            insurance, card, verified, openFailures.Count);
+            insurance, card, verified, openFailures.Count, u.VerificationExempt);
     }
 
     /// <summary>"abc-123 4" → "ABC1234": the plate without spaces or dashes, in capitals.</summary>

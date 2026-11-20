@@ -40,6 +40,14 @@ public class FleetRulesTests
     }
 
     [Fact]
+    public void An_exempt_unidad_has_no_verification_notice()
+    {
+        // The trimotos (7J5BR) do not verify: no notice even without a verificación registered.
+        Assert.NotNull(FleetRules.Verification("7J5BR", null, D(11, 20), Verificacion));
+        Assert.Null(FleetRules.Verification("7J5BR", null, D(11, 20), Verificacion, exempt: true));
+    }
+
+    [Fact]
     public void The_current_window_can_be_last_years_second_one()
     {
         // 9 and 0 verify in May-Jun and Nov-Dec: on 1 Mar 2026 the last window was Nov-Dec 2025.

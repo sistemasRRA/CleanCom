@@ -16,7 +16,8 @@ public record SaveUnidadRequest(
     int? ServiceEveryMonths,
     UnidadState State,
     string? Notes,
-    bool Active = true);
+    bool Active = true,
+    bool VerificationExempt = false);
 
 /// <summary>A logbook entry.</summary>
 /// <param name="Severity">Only for a falla, and required there.</param>
@@ -58,7 +59,8 @@ public record UnidadCardDto(
     DateOnly? InsuranceUntil,
     DateOnly? CirculationCardUntil,
     DateOnly? LastVerifiedOn,
-    int OpenFailures);
+    int OpenFailures,
+    bool VerificationExempt);
 
 public record UnidadDocumentDto(int Id, UnidadDocumentKind Kind, DateOnly? ValidFrom, DateOnly? ValidUntil, string? Description, int? EventId, bool HasFile, DateTimeOffset CreatedAt);
 

@@ -144,7 +144,7 @@ function UnidadCard({ unidad: u, onOpen }: { unidad: Card; onOpen: () => void })
         <dt>Tarjeta</dt>
         <dd>{u.circulationCardUntil ? `hasta ${day(u.circulationCardUntil)}` : '—'}</dd>
         <dt>Verificación</dt>
-        <dd>{u.lastVerifiedOn ? day(u.lastVerifiedOn) : '—'}</dd>
+        <dd>{u.verificationExempt ? 'Exenta' : u.lastVerifiedOn ? day(u.lastVerifiedOn) : '—'}</dd>
         <dt>Gasto del año</dt>
         <dd>
           {money(u.spentThisYear)}
@@ -358,6 +358,7 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
     serviceEveryKm: detail?.serviceEveryKm != null ? String(detail.serviceEveryKm) : '',
     serviceEveryMonths: detail?.serviceEveryMonths != null ? String(detail.serviceEveryMonths) : '',
     outOfService: c?.state === 'FueraDeServicio',
+    verificationExempt: c?.verificationExempt ?? false,
     notes: detail?.notes ?? '',
     active: c?.active ?? true,
   });
@@ -374,6 +375,7 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
     state: f.outOfService ? 'FueraDeServicio' : 'Activa',
     notes: optional(f.notes),
     active: f.active,
+    verificationExempt: f.verificationExempt,
   };
   const save = useSave(
     () =>
@@ -415,6 +417,9 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
         </Field>
         <Checkbox checked={f.outOfService} onChange={(v) => set({ outOfService: v })} wide>
           Fuera de servicio
+        </Checkbox>
+        <Checkbox checked={f.verificationExempt} onChange={(v) => set({ verificationExempt: v })} wide>
+          Exenta de verificación (por ejemplo, las trimotos)
         </Checkbox>
         {c && (
           <Checkbox checked={!f.active} onChange={(v) => set({ active: !v })} wide>

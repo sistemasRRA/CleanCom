@@ -73,8 +73,13 @@ public static class FleetRules
     /// Verificación: the notice goes out when the window starts, <paramref name="daysBefore"/> before it closes and once
     /// it closed without a verificación registered in it.
     /// </summary>
-    public static FleetAlert? Verification(string plate, DateOnly? lastVerifiedOn, DateOnly today, IReadOnlyList<int> daysBefore)
+    public static FleetAlert? Verification(string plate, DateOnly? lastVerifiedOn, DateOnly today, IReadOnlyList<int> daysBefore, bool exempt = false)
     {
+        if (exempt)
+        {
+            // Exenta (for example the trimotos): no calendar and no notice.
+            return null;
+        }
         if (VerificationStartMonth(plate) is not { } month)
         {
             return new FleetAlert(FleetAlertEvent.Verificacion, FleetAlertLevel.SinRegistro,

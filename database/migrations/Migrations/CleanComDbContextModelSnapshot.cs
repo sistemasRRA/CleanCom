@@ -1459,6 +1459,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("state");
 
+                    b.Property<bool>("VerificationExempt")
+                        .HasColumnType("bit")
+                        .HasColumnName("verification_exempt");
+
                     b.Property<int>("Year")
                         .HasColumnType("int")
                         .HasColumnName("year");
