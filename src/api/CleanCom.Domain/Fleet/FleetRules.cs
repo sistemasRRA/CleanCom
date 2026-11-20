@@ -99,13 +99,13 @@ public static class FleetRules
     {
         if (validUntil is not { } until)
         {
-            return new FleetAlert(kind, FleetAlertLevel.SinRegistro, $"Sin {name} registrado.", null, false);
+            return new FleetAlert(kind, FleetAlertLevel.SinRegistro, $"Sin registro de {name}.", null, false);
         }
         var daysLeft = until.DayNumber - today.DayNumber;
         if (daysLeft < 0)
         {
             return new FleetAlert(kind, FleetAlertLevel.Vencido,
-                $"{Capitalize(name)} vencido desde el {AgendaCalculator.Format(until)}.", until, ShouldNotify(daysLeft, daysBefore));
+                $"{Capitalize(name)}: venció el {AgendaCalculator.Format(until)}.", until, ShouldNotify(daysLeft, daysBefore));
         }
         return daysBefore.Count > 0 && daysLeft <= daysBefore[0]
             ? new FleetAlert(kind, FleetAlertLevel.PorVencer,

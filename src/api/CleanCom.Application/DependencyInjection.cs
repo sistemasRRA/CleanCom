@@ -8,6 +8,7 @@ using CleanCom.Application.Catalogs;
 using CleanCom.Application.Crm;
 using CleanCom.Application.Fleet;
 using CleanCom.Application.Operations;
+using CleanCom.Application.Panel;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Rutas;
 using CleanCom.Application.Tracking;
@@ -45,6 +46,7 @@ public static class DependencyInjection
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();
         services.AddScoped<UnidadService>();
+        services.AddScoped<PanelService>();
         return services;
     }
 }

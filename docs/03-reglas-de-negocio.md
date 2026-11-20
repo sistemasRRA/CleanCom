@@ -29,6 +29,8 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Gps.HistorialMetros` | 100 | Distancia que guarda la ubicación antes de tiempo |
 | `Unidad.ServicioCadaKm` | 10000 | Kilómetros entre servicios, si la unidad no tiene los suyos |
 | `Unidad.ServicioCadaMeses` | 6 | Meses entre servicios, si la unidad no tiene los suyos |
+| `Parada.ToleranciaLlegadaMinutos` | 15 | Llegada a tiempo (± minutos de la hora estimada) y aviso de atraso en el Panel del día |
+| `Gps.SinSenalMinutos` | 10 | Minutos sin ubicación de un chofer en ruta para avisar "sin GPS" |
 | `Visita.FotoObligatoria` | Sí | |
 | `Visita.OrdenObligatorio` | Sí | El chofer registra las paradas en el orden asignado |
 | `Fijas.DiasAnticipacion` | 7 | Generación automática |
@@ -246,6 +248,17 @@ Cada indicador tiene periodo (diario, semanal o mensual), responsable, rojo, ver
 | Experiencia | Recurrencia | Servicios por invitado en el periodo |
 
 Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se cruzan en BigQuery.
+
+## Panel del día
+
+1. **Estado de cada ruta:** "sin salir" mientras ninguna parada empezó; "en ruta" con alguna en camino, en sitio o cerrada y otras por visitar; "de regreso" cuando todas están cerradas. Salida, regreso y comida no cuentan como visitas.
+2. **Llegada a tiempo:** la hora real de "Llegué" está a ± `Parada.ToleranciaLlegadaMinutos` de la hora estimada del plan. El indicador es llegadas a tiempo / llegadas del día. Ejemplo: estimada 10:30, cuentan de 10:15 a 10:45.
+3. **Atraso (solo hoy):** la siguiente parada por visitar tenía hora estimada hace más de `Parada.ToleranciaLlegadaMinutos`. Ejemplo: estimada 10:30, a las 10:46 la tarjeta avisa "Atraso de 16 min".
+4. **Horas extra:** el regreso estimado pasa de `Ruta.RegresoMaximo` (o el de sábado).
+5. **Sin GPS (solo hoy):** una ruta "en ruta" cuyo chofer no ha mandado ubicación en `Gps.SinSenalMinutos`, o nunca.
+6. **Pendientes (siempre al día de hoy, sin importar el día en pantalla):** paradas de días pasados sin cerrar; pedidos en Listo sin fecha de entrega; pedidos con `Planta.DiasProceso` días o más en planta (contados desde que entraron a esa etapa). Cada contador es el tamaño de la lista que abre.
+7. **Indicadores del día:** recolecciones y entregas realizadas contra planeadas, cobrado de referencia (lo que declaran los choferes), % de llegadas a tiempo y pedidos en planta ahora (en planta o listos).
+8. **Carga de 7 días** desde hoy: paradas que ocupan cupo, con las fijas, contra el cupo de cada ruta (lo mismo que cuenta la agenda).
 
 ## GPS del chofer
 

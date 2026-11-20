@@ -42,4 +42,6 @@ public static class SettingKeys
     public const string GpsHistoryMeters = "Gps.HistorialMetros";
     public const string UnidadServiceEveryKm = "Unidad.ServicioCadaKm";
     public const string UnidadServiceEveryMonths = "Unidad.ServicioCadaMeses";
+    public const string ParadaArrivalToleranceMinutes = "Parada.ToleranciaLlegadaMinutos";
+    public const string GpsNoSignalMinutes = "Gps.SinSenalMinutos";
 }

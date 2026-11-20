@@ -24,7 +24,7 @@ Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de
 
 ## Endpoints
 
-- `GET /panel?fecha=` resumen, alertas y tarjetas.
+- `GET /panel?fecha=` (hecho): indicadores, pendientes con sus listas, contador de flota, una tarjeta por ruta (zonas, chofer, unidad, avance de recolecciones contra meta y de entregas, estado, km y regreso estimados, última ubicación, cobrado y alertas de atraso, horas extra, sin GPS y sin unidad), carga de 7 días y últimas visitas. Reglas en [reglas de negocio · Panel del día](../../03-reglas-de-negocio.md#panel-del-día). Chofer y unidad se asignan con `PUT /rutas/{rutaId}/dias/{fecha}/chofer` y `/unidad`.
 - `GET /rutas/dia?fecha=` rutas con paradas para el mapa.
 - `GET /agenda/carga?desde=&dias=7`.
 - `GET /ubicaciones?fecha=` (hecho): última posición conocida de cada ruta del día (`live: false` cuando viene del historial, por ejemplo después de reiniciar el API).

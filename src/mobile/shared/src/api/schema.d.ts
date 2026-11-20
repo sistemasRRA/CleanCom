@@ -1979,6 +1979,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/panel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PanelDto"];
+                        "application/json": components["schemas"]["PanelDto"];
+                        "text/json": components["schemas"]["PanelDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/paradas-fijas": {
         parameters: {
             query?: never;
@@ -5474,6 +5513,113 @@ export interface components {
             /** Format: int32 */
             userId: null | number;
         };
+        PanelDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            isToday: boolean;
+            nonWorkingReason: null | string;
+            /** Format: time */
+            departure: string;
+            /** Format: time */
+            maxReturn: string;
+            indicators: components["schemas"]["PanelIndicatorsDto"];
+            pending: components["schemas"]["PanelPendingDto"];
+            /** Format: int32 */
+            fleetWithPending: number;
+            rutas: components["schemas"]["PanelRutaDto"][];
+            load: components["schemas"]["PanelLoadDto"];
+            latestVisits: components["schemas"]["PanelVisitDto"][];
+            /** Format: double */
+            baseLat: number;
+            /** Format: double */
+            baseLng: number;
+        };
+        PanelIndicatorsDto: {
+            /** Format: int32 */
+            recolecciones: number;
+            /** Format: int32 */
+            recoleccionesPlanned: number;
+            /** Format: int32 */
+            entregas: number;
+            /** Format: int32 */
+            entregasPlanned: number;
+            /** Format: double */
+            collected: number;
+            /** Format: int32 */
+            onTimePercent: null | number;
+            /** Format: int32 */
+            inPlanta: number;
+        };
+        PanelLoadDto: {
+            rutas: components["schemas"]["BoardRutaDto"][];
+            days: components["schemas"]["BoardDayDto"][];
+        };
+        PanelPendingDto: {
+            pastOpen: components["schemas"]["PendingParadaDto"][];
+            readyWithoutEntrega: components["schemas"]["PendingPedidoDto"][];
+            longInPlanta: components["schemas"]["PendingPedidoDto"][];
+        };
+        PanelRutaDto: {
+            /** Format: int32 */
+            rutaId: number;
+            code: string;
+            name: string;
+            color: string;
+            /** Format: int32 */
+            rutaDiaId: null | number;
+            zonas: string[];
+            /** Format: int32 */
+            operadorId: null | number;
+            operadorName: null | string;
+            operadorIsUsual: boolean;
+            /** Format: int32 */
+            unidadId: null | number;
+            unidadPlate: null | string;
+            /** Format: int32 */
+            recolecciones: number;
+            /** Format: int32 */
+            recoleccionesPlanned: number;
+            /** Format: int32 */
+            goal: number;
+            /** Format: int32 */
+            entregas: number;
+            /** Format: int32 */
+            entregasPlanned: number;
+            /** Format: int32 */
+            paradas: number;
+            /** Format: int32 */
+            closed: number;
+            progress: components["schemas"]["RutaProgress"];
+            /** Format: double */
+            km: number;
+            /** Format: time */
+            returnAt: string;
+            /** Format: time */
+            maxReturn: string;
+            /** Format: date-time */
+            lastLocationAt: null | string;
+            /** Format: int32 */
+            lateMinutes: null | number;
+            /** Format: double */
+            collected: number;
+            alerts: string[];
+        };
+        PanelVisitDto: {
+            /** Format: int32 */
+            paradaId: number;
+            /** Format: int32 */
+            pedidoId: null | number;
+            rutaCode: string;
+            name: null | string;
+            kind: components["schemas"]["ParadaKind"];
+            state: components["schemas"]["ParadaState"];
+            /** Format: date-time */
+            closedAt: string;
+            /** Format: int32 */
+            photos: number;
+            signed: boolean;
+        };
         /** @enum {unknown} */
         ParadaCategory: "ClienteFinal" | "Convenio" | "Insumos" | "Traspaso" | null;
         ParadaFijaDto: {
@@ -5686,6 +5832,28 @@ export interface components {
             /** Format: double */
             paymentAmount?: null | number;
             evidence?: null | components["schemas"]["EvidenceRefDto"][];
+        };
+        PendingParadaDto: {
+            /** Format: int32 */
+            paradaId: number;
+            /** Format: int32 */
+            pedidoId: null | number;
+            /** Format: date */
+            date: string;
+            rutaCode: string;
+            name: null | string;
+            kind: components["schemas"]["ParadaKind"];
+            state: components["schemas"]["ParadaState"];
+        };
+        PendingPedidoDto: {
+            /** Format: int32 */
+            pedidoId: number;
+            invitadoName: string;
+            etapa: components["schemas"]["PedidoEtapa"];
+            /** Format: date-time */
+            since: null | string;
+            /** Format: int32 */
+            days: number;
         };
         PlantaBoardDto: {
             /** Format: date */
@@ -5918,6 +6086,8 @@ export interface components {
             arrivedAt: null | string;
             arrivedOutsideRadius: boolean;
         };
+        /** @enum {unknown} */
+        RutaProgress: "SinSalir" | "EnRuta" | "DeRegreso";
         RutasDiaDto: {
             /** Format: date */
             date: string;

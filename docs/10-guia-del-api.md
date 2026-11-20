@@ -261,6 +261,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
 | App del chofer | `POST /chofer/ubicacion` (lecturas de GPS; varias juntas si no hubo señal) | App del chofer: Edit |
+| Panel del día | `GET /panel?fecha=` | Panel del día: View |
 | Tiempo real | `GET /ubicaciones?fecha=`, `GET /rutas/dia/{id}/recorrido`, hub SignalR `/hubs/operacion` (eventos `ubicacion` y `parada`; token en `access_token`) | Panel del día o Rutas: View (política `SeesOperacion`) |
 | Unidades | `GET /unidades` (`?includeInactive=`), `GET /unidades/{id}`, `GET /unidades/{id}/documentos/{documentoId}/archivo`, `GET /avisos-flota/reglas` | Unidades: View |
 | Unidades | `POST /unidades`, `PUT /unidades/{id}`, `POST /unidades/{id}/eventos`, `POST /unidades/{id}/eventos/{eventoId}/resolver`, `POST /unidades/{id}/documentos` (multipart: PDF, JPG, PNG o WebP hasta 15 MB), `DELETE /unidades/{id}/documentos/{documentoId}`, `POST /unidades/{id}/pagos`, `PUT /unidades/{id}/pagos/{pagoId}`, `PUT /avisos-flota/reglas` | Unidades: Edit |

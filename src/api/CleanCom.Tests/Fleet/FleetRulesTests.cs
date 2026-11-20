@@ -99,7 +99,7 @@ public class FleetRulesTests
         var expired = FleetRules.Document(FleetAlertEvent.Seguro, "seguro", D(11, 13), D(11, 20), Seguro)!;
         Assert.Equal(FleetAlertLevel.Vencido, expired.Level);
         Assert.True(expired.NotifyToday);
-        Assert.Equal("Seguro vencido desde el vie 13 nov.", expired.Message);
+        Assert.Equal("Seguro: venció el vie 13 nov.", expired.Message);
 
         Assert.Equal(FleetAlertLevel.SinRegistro, FleetRules.Document(FleetAlertEvent.Seguro, "seguro", null, D(11, 20), Seguro)!.Level);
     }

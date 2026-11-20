@@ -51,6 +51,8 @@ public static class SettingCatalog
         new(GpsHistoryMeters, T.Integer, "100", "Metros que debe moverse el chofer para guardar su ubicación antes de tiempo"),
         new(UnidadServiceEveryKm, T.Integer, "10000", "Kilómetros entre servicios de una unidad, si la unidad no tiene los suyos"),
         new(UnidadServiceEveryMonths, T.Integer, "6", "Meses entre servicios de una unidad, si la unidad no tiene los suyos"),
+        new(ParadaArrivalToleranceMinutes, T.Integer, "15", "Minutos antes o después de la hora estimada para contar una llegada a tiempo y avisar atraso"),
+        new(GpsNoSignalMinutes, T.Integer, "10", "Minutos sin ubicación del chofer en ruta para avisar \"sin GPS\" en el Panel del día"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =
