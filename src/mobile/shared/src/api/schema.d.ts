@@ -4231,7 +4231,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/x-www-form-urlencoded": {
+                    "multipart/form-data": {
                         Kind?: components["schemas"]["UnidadDocumentKind"];
                         /** Format: date */
                         ValidFrom?: string;

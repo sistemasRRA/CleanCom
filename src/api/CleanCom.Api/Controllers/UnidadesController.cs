@@ -54,6 +54,7 @@ public class UnidadesController(UnidadService service) : ControllerBase
     [HttpPost("unidades/{id:int}/documentos")]
     [RequireScreen(Screens.Unidades, AccessLevel.Edit)]
     [RequestSizeLimit(UnidadService.MaxFileBytes + 64 * 1024)]
+    [Consumes("multipart/form-data")]
     public async Task<UnidadDetailDto> AddDocument(int id, [FromForm] UnidadDocumentUpload form, CancellationToken ct)
     {
         await using var content = form.File?.OpenReadStream();

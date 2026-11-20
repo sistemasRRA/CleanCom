@@ -279,7 +279,8 @@ public class UnidadService(
             issues.Add($"La unidad {unidad.Plate} está fuera de servicio.");
         }
         issues.AddRange(card.Alerts
-            .Where(a => a.Level == FleetAlertLevel.Falla
+            // An open falla has its date; the "fuera de servicio" notice has none and is already said above.
+            .Where(a => (a.Level == FleetAlertLevel.Falla && a.DueDate is not null)
                 || (a.Level == FleetAlertLevel.Vencido && a.Event is FleetAlertEvent.Seguro or FleetAlertEvent.TarjetaCirculacion or FleetAlertEvent.Verificacion))
             .Select(a => a.Message));
         return issues;

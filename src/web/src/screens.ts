@@ -25,7 +25,7 @@ export const SCREENS: MenuScreen[] = [
   { key: 'clientes-y-fuentes', name: 'Clientes y fuentes', path: '/clientes-y-fuentes', group: 'Gerencia', week: 7 },
   { key: 'kpis', name: 'KPIs', path: '/kpis', group: 'Gerencia', week: 7 },
   { key: 'evidencias-y-caja', name: 'Evidencias y caja', path: '/evidencias-y-caja', group: 'Gerencia', week: 7 },
-  { key: 'unidades', name: 'Unidades', path: '/unidades', group: 'Administración', week: 5 },
+  { key: 'unidades', name: 'Unidades', path: '/unidades', group: 'Administración' },
   { key: 'operacion', name: 'Operación', path: '/operacion', group: 'Administración' },
   { key: 'usuarios', name: 'Usuarios', path: '/usuarios', group: 'Administración' },
   { key: 'roles-y-permisos', name: 'Roles y permisos', path: '/roles-y-permisos', group: 'Administración' },
