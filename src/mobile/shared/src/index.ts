@@ -1,5 +1,5 @@
 /** Code shared by the CleanCom apps (chofer and invitado). */
-export { api, unwrap, getSession, ApiError, type Schemas, type Session } from './api/client';
+export { api, unwrap, getSession, loadSession, ApiError, type Schemas, type Session } from './api/client';
 export { apiUrl } from './config';
 export { SessionProvider, useSession, type Level, type SessionStatus } from './session/Session';
 export { ThemeProvider, useTheme, useLayout, space, radius, font, touch, type Colors, type Scheme } from './theme/Theme';

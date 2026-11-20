@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Body, Button, Card, Logo, Title, radius, space, touch, useLayout, useSession, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { RutaDelDia } from '../../ruta/RutaDelDia';
 import { MapaRuta } from '../../ruta/MapaRuta';
+import { stopTracking, useShiftTracking, type TrackingState } from '../../offline/locationTracking';
 
 /**
  * Driver's day. Tablet in landscape: stops and map side by side (docs/pantallas/apps/chofer.md).
@@ -17,6 +18,7 @@ export default function Turno() {
   const { gutter, isTablet, landscape } = useLayout();
   const sideBySide = isTablet && landscape;
   const [ruta, setRuta] = useState<Schemas['ChoferRutaDto'] | null>(null);
+  const tracking = useShiftTracking(ruta);
 
   const stops = <RutaDelDia onShown={setRuta} />;
 
@@ -43,7 +45,7 @@ export default function Turno() {
           </Text>
         </View>
         <HeaderButton icon={scheme === 'dark' ? 'sunny' : 'moon'} label={scheme === 'dark' ? 'Modo claro' : 'Modo oscuro'} onPress={toggleScheme} />
-        <HeaderButton icon="log-out-outline" label="Cerrar sesión" onPress={() => void logout()} />
+        <HeaderButton icon="log-out-outline" label="Cerrar sesión" onPress={() => void stopTracking().finally(() => void logout())} />
       </View>
 
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -56,6 +58,7 @@ export default function Turno() {
             <Button title="Iniciar turno" onPress={() => undefined} disabled icon={<Ionicons name="play" size={18} color={colors.onBrand} />} />
           </Card>
 
+          <TrackingNotice state={tracking} />
           {sideBySide ? (
             <View style={{ flex: 1, flexDirection: 'row', gap: space.lg }}>
               <View style={{ width: '40%' }}>{stops}</View>
@@ -70,6 +73,34 @@ export default function Turno() {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+/** Whether the office sees where the chofer is. Nothing while there is no shift to follow. */
+function TrackingNotice({ state }: { state: TrackingState }) {
+  const { colors } = useTheme();
+  if (state === 'off') return null;
+  const notice: Record<Exclude<TrackingState, 'off'>, { icon: keyof typeof Ionicons.glyphMap; text: string; color: string }> = {
+    on: { icon: 'navigate', text: 'Oficina ve tu ubicación durante el turno.', color: colors.brand },
+    onlyOpen: {
+      icon: 'warning',
+      text: 'Oficina solo ve tu ubicación con la app abierta. En los ajustes del teléfono, permite la ubicación "Siempre" para CleanCom Chofer.',
+      color: colors.warning,
+    },
+    denied: {
+      icon: 'warning',
+      text: 'Sin permiso de ubicación: oficina no ve dónde vas. Actívalo en los ajustes del teléfono.',
+      color: colors.danger,
+    },
+  };
+  const n = notice[state];
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }} accessibilityRole="text">
+      <Ionicons name={n.icon} size={18} color={n.color} />
+      <View style={{ flex: 1 }}>
+        <Body muted>{n.text}</Body>
+      </View>
+    </View>
   );
 }
 
