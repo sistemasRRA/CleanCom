@@ -49,6 +49,8 @@ public static class SettingCatalog
         new(ParadaSpecificTimeWindow, T.Integer, "30", "Minutos antes y después de una hora específica que forman su ventana"),
         new(GpsHistorySeconds, T.Integer, "120", "Cada cuántos segundos se guarda la ubicación del chofer en el historial del recorrido"),
         new(GpsHistoryMeters, T.Integer, "100", "Metros que debe moverse el chofer para guardar su ubicación antes de tiempo"),
+        new(UnidadServiceEveryKm, T.Integer, "10000", "Kilómetros entre servicios de una unidad, si la unidad no tiene los suyos"),
+        new(UnidadServiceEveryMonths, T.Integer, "6", "Meses entre servicios de una unidad, si la unidad no tiene los suyos"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

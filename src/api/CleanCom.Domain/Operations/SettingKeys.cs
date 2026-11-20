@@ -40,4 +40,6 @@ public static class SettingKeys
     public const string BaseLocation = "Base.Ubicacion";
     public const string GpsHistorySeconds = "Gps.HistorialSegundos";
     public const string GpsHistoryMeters = "Gps.HistorialMetros";
+    public const string UnidadServiceEveryKm = "Unidad.ServicioCadaKm";
+    public const string UnidadServiceEveryMonths = "Unidad.ServicioCadaMeses";
 }

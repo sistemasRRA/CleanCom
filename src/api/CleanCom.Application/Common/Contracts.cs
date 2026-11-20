@@ -1,6 +1,7 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
+using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -41,6 +42,11 @@ public interface ICleanComDbContext
     DbSet<Evidence> Evidence { get; }
     DbSet<ReferencePayment> ReferencePayments { get; }
     DbSet<ChoferLocation> ChoferLocations { get; }
+    DbSet<Unidad> Unidades { get; }
+    DbSet<UnidadDocument> UnidadDocuments { get; }
+    DbSet<UnidadEvent> UnidadEvents { get; }
+    DbSet<RecurringPayment> RecurringPayments { get; }
+    DbSet<FleetAlertRule> FleetAlertRules { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

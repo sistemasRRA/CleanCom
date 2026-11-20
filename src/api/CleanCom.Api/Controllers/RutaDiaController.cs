@@ -24,6 +24,15 @@ public class RutaDiaController(RutaDiaService service) : ControllerBase
     public Task<RutaPlanDto> AssignOperador(int rutaId, [FromRoute(Name = "fecha")] DateOnly date, AssignOperadorRequest request, CancellationToken ct) =>
         service.AssignOperadorAsync(rutaId, date, request, ct);
 
+    /// <summary>
+    /// The unidad of a ruta on a day. One out of service, with an open falla or an expired document answers 409 until
+    /// the office confirms (confirm: true).
+    /// </summary>
+    [HttpPut("rutas/{rutaId:int}/dias/{fecha}/unidad")]
+    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    public Task<RutaPlanDto> AssignUnidad(int rutaId, [FromRoute(Name = "fecha")] DateOnly date, AssignUnidadRequest request, CancellationToken ct) =>
+        service.AssignUnidadAsync(rutaId, date, request, ct);
+
     /// <summary>Orders the ruta. Started paradas stay first, pinned ones keep their place, viajes stay together.</summary>
     [HttpPost("rutas/dia/{id:int}/optimizar")]
     [RequireScreen(Screens.Rutas, AccessLevel.Edit)]

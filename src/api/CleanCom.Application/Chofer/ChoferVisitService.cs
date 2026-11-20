@@ -52,11 +52,11 @@ public class ChoferVisitService(
         }
         using var buffer = new MemoryStream();
         await content.CopyToAsync(buffer, ct);
-        var extension = ImageExtension(buffer.GetBuffer().AsSpan(0, (int)buffer.Length))
+        var extension = FileSignatures.Image(buffer.GetBuffer().AsSpan(0, (int)buffer.Length))
             ?? throw new DomainException("La foto debe ser una imagen JPG, PNG o WebP.");
         buffer.Position = 0;
         var path = await files.SaveAsync(buffer, Folder(parada), extension, ct);
-        var type = extension switch { ".png" => "image/png", ".webp" => "image/webp", _ => "image/jpeg" };
+        var type = FileSignatures.ContentType(extension);
         return await AddAsync(parada, EvidenceKind.Foto, path, type, buffer.Length, localId, lat, lng, takenAt, ct);
     }
 
@@ -216,24 +216,6 @@ public class ChoferVisitService(
     }
 
     private static string Folder(Parada parada) => $"evidencias/{parada.RutaDia!.Date:yyyy/MM}";
-
-    /// <summary>By the first bytes, not by what the phone says the file is.</summary>
-    private static string? ImageExtension(ReadOnlySpan<byte> b)
-    {
-        if (b.Length > 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF)
-        {
-            return ".jpg";
-        }
-        if (b.Length > 8 && b[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }))
-        {
-            return ".png";
-        }
-        if (b.Length > 12 && b[..4].SequenceEqual("RIFF"u8) && b[8..12].SequenceEqual("WEBP"u8))
-        {
-            return ".webp";
-        }
-        return null;
-    }
 
     /// <summary>Builds the SVG from numbers only, so nothing the phone sends becomes markup.</summary>
     public static string SignatureSvg(SignatureRequest r)

@@ -6,6 +6,7 @@ using CleanCom.Application.Pedidos;
 using CleanCom.Application.PostalCodes;
 using CleanCom.Application.Catalogs;
 using CleanCom.Application.Crm;
+using CleanCom.Application.Fleet;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Rutas;
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<EvidenceService>();
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();
+        services.AddScoped<UnidadService>();
         return services;
     }
 }

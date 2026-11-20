@@ -27,6 +27,8 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Gps.ToleranciaMetros` | 300 | Validar llegada y evidencia; también descarta lecturas de GPS menos precisas |
 | `Gps.HistorialSegundos` | 120 | Cada cuánto se guarda la ubicación del chofer en el recorrido |
 | `Gps.HistorialMetros` | 100 | Distancia que guarda la ubicación antes de tiempo |
+| `Unidad.ServicioCadaKm` | 10000 | Kilómetros entre servicios, si la unidad no tiene los suyos |
+| `Unidad.ServicioCadaMeses` | 6 | Meses entre servicios, si la unidad no tiene los suyos |
 | `Visita.FotoObligatoria` | Sí | |
 | `Visita.OrdenObligatorio` | Sí | El chofer registra las paradas en el orden asignado |
 | `Fijas.DiasAnticipacion` | 7 | Generación automática |
@@ -268,3 +270,14 @@ Ejemplo: con lecturas cada 30 s sin moverse, se guardan las de 10:02 y 10:04 des
 - Avisos por correo y notificación; el aviso se repite hasta que se registra el pago o la renovación con comprobante.
 - Resumen semanal por correo de lo que vence en 30 días.
 - El kilometraje de la unidad se actualiza con el inicial y final de cada turno.
+
+Cómo se calcula (semana 5, en el API):
+
+1. **Días de aviso editables.** Los días de cada evento, sus destinatarios y canales están en las reglas de aviso (`GET|PUT /avisos-flota/reglas`). Valores iniciales: verificación 15 y 0, seguro 30, 7 y 0, pagos 15 y 3, tarjeta 30, servicio 15 y 0, falla 0.
+2. **Verificación por placa (calendario de la CDMX).** Cuenta el último dígito de la placa: 5 y 6 verifican en enero-febrero y julio-agosto; 7 y 8 en febrero-marzo y agosto-septiembre; 3 y 4 en marzo-abril y septiembre-octubre; 1 y 2 en abril-mayo y octubre-noviembre; 9 y 0 en mayo-junio y noviembre-diciembre. Si no hay verificación registrada desde que empezó el periodo vigente, "toca verificar" hasta que cierra y después queda vencida. Ejemplo: placa que termina en 4, última verificación en marzo; el 20 de noviembre está vencida porque el periodo de septiembre-octubre cerró sin verificar.
+3. **Seguro y tarjeta de circulación** por su fecha de vigencia. Ejemplo: seguro que vence el 20 de diciembre avisa el 20 de noviembre (30 días), el 13 de diciembre (7) y el 20 de diciembre.
+4. **Servicio por km o fecha, lo que llegue primero.** El siguiente servicio es el último más `ServicioCadaKm` y más `ServicioCadaMeses` (de la unidad o de la configuración). Ejemplo: servicio el 1 de mayo a 20,000 km, cada 10,000 km o 6 meses → toca el 1 de noviembre o a los 30,000 km. Una unidad sin servicio registrado se marca.
+5. **Pagos recurrentes** por su próxima fecha. Registrar el pago en la bitácora mueve la fecha según su periodicidad (mensual, bimestral, trimestral, semestral o anual) y suma al gasto del año.
+6. **Recordatorio:** pasada la fecha, el aviso se repite cada 7 días hasta que se registra algo. El servicio vencido por kilometraje (sin fecha) se recuerda los lunes.
+7. **Gasto del año y costo por km:** suma de los montos de la bitácora del año, entre los kilómetros recorridos en el año (del primer kilometraje registrado del año al actual).
+8. **Asignar una unidad a una ruta** fuera de servicio, con falla abierta o con seguro, tarjeta o verificación vencidos pide confirmar. Una unidad no puede estar en dos rutas el mismo día.

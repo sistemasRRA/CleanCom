@@ -1,6 +1,7 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
+using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
@@ -335,6 +336,7 @@ internal class RutaDiaConfig : IEntityTypeConfiguration<RutaDia>
         // One per ruta and date; the agenda lock relies on it.
         e.HasIndex(x => new { x.RutaId, x.Date }).IsUnique();
         e.HasOne(x => x.Ruta).WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Unidad).WithMany().HasForeignKey(x => x.UnidadId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Operador).WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Paradas).WithOne(p => p.RutaDia).HasForeignKey(p => p.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Viajes).WithOne(v => v.RutaDia).HasForeignKey(v => v.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
@@ -497,5 +499,88 @@ internal class ContactConfig : IEntityTypeConfiguration<Contact>
         e.Property(x => x.Note).HasMaxLength(1000);
         e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.InvitadoId, x.ContactedAt });
+    }
+}
+
+internal class UnidadConfig : IEntityTypeConfiguration<Unidad>
+{
+    public void Configure(EntityTypeBuilder<Unidad> e)
+    {
+        e.ToTable("Unidades");
+        e.Property(x => x.Plate).HasMaxLength(15);
+        e.Property(x => x.Brand).HasMaxLength(60);
+        e.Property(x => x.Model).HasMaxLength(60);
+        e.Property(x => x.Notes).HasMaxLength(1000);
+        e.HasIndex(x => x.Plate).IsUnique().HasFilter("[active] = 1");
+        e.HasMany(x => x.Documents).WithOne().HasForeignKey(x => x.UnidadId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Events).WithOne().HasForeignKey(x => x.UnidadId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.UnidadId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class UnidadDocumentConfig : IEntityTypeConfiguration<UnidadDocument>
+{
+    public void Configure(EntityTypeBuilder<UnidadDocument> e)
+    {
+        e.ToTable("UnidadDocuments");
+        e.Property(x => x.Description).HasMaxLength(300);
+        e.Property(x => x.FilePath).HasMaxLength(300);
+        e.Property(x => x.ContentType).HasMaxLength(100);
+        e.HasOne<UnidadEvent>().WithMany().HasForeignKey(x => x.EventId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.UnidadId, x.Kind });
+    }
+}
+
+internal class UnidadEventConfig : IEntityTypeConfiguration<UnidadEvent>
+{
+    public void Configure(EntityTypeBuilder<UnidadEvent> e)
+    {
+        e.ToTable("UnidadEvents");
+        e.Property(x => x.Description).HasMaxLength(1000);
+        e.Property(x => x.Amount).HasPrecision(12, 2);
+        e.HasOne<RecurringPayment>().WithMany().HasForeignKey(x => x.RecurringPaymentId).OnDelete(DeleteBehavior.Restrict);
+        e.HasIndex(x => new { x.UnidadId, x.Date });
+    }
+}
+
+internal class RecurringPaymentConfig : IEntityTypeConfiguration<RecurringPayment>
+{
+    public void Configure(EntityTypeBuilder<RecurringPayment> e)
+    {
+        e.ToTable("RecurringPayments");
+        e.Property(x => x.Concept).HasMaxLength(150);
+        e.Property(x => x.Amount).HasPrecision(12, 2);
+    }
+}
+
+internal class FleetAlertRuleConfig : IEntityTypeConfiguration<FleetAlertRule>
+{
+    public void Configure(EntityTypeBuilder<FleetAlertRule> e)
+    {
+        e.ToTable("FleetAlertRules");
+        e.Property(x => x.DaysBefore).HasMaxLength(100);
+        e.Property(x => x.Recipients).HasMaxLength(500);
+        e.Property(x => x.Channels).HasMaxLength(100);
+        e.HasIndex(x => x.Event).IsUnique();
+
+        // docs/03-reglas-de-negocio.md, Flota. Verificación also notifies when its window starts; a falla, at once.
+        (FleetAlertEvent Event, string Days)[] initial =
+        [
+            (FleetAlertEvent.Verificacion, "15,0"),
+            (FleetAlertEvent.Seguro, "30,7,0"),
+            (FleetAlertEvent.PagoRecurrente, "15,3"),
+            (FleetAlertEvent.TarjetaCirculacion, "30"),
+            (FleetAlertEvent.Servicio, "15,0"),
+            (FleetAlertEvent.Falla, "0"),
+        ];
+        e.HasData(initial.Select((r, i) => new FleetAlertRule
+        {
+            Id = i + 1,
+            Event = r.Event,
+            DaysBefore = r.Days,
+            Recipients = Roles.Administracion,
+            Channels = "Correo,Web",
+            CreatedAt = Seed.Date,
+        }));
     }
 }
