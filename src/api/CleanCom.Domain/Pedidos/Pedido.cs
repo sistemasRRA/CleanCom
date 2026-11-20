@@ -40,8 +40,8 @@ public class Pedido : Entity, IActivatable
     public bool Active { get; set; } = true;
     public int InvitadoId { get; set; }
     public Invitado? Invitado { get; set; }
-    public int DireccionId { get; set; }
-    public Direccion? Direccion { get; set; }
+    public int AddressId { get; set; }
+    public Address? Address { get; set; }
     public PedidoEtapa Etapa { get; set; } = PedidoEtapa.Agendado;
     public int? GarmentsApprox { get; set; }
     public Turno Turno { get; set; } = Turno.CualquierHora;

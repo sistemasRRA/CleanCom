@@ -391,21 +391,21 @@ public class RutaDiaService(
                 FijaGarments = p.ParadaFija == null ? null : p.ParadaFija.GarmentsApprox,
                 InvitadoName = p.Pedido == null ? null : p.Pedido.Invitado!.Name,
                 LugarName = p.Lugar == null ? null : p.Lugar.Name,
-                Street = p.Direccion == null ? null : p.Direccion.Street,
-                Exterior = p.Direccion == null ? null : p.Direccion.ExteriorNumber,
-                Neighborhood = p.Direccion == null ? null : p.Direccion.Neighborhood,
-                ZonaCode = p.Direccion == null || p.Direccion.Zona == null ? null : p.Direccion.Zona.Code,
-                DireccionLocation = p.Direccion == null ? null : p.Direccion.Location,
+                Street = p.Address == null ? null : p.Address.Street,
+                Exterior = p.Address == null ? null : p.Address.ExteriorNumber,
+                Neighborhood = p.Address == null ? null : p.Address.Neighborhood,
+                ZonaCode = p.Address == null || p.Address.Zona == null ? null : p.Address.Zona.Code,
+                AddressLocation = p.Address == null ? null : p.Address.Location,
                 LugarAddress = p.Lugar == null ? null : p.Lugar.Address,
                 LugarLocation = p.Lugar == null ? null : p.Lugar.Location,
-                ParadaAddress = p.Address,
+                ParadaAddress = p.AddressText,
                 ParadaLocation = p.Location,
             })
             .ToListAsync(ct);
 
         return raw.Select(p =>
         {
-            var point = p.DireccionLocation ?? p.ParadaLocation ?? p.LugarLocation;
+            var point = p.AddressLocation ?? p.ParadaLocation ?? p.LugarLocation;
             var name = p.InvitadoName ?? p.Title ?? p.LugarName;
             if (p.InvitadoName is null && p.Title is not null && p.LugarName is not null)
             {

@@ -8,7 +8,7 @@ public class ScheduleValidator : AbstractValidator<ScheduleRequest>
     public ScheduleValidator()
     {
         RuleFor(x => x.InvitadoId).GreaterThan(0).WithName("Invitado");
-        RuleFor(x => x.DireccionId).GreaterThan(0).WithName("Dirección");
+        RuleFor(x => x.AddressId).GreaterThan(0).WithName("Dirección");
         RuleFor(x => x.Turno).IsInEnum().WithName("Turno");
         RuleFor(x => x.SpecificTime).NotNull().When(x => x.Turno == Turno.HoraEspecifica)
             .WithMessage("Indica la hora específica.");

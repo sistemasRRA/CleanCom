@@ -14,6 +14,6 @@ public class SaveInvitadoValidator : AbstractValidator<SaveInvitadoRequest>
         RuleFor(x => x.HowFoundUs).MaximumLength(100).WithName("Cómo nos conoció");
         RuleFor(x => x.Campaign).MaximumLength(100).WithName("Campaña");
         RuleFor(x => x.Notes).MaximumLength(1000).WithName("Observaciones");
-        RuleFor(x => x.Direccion!).SetValidator(new SaveDireccionValidator()).When(x => x.Direccion is not null);
+        RuleFor(x => x.Address!).SetValidator(new SaveAddressValidator()).When(x => x.Address is not null);
     }
 }

@@ -7,7 +7,7 @@ public class AvailabilityValidator : AbstractValidator<AvailabilityRequest>
     public AvailabilityValidator()
     {
         RuleFor(x => x)
-            .Must(x => x.DireccionId is not null || x.ZonaId is not null || (x.Lat is not null && x.Lng is not null)
+            .Must(x => x.AddressId is not null || x.ZonaId is not null || (x.Lat is not null && x.Lng is not null)
                 || !string.IsNullOrWhiteSpace(x.PostalCode))
             .WithName("Dirección")
             .WithMessage("Indica la dirección: ubicación, código postal o zona.");

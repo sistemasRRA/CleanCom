@@ -39,7 +39,7 @@ public static class DependencyInjection
         services.AddScoped<PedidoBoardService>();
         services.AddScoped<PlantaService>();
         services.AddScoped<ChoferVisitService>();
-        services.AddScoped<EvidenciaService>();
+        services.AddScoped<EvidenceService>();
         return services;
     }
 }

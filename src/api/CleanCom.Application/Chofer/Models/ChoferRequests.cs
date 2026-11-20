@@ -33,6 +33,6 @@ public record NotDoneRequest(string? LocalId, int? ReasonId, string? Note, doubl
 public record SignatureRequest(int ParadaId, string? LocalId, double Width, double Height, IReadOnlyList<IReadOnlyList<double>> Strokes, DateTimeOffset? TakenAt);
 
 /// <summary>An uploaded photo or signature.</summary>
-public record EvidenciaDto(int Id, int ParadaId, CleanCom.Domain.Routing.EvidenciaKind Kind, DateTimeOffset TakenAt, int? DistanceMeters);
+public record EvidenceDto(int Id, int ParadaId, CleanCom.Domain.Routing.EvidenceKind Kind, DateTimeOffset TakenAt, int? DistanceMeters);
 
 public record ChoferReasonDto(int Id, string Text);

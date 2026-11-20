@@ -4,6 +4,49 @@
  */
 
 export interface paths {
+    "/direcciones/ubicar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    street?: string;
+                    exteriorNumber?: string;
+                    neighborhood?: string;
+                    borough?: string;
+                    postalCode?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UbicacionDto"];
+                        "application/json": components["schemas"]["UbicacionDto"];
+                        "text/json": components["schemas"]["UbicacionDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/agenda/tablero": {
         parameters: {
             query?: never;
@@ -503,9 +546,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["EvidenciaDto"];
-                        "application/json": components["schemas"]["EvidenciaDto"];
-                        "text/json": components["schemas"]["EvidenciaDto"];
+                        "text/plain": components["schemas"]["EvidenceDto"];
+                        "application/json": components["schemas"]["EvidenceDto"];
+                        "text/json": components["schemas"]["EvidenceDto"];
                     };
                 };
             };
@@ -583,9 +626,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["EvidenciaDto"];
-                        "application/json": components["schemas"]["EvidenciaDto"];
-                        "text/json": components["schemas"]["EvidenciaDto"];
+                        "text/plain": components["schemas"]["EvidenceDto"];
+                        "application/json": components["schemas"]["EvidenceDto"];
+                        "text/json": components["schemas"]["EvidenceDto"];
                     };
                 };
             };
@@ -988,9 +1031,9 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SaveContactoRequest"];
-                    "text/json": components["schemas"]["SaveContactoRequest"];
-                    "application/*+json": components["schemas"]["SaveContactoRequest"];
+                    "application/json": components["schemas"]["SaveContactRequest"];
+                    "text/json": components["schemas"]["SaveContactRequest"];
+                    "application/*+json": components["schemas"]["SaveContactRequest"];
                 };
             };
             responses: {
@@ -1051,49 +1094,6 @@ export interface paths {
                 };
             };
         };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/direcciones/ubicar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    street?: string;
-                    exteriorNumber?: string;
-                    neighborhood?: string;
-                    borough?: string;
-                    postalCode?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["UbicacionDto"];
-                        "application/json": components["schemas"]["UbicacionDto"];
-                        "text/json": components["schemas"]["UbicacionDto"];
-                    };
-                };
-            };
-        };
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1286,9 +1286,9 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SaveDireccionRequest"];
-                    "text/json": components["schemas"]["SaveDireccionRequest"];
-                    "application/*+json": components["schemas"]["SaveDireccionRequest"];
+                    "application/json": components["schemas"]["SaveAddressRequest"];
+                    "text/json": components["schemas"]["SaveAddressRequest"];
+                    "application/*+json": components["schemas"]["SaveAddressRequest"];
                 };
             };
             responses: {
@@ -1311,7 +1311,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/invitados/{id}/direcciones/{direccionId}": {
+    "/invitados/{id}/direcciones/{addressId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1325,15 +1325,15 @@ export interface paths {
                 header?: never;
                 path: {
                     id: number;
-                    direccionId: number;
+                    addressId: number;
                 };
                 cookie?: never;
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SaveDireccionRequest"];
-                    "text/json": components["schemas"]["SaveDireccionRequest"];
-                    "application/*+json": components["schemas"]["SaveDireccionRequest"];
+                    "application/json": components["schemas"]["SaveAddressRequest"];
+                    "text/json": components["schemas"]["SaveAddressRequest"];
+                    "application/*+json": components["schemas"]["SaveAddressRequest"];
                 };
             };
             responses: {
@@ -1357,7 +1357,7 @@ export interface paths {
                 header?: never;
                 path: {
                     id: number;
-                    direccionId: number;
+                    addressId: number;
                 };
                 cookie?: never;
             };
@@ -4180,6 +4180,27 @@ export interface components {
     schemas: {
         /** @enum {unknown} */
         AccessLevel: "View" | "Edit";
+        AddressDto: {
+            /** Format: int32 */
+            id: number;
+            label: null | string;
+            street: string;
+            exteriorNumber: null | string;
+            interiorNumber: null | string;
+            postalCode: string;
+            neighborhood: null | string;
+            borough: null | string;
+            references: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: int32 */
+            zonaId: null | number;
+            zonaCode: null | string;
+            zonaAssignedManually: boolean;
+            active: boolean;
+        };
         AddToRutaRequest: {
             /** Format: int32 */
             rutaId: number;
@@ -4251,7 +4272,7 @@ export interface components {
         };
         AvailabilityRequest: {
             /** Format: int32 */
-            direccionId: null | number;
+            addressId: null | number;
             /** Format: double */
             lat: null | number;
             /** Format: double */
@@ -4420,7 +4441,7 @@ export interface components {
         };
         /** @enum {unknown} */
         ContactChannel: "Llamada" | "WhatsApp";
-        ContactoDto: {
+        ContactDto: {
             /** Format: int32 */
             id: number;
             channel: components["schemas"]["ContactChannel"];
@@ -4463,7 +4484,7 @@ export interface components {
             /** Format: int32 */
             fixedFrequencyDays: null | number;
             pedidos: components["schemas"]["PedidoDto"][];
-            contactos: components["schemas"]["ContactoDto"][];
+            contacts: components["schemas"]["ContactDto"][];
         };
         CrmListDto: {
             /** Format: date */
@@ -4523,27 +4544,6 @@ export interface components {
         };
         /** @enum {unknown} */
         DelayLevel: "None" | "Warning" | "Late";
-        DireccionDto: {
-            /** Format: int32 */
-            id: number;
-            label: null | string;
-            street: string;
-            exteriorNumber: null | string;
-            interiorNumber: null | string;
-            postalCode: string;
-            neighborhood: null | string;
-            borough: null | string;
-            references: null | string;
-            /** Format: double */
-            lat: null | number;
-            /** Format: double */
-            lng: null | number;
-            /** Format: int32 */
-            zonaId: null | number;
-            zonaCode: null | string;
-            zonaAssignedManually: boolean;
-            active: boolean;
-        };
         EntityTagHeaderValue: {
             tag?: components["schemas"]["StringSegment"];
             isWeak?: boolean;
@@ -4557,23 +4557,23 @@ export interface components {
             message: string;
             availability: components["schemas"]["AvailabilityDto"];
         };
-        EvidenciaDto: {
+        EvidenceDto: {
             /** Format: int32 */
             id: number;
             /** Format: int32 */
             paradaId: number;
-            kind: components["schemas"]["EvidenciaKind"];
+            kind: components["schemas"]["EvidenceKind"];
             /** Format: date-time */
             takenAt: string;
             /** Format: int32 */
             distanceMeters: null | number;
         };
         /** @enum {unknown} */
-        EvidenciaKind: "Foto" | "Firma";
-        EvidenciaRefDto: {
+        EvidenceKind: "Foto" | "Firma";
+        EvidenceRefDto: {
             /** Format: int32 */
             id: number;
-            kind: components["schemas"]["EvidenciaKind"];
+            kind: components["schemas"]["EvidenceKind"];
             /** Format: date-time */
             takenAt: string;
             /** Format: int32 */
@@ -4667,7 +4667,7 @@ export interface components {
             notes: null | string;
             active: boolean;
             receivesWhatsApp: boolean;
-            direcciones: components["schemas"]["DireccionDto"][];
+            addresses: components["schemas"]["AddressDto"][];
         };
         /** @enum {unknown} */
         InvitadoType: "ClienteFinal" | "Convenio" | "Empresa" | "TiendaInterna";
@@ -4885,7 +4885,7 @@ export interface components {
             invitadoName: string;
             whatsAppPhone: string;
             /** Format: int32 */
-            direccionId: number;
+            addressId: number;
             address: string;
             zonaCode: null | string;
             rutaCode: null | string;
@@ -4946,7 +4946,7 @@ export interface components {
             paymentMethod?: null | components["schemas"]["PaymentMethod"];
             /** Format: double */
             paymentAmount?: null | number;
-            evidencias?: null | components["schemas"]["EvidenciaRefDto"][];
+            evidence?: null | components["schemas"]["EvidenceRefDto"][];
         };
         PlantaBoardDto: {
             /** Format: date */
@@ -5177,21 +5177,7 @@ export interface components {
             /** Format: double */
             baseLng: number;
         };
-        SaveContactoRequest: {
-            channel: components["schemas"]["ContactChannel"];
-            result: components["schemas"]["ContactResult"];
-            note: null | string;
-            /** Format: date */
-            nextContactOn: null | string;
-        };
-        SaveCoverageRequest: {
-            postalCode: string;
-            neighborhood: string;
-            borough: string;
-            /** Format: int32 */
-            zonaId: number;
-        };
-        SaveDireccionRequest: {
+        SaveAddressRequest: {
             label: null | string;
             street: string;
             exteriorNumber: null | string;
@@ -5207,6 +5193,20 @@ export interface components {
             /** Format: int32 */
             zonaId: null | number;
         };
+        SaveContactRequest: {
+            channel: components["schemas"]["ContactChannel"];
+            result: components["schemas"]["ContactResult"];
+            note: null | string;
+            /** Format: date */
+            nextContactOn: null | string;
+        };
+        SaveCoverageRequest: {
+            postalCode: string;
+            neighborhood: string;
+            borough: string;
+            /** Format: int32 */
+            zonaId: number;
+        };
         SaveInvitadoRequest: {
             name: string;
             whatsAppPhone: string;
@@ -5216,7 +5216,7 @@ export interface components {
             howFoundUs: null | string;
             campaign: null | string;
             notes: null | string;
-            direccion?: null | components["schemas"]["SaveDireccionRequest"];
+            address?: null | components["schemas"]["SaveAddressRequest"];
             /** @default true */
             receivesWhatsApp: boolean;
         };
@@ -5360,7 +5360,7 @@ export interface components {
             /** Format: int32 */
             invitadoId: number;
             /** Format: int32 */
-            direccionId: number;
+            addressId: number;
             turno: components["schemas"]["Turno"];
             /** Format: time */
             specificTime: null | string;

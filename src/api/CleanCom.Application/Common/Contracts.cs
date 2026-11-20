@@ -28,18 +28,18 @@ public interface ICleanComDbContext
     DbSet<Operador> Operadores { get; }
     DbSet<RolePermission> RolePermissions { get; }
     DbSet<Invitado> Invitados { get; }
-    DbSet<Direccion> Direcciones { get; }
+    DbSet<Address> Addresses { get; }
     DbSet<Pedido> Pedidos { get; }
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
-    DbSet<Contacto> Contactos { get; }
+    DbSet<Contact> Contacts { get; }
     DbSet<ParadaFija> ParadasFijas { get; }
     DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
     DbSet<Viaje> Viajes { get; }
     DbSet<PedidoEvento> PedidoEventos { get; }
     DbSet<Ticket> Tickets { get; }
-    DbSet<Evidencia> Evidencias { get; }
-    DbSet<CobroReferencia> CobrosReferencia { get; }
+    DbSet<Evidence> Evidence { get; }
+    DbSet<ReferencePayment> ReferencePayments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -9,7 +9,7 @@ public record PedidoDto(
     int InvitadoId,
     string InvitadoName,
     string WhatsAppPhone,
-    int DireccionId,
+    int AddressId,
     string Address,
     string? ZonaCode,
     string? RutaCode,

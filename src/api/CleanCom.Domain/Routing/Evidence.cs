@@ -2,7 +2,7 @@ using CleanCom.Domain.Common;
 
 namespace CleanCom.Domain.Routing;
 
-public enum EvidenciaKind
+public enum EvidenceKind
 {
     Foto,
     Firma,
@@ -12,12 +12,12 @@ public enum EvidenciaKind
 /// Photo or signature of a visit. The file lives on the server's disk (configurable path), never in SQL Server;
 /// <see cref="FilePath"/> is relative to that folder. Never deleted.
 /// </summary>
-public class Evidencia : Entity, IActivatable
+public class Evidence : Entity, IActivatable
 {
     public bool Active { get; set; } = true;
     public int ParadaId { get; set; }
     public Parada? Parada { get; set; }
-    public EvidenciaKind Kind { get; set; }
+    public EvidenceKind Kind { get; set; }
     public string FilePath { get; set; } = "";
     public string ContentType { get; set; } = "";
     public long SizeBytes { get; set; }
@@ -42,7 +42,7 @@ public enum PaymentMethod
 /// What the chofer says the invitado paid at the visit (reference for the corte de caja; the POS is the official
 /// record). Never deleted.
 /// </summary>
-public class CobroReferencia : Entity, IActivatable
+public class ReferencePayment : Entity, IActivatable
 {
     public bool Active { get; set; } = true;
     public int ParadaId { get; set; }

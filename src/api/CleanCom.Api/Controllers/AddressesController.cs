@@ -11,7 +11,7 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("direcciones")]
 [Tags("Invitados")]
-public class DireccionesController(IGeocoder geocoder) : ControllerBase
+public class AddressesController(IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
     /// Coordinates of a typed address, to place the pin on the map of the address form. The office moves the pin

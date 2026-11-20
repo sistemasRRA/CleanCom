@@ -344,8 +344,8 @@ function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; on
               <div className="ficha__grid">
                 <section className="stack">
                   <h3>Direcciones</h3>
-                  {f.invitado.direcciones.length === 0 && <div className="alert">Sin direcciones.</div>}
-                  {f.invitado.direcciones.map((dir) => (
+                  {f.invitado.addresses.length === 0 && <div className="alert">Sin direcciones.</div>}
+                  {f.invitado.addresses.map((dir) => (
                     <div key={dir.id} className="address-option">
                       <span>
                         {dir.label && <strong>{dir.label}: </strong>}
@@ -367,9 +367,9 @@ function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; on
                       </button>
                     )}
                   </div>
-                  {f.contactos.length === 0 && <span className="muted">Sin contactos registrados.</span>}
+                  {f.contacts.length === 0 && <span className="muted">Sin contactos registrados.</span>}
                   <ul className="timeline">
-                    {f.contactos.map((c) => (
+                    {f.contacts.map((c) => (
                       <li key={c.id}>
                         <strong>
                           {c.channel} · {resultName(c.result)}

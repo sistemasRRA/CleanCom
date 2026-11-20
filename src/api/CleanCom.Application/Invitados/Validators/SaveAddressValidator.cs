@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace CleanCom.Application.Invitados;
 
-public class SaveDireccionValidator : AbstractValidator<SaveDireccionRequest>
+public class SaveAddressValidator : AbstractValidator<SaveAddressRequest>
 {
-    public SaveDireccionValidator()
+    public SaveAddressValidator()
     {
         RuleFor(x => x.Label).MaximumLength(50).WithName("Etiqueta");
         RuleFor(x => x.Street).NotEmpty().MaximumLength(200).WithName("Calle");

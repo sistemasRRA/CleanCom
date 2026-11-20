@@ -38,7 +38,7 @@ public class ChoferVisitService(
             .Select(r => new ChoferReasonDto(r.Id, r.Text)).ToListAsync(ct);
 
     /// <summary>A photo of the visit (JPG, PNG or WebP, compressed on the phone).</summary>
-    public async Task<EvidenciaDto> UploadPhotoAsync(int paradaId, Stream content, string? contentType, long length,
+    public async Task<EvidenceDto> UploadPhotoAsync(int paradaId, Stream content, string? contentType, long length,
         string? localId, double? lat, double? lng, DateTimeOffset? takenAt, CancellationToken ct)
     {
         if (await ExistingAsync(localId, ct) is { } existing)
@@ -57,11 +57,11 @@ public class ChoferVisitService(
         buffer.Position = 0;
         var path = await files.SaveAsync(buffer, Folder(parada), extension, ct);
         var type = extension switch { ".png" => "image/png", ".webp" => "image/webp", _ => "image/jpeg" };
-        return await AddAsync(parada, EvidenciaKind.Foto, path, type, buffer.Length, localId, lat, lng, takenAt, ct);
+        return await AddAsync(parada, EvidenceKind.Foto, path, type, buffer.Length, localId, lat, lng, takenAt, ct);
     }
 
     /// <summary>The invitado's signature, drawn by the API as an SVG from the strokes.</summary>
-    public async Task<EvidenciaDto> SignAsync(SignatureRequest r, CancellationToken ct)
+    public async Task<EvidenceDto> SignAsync(SignatureRequest r, CancellationToken ct)
     {
         if (await ExistingAsync(r.LocalId, ct) is { } existing)
         {
@@ -75,7 +75,7 @@ public class ChoferVisitService(
         var svg = SignatureSvg(r);
         using var content = new MemoryStream(Encoding.UTF8.GetBytes(svg));
         var path = await files.SaveAsync(content, Folder(parada), ".svg", ct);
-        return await AddAsync(parada, EvidenciaKind.Firma, path, "image/svg+xml", content.Length, r.LocalId, null, null, r.TakenAt, ct);
+        return await AddAsync(parada, EvidenceKind.Firma, path, "image/svg+xml", content.Length, r.LocalId, null, null, r.TakenAt, ct);
     }
 
     /// <summary>The visit was done: recolección → Recolectado, entrega → Entregado.</summary>
@@ -88,7 +88,7 @@ public class ChoferVisitService(
             return await chofer.RutaAsync(date, ct);
         }
         VisitClosing.EnsureCanClose(ordered.First(p => p.Id == paradaId), ordered, await OrderRequiredAsync(date, ct));
-        var photos = await db.Evidencias.CountAsync(e => e.ParadaId == paradaId && e.Active && e.Kind == EvidenciaKind.Foto, ct);
+        var photos = await db.Evidence.CountAsync(e => e.ParadaId == paradaId && e.Active && e.Kind == EvidenceKind.Foto, ct);
         var photoRequired = await settings.GetBooleanAsync(SettingKeys.VisitPhotoRequired, ct);
         VisitClosing.EnsureComplete(parada.Kind, parada.PedidoId is not null,
             new VisitCloseData(r.Garments, r.PaymentMethod, r.PaymentAmount, photos), photoRequired);
@@ -98,7 +98,7 @@ public class ChoferVisitService(
         parada.GarmentsCollected = r.Garments;
         if (r.PaymentMethod is { } method && r.PaymentAmount is { } amount)
         {
-            db.CobrosReferencia.Add(new CobroReferencia { ParadaId = parada.Id, Method = method, Amount = amount });
+            db.ReferencePayments.Add(new ReferencePayment { ParadaId = parada.Id, Method = method, Amount = amount });
         }
 
         string? message = null;
@@ -134,7 +134,7 @@ public class ChoferVisitService(
             return await chofer.RutaAsync(date, ct);
         }
         VisitClosing.EnsureCanClose(ordered.First(p => p.Id == paradaId), ordered, await OrderRequiredAsync(date, ct));
-        var photos = await db.Evidencias.CountAsync(e => e.ParadaId == paradaId && e.Active && e.Kind == EvidenciaKind.Foto, ct);
+        var photos = await db.Evidence.CountAsync(e => e.ParadaId == paradaId && e.Active && e.Kind == EvidenceKind.Foto, ct);
         VisitClosing.EnsureNotDone(r.ReasonId, r.Note, photos, await settings.GetBooleanAsync(SettingKeys.VisitPhotoRequired, ct));
         if (r.ReasonId is { } reasonId && !await db.Reasons.AnyAsync(x => x.Id == reasonId && x.Type == ReasonType.FailedEntrega && x.Active, ct))
         {
@@ -183,17 +183,17 @@ public class ChoferVisitService(
         parada.CloseLocalId = localId;
     }
 
-    private async Task<EvidenciaDto?> ExistingAsync(string? localId, CancellationToken ct) =>
-        localId is null ? null : await db.Evidencias.AsNoTracking().Where(e => e.LocalId == localId)
-            .Select(e => new EvidenciaDto(e.Id, e.ParadaId, e.Kind, e.TakenAt, e.DistanceMeters)).FirstOrDefaultAsync(ct);
+    private async Task<EvidenceDto?> ExistingAsync(string? localId, CancellationToken ct) =>
+        localId is null ? null : await db.Evidence.AsNoTracking().Where(e => e.LocalId == localId)
+            .Select(e => new EvidenceDto(e.Id, e.ParadaId, e.Kind, e.TakenAt, e.DistanceMeters)).FirstOrDefaultAsync(ct);
 
-    private async Task<EvidenciaDto> AddAsync(Parada parada, EvidenciaKind kind, string path, string contentType, long size,
+    private async Task<EvidenceDto> AddAsync(Parada parada, EvidenceKind kind, string path, string contentType, long size,
         string? localId, double? lat, double? lng, DateTimeOffset? takenAt, CancellationToken ct)
     {
         var point = lat is { } la && lng is { } ln ? Geo.CreatePoint(la, ln) : null;
         var place = await chofer.ParadaLocationAsync(parada.Id, ct);
         var now = clock.UtcNow;
-        var evidencia = new Evidencia
+        var evidence = new Evidence
         {
             ParadaId = parada.Id,
             Kind = kind,
@@ -208,9 +208,9 @@ public class ChoferVisitService(
                 : null,
             LocalId = string.IsNullOrWhiteSpace(localId) ? null : localId,
         };
-        db.Evidencias.Add(evidencia);
+        db.Evidence.Add(evidence);
         await db.SaveChangesAsync(ct);
-        return new EvidenciaDto(evidencia.Id, evidencia.ParadaId, kind, evidencia.TakenAt, evidencia.DistanceMeters);
+        return new EvidenceDto(evidence.Id, evidence.ParadaId, kind, evidence.TakenAt, evidence.DistanceMeters);
     }
 
     private static string Folder(Parada parada) => $"evidencias/{parada.RutaDia!.Date:yyyy/MM}";

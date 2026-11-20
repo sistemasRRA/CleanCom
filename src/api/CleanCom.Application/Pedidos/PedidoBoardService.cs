@@ -72,7 +72,7 @@ public class PedidoBoardService(
         var info = await db.Pedidos.AsNoTracking().Where(p => p.Id == id)
             .Select(p => new
             {
-                p.Direccion!.Street, p.Direccion.ExteriorNumber, p.Direccion.InteriorNumber, p.Direccion.Neighborhood,
+                p.Address!.Street, p.Address.ExteriorNumber, p.Address.InteriorNumber, p.Address.Neighborhood,
                 p.DriverNotes, p.Origin, p.RegisteredAt,
             })
             .FirstAsync(ct);
@@ -96,9 +96,9 @@ public class PedidoBoardService(
             {
                 p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes,
                 Reason = p.NoRealizadaReasonId == null ? null : db.Reasons.Where(x => x.Id == p.NoRealizadaReasonId).Select(x => x.Text).FirstOrDefault(),
-                Cobro = db.CobrosReferencia.Where(c => c.ParadaId == p.Id && c.Active).Select(c => new { c.Method, c.Amount }).FirstOrDefault(),
-                Evidencias = p.Evidencias.Where(e => e.Active).OrderBy(e => e.TakenAt)
-                    .Select(e => new EvidenciaRefDto(e.Id, e.Kind, e.TakenAt, e.DistanceMeters)).ToList(),
+                Cobro = db.ReferencePayments.Where(c => c.ParadaId == p.Id && c.Active).Select(c => new { c.Method, c.Amount }).FirstOrDefault(),
+                Evidence = p.Evidence.Where(e => e.Active).OrderBy(e => e.TakenAt)
+                    .Select(e => new EvidenceRefDto(e.Id, e.Kind, e.TakenAt, e.DistanceMeters)).ToList(),
             })
             .ToListAsync(ct);
 
@@ -109,7 +109,7 @@ public class PedidoBoardService(
             paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active,
                 p.ClosedAt, p.GarmentsCollected,
                 string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
-                p.Cobro?.Method, p.Cobro?.Amount, p.Evidencias)).ToList());
+                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence)).ToList());
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public class PedidoBoardService(
                 Pedido = p,
                 InvitadoName = p.Invitado!.Name,
                 Phone = p.Invitado.WhatsAppPhone,
-                ZonaCode = p.Direccion!.Zona == null ? null : p.Direccion.Zona.Code,
+                ZonaCode = p.Address!.Zona == null ? null : p.Address.Zona.Code,
                 Lineas = p.LineasServicio.Select(l => l.LineaServicio!.Name).ToList(),
                 ProcessingDays = p.LineasServicio.Max(l => l.LineaServicio!.ProcessingDays),
                 // The ruta of its latest visit (the entrega once it has one).

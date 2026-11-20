@@ -43,7 +43,7 @@ public class ChoferController(ChoferService service, ChoferVisitService visits) 
     [HttpPost("evidencias")]
     [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
     [RequestSizeLimit(ChoferVisitService.MaxPhotoBytes + 64 * 1024)]
-    public async Task<EvidenciaDto> UploadPhoto([FromForm] PhotoUpload form, CancellationToken ct)
+    public async Task<EvidenceDto> UploadPhoto([FromForm] PhotoUpload form, CancellationToken ct)
     {
         await using var content = form.File.OpenReadStream();
         return await visits.UploadPhotoAsync(form.ParadaId, content, form.File.ContentType, form.File.Length, form.LocalId,
@@ -59,7 +59,7 @@ public class ChoferController(ChoferService service, ChoferVisitService visits) 
     /// <summary>The invitado's signature as strokes; the API draws it.</summary>
     [HttpPost("evidencias/firma")]
     [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
-    public Task<EvidenciaDto> Sign(SignatureRequest request, CancellationToken ct) =>
+    public Task<EvidenceDto> Sign(SignatureRequest request, CancellationToken ct) =>
         visits.SignAsync(request, ct);
 
     /// <summary>Cerrar visita: recolección → Recolectado, entrega → Entregado. Photo first when Visita.FotoObligatoria.</summary>

@@ -24,7 +24,7 @@ public class CrmService(
     IBusinessClock clock,
     InvitadoService invitados,
     PedidoService pedidos,
-    IValidator<SaveContactoRequest> contactoValidator,
+    IValidator<SaveContactRequest> contactValidator,
     IValidator<SaveSeguimientoRequest> seguimientoValidator)
 {
     private static readonly CrmStatus[] CallStatuses = [CrmStatus.LeToca, CrmStatus.EnRiesgo];
@@ -82,22 +82,22 @@ public class CrmService(
         var invitado = await db.Invitados.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id && i.Active, ct)
             ?? throw new NotFoundException($"El invitado {id} no existe.");
         var row = (await EvaluateAsync(id, ct)).Single();
-        var contactos = await db.Contactos.AsNoTracking()
+        var contacts = await db.Contacts.AsNoTracking()
             .Where(c => c.InvitadoId == id && c.Active)
             .OrderByDescending(c => c.ContactedAt)
-            .Select(c => new ContactoDto(c.Id, c.Channel, c.Result, c.Note, c.NextContactOn, c.ContactedAt))
+            .Select(c => new ContactDto(c.Id, c.Channel, c.Result, c.Note, c.NextContactOn, c.ContactedAt))
             .ToListAsync(ct);
         var history = (await pedidos.ListAsync(DateOnly.MinValue, null, id, ct)).OrderByDescending(p => p.RecoleccionDate).ToList();
-        return new CrmFichaDto(await invitados.GetAsync(id, ct), row.Dto, invitado.ManualStatus, invitado.FixedFrequencyDays, history, contactos);
+        return new CrmFichaDto(await invitados.GetAsync(id, ct), row.Dto, invitado.ManualStatus, invitado.FixedFrequencyDays, history, contacts);
     }
 
     /// <summary>
     /// Records a call or WhatsApp. Without a date, the next contact follows the result (settings); "no contactar" marks
     /// the invitado so they leave "Llamar hoy". Either way they leave the list until the next contact date.
     /// </summary>
-    public async Task<CrmFichaDto> AddContactoAsync(int id, SaveContactoRequest r, CancellationToken ct)
+    public async Task<CrmFichaDto> AddContactAsync(int id, SaveContactRequest r, CancellationToken ct)
     {
-        await contactoValidator.ValidateAndThrowAsync(r, ct);
+        await contactValidator.ValidateAndThrowAsync(r, ct);
         var invitado = await db.Invitados.FirstOrDefaultAsync(i => i.Id == id && i.Active, ct)
             ?? throw new NotFoundException($"El invitado {id} no existe.");
         var today = clock.Today;
@@ -110,9 +110,9 @@ public class CrmService(
             await settings.GetIntegerAsync(SettingKeys.CrmNoAnswerDays, ct),
             await settings.GetIntegerAsync(SettingKeys.CrmCallLaterDays, ct),
             await settings.GetIntegerAsync(SettingKeys.CrmNotNowDays, ct));
-        var next = r.NextContactOn ?? Contacto.DefaultNextContact(r.Result, today, days);
+        var next = r.NextContactOn ?? Contact.DefaultNextContact(r.Result, today, days);
 
-        db.Contactos.Add(new Contacto
+        db.Contacts.Add(new Contact
         {
             InvitadoId = id,
             Channel = r.Channel,
@@ -173,7 +173,7 @@ public class CrmService(
                 i.ManualStatus,
                 i.FixedFrequencyDays,
                 // First active address with a zona: the one the CRM uses for the visit days.
-                Direccion = i.Direcciones.Where(d => d.Active).OrderBy(d => d.ZonaId == null).ThenBy(d => d.Id)
+                Address = i.Addresses.Where(d => d.Active).OrderBy(d => d.ZonaId == null).ThenBy(d => d.Id)
                     .Select(d => new { d.Neighborhood, ZonaCode = d.Zona == null ? null : d.Zona.Code, d.Zona })
                     .FirstOrDefault(),
             })
@@ -191,7 +191,7 @@ public class CrmService(
 
         return people.Select(p =>
         {
-            var zona = p.Direccion?.Zona is { } z && zonas.TryGetValue(z.Id, out var full) ? full : null;
+            var zona = p.Address?.Zona is { } z && zonas.TryGetValue(z.Id, out var full) ? full : null;
             IReadOnlyCollection<DayOfWeek> visitDays = zona?.EffectiveVisitDays() ?? [];
             var dates = byInvitado[p.Id].ToList();
             var nextVisit = CrmRules.NextVisitDay(today.AddDays(1), visitDays);
@@ -204,7 +204,7 @@ public class CrmService(
             var nextRecoleccion = dates.Where(d => d > today).Order().Cast<DateOnly?>().FirstOrDefault();
 
             return new Row(
-                new CrmRowDto(p.Id, p.Name, p.WhatsAppPhone, p.Type, p.Direccion?.Neighborhood, p.Direccion?.ZonaCode, zona?.Ruta?.Code,
+                new CrmRowDto(p.Id, p.Name, p.WhatsAppPhone, p.Type, p.Address?.Neighborhood, p.Address?.ZonaCode, zona?.Ruta?.Code,
                     status, p.ManualStatus is not null, why, e.ServiceCount, e.FrequencyDays, e.LastService, e.LeTocaDate,
                     suggested, nextRecoleccion, p.NextContactOn, p.DoNotContact),
                 zona?.RutaId,

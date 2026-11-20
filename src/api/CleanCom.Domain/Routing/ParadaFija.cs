@@ -99,7 +99,7 @@ public class ParadaFija : Entity, IActivatable
             Title = Name,
             Activity = paso.Activity,
             LugarId = paso.LugarId,
-            Address = paso.LugarId is null ? paso.Address : null,
+            AddressText = paso.LugarId is null ? paso.Address : null,
             Location = paso.LugarId is null ? paso.Location : null,
             Notes = JoinNotes(DriverNotes, paso.Notes),
         }).ToList();

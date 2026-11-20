@@ -12,4 +12,4 @@ public record CrmFichaDto(
     CrmStatus? ManualStatus,
     int? FixedFrequencyDays,
     IReadOnlyList<PedidoDto> Pedidos,
-    IReadOnlyList<ContactoDto> Contactos);
+    IReadOnlyList<ContactDto> Contacts);
