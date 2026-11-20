@@ -507,6 +507,8 @@ internal class UnidadConfig : IEntityTypeConfiguration<Unidad>
     public void Configure(EntityTypeBuilder<Unidad> e)
     {
         e.ToTable("Unidades");
+        // Rows created before the type existed are "Otro".
+        e.Property(x => x.Type).HasDefaultValue(UnidadType.Otro).HasSentinel(UnidadType.Otro);
         e.Property(x => x.Plate).HasMaxLength(15);
         e.Property(x => x.Brand).HasMaxLength(60);
         e.Property(x => x.Model).HasMaxLength(60);

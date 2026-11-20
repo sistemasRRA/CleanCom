@@ -6311,6 +6311,7 @@ export interface components {
             active: boolean;
             /** @default false */
             verificationExempt: boolean;
+            type?: components["schemas"]["UnidadType"];
         };
         SaveZonaRequest: {
             code: string;
@@ -6527,6 +6528,9 @@ export interface components {
             /** Format: int32 */
             openFailures: number;
             verificationExempt: boolean;
+            type: components["schemas"]["UnidadType"];
+            /** Format: int32 */
+            photoId: null | number;
         };
         UnidadDetailDto: {
             card: components["schemas"]["UnidadCardDto"];
@@ -6557,7 +6561,7 @@ export interface components {
             createdAt: string;
         };
         /** @enum {unknown} */
-        UnidadDocumentKind: "Seguro" | "TarjetaCirculacion" | "Verificacion" | "Comprobante" | "Otro";
+        UnidadDocumentKind: "Seguro" | "TarjetaCirculacion" | "Verificacion" | "Comprobante" | "Otro" | "Foto";
         UnidadesDto: {
             unidades: components["schemas"]["UnidadCardDto"][];
             /** Format: int32 */
@@ -6584,6 +6588,8 @@ export interface components {
         UnidadEventKind: "Servicio" | "Reparacion" | "Falla" | "Pago" | "Kilometraje";
         /** @enum {unknown} */
         UnidadState: "Activa" | "FueraDeServicio";
+        /** @enum {unknown} */
+        UnidadType: "Otro" | "Furgoneta" | "Pickup" | "Trimoto";
         UpdateUserRequest: {
             fullName: string;
             email: null | string;

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { useSession } from '../../session/Session';
 import { ActiveBadge, Checkbox, Dialog, Field, PageHeader, QueryState, optional, optionalNumber, useAction, useSave } from '../../components/Common';
+import { LABEL as TYPE_LABEL, UnidadIcon } from '../../components/UnidadIcon';
 
 type Card = Schemas['UnidadCardDto'];
 type Detail = Schemas['UnidadDetailDto'];
@@ -29,6 +30,7 @@ const DOCUMENT: Record<DocumentKind, string> = {
   Verificacion: 'Verificación',
   Comprobante: 'Comprobante',
   Otro: 'Otro',
+  Foto: 'Foto de la unidad',
 };
 const SEVERITY: Record<Severity, string> = { Baja: 'Baja', Media: 'Media', Alta: 'Alta' };
 const FREQUENCY: Record<Frequency, string> = {
@@ -116,15 +118,20 @@ export function Unidades() {
 function UnidadCard({ unidad: u, onOpen }: { unidad: Card; onOpen: () => void }) {
   return (
     <button type="button" className={`unidad-card${u.pending ? ' pending' : ''}${u.active ? '' : ' inactive'}`} onClick={onOpen}>
-      <header>
-        <strong className="unidad-plate">{u.plate}</strong>
-        {u.state === 'FueraDeServicio' && <span className="badge danger">Fuera de servicio</span>}
-        {!u.active && <ActiveBadge active={false} />}
-      </header>
-      <span className="muted">
-        {u.brand} {u.model} {u.year} · {km(u.km)}
-        {u.kmUpdatedAt && ` al ${day(u.kmUpdatedAt)}`}
-      </span>
+      <div className="unidad-card__head">
+        <UnidadAvatar unidad={u} />
+        <div>
+          <header>
+            <strong className="unidad-plate">{u.plate}</strong>
+            {u.state === 'FueraDeServicio' && <span className="badge danger">Fuera de servicio</span>}
+            {!u.active && <ActiveBadge active={false} />}
+          </header>
+          <span className="muted">
+            {u.brand} {u.model} {u.year} · {km(u.km)}
+            {u.kmUpdatedAt && ` al ${day(u.kmUpdatedAt)}`}
+          </span>
+        </div>
+      </div>
       {u.alerts.length > 0 && (
         <ul className="unidad-alerts">
           {u.alerts.map((a, i) => (
@@ -155,7 +162,27 @@ function UnidadCard({ unidad: u, onOpen }: { unidad: Card; onOpen: () => void })
   );
 }
 
-type Action = 'edit' | 'event' | 'document' | { payment: Schemas['RecurringPaymentDto'] | null } | null;
+/** The unidad's photo, or the icon of its type while it has none. */
+function UnidadAvatar({ unidad: u }: { unidad: Card }) {
+  const photo = useQuery({
+    queryKey: ['unidades', u.id, 'foto', u.photoId],
+    enabled: u.photoId != null,
+    staleTime: Infinity,
+    queryFn: async () =>
+      URL.createObjectURL(
+        (await unwrap(
+          api.GET('/unidades/{id}/documentos/{documentoId}/archivo', { params: { path: { id: u.id, documentoId: u.photoId! } }, parseAs: 'blob' }),
+        )) as Blob,
+      ),
+  });
+  return (
+    <span className={`unidad-avatar type-${u.type.toLowerCase()}`} title={TYPE_LABEL[u.type]}>
+      {photo.data ? <img src={photo.data} alt={`Foto de ${u.plate}`} /> : <UnidadIcon type={u.type} size={56} />}
+    </span>
+  );
+}
+
+type Action = 'edit' | 'event' | 'document' | 'photo' | { payment: Schemas['RecurringPaymentDto'] | null } | null;
 
 function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; onClose: () => void }) {
   const detail = useQuery({ queryKey: detailKey(id), queryFn: () => unwrap(api.GET('/unidades/{id}', { params: { path: { id } } })) });
@@ -201,6 +228,9 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
                   </button>
                   <button type="button" onClick={() => setAction('document')}>
                     Agregar documento
+                  </button>
+                  <button type="button" onClick={() => setAction('photo')}>
+                    {d.card.photoId ? 'Cambiar foto' : 'Agregar foto'}
                   </button>
                   <button type="button" onClick={() => setAction({ payment: null })}>
                     Nuevo pago recurrente
@@ -320,6 +350,7 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
       {d && action === 'edit' && <UnidadForm detail={d} onClose={() => setAction(null)} onSaved={() => setAction(null)} />}
       {d && action === 'event' && <EventForm detail={d} onClose={() => setAction(null)} />}
       {d && action === 'document' && <DocumentForm detail={d} onClose={() => setAction(null)} />}
+      {d && action === 'photo' && <DocumentForm detail={d} photo onClose={() => setAction(null)} />}
       {d && action && typeof action === 'object' && <PaymentForm unidadId={id} payment={action.payment} onClose={() => setAction(null)} />}
     </Dialog>
   );
@@ -359,6 +390,7 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
     serviceEveryMonths: detail?.serviceEveryMonths != null ? String(detail.serviceEveryMonths) : '',
     outOfService: c?.state === 'FueraDeServicio',
     verificationExempt: c?.verificationExempt ?? false,
+    type: c?.type ?? ('Otro' as Schemas['UnidadType']),
     notes: detail?.notes ?? '',
     active: c?.active ?? true,
   });
@@ -376,6 +408,7 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
     notes: optional(f.notes),
     active: f.active,
     verificationExempt: f.verificationExempt,
+    type: f.type,
   };
   const save = useSave(
     () =>
@@ -390,6 +423,15 @@ function UnidadForm({ detail, onClose, onSaved }: { detail?: Detail; onClose: ()
       <div className="form-grid">
         <Field label="Placa" hint="Se guarda sin espacios ni guiones.">
           <input value={f.plate} onChange={(e) => set({ plate: e.target.value })} required maxLength={15} />
+        </Field>
+        <Field label="Tipo">
+          <select value={f.type} onChange={(e) => set({ type: e.target.value as Schemas['UnidadType'] })}>
+            {(Object.keys(TYPE_LABEL) as Schemas['UnidadType'][]).map((t) => (
+              <option key={t} value={t}>
+                {TYPE_LABEL[t]}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Marca">
           <input value={f.brand} onChange={(e) => set({ brand: e.target.value })} required maxLength={60} />
@@ -495,9 +537,10 @@ function EventForm({ detail, onClose }: { detail: Detail; onClose: () => void })
   );
 }
 
-function DocumentForm({ detail, onClose }: { detail: Detail; onClose: () => void }) {
+/** A document, or with `photo` only the unidad's picture (an image, required). */
+function DocumentForm({ detail, photo = false, onClose }: { detail: Detail; photo?: boolean; onClose: () => void }) {
   const id = detail.card.id;
-  const [f, setF] = useState({ kind: 'Seguro' as DocumentKind, validFrom: '', validUntil: '', description: '', eventId: '' });
+  const [f, setF] = useState({ kind: (photo ? 'Foto' : 'Seguro') as DocumentKind, validFrom: '', validUntil: '', description: '', eventId: '' });
   const [file, setFile] = useState<File | null>(null);
   const set = (patch: Partial<typeof f>) => setF((x) => ({ ...x, ...patch }));
   const save = useSave(
@@ -519,15 +562,24 @@ function DocumentForm({ detail, onClose }: { detail: Detail; onClose: () => void
           },
         }),
       ),
-    { refetch: [listKey, detailKey(id)], message: 'Documento agregado.', onDone: onClose },
+    { refetch: [listKey, detailKey(id)], message: photo ? 'Foto guardada.' : 'Documento agregado.', onDone: onClose },
   );
   const needsUntil = f.kind === 'Seguro' || f.kind === 'TarjetaCirculacion';
+  if (photo) {
+    return (
+      <Dialog title={`Foto de ${detail.card.plate}`} onClose={onClose} onSubmit={() => save.mutate(undefined)} busy={save.isPending} error={save.error}>
+        <Field label="Foto" hint="JPG, PNG o WebP, hasta 15 MB. Se ve en la tarjeta de la unidad.">
+          <input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        </Field>
+      </Dialog>
+    );
+  }
   return (
     <Dialog title={`Documento de ${detail.card.plate}`} onClose={onClose} onSubmit={() => save.mutate(undefined)} busy={save.isPending} error={save.error}>
       <div className="form-grid">
         <Field label="Tipo">
           <select value={f.kind} onChange={(e) => set({ kind: e.target.value as DocumentKind })}>
-            {(Object.keys(DOCUMENT) as DocumentKind[]).map((k) => (
+            {(Object.keys(DOCUMENT) as DocumentKind[]).filter((k) => k !== 'Foto').map((k) => (
               <option key={k} value={k}>
                 {DOCUMENT[k]}
               </option>

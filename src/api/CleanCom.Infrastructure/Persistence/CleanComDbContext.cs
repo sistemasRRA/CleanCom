@@ -76,6 +76,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<UnidadState>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<UnidadType>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<UnidadDocumentKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<UnidadEventKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<FailureSeverity>().HaveConversion<string>().HaveMaxLength(30);

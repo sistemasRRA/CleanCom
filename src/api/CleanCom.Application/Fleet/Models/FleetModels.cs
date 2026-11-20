@@ -17,7 +17,8 @@ public record SaveUnidadRequest(
     UnidadState State,
     string? Notes,
     bool Active = true,
-    bool VerificationExempt = false);
+    bool VerificationExempt = false,
+    UnidadType Type = UnidadType.Otro);
 
 /// <summary>A logbook entry.</summary>
 /// <param name="Severity">Only for a falla, and required there.</param>
@@ -38,6 +39,7 @@ public record FleetAlertDto(FleetAlertEvent Event, FleetAlertLevel Level, string
 
 /// <summary>A unidad's card in Unidades: data, alerts, service and the year's spending.</summary>
 /// <param name="Pending">Alerts that need someone to act (everything except "por vencer").</param>
+/// <param name="PhotoId">Newest photo (document of kind Foto), opened with GET /unidades/{id}/documentos/{documentoId}/archivo.</param>
 public record UnidadCardDto(
     int Id,
     string Plate,
@@ -60,7 +62,9 @@ public record UnidadCardDto(
     DateOnly? CirculationCardUntil,
     DateOnly? LastVerifiedOn,
     int OpenFailures,
-    bool VerificationExempt);
+    bool VerificationExempt,
+    UnidadType Type,
+    int? PhotoId);
 
 public record UnidadDocumentDto(int Id, UnidadDocumentKind Kind, DateOnly? ValidFrom, DateOnly? ValidUntil, string? Description, int? EventId, bool HasFile, DateTimeOffset CreatedAt);
 

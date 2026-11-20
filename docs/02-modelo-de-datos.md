@@ -55,8 +55,8 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
-| `Unidad` | Placa, Marca, Modelo, Anio, CapacidadPrendas?, KmActual, KmActualizadoEn, EstadoServicio (Activa, FueraDeServicio), ExentaVerificacion, ServicioCadaKm?, ServicioCadaMeses?, Notas, Activa | Placa única entre activas |
-| `DocumentoUnidad` | UnidadId, Tipo (Seguro, TarjetaCirculacion, Verificacion, Comprobante, Otro), VigenteDesde?, VigenteHasta?, Descripcion, EventoId?, Archivo?, Activo | En código: `UnidadDocument`. El archivo va en disco |
+| `Unidad` | Placa, Marca, Modelo, Anio, Tipo (Furgoneta, Pickup, Trimoto, Otro), CapacidadPrendas?, KmActual, KmActualizadoEn, EstadoServicio (Activa, FueraDeServicio), ExentaVerificacion, ServicioCadaKm?, ServicioCadaMeses?, Notas, Activa | Placa única entre activas |
+| `DocumentoUnidad` | UnidadId, Tipo (Seguro, TarjetaCirculacion, Verificacion, Comprobante, Otro, Foto), VigenteDesde?, VigenteHasta?, Descripcion, EventoId?, Archivo?, Activo | En código: `UnidadDocument`. El archivo va en disco |
 | `EventoUnidad` | UnidadId, Tipo (Servicio, Reparacion, Falla, Pago, Kilometraje), Fecha, Km?, Monto?, Descripcion, Gravedad?, ResueltaEl?, PagoRecurrenteId?, Activo; quién lo registró en `created_by` | Bitácora. En código: `UnidadEvent` |
 | `PagoRecurrente` | UnidadId, Concepto, Monto, Periodicidad (Mensual, Bimestral, Trimestral, Semestral, Anual), ProximaFecha, Activo | Tenencia, crédito, póliza en pagos. En código: `RecurringPayment` |
 | `ReglaAviso` | Evento (uno por evento), DiasAntes, Destinatarios, Canales | Notificaciones de flota. En código: `FleetAlertRule` |

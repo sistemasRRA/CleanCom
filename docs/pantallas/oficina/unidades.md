@@ -26,7 +26,7 @@ Por correo y notificación en la web (y push si el usuario tiene app). Calendari
 
 ## Endpoints
 
-API y pantalla hechos en la semana 5 (`/unidades`): tarjetas con avisos, ficha con bitácora, documentos (subir y ver archivo) y pagos recurrentes ("Registrar pago" mueve la fecha), alta y edición, fuera de servicio, baja lógica y las reglas de aviso.
+API y pantalla hechos en la semana 5 (`/unidades`): tarjetas con la foto de la unidad (o el ícono de su tipo: furgoneta, pickup, trimoto u otro) y sus avisos, ficha con bitácora, documentos (subir y ver archivo) y pagos recurrentes ("Registrar pago" mueve la fecha), alta y edición, fuera de servicio, baja lógica y las reglas de aviso.
 
 - `GET /unidades` (`?includeInactive=`): tarjetas con alertas, último y próximo servicio, gasto del año, costo por km y `withPending` (para el contador del Panel del día). `GET /unidades/{id}`: tarjeta, documentos, bitácora y pagos recurrentes.
 - `POST /unidades`, `PUT /unidades/{id}` (datos, fuera de servicio, exenta de verificación y baja lógica con `active: false`). La placa se guarda sin espacios ni guiones, en mayúsculas, y no se repite entre unidades activas.

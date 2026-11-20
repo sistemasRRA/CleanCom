@@ -81,6 +81,7 @@ public class UnidadService(
         unidad.ServiceEveryMonths = r.ServiceEveryMonths;
         unidad.State = r.State;
         unidad.VerificationExempt = r.VerificationExempt;
+        unidad.Type = r.Type;
         unidad.Notes = Clean(r.Notes);
         unidad.Active = r.Active;
         if (id is null)
@@ -167,6 +168,10 @@ public class UnidadService(
         {
             throw new DomainException("El tipo de documento no es válido.");
         }
+        if (kind == UnidadDocumentKind.Foto && content is null)
+        {
+            throw new DomainException("Sube la foto de la unidad.");
+        }
         if (kind is UnidadDocumentKind.Seguro or UnidadDocumentKind.TarjetaCirculacion && validUntil is null)
         {
             throw new DomainException("Indica hasta cuándo es vigente.");
@@ -197,7 +202,12 @@ public class UnidadService(
             }
             using var buffer = new MemoryStream();
             await content.CopyToAsync(buffer, ct);
-            var extension = FileSignatures.ImageOrPdf(buffer.GetBuffer().AsSpan(0, (int)buffer.Length))
+            var bytes = buffer.GetBuffer().AsSpan(0, (int)buffer.Length);
+            if (kind == UnidadDocumentKind.Foto && FileSignatures.Image(bytes) is null)
+            {
+                throw new DomainException("La foto debe ser una imagen JPG, PNG o WebP.");
+            }
+            var extension = FileSignatures.ImageOrPdf(bytes)
                 ?? throw new DomainException("El archivo debe ser PDF, JPG, PNG o WebP.");
             buffer.Position = 0;
             path = await files.SaveAsync(buffer, $"unidades/{id}", extension, ct);
@@ -339,6 +349,7 @@ public class UnidadService(
         var insurance = u.Documents.Where(d => d.Kind == UnidadDocumentKind.Seguro).Max(d => d.ValidUntil);
         var card = u.Documents.Where(d => d.Kind == UnidadDocumentKind.TarjetaCirculacion).Max(d => d.ValidUntil);
         var verified = u.Documents.Where(d => d.Kind == UnidadDocumentKind.Verificacion).Max(d => d.ValidFrom);
+        var photo = u.Documents.Where(d => d.Kind == UnidadDocumentKind.Foto && d.FilePath != null).OrderByDescending(d => d.Id).FirstOrDefault();
         var lastService = u.Events.Where(e => e.Kind == UnidadEventKind.Servicio).OrderByDescending(e => e.Date).ThenByDescending(e => e.Id).FirstOrDefault();
         var due = FleetRules.NextService(lastService?.Date, lastService?.Km, u.ServiceEveryKm ?? c.EveryKm, u.ServiceEveryMonths ?? c.EveryMonths);
         var openFailures = u.Events.Where(e => e.Kind == UnidadEventKind.Falla && e.ResolvedOn is null).OrderByDescending(e => e.Date).ToList();
@@ -369,7 +380,7 @@ public class UnidadService(
             list.Any(a => a.Level != FleetAlertLevel.PorVencer),
             lastService?.Date, lastService?.Km, due?.Date, due?.Km,
             spent, FleetRules.CostPerKm(spent, kmAtStart, u.Km),
-            insurance, card, verified, openFailures.Count, u.VerificationExempt);
+            insurance, card, verified, openFailures.Count, u.VerificationExempt, u.Type, photo?.Id);
     }
 
     /// <summary>"abc-123 4" → "ABC1234": the plate without spaces or dashes, in capitals.</summary>

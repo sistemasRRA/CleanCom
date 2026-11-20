@@ -8,6 +8,15 @@ public enum UnidadState
     FueraDeServicio,
 }
 
+/// <summary>Kind of vehicle; the office web draws its icon when there is no photo.</summary>
+public enum UnidadType
+{
+    Otro,
+    Furgoneta,
+    Pickup,
+    Trimoto,
+}
+
 /// <summary>A delivery vehicle (docs/pantallas/oficina/unidades.md).</summary>
 public class Unidad : Entity, IActivatable
 {
@@ -21,6 +30,7 @@ public class Unidad : Entity, IActivatable
     public int Km { get; set; }
     public DateTimeOffset? KmUpdatedAt { get; set; }
     public UnidadState State { get; set; } = UnidadState.Activa;
+    public UnidadType Type { get; set; } = UnidadType.Otro;
     /// <summary>Does not verify (for example the trimotos): no verificación notice.</summary>
     public bool VerificationExempt { get; set; }
     /// <summary>Service every this many km; Unidad.ServicioCadaKm when null.</summary>
@@ -42,6 +52,8 @@ public enum UnidadDocumentKind
     Verificacion,
     Comprobante,
     Otro,
+    /// <summary>Photo of the unidad, shown on its card (the newest one).</summary>
+    Foto,
 }
 
 /// <summary>

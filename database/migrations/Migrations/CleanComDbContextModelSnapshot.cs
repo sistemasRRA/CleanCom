@@ -1459,6 +1459,14 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("state");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Otro")
+                        .HasColumnName("type");
+
                     b.Property<bool>("VerificationExempt")
                         .HasColumnType("bit")
                         .HasColumnName("verification_exempt");
