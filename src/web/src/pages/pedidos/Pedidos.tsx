@@ -234,9 +234,9 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
                   {p.garmentsCollected != null && ` · ${p.garmentsCollected} prendas`}
                   {p.paymentMethod && ` · pagó ${p.paymentAmount?.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (${p.paymentMethod.toLowerCase()}, referencia)`}
                   {p.closeNote && <div className="muted">{p.state === 'NoRealizada' ? 'Motivo' : 'Notas'}: {p.closeNote}</div>}
-                  {p.evidencias && p.evidencias.length > 0 && (
+                  {p.evidence && p.evidence.length > 0 && (
                     <div className="evidencias">
-                      {p.evidencias.map((e) => (
+                      {p.evidence.map((e) => (
                         <EvidenciaThumb key={e.id} id={e.id} kind={e.kind} distance={e.distanceMeters} />
                       ))}
                     </div>
@@ -261,7 +261,7 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
 }
 
 /** Photo or signature of a visit; the file needs the session, so it is fetched and shown as a local URL. */
-function EvidenciaThumb({ id, kind, distance }: { id: number; kind: Schemas['EvidenciaKind']; distance?: number | null }) {
+function EvidenciaThumb({ id, kind, distance }: { id: number; kind: Schemas['EvidenceKind']; distance?: number | null }) {
   const file = useQuery({
     queryKey: ['evidencias', id],
     queryFn: async () => URL.createObjectURL(await unwrap(api.GET('/evidencias/{id}/archivo', { params: { path: { id } }, parseAs: 'blob' })) as Blob),

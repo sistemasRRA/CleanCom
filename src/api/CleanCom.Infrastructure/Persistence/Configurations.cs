@@ -254,15 +254,15 @@ internal class InvitadoConfig : IEntityTypeConfiguration<Invitado>
         e.HasIndex(x => x.Name);
         e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => x.UserId).IsUnique().HasFilter("[user_id] IS NOT NULL");
-        e.HasMany(x => x.Direcciones).WithOne(d => d.Invitado).HasForeignKey(d => d.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Addresses).WithOne(d => d.Invitado).HasForeignKey(d => d.InvitadoId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 
-internal class DireccionConfig : IEntityTypeConfiguration<Direccion>
+internal class AddressConfig : IEntityTypeConfiguration<Address>
 {
-    public void Configure(EntityTypeBuilder<Direccion> e)
+    public void Configure(EntityTypeBuilder<Address> e)
     {
-        e.ToTable("Direcciones");
+        e.ToTable("Addresses");
         e.Property(x => x.Label).HasMaxLength(50);
         e.Property(x => x.Street).HasMaxLength(200);
         e.Property(x => x.ExteriorNumber).HasMaxLength(20);
@@ -285,7 +285,7 @@ internal class PedidoConfig : IEntityTypeConfiguration<Pedido>
         e.Property(x => x.Active).HasDefaultValue(true);
         e.Property(x => x.DriverNotes).HasMaxLength(500);
         e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
-        e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Address).WithMany().HasForeignKey(x => x.AddressId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.LineasServicio).WithOne().HasForeignKey(l => l.PedidoId).OnDelete(DeleteBehavior.Cascade);
         e.HasIndex(x => new { x.Etapa, x.RecoleccionDate });
         e.HasMany(x => x.Eventos).WithOne().HasForeignKey(v => v.PedidoId).OnDelete(DeleteBehavior.Restrict);
@@ -350,12 +350,12 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.Property(x => x.Active).HasDefaultValue(true);
         e.Property(x => x.Notes).HasMaxLength(500);
         e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
-        e.HasOne(x => x.Direccion).WithMany().HasForeignKey(x => x.DireccionId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Address).WithMany().HasForeignKey(x => x.AddressId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne(x => x.Lugar).WithMany().HasForeignKey(x => x.LugarId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.RutaDiaId, x.Kind });
         e.Property(x => x.Title).HasMaxLength(150);
         e.Property(x => x.Activity).HasMaxLength(200);
-        e.Property(x => x.Address).HasMaxLength(300);
+        e.Property(x => x.AddressText).HasMaxLength(300);
         e.Property(x => x.Location).HasColumnType("geography");
         e.Property(x => x.ArrivedLocation).HasColumnType("geography");
         // Rows created before placement existed are placed by routing.
@@ -367,15 +367,15 @@ internal class ParadaConfig : IEntityTypeConfiguration<Parada>
         e.Property(x => x.CloseNotes).HasMaxLength(1000);
         e.Property(x => x.CloseLocalId).HasMaxLength(64);
         e.HasOne<Reason>().WithMany().HasForeignKey(x => x.NoRealizadaReasonId).OnDelete(DeleteBehavior.Restrict);
-        e.HasMany(x => x.Evidencias).WithOne(v => v.Parada).HasForeignKey(v => v.ParadaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Evidence).WithOne(v => v.Parada).HasForeignKey(v => v.ParadaId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 
-internal class EvidenciaConfig : IEntityTypeConfiguration<Evidencia>
+internal class EvidenceConfig : IEntityTypeConfiguration<Evidence>
 {
-    public void Configure(EntityTypeBuilder<Evidencia> e)
+    public void Configure(EntityTypeBuilder<Evidence> e)
     {
-        e.ToTable("Evidencias");
+        e.ToTable("Evidence");
         e.Property(x => x.FilePath).HasMaxLength(300);
         e.Property(x => x.ContentType).HasMaxLength(100);
         e.Property(x => x.LocalId).HasMaxLength(64);
@@ -385,11 +385,11 @@ internal class EvidenciaConfig : IEntityTypeConfiguration<Evidencia>
     }
 }
 
-internal class CobroReferenciaConfig : IEntityTypeConfiguration<CobroReferencia>
+internal class ReferencePaymentConfig : IEntityTypeConfiguration<ReferencePayment>
 {
-    public void Configure(EntityTypeBuilder<CobroReferencia> e)
+    public void Configure(EntityTypeBuilder<ReferencePayment> e)
     {
-        e.ToTable("CobrosReferencia");
+        e.ToTable("ReferencePayments");
         e.Property(x => x.Amount).HasPrecision(12, 2);
         e.HasOne<Parada>().WithMany().HasForeignKey(x => x.ParadaId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => x.ParadaId);
@@ -477,11 +477,11 @@ internal class PostalCodeConfig : IEntityTypeConfiguration<PostalCode>
     }
 }
 
-internal class ContactoConfig : IEntityTypeConfiguration<Contacto>
+internal class ContactConfig : IEntityTypeConfiguration<Contact>
 {
-    public void Configure(EntityTypeBuilder<Contacto> e)
+    public void Configure(EntityTypeBuilder<Contact> e)
     {
-        e.ToTable("Contactos");
+        e.ToTable("Contacts");
         e.Property(x => x.Note).HasMaxLength(1000);
         e.HasOne(x => x.Invitado).WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.InvitadoId, x.ContactedAt });

@@ -24,9 +24,9 @@ public enum ContactResult
 public record FollowUpDays(int NoAnswer, int CallLater, int NotNow);
 
 /// <summary>
-/// A call or WhatsApp to an invitado from the CRM (docs/03-reglas-de-negocio.md, CRM › Registro de contacto).
+/// A call or WhatsApp to an invitado from the CRM (docs/03-reglas-de-negocio.md, CRM › Registro de contact).
 /// </summary>
-public class Contacto : Entity, IActivatable
+public class Contact : Entity, IActivatable
 {
     public int InvitadoId { get; set; }
     public Invitado? Invitado { get; set; }

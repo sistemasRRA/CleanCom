@@ -35,12 +35,12 @@ public class PedidoService(ICleanComDbContext db, IBusinessClock clock)
                 p.InvitadoId,
                 InvitadoName = p.Invitado!.Name,
                 p.Invitado.WhatsAppPhone,
-                p.DireccionId,
-                p.Direccion!.Street,
-                p.Direccion.ExteriorNumber,
-                p.Direccion.InteriorNumber,
-                p.Direccion.Neighborhood,
-                ZonaCode = p.Direccion.Zona == null ? null : p.Direccion.Zona.Code,
+                p.AddressId,
+                p.Address!.Street,
+                p.Address.ExteriorNumber,
+                p.Address.InteriorNumber,
+                p.Address.Neighborhood,
+                ZonaCode = p.Address.Zona == null ? null : p.Address.Zona.Code,
                 RutaCode = db.Paradas.Where(x => x.PedidoId == p.Id && x.Active).Select(x => x.RutaDia!.Ruta!.Code).FirstOrDefault(),
                 p.Etapa,
                 p.Turno,
@@ -56,7 +56,7 @@ public class PedidoService(ICleanComDbContext db, IBusinessClock clock)
             .ToListAsync(ct);
 
         return rows.Select(p => new PedidoDto(
-            p.Id, p.InvitadoId, p.InvitadoName, p.WhatsAppPhone, p.DireccionId,
+            p.Id, p.InvitadoId, p.InvitadoName, p.WhatsAppPhone, p.AddressId,
             Address(p.Street, p.ExteriorNumber, p.InteriorNumber, p.Neighborhood),
             p.ZonaCode, p.RutaCode, p.Etapa, p.Turno, p.SpecificTime, p.Priority, p.GarmentsApprox, p.DriverNotes,
             p.RegisteredAt, p.Origin, p.RecoleccionDate, p.Lineas)).ToList();

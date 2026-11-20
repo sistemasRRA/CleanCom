@@ -14,7 +14,7 @@ Monorepo del sistema de CleanCom (tintorería a domicilio en CDMX): un API en C#
 - **Hora de Ciudad de México.** Todo corte y fecha de negocio se evalúa en `America/Mexico_City`. En base de datos se guarda UTC (`datetimeoffset` o `datetime2` en UTC). Usa el servicio inyectable `IBusinessClock` para poder probar cortes.
 - **Idioma.** Ver la sección [Nombres](#nombres). En resumen: código y comentarios en inglés, términos de dominio en español, todo lo que ve el usuario en español de México. Al cliente final se le llama **invitado**.
 - **Pruebas.** Cada regla de `docs/03-reglas-de-negocio.md` tiene al menos una prueba unitaria en el API, con los ejemplos que trae el documento (por ejemplo: cambio el día 2 a las 12:01 → nueva fecha día 4).
-- **Migraciones.** Solo con EF Core: `dotnet ef migrations add <Name> --project database/migrations/CleanCom.Migrations.csproj --startup-project src/api/CleanCom.Api`. No edites a mano los archivos de `database/migrations`.
+- **Migraciones.** Solo con EF Core: `dotnet ef migrations add <Name> --project database/migrations/CleanCom.Migrations.csproj --startup-project src/api/CleanCom.Api`. No edites a mano los archivos de `database/migrations`. Única excepción: cuando se renombra una entidad, EF genera `DropTable` + `CreateTable` y se perderían los datos; ahí se corrige la migración a mano para que use `RenameTable` (y renombre llaves e índices), sin tocar el snapshot, y se prueba en una base de copia antes de subirla (ver `RenameToEnglishNames`).
 - **Secretos.** Nunca en el repositorio. Llaves de Google, Meta, Twilio, cadena de conexión y JWT van en variables de entorno o `dotnet user-secrets`. Hay un `.env.example` por proyecto.
 - **Nunca se borra en la base: solo baja lógica.** "Eliminar" marca `Active = false` (`IActivatable`) en pedidos, paradas, invitados, direcciones, catálogos y todo dato de negocio; nada de `Remove`, `RemoveRange` ni `DELETE`. Las consultas y reglas (por ejemplo el cupo de la agenda) filtran por `Active`, y los índices únicos que deban poder repetirse tras una baja llevan `HasFilter("[active] = 1")`.
 - **Fotos y documentos** se guardan en disco del servidor (ruta configurable), nunca dentro de SQL Server, para no rebasar el límite de 10 GB de SQL Server Express.
@@ -50,7 +50,7 @@ database/migrations/         Migraciones de EF Core (proyecto CleanCom.Migration
 | Qué | Idioma | Ejemplo |
 | --- | --- | --- |
 | Proyectos, carpetas, clases, métodos, variables, comentarios | Inglés | `CatalogService.CreateRutaAsync`, `Models/`, `Validators/` |
-| Términos de dominio de `docs/glosario.md` | Español, dentro del nombre en inglés | `Ruta`, `Zona`, `ZonaNucleoId`, `CupoParadas`, `LineaServicio`, `Operador`, `Invitado`, `ParadaType`, `RecoleccionGoal` |
+| Términos de dominio de `docs/glosario.md` | El "Nombre en código" del glosario (casi siempre en español), dentro del nombre en inglés | `Ruta`, `Zona`, `ZonaNucleoId`, `CupoParadas`, `LineaServicio`, `Operador`, `Invitado`, `ParadaType`, `RecoleccionGoal` |
 | Propiedades JSON del API | Inglés en camelCase, igual que el código | `{ "code": "F", "cupoParadas": 14, "active": true }` |
 | Tablas y columnas de SQL Server | `snake_case`, derivado del código por `SnakeCaseNaming` | `rutas.cupo_paradas`, `zona_visit_days`, `created_at` |
 | URLs de los endpoints | Español, como están documentadas en `docs/` | `/rutas`, `/dias-inhabiles`, `/auth/renovar` |

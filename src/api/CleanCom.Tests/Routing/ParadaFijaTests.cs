@@ -80,7 +80,7 @@ public class ParadaFijaTests
         var parada = Assert.Single(fija.BuildParadas(new RutaDia { Date = Monday.AddDays(1) }));
         Assert.Null(parada.Viaje);
         Assert.Null(parada.ViajeStep);
-        Assert.Equal("Av. Coyoacán 100", parada.Address);
+        Assert.Equal("Av. Coyoacán 100", parada.AddressText);
         Assert.Equal("Tocar en la puerta de servicio · Preguntar por Ana", parada.Notes);
     }
 

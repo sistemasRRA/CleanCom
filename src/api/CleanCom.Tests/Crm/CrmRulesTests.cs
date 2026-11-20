@@ -3,7 +3,7 @@ using CleanCom.Domain.Crm;
 namespace CleanCom.Tests.Crm;
 
 /// <summary>
-/// docs/03-reglas-de-negocio.md, CRM › Frecuencia y estatus, and Registro de contacto.
+/// docs/03-reglas-de-negocio.md, CRM › Frecuencia y estatus, and Registro de contact.
 /// Thresholds as the initial settings: nuevo 45 days, inactivo 120 days, en riesgo 2 times the frequency.
 /// </summary>
 public class CrmRulesTests
@@ -111,7 +111,7 @@ public class CrmRulesTests
     public void Without_a_date_the_next_contact_follows_the_result(ContactResult result, int days)
     {
         // "No contestó" → tomorrow; "pidió que le llamaran" → in 3 days; "no por ahora" → in 3 weeks.
-        Assert.Equal(Today.AddDays(days), Contacto.DefaultNextContact(result, Today, new FollowUpDays(1, 3, 21)));
+        Assert.Equal(Today.AddDays(days), Contact.DefaultNextContact(result, Today, new FollowUpDays(1, 3, 21)));
     }
 
     [Theory]
@@ -119,6 +119,6 @@ public class CrmRulesTests
     [InlineData(ContactResult.NoContactar)]
     public void After_scheduling_or_do_not_contact_there_is_no_next_contact(ContactResult result)
     {
-        Assert.Null(Contacto.DefaultNextContact(result, Today, new FollowUpDays(1, 3, 21)));
+        Assert.Null(Contact.DefaultNextContact(result, Today, new FollowUpDays(1, 3, 21)));
     }
 }

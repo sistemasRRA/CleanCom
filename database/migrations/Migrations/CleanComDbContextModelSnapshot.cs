@@ -1136,7 +1136,7 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("zona_visit_days", (string)null);
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.Crm.Contacto", b =>
+            modelBuilder.Entity("CleanCom.Domain.Crm.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1195,12 +1195,12 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnName("result");
 
                     b.HasKey("Id")
-                        .HasName("pk_contactos");
+                        .HasName("pk_contacts");
 
                     b.HasIndex("InvitadoId", "ContactedAt")
-                        .HasDatabaseName("ix_contactos_invitado_id_contacted_at");
+                        .HasDatabaseName("ix_contacts_invitado_id_contacted_at");
 
-                    b.ToTable("contactos", (string)null);
+                    b.ToTable("contacts", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Operations.Setting", b =>
@@ -1601,6 +1601,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("active");
 
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int")
+                        .HasColumnName("address_id");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -1608,10 +1612,6 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int")
                         .HasColumnName("created_by");
-
-                    b.Property<int>("DireccionId")
-                        .HasColumnType("int")
-                        .HasColumnName("direccion_id");
 
                     b.Property<string>("DriverNotes")
                         .HasMaxLength(500)
@@ -1683,8 +1683,8 @@ namespace CleanCom.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_pedidos");
 
-                    b.HasIndex("DireccionId")
-                        .HasDatabaseName("ix_pedidos_direccion_id");
+                    b.HasIndex("AddressId")
+                        .HasDatabaseName("ix_pedidos_address_id");
 
                     b.HasIndex("InvitadoId")
                         .HasDatabaseName("ix_pedidos_invitado_id");
@@ -1873,7 +1873,7 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("tickets", (string)null);
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.People.Direccion", b =>
+            modelBuilder.Entity("CleanCom.Domain.People.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1962,15 +1962,15 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnName("zona_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_direcciones");
+                        .HasName("pk_addresses");
 
                     b.HasIndex("InvitadoId")
-                        .HasDatabaseName("ix_direcciones_invitado_id");
+                        .HasDatabaseName("ix_addresses_invitado_id");
 
                     b.HasIndex("ZonaId")
-                        .HasDatabaseName("ix_direcciones_zona_id");
+                        .HasDatabaseName("ix_addresses_zona_id");
 
-                    b.ToTable("direcciones", (string)null);
+                    b.ToTable("addresses", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.People.Invitado", b =>
@@ -2154,60 +2154,7 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("operadores", (string)null);
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.Routing.CobroReferencia", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit")
-                        .HasColumnName("active");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Method")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("method");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("modified_at");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int")
-                        .HasColumnName("modified_by");
-
-                    b.Property<int>("ParadaId")
-                        .HasColumnType("int")
-                        .HasColumnName("parada_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_cobros_referencia");
-
-                    b.HasIndex("ParadaId")
-                        .HasDatabaseName("ix_cobros_referencia_parada_id");
-
-                    b.ToTable("cobros_referencia", (string)null);
-                });
-
-            modelBuilder.Entity("CleanCom.Domain.Routing.Evidencia", b =>
+            modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2280,17 +2227,17 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnName("taken_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_evidencias");
+                        .HasName("pk_evidence");
 
                     b.HasIndex("LocalId")
                         .IsUnique()
-                        .HasDatabaseName("ix_evidencias_local_id")
+                        .HasDatabaseName("ix_evidence_local_id")
                         .HasFilter("[local_id] IS NOT NULL");
 
                     b.HasIndex("ParadaId", "Kind")
-                        .HasDatabaseName("ix_evidencias_parada_id_kind");
+                        .HasDatabaseName("ix_evidence_parada_id_kind");
 
-                    b.ToTable("evidencias", (string)null);
+                    b.ToTable("evidence", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Parada", b =>
@@ -2313,10 +2260,14 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("activity");
 
-                    b.Property<string>("Address")
+                    b.Property<int?>("AddressId")
+                        .HasColumnType("int")
+                        .HasColumnName("address_id");
+
+                    b.Property<string>("AddressText")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)")
-                        .HasColumnName("address");
+                        .HasColumnName("address_text");
 
                     b.Property<DateTimeOffset?>("ArrivedAt")
                         .HasColumnType("datetimeoffset")
@@ -2368,10 +2319,6 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int")
                         .HasColumnName("created_by");
-
-                    b.Property<int?>("DireccionId")
-                        .HasColumnType("int")
-                        .HasColumnName("direccion_id");
 
                     b.Property<DateTimeOffset?>("EnCaminoAt")
                         .HasColumnType("datetimeoffset")
@@ -2468,8 +2415,8 @@ namespace CleanCom.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_paradas");
 
-                    b.HasIndex("DireccionId")
-                        .HasDatabaseName("ix_paradas_direccion_id");
+                    b.HasIndex("AddressId")
+                        .HasDatabaseName("ix_paradas_address_id");
 
                     b.HasIndex("LugarId")
                         .HasDatabaseName("ix_paradas_lugar_id");
@@ -2752,6 +2699,59 @@ namespace CleanCom.Migrations.Migrations
                         .HasFilter("[active] = 1");
 
                     b.ToTable("parada_fija_pasos", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ReferencePayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("method");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("ParadaId")
+                        .HasColumnType("int")
+                        .HasColumnName("parada_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_reference_payments");
+
+                    b.HasIndex("ParadaId")
+                        .HasDatabaseName("ix_reference_payments_parada_id");
+
+                    b.ToTable("reference_payments", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.RutaDia", b =>
@@ -3303,26 +3303,26 @@ namespace CleanCom.Migrations.Migrations
                         .HasConstraintName("fk_zona_visit_days_zonas_zona_id");
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.Crm.Contacto", b =>
+            modelBuilder.Entity("CleanCom.Domain.Crm.Contact", b =>
                 {
                     b.HasOne("CleanCom.Domain.People.Invitado", "Invitado")
                         .WithMany()
                         .HasForeignKey("InvitadoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_contactos_invitados_invitado_id");
+                        .HasConstraintName("fk_contacts_invitados_invitado_id");
 
                     b.Navigation("Invitado");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Pedidos.Pedido", b =>
                 {
-                    b.HasOne("CleanCom.Domain.People.Direccion", "Direccion")
+                    b.HasOne("CleanCom.Domain.People.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("DireccionId")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_pedidos_direcciones_direccion_id");
+                        .HasConstraintName("fk_pedidos_addresses_address_id");
 
                     b.HasOne("CleanCom.Domain.People.Invitado", "Invitado")
                         .WithMany()
@@ -3331,7 +3331,7 @@ namespace CleanCom.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_pedidos_invitados_invitado_id");
 
-                    b.Navigation("Direccion");
+                    b.Navigation("Address");
 
                     b.Navigation("Invitado");
                 });
@@ -3392,20 +3392,20 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("Pedido");
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.People.Direccion", b =>
+            modelBuilder.Entity("CleanCom.Domain.People.Address", b =>
                 {
                     b.HasOne("CleanCom.Domain.People.Invitado", "Invitado")
-                        .WithMany("Direcciones")
+                        .WithMany("Addresses")
                         .HasForeignKey("InvitadoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_direcciones_invitados_invitado_id");
+                        .HasConstraintName("fk_addresses_invitados_invitado_id");
 
                     b.HasOne("CleanCom.Domain.Catalogs.Zona", "Zona")
                         .WithMany()
                         .HasForeignKey("ZonaId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_direcciones_zonas_zona_id");
+                        .HasConstraintName("fk_addresses_zonas_zona_id");
 
                     b.Navigation("Invitado");
 
@@ -3438,35 +3438,25 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("UsualRuta");
                 });
 
-            modelBuilder.Entity("CleanCom.Domain.Routing.CobroReferencia", b =>
-                {
-                    b.HasOne("CleanCom.Domain.Routing.Parada", null)
-                        .WithMany()
-                        .HasForeignKey("ParadaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_cobros_referencia_paradas_parada_id");
-                });
-
-            modelBuilder.Entity("CleanCom.Domain.Routing.Evidencia", b =>
+            modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>
                 {
                     b.HasOne("CleanCom.Domain.Routing.Parada", "Parada")
-                        .WithMany("Evidencias")
+                        .WithMany("Evidence")
                         .HasForeignKey("ParadaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_evidencias_paradas_parada_id");
+                        .HasConstraintName("fk_evidence_paradas_parada_id");
 
                     b.Navigation("Parada");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Parada", b =>
                 {
-                    b.HasOne("CleanCom.Domain.People.Direccion", "Direccion")
+                    b.HasOne("CleanCom.Domain.People.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("DireccionId")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_paradas_direcciones_direccion_id");
+                        .HasConstraintName("fk_paradas_addresses_address_id");
 
                     b.HasOne("CleanCom.Domain.Catalogs.Lugar", "Lugar")
                         .WithMany()
@@ -3505,7 +3495,7 @@ namespace CleanCom.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_paradas_viajes_viaje_id");
 
-                    b.Navigation("Direccion");
+                    b.Navigation("Address");
 
                     b.Navigation("Lugar");
 
@@ -3556,6 +3546,16 @@ namespace CleanCom.Migrations.Migrations
                         .HasConstraintName("fk_parada_fija_pasos_paradas_fijas_parada_fija_id");
 
                     b.Navigation("Lugar");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ReferencePayment", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Routing.Parada", null)
+                        .WithMany()
+                        .HasForeignKey("ParadaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_reference_payments_paradas_parada_id");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.RutaDia", b =>
@@ -3682,12 +3682,12 @@ namespace CleanCom.Migrations.Migrations
 
             modelBuilder.Entity("CleanCom.Domain.People.Invitado", b =>
                 {
-                    b.Navigation("Direcciones");
+                    b.Navigation("Addresses");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Parada", b =>
                 {
-                    b.Navigation("Evidencias");
+                    b.Navigation("Evidence");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.ParadaFija", b =>

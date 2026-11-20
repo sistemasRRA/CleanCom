@@ -5,4 +5,4 @@ using CleanCom.Domain.People;
 
 namespace CleanCom.Application.Crm;
 
-public record ContactoDto(int Id, ContactChannel Channel, ContactResult Result, string? Note, DateOnly? NextContactOn, DateTimeOffset ContactedAt);
+public record ContactDto(int Id, ContactChannel Channel, ContactResult Result, string? Note, DateOnly? NextContactOn, DateTimeOffset ContactedAt);

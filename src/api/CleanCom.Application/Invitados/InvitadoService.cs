@@ -18,7 +18,7 @@ public class InvitadoService(
     ZonaLocator locator,
     PedidoService pedidos,
     IValidator<SaveInvitadoRequest> invitadoValidator,
-    IValidator<SaveDireccionRequest> direccionValidator)
+    IValidator<SaveAddressRequest> addressValidator)
 {
     private const int SearchLimit = 20;
 
@@ -49,11 +49,11 @@ public class InvitadoService(
         await invitadoValidator.ValidateAndThrowAsync(r, ct);
         var invitado = new Invitado();
         await ApplyAsync(invitado, r, ct);
-        if (r.Direccion is not null)
+        if (r.Address is not null)
         {
-            var direccion = new Direccion();
-            await ApplyAsync(direccion, r.Direccion, ct);
-            invitado.Direcciones.Add(direccion);
+            var address = new Address();
+            await ApplyAsync(address, r.Address, ct);
+            invitado.Addresses.Add(address);
         }
         db.Invitados.Add(invitado);
         await db.SaveChangesAsync(ct);
@@ -69,35 +69,35 @@ public class InvitadoService(
         return await GetAsync(id, ct);
     }
 
-    public async Task<InvitadoDto> AddDireccionAsync(int invitadoId, SaveDireccionRequest r, CancellationToken ct)
+    public async Task<InvitadoDto> AddAddressAsync(int invitadoId, SaveAddressRequest r, CancellationToken ct)
     {
-        await direccionValidator.ValidateAndThrowAsync(r, ct);
+        await addressValidator.ValidateAndThrowAsync(r, ct);
         if (!await db.Invitados.AnyAsync(i => i.Id == invitadoId && i.Active, ct))
         {
             throw new NotFoundException($"El invitado {invitadoId} no existe.");
         }
-        var direccion = new Direccion { InvitadoId = invitadoId };
-        await ApplyAsync(direccion, r, ct);
-        db.Direcciones.Add(direccion);
+        var address = new Address { InvitadoId = invitadoId };
+        await ApplyAsync(address, r, ct);
+        db.Addresses.Add(address);
         await db.SaveChangesAsync(ct);
         return await GetAsync(invitadoId, ct);
     }
 
-    public async Task<InvitadoDto> UpdateDireccionAsync(int invitadoId, int direccionId, SaveDireccionRequest r, CancellationToken ct)
+    public async Task<InvitadoDto> UpdateAddressAsync(int invitadoId, int addressId, SaveAddressRequest r, CancellationToken ct)
     {
-        await direccionValidator.ValidateAndThrowAsync(r, ct);
-        var direccion = await db.Direcciones.FirstOrDefaultAsync(d => d.Id == direccionId && d.InvitadoId == invitadoId, ct)
+        await addressValidator.ValidateAndThrowAsync(r, ct);
+        var address = await db.Addresses.FirstOrDefaultAsync(d => d.Id == addressId && d.InvitadoId == invitadoId, ct)
             ?? throw new NotFoundException("La dirección no existe o no es de este invitado.");
-        await ApplyAsync(direccion, r, ct);
+        await ApplyAsync(address, r, ct);
         await db.SaveChangesAsync(ct);
         return await GetAsync(invitadoId, ct);
     }
 
-    public async Task DeactivateDireccionAsync(int invitadoId, int direccionId, CancellationToken ct)
+    public async Task DeactivateAddressAsync(int invitadoId, int addressId, CancellationToken ct)
     {
-        var direccion = await db.Direcciones.FirstOrDefaultAsync(d => d.Id == direccionId && d.InvitadoId == invitadoId, ct)
+        var address = await db.Addresses.FirstOrDefaultAsync(d => d.Id == addressId && d.InvitadoId == invitadoId, ct)
             ?? throw new NotFoundException("La dirección no existe o no es de este invitado.");
-        direccion.Active = false;
+        address.Active = false;
         await db.SaveChangesAsync(ct);
     }
 
@@ -107,7 +107,7 @@ public class InvitadoService(
     /// </summary>
     public async Task DeactivateAsync(int id, CancellationToken ct)
     {
-        var invitado = await db.Invitados.Include(i => i.Direcciones).FirstOrDefaultAsync(i => i.Id == id && i.Active, ct)
+        var invitado = await db.Invitados.Include(i => i.Addresses).FirstOrDefaultAsync(i => i.Id == id && i.Active, ct)
             ?? throw new NotFoundException($"El invitado {id} no existe o ya fue eliminado.");
         if (invitado.UserId is not null)
         {
@@ -116,7 +116,7 @@ public class InvitadoService(
 
         var pedidoIds = await db.Pedidos.Where(p => p.InvitadoId == id && p.Active).Select(p => p.Id).ToListAsync(ct);
         await pedidos.MarkInactiveAsync(pedidoIds, ct);
-        invitado.Direcciones.ForEach(d => d.Active = false);
+        invitado.Addresses.ForEach(d => d.Active = false);
         invitado.Active = false;
         await db.SaveChangesAsync(ct);
     }
@@ -146,7 +146,7 @@ public class InvitadoService(
     }
 
     /// <summary>Saves the address and its zona: the one chosen by hand, or the one found by polygon or postal code.</summary>
-    private async Task ApplyAsync(Direccion d, SaveDireccionRequest r, CancellationToken ct)
+    private async Task ApplyAsync(Address d, SaveAddressRequest r, CancellationToken ct)
     {
         d.Label = Clean(r.Label);
         d.Street = r.Street.Trim();
@@ -166,14 +166,14 @@ public class InvitadoService(
     }
 
     private IQueryable<Invitado> Query() => db.Invitados.AsNoTracking()
-        .Include(i => i.Direcciones.Where(d => d.Active))
+        .Include(i => i.Addresses.Where(d => d.Active))
         .ThenInclude(d => d.Zona);
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static InvitadoDto ToDto(Invitado i) => new(
         i.Id, i.Name, i.WhatsAppPhone, i.OtherPhone, i.Email, i.Type, i.HowFoundUs, i.Campaign, i.Notes, i.Active, i.ReceivesWhatsApp,
-        i.Direcciones.OrderBy(d => d.Id).Select(d => new DireccionDto(
+        i.Addresses.OrderBy(d => d.Id).Select(d => new AddressDto(
             d.Id, d.Label, d.Street, d.ExteriorNumber, d.InteriorNumber, d.PostalCode, d.Neighborhood, d.Borough, d.References,
             d.Location?.Y, d.Location?.X, d.ZonaId, d.Zona?.Code, d.ZonaAssignedManually, d.Active)).ToList());
 }

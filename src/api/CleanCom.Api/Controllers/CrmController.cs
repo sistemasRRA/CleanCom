@@ -45,8 +45,8 @@ public class CrmController(CrmService service) : ControllerBase
     /// <summary>Records a call or WhatsApp; without a date the next contact follows the result.</summary>
     [HttpPost("{id:int}/contactos")]
     [RequireScreen(Screens.ClientesCrm, AccessLevel.Edit)]
-    public Task<CrmFichaDto> AddContacto(int id, SaveContactoRequest request, CancellationToken ct) =>
-        service.AddContactoAsync(id, request, ct);
+    public Task<CrmFichaDto> AddContact(int id, SaveContactRequest request, CancellationToken ct) =>
+        service.AddContactAsync(id, request, ct);
 
     /// <summary>Manual status, fixed frequency, next contact and "do not contact".</summary>
     [HttpPut("{id:int}/seguimiento")]

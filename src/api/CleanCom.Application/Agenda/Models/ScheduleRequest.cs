@@ -11,7 +11,7 @@ namespace CleanCom.Application.Agenda;
 /// <param name="Date">Another visit day chosen from the list. Empty = the first one with cupo.</param>
 public record ScheduleRequest(
     int InvitadoId,
-    int DireccionId,
+    int AddressId,
     Turno Turno,
     TimeOnly? SpecificTime,
     bool Priority,

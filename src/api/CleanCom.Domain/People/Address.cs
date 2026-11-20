@@ -7,7 +7,7 @@ namespace CleanCom.Domain.People;
 /// <summary>
 /// An invitado's address. Its zona is found by coordinates; the office may set it by hand.
 /// </summary>
-public class Direccion : Entity, IActivatable
+public class Address : Entity, IActivatable
 {
     public int InvitadoId { get; set; }
     public Invitado? Invitado { get; set; }

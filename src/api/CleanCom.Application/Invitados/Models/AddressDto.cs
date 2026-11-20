@@ -1,6 +1,6 @@
 namespace CleanCom.Application.Invitados;
 
-public record DireccionDto(
+public record AddressDto(
     int Id,
     string? Label,
     string Street,

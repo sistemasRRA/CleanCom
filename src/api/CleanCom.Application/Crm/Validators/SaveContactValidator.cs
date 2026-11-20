@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace CleanCom.Application.Crm;
 
-public class SaveContactoValidator : AbstractValidator<SaveContactoRequest>
+public class SaveContactValidator : AbstractValidator<SaveContactRequest>
 {
-    public SaveContactoValidator()
+    public SaveContactValidator()
     {
         RuleFor(x => x.Channel).IsInEnum().WithName("Canal");
         RuleFor(x => x.Result).IsInEnum().WithName("Resultado");

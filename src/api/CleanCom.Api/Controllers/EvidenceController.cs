@@ -8,7 +8,7 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("evidencias")]
 [Tags("Evidencias")]
-public class EvidenciasController(EvidenciaService service) : ControllerBase
+public class EvidenceController(EvidenceService service) : ControllerBase
 {
     /// <summary>The photo or signature of a visit.</summary>
     [HttpGet("{id:int}/archivo")]

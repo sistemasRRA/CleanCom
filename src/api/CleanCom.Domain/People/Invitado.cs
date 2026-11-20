@@ -39,7 +39,7 @@ public class Invitado : Entity, IActivatable
 
     // ---- CRM follow-up (Seguimiento). The status itself is calculated, see CrmRules. ----
 
-    /// <summary>Próximo contacto: until this date the invitado does not appear in "Llamar hoy".</summary>
+    /// <summary>Próximo contact: until this date the invitado does not appear in "Llamar hoy".</summary>
     public DateOnly? NextContactOn { get; set; }
     /// <summary>Asked not to be contacted: never in "Llamar hoy" nor in campaigns.</summary>
     public bool DoNotContact { get; set; }
@@ -48,5 +48,5 @@ public class Invitado : Entity, IActivatable
     /// <summary>Frequency fixed by the office, in days; wins over the calculated one.</summary>
     public int? FixedFrequencyDays { get; set; }
 
-    public List<Direccion> Direcciones { get; set; } = [];
+    public List<Address> Addresses { get; set; } = [];
 }

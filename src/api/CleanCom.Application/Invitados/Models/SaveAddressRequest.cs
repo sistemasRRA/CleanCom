@@ -2,7 +2,7 @@ namespace CleanCom.Application.Invitados;
 
 /// <param name="Lat">Coordinates from Google Places; they decide the zona.</param>
 /// <param name="ZonaId">Zona chosen by hand by the office (ZonaAsignadaManual). Empty = located automatically.</param>
-public record SaveDireccionRequest(
+public record SaveAddressRequest(
     string? Label,
     string Street,
     string? ExteriorNumber,

@@ -19,7 +19,7 @@ export const INVITADO_TYPES: { key: InvitadoType; name: string }[] = [
   { key: 'Empresa', name: 'Empresa' },
   { key: 'TiendaInterna', name: 'Tienda interna' },
 ];
-type Direccion = Schemas['DireccionDto'];
+type Direccion = Schemas['AddressDto'];
 type Turno = Schemas['Turno'];
 
 const TURNOS: { key: Turno; name: string }[] = [
@@ -69,7 +69,7 @@ export function Agendar() {
 
   // Select the first address when the invitado changes or the chosen one disappears.
   useEffect(() => {
-    const list = invitado.data?.direcciones ?? [];
+    const list = invitado.data?.addresses ?? [];
     if (!list.some((d) => d.id === direccionId)) setDireccionId(list[0]?.id ?? null);
   }, [invitado.data, direccionId]);
 
@@ -186,7 +186,7 @@ function InvitadoSearch({ onChoose, onNew, canEdit }: { onChoose: (id: number) =
                     <button type="button" onClick={() => { onChoose(i.id); setText(''); }}>
                       <strong>{i.name}</strong>
                       <span className="muted">
-                        {i.whatsAppPhone} · {i.direcciones.length} dirección{i.direcciones.length === 1 ? '' : 'es'}
+                        {i.whatsAppPhone} · {i.addresses.length} dirección{i.addresses.length === 1 ? '' : 'es'}
                       </span>
                     </button>
                   </li>
@@ -263,8 +263,8 @@ function InvitadoCard({
         </div>
       </div>
       <div className="card__body stack">
-        {invitado.direcciones.length === 0 && <div className="alert">No tiene direcciones. Agrega una para agendar.</div>}
-        {invitado.direcciones.map((d) => (
+        {invitado.addresses.length === 0 && <div className="alert">No tiene direcciones. Agrega una para agendar.</div>}
+        {invitado.addresses.map((d) => (
           <DireccionOption key={d.id} invitadoId={invitado.id} direccion={d} selected={d.id === direccionId} onSelect={() => onDireccion(d.id)} canEdit={canEdit} />
         ))}
         {canEdit && (
@@ -298,8 +298,8 @@ function DireccionOption({
   const assign = useSave(
     (zonaId: number) =>
       unwrap(
-        api.PUT('/invitados/{id}/direcciones/{direccionId}', {
-          params: { path: { id: invitadoId, direccionId: d.id } },
+        api.PUT('/invitados/{id}/direcciones/{addressId}', {
+          params: { path: { id: invitadoId, addressId: d.id } },
           body: { ...d, zonaId },
         }),
       ),
@@ -355,7 +355,7 @@ const emptyDireccion: DireccionFields = {
   label: '', street: '', exteriorNumber: '', interiorNumber: '', postalCode: '', neighborhood: '', borough: '', references: '', coordinates: '',
 };
 
-function toDireccionRequest(f: DireccionFields): Schemas['SaveDireccionRequest'] {
+function toDireccionRequest(f: DireccionFields): Schemas['SaveAddressRequest'] {
   const point = parsePoint(f.coordinates);
   const lat = point?.lat;
   const lng = point?.lng;
@@ -519,7 +519,7 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         howFoundUs: optional(howFoundUs),
         campaign: optional(campaign),
         notes: optional(notes),
-        direccion: invitado ? null : toDireccionRequest(direccion),
+        address: invitado ? null : toDireccionRequest(direccion),
         receivesWhatsApp,
       };
       return invitado
@@ -622,7 +622,7 @@ function Schedule({
     queryFn: () =>
       unwrap(
         api.POST('/agenda/disponibilidad', {
-          body: { direccionId, lat: null, lng: null, postalCode: null, neighborhood: null, zonaId: null, registeredAt: registered },
+          body: { addressId: direccionId, lat: null, lng: null, postalCode: null, neighborhood: null, zonaId: null, registeredAt: registered },
         }),
       ),
   });
@@ -641,7 +641,7 @@ function Schedule({
         api.POST('/agenda/agendar', {
           body: {
             invitadoId: invitado.id,
-            direccionId,
+            addressId: direccionId,
             turno,
             specificTime: turno === 'HoraEspecifica' ? `${specificTime}:00` : null,
             priority,

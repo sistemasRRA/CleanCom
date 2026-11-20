@@ -27,9 +27,9 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Operador` | Nombre, Telefono, RutaHabitualId, Activo, UsuarioId? | Choferes de la nómina |
 | `Invitado` | Nombre, TelefonoWhatsApp, OtroTelefono, Correo, Tipo (ClienteFinal, Convenio, Empresa, TiendaInterna), ComoNosConocio (texto de una opción del catálogo `Motivo` tipo HowFoundUs), Campana, RecibeWhatsApp (sí por omisión), InfoRuteo, Observaciones, Etiquetas, EstatusCalculado, EstatusManual?, FrecuenciaFijaDias?, FrecuenciaCalculadaDias, ProximoContacto, LeTocaFecha, CuentaApp (SinApp, Invitado, Activa, Bloqueada), UsuarioId? | Ficha del CRM |
 | `Empresa` | RazonSocial, RFC, DatosFacturacion, CondicionesPrecio | Para convenios; varios `Invitado` como contactos |
-| `Direccion` | InvitadoId, Etiqueta, Calle, Numero, Interior, CP, Colonia, Alcaldia, Referencias, Ubicacion (`geography`), ZonaId, ZonaAsignadaManual | Varias por invitado |
+| `Direccion` | InvitadoId, Etiqueta, Calle, Numero, Interior, CP, Colonia, Alcaldia, Referencias, Ubicacion (`geography`), ZonaId, ZonaAsignadaManual | Varias por invitado. En código: `Address` (tabla `addresses`) |
 | `PreferenciaAviso` | InvitadoId, Push, WhatsAppServicio, WhatsAppPromociones, BajaPromocionesEn? | |
-| `Contacto` | InvitadoId, Canal (Llamada, WhatsApp), Resultado, Nota, VolverAContactarEl, UsuarioId | Registro de llamadas del CRM |
+| `Contacto` | InvitadoId, Canal (Llamada, WhatsApp), Resultado, Nota, VolverAContactarEl, UsuarioId | Registro de llamadas del CRM. En código: `Contact` (tabla `contacts`) |
 
 ## Operación
 
@@ -46,8 +46,8 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `ParadaFijaPaso` | ParadaFijaId, Orden, LugarId? o Direccion + Ubicacion (de link de Maps o coordenadas), Indicacion, Nota, Activo | Un paso quitado al editar se desactiva |
 | `ExcepcionFija` | ParadaFijaId, Fecha, Motivo, Activa | Saltar una fecha |
 | `Viaje` | RutaDiaId, Nombre, Carga, ParadaFijaId?, Activo | Pasos que se visitan seguidos y en orden; lo genera una vuelta fija o un "viaje de un día" |
-| `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API |
-| `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS |
+| `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API. En código: `Evidence` (tabla `evidence`) |
+| `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS. En código: `ReferencePayment` (tabla `reference_payments`) |
 | `CorteCaja` | OperadorId, Fecha, Declarado (por forma de pago), Registrado, Diferencias, Folio, CerradoPor | |
 | `UbicacionChofer` | RutaDiaId, Ubicacion, Fecha | Historial reducido; la última posición también en memoria |
 

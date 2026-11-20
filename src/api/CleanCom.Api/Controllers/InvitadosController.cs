@@ -53,20 +53,20 @@ public class InvitadosController(InvitadoService service) : ControllerBase
 
     [HttpPost("{id:int}/direcciones")]
     [RequireScreen(Screens.Agendar, AccessLevel.Edit)]
-    public Task<InvitadoDto> AddDireccion(int id, SaveDireccionRequest request, CancellationToken ct) =>
-        service.AddDireccionAsync(id, request, ct);
+    public Task<InvitadoDto> AddAddress(int id, SaveAddressRequest request, CancellationToken ct) =>
+        service.AddAddressAsync(id, request, ct);
 
-    [HttpPut("{id:int}/direcciones/{direccionId:int}")]
+    [HttpPut("{id:int}/direcciones/{addressId:int}")]
     [RequireScreen(Screens.Agendar, AccessLevel.Edit)]
-    public Task<InvitadoDto> UpdateDireccion(int id, int direccionId, SaveDireccionRequest request, CancellationToken ct) =>
-        service.UpdateDireccionAsync(id, direccionId, request, ct);
+    public Task<InvitadoDto> UpdateAddress(int id, int addressId, SaveAddressRequest request, CancellationToken ct) =>
+        service.UpdateAddressAsync(id, addressId, request, ct);
 
-    [HttpDelete("{id:int}/direcciones/{direccionId:int}")]
+    [HttpDelete("{id:int}/direcciones/{addressId:int}")]
     [RequireScreen(Screens.Agendar, AccessLevel.Edit)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeactivateDireccion(int id, int direccionId, CancellationToken ct)
+    public async Task<IActionResult> DeactivateAddress(int id, int addressId, CancellationToken ct)
     {
-        await service.DeactivateDireccionAsync(id, direccionId, ct);
+        await service.DeactivateAddressAsync(id, addressId, ct);
         return NoContent();
     }
 }

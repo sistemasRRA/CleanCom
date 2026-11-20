@@ -30,18 +30,18 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Operador> Operadores => Set<Operador>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Invitado> Invitados => Set<Invitado>();
-    public DbSet<Direccion> Direcciones => Set<Direccion>();
+    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Pedido> Pedidos => Set<Pedido>();
     public DbSet<RutaDia> RutaDias => Set<RutaDia>();
     public DbSet<Parada> Paradas => Set<Parada>();
-    public DbSet<Contacto> Contactos => Set<Contacto>();
+    public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<ParadaFija> ParadasFijas => Set<ParadaFija>();
     public DbSet<ParadaFijaException> ParadaFijaExceptions => Set<ParadaFijaException>();
     public DbSet<Viaje> Viajes => Set<Viaje>();
     public DbSet<PedidoEvento> PedidoEventos => Set<PedidoEvento>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
-    public DbSet<Evidencia> Evidencias => Set<Evidencia>();
-    public DbSet<CobroReferencia> CobrosReferencia => Set<CobroReferencia>();
+    public DbSet<Evidence> Evidence => Set<Evidence>();
+    public DbSet<ReferencePayment> ReferencePayments => Set<ReferencePayment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -63,7 +63,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<PedidoEventoKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<TicketState>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<TicketSource>().HaveConversion<string>().HaveMaxLength(30);
-        builder.Properties<EvidenciaKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<EvidenceKind>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<PaymentMethod>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);

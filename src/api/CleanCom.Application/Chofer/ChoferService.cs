@@ -69,12 +69,12 @@ public class ChoferService(
                 p.ArrivedDistanceMeters,
                 p.ArrivedOutsideRadius,
                 p.ClosedAt,
-                Photos = p.Evidencias.Count(e => e.Active && e.Kind == EvidenciaKind.Foto),
-                Signed = p.Evidencias.Any(e => e.Active && e.Kind == EvidenciaKind.Firma),
+                Photos = p.Evidence.Count(e => e.Active && e.Kind == EvidenceKind.Foto),
+                Signed = p.Evidence.Any(e => e.Active && e.Kind == EvidenceKind.Firma),
                 Phone = p.Pedido == null ? null : p.Pedido.Invitado!.WhatsAppPhone,
                 Lineas = p.Pedido == null ? new List<string>() : p.Pedido.LineasServicio.Select(l => l.LineaServicio!.Name).ToList(),
-                Interior = p.Direccion == null ? null : p.Direccion.InteriorNumber,
-                References = p.Direccion == null ? null : p.Direccion.References,
+                Interior = p.Address == null ? null : p.Address.InteriorNumber,
+                References = p.Address == null ? null : p.Address.References,
             })
             .ToDictionaryAsync(p => p.Id, ct);
 
@@ -200,7 +200,7 @@ public class ChoferService(
 
     internal async Task<NetTopologySuite.Geometries.Point?> ParadaLocationAsync(int paradaId, CancellationToken ct) =>
         await db.Paradas.AsNoTracking().Where(p => p.Id == paradaId)
-            .Select(p => p.Direccion != null && p.Direccion.Location != null ? p.Direccion.Location
+            .Select(p => p.Address != null && p.Address.Location != null ? p.Address.Location
                 : p.Location != null ? p.Location
                 : p.Lugar != null ? p.Lugar.Location : null)
             .FirstOrDefaultAsync(ct);

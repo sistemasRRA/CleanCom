@@ -96,13 +96,13 @@ public class AgendaService(
         {
             throw new DomainException("La hora específica y la prioridad solo las puede asignar oficina.");
         }
-        var direccion = await db.Direcciones.AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == r.DireccionId && d.InvitadoId == r.InvitadoId && d.Active && d.Invitado!.Active, ct)
+        var address = await db.Addresses.AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == r.AddressId && d.InvitadoId == r.InvitadoId && d.Active && d.Invitado!.Active, ct)
             ?? throw new NotFoundException("La dirección no existe o no es de este invitado.");
         await EnsureLineasServicioAsync(r.LineaServicioIds, ct);
 
         var registeredAt = r.RegisteredAt ?? clock.UtcNow;
-        var location = await LocateAsync(new AvailabilityRequest(direccion.Id, null, null, null, null, null), ct);
+        var location = await LocateAsync(new AvailabilityRequest(address.Id, null, null, null, null, null), ct);
         var availability = await CalculateAsync(location, registeredAt, ct);
         if (availability.OutOfCoverage)
         {
@@ -142,7 +142,7 @@ public class AgendaService(
         var pedido = new Pedido
         {
             InvitadoId = r.InvitadoId,
-            DireccionId = direccion.Id,
+            AddressId = address.Id,
             Etapa = PedidoEtapa.Agendado,
             GarmentsApprox = r.GarmentsApprox,
             Turno = r.Turno,
@@ -171,7 +171,7 @@ public class AgendaService(
             RutaDia = rutaDia,
             Kind = ParadaKind.Recoleccion,
             Pedido = pedido,
-            DireccionId = direccion.Id,
+            AddressId = address.Id,
             Turno = r.Turno,
             Notes = pedido.DriverNotes,
         };
@@ -197,7 +197,7 @@ public class AgendaService(
     {
         var pedido = await db.Pedidos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct)
             ?? throw new NotFoundException($"El pedido {pedidoId} no existe.");
-        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
         return await CalculateAsync(location, clock.UtcNow, ct);
     }
 
@@ -213,7 +213,7 @@ public class AgendaService(
         {
             throw new DomainException($"El pedido está en {PedidoFlow.Name(pedido.Etapa)}; la entrega se programa cuando está en planta o listo.");
         }
-        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
         var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, clock.UtcNow, r.Date, ct);
         if (result.Scheduled)
         {
@@ -267,7 +267,7 @@ public class AgendaService(
         await db.SaveChangesAsync(ct);
 
         // From tomorrow: registering at the start of tomorrow gives tomorrow as the minimum date.
-        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
         var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
         return result with { Message = $"Intento {pedido.FailedAttempts} sin entregar. {result.Message}" };
     }
@@ -299,7 +299,7 @@ public class AgendaService(
         });
         await db.SaveChangesAsync(ct);
 
-        var location = await LocateAsync(new AvailabilityRequest(pedido.DireccionId, null, null, null, null, null), ct);
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
         return await PlaceVisitAsync(pedido, ParadaKind.Recoleccion, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
     }
 
@@ -351,7 +351,7 @@ public class AgendaService(
             RutaDia = rutaDia,
             Kind = kind,
             PedidoId = pedido.Id,
-            DireccionId = pedido.DireccionId,
+            AddressId = pedido.AddressId,
             Turno = pedido.Turno,
             Notes = pedido.DriverNotes,
         });
@@ -385,10 +385,10 @@ public class AgendaService(
         {
             return await locator.ManualAsync(r.ZonaId.Value, ct);
         }
-        if (r.DireccionId is not null)
+        if (r.AddressId is not null)
         {
-            var d = await db.Direcciones.AsNoTracking().FirstOrDefaultAsync(x => x.Id == r.DireccionId && x.Active, ct)
-                ?? throw new NotFoundException($"La dirección {r.DireccionId} no existe.");
+            var d = await db.Addresses.AsNoTracking().FirstOrDefaultAsync(x => x.Id == r.AddressId && x.Active, ct)
+                ?? throw new NotFoundException($"La dirección {r.AddressId} no existe.");
             if (d.ZonaAssignedManually && d.ZonaId is not null)
             {
                 return await locator.ManualAsync(d.ZonaId.Value, ct);

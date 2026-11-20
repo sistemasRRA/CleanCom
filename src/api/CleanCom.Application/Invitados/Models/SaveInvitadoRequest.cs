@@ -4,7 +4,7 @@ namespace CleanCom.Application.Invitados;
 
 /// <param name="HowFoundUs">An option of the "Cómo nos conoció" catalog (or the value the invitado already had).</param>
 /// <param name="ReceivesWhatsApp">Accepts notices by WhatsApp; true when not sent.</param>
-/// <param name="Direccion">First address, only when creating.</param>
+/// <param name="Address">First address, only when creating.</param>
 public record SaveInvitadoRequest(
     string Name,
     string WhatsAppPhone,
@@ -14,5 +14,5 @@ public record SaveInvitadoRequest(
     string? HowFoundUs,
     string? Campaign,
     string? Notes,
-    SaveDireccionRequest? Direccion = null,
+    SaveAddressRequest? Address = null,
     bool ReceivesWhatsApp = true);

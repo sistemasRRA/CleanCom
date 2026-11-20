@@ -1,5 +1,7 @@
 # Glosario
 
+En pantallas, mensajes y documentos se usa el término. En el código se usa la columna "Nombre en código": casi siempre es el término en español, y en algunos (Dirección, Evidencia, Cobro de referencia, Contacto) es un nombre en inglés.
+
 | Término | Significado | Nombre en código |
 | --- | --- | --- |
 | Invitado | Cliente final o contacto de un convenio. Se usa en todas las aplicaciones en lugar de "cliente" | `Invitado` |
@@ -14,6 +16,10 @@
 | Zona EXT | Extensión de una zona núcleo; sigue sus días de visita | `Zona.ZonaNucleoId` |
 | Parada | Cada punto que visita una ruta | `Parada` |
 | Parada fija | Parada que se repite cada semana (convenios, insumos, traspasos) | `ParadaFija` |
+| Dirección | Domicilio de un invitado, con su zona; un invitado puede tener varias | `Address` |
+| Evidencia | Foto o firma que el chofer toma al cerrar una visita | `Evidence` |
+| Cobro de referencia | Lo que el chofer declara que cobró en una entrega; el cobro oficial está en el POS | `ReferencePayment` |
+| Contacto | Llamada o WhatsApp registrado en el CRM | `Contact` |
 | Viaje / vuelta | Varias paradas que se visitan en orden y seguidas porque la unidad va cargada | `Viaje`, `VueltaFija` |
 | Traspaso | Mover ropa entre tiendas | `TipoParada.Traspaso` |
 | Insumos | Bobinas, ganchos, galones; se anotan como texto | `TipoParada.Insumos` |

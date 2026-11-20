@@ -56,8 +56,8 @@ public class Parada : Entity, IActivatable
     public ParadaKind Kind { get; set; }
     public int? PedidoId { get; set; }
     public Pedido? Pedido { get; set; }
-    public int? DireccionId { get; set; }
-    public Direccion? Direccion { get; set; }
+    public int? AddressId { get; set; }
+    public Address? Address { get; set; }
     public int? LugarId { get; set; }
     public Lugar? Lugar { get; set; }
     public Turno Turno { get; set; } = Turno.CualquierHora;
@@ -94,9 +94,9 @@ public class Parada : Entity, IActivatable
     public string? Title { get; set; }
     /// <summary>What is done there.</summary>
     public string? Activity { get; set; }
-    /// <summary>Address when it is neither an invitado's direccion nor a lugar.</summary>
-    public string? Address { get; set; }
-    /// <summary>Point in SRID 4326 for <see cref="Address"/>.</summary>
+    /// <summary>Address when it is neither an invitado's address nor a lugar.</summary>
+    public string? AddressText { get; set; }
+    /// <summary>Point in SRID 4326 for <see cref="AddressText"/>.</summary>
     public NetTopologySuite.Geometries.Point? Location { get; set; }
 
     /// <summary>When the chofer closed the visit, done or not done (UTC).</summary>
@@ -111,7 +111,7 @@ public class Parada : Entity, IActivatable
     /// <summary>Id the app gave the closing, so a resend after losing signal is answered without closing twice.</summary>
     public string? CloseLocalId { get; set; }
 
-    public List<Evidencia> Evidencias { get; set; } = [];
+    public List<Evidence> Evidence { get; set; } = [];
 
     /// <summary>Leaving, coming back and lunch do not take cupo; every other parada does, fixed ones included.</summary>
     public static readonly ParadaKind[] KindsWithoutCupo = [ParadaKind.Salida, ParadaKind.Regreso, ParadaKind.Comida];
