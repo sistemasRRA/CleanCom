@@ -212,6 +212,7 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
   const d = detail.data;
 
   return (
+    <>
     <Dialog title={d ? `Unidad ${d.card.plate}` : 'Unidad'} onClose={onClose} onSubmit={onClose} submitText="Cerrar">
       <QueryState loading={detail.isPending} error={detail.error}>
         {d && (
@@ -346,13 +347,15 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
           </div>
         )}
       </QueryState>
-
-      {d && action === 'edit' && <UnidadForm detail={d} onClose={() => setAction(null)} onSaved={() => setAction(null)} />}
-      {d && action === 'event' && <EventForm detail={d} onClose={() => setAction(null)} />}
-      {d && action === 'document' && <DocumentForm detail={d} onClose={() => setAction(null)} />}
-      {d && action === 'photo' && <DocumentForm detail={d} photo onClose={() => setAction(null)} />}
-      {d && action && typeof action === 'object' && <PaymentForm unidadId={id} payment={action.payment} onClose={() => setAction(null)} />}
     </Dialog>
+
+    {/* Outside the detail: a form inside another form would submit (close) it too. */}
+    {d && action === 'edit' && <UnidadForm detail={d} onClose={() => setAction(null)} onSaved={() => setAction(null)} />}
+    {d && action === 'event' && <EventForm detail={d} onClose={() => setAction(null)} />}
+    {d && action === 'document' && <DocumentForm detail={d} onClose={() => setAction(null)} />}
+    {d && action === 'photo' && <DocumentForm detail={d} photo onClose={() => setAction(null)} />}
+    {d && action && typeof action === 'object' && <PaymentForm unidadId={id} payment={action.payment} onClose={() => setAction(null)} />}
+    </>
   );
 }
 
