@@ -26,6 +26,7 @@ import { Pedidos } from './pages/pedidos/Pedidos';
 import { TicketsEnPlanta } from './pages/planta/TicketsEnPlanta';
 import { PanelDelDia } from './pages/panel/PanelDelDia';
 import { Unidades } from './pages/unidades/Unidades';
+import { VistaDelChofer } from './pages/chofer/VistaDelChofer';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -80,6 +81,7 @@ function App() {
         {can('paradas-fijas') && <Route path="paradas-fijas" element={<ParadasFijas />} />}
         {can('panel-del-dia') && <Route path="panel-del-dia" element={<PanelDelDia />} />}
         {can('unidades') && <Route path="unidades" element={<Unidades />} />}
+        {can('vista-del-chofer') && <Route path="vista-del-chofer" element={<VistaDelChofer />} />}
         {can('rutas') && <Route path="rutas" element={<RutasDelDia />} />}
         {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}
         {can('tickets-en-planta') && <Route path="tickets-en-planta" element={<TicketsEnPlanta />} />}

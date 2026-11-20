@@ -27,7 +27,7 @@ public static class Policies
     public const string CapturesAddresses = "CapturesAddresses";
 
     /// <summary>
-    /// The day's live operation (hub "operacion", live locations and recorridos): seeing Panel del día or Rutas.
+    /// The day's live operation (hub "operacion", live locations and recorridos): seeing Panel del día, Rutas or Vista del chofer.
     /// </summary>
     public const string SeesOperacion = "SeesOperacion";
 
@@ -182,7 +182,7 @@ public static class Security
                 .AddRequirements(new AnyScreenRequirement(
                     [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)))
             .AddPolicy(Policies.SeesOperacion, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.View)))
+                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas, Screens.VistaDelChofer], AccessLevel.View)))
             .AddPolicy(Policies.AssignsRutaDia, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.Edit)));
 

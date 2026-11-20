@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<EvidenceService>();
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();
+        services.AddScoped<ChoferPreviewService>();
         services.AddScoped<UnidadService>();
         services.AddScoped<PanelService>();
         return services;

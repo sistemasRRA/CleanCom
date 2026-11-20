@@ -15,4 +15,7 @@ La vista del chofer pasa a la app móvil ([../apps/chofer.md](../apps/chofer.md)
 
 ## Endpoints
 
-- `GET /chofer/ruta?ruta=&fecha=` (el mismo que usa la app).
+- `GET /chofer/vista?ruta=&fecha=` (semana 5, hecho; permiso Vista del chofer: View): el mismo cálculo que `GET /chofer/ruta` de la app (paradas, orden, horas, estado, siguiente) para el chofer de esa ruta ese día (el asignado o el de ruta habitual), más su última ubicación. Sin chofer avisa "Sin ruta asignada".
+- Tiempo real con el hub `operacion` (`ubicacion` mueve al chofer en el mapa; `parada` recarga la vista). Ver Panel del día o Rutas o Vista del chofer abre el hub (política `SeesOperacion`).
+
+

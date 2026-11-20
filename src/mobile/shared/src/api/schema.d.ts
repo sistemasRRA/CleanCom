@@ -378,6 +378,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chofer/vista": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    ruta?: number;
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferPreviewDto"];
+                        "application/json": components["schemas"]["ChoferPreviewDto"];
+                        "text/json": components["schemas"]["ChoferPreviewDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chofer/ubicacion": {
         parameters: {
             query?: never;
@@ -5109,6 +5149,10 @@ export interface components {
             photos: number;
             /** @default false */
             signed: boolean;
+        };
+        ChoferPreviewDto: {
+            ruta: components["schemas"]["ChoferRutaDto"];
+            location: null | components["schemas"]["LiveLocationDto"];
         };
         ChoferReasonDto: {
             /** Format: int32 */
