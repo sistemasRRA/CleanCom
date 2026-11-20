@@ -1583,6 +1583,26 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "30"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Gps.HistorialSegundos",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "120"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Gps.HistorialMetros",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "100"
                         });
                 });
 
@@ -2152,6 +2172,57 @@ namespace CleanCom.Migrations.Migrations
                         .HasDatabaseName("ix_operadores_usual_ruta_id");
 
                     b.ToTable("operadores", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ChoferLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AccuracyMeters")
+                        .HasColumnType("int")
+                        .HasColumnName("accuracy_meters");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<Point>("Location")
+                        .IsRequired()
+                        .HasColumnType("geography")
+                        .HasColumnName("location");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<int>("RutaDiaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_dia_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chofer_locations");
+
+                    b.HasIndex("RutaDiaId", "RecordedAt")
+                        .HasDatabaseName("ix_chofer_locations_ruta_dia_id_recorded_at");
+
+                    b.ToTable("chofer_locations", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>
@@ -3436,6 +3507,18 @@ namespace CleanCom.Migrations.Migrations
                         .HasConstraintName("fk_operadores_rutas_usual_ruta_id");
 
                     b.Navigation("UsualRuta");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.ChoferLocation", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Routing.RutaDia", "RutaDia")
+                        .WithMany()
+                        .HasForeignKey("RutaDiaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_chofer_locations_ruta_dias_ruta_dia_id");
+
+                    b.Navigation("RutaDia");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>

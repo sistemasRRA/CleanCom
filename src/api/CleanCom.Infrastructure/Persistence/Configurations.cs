@@ -385,6 +385,18 @@ internal class EvidenceConfig : IEntityTypeConfiguration<Evidence>
     }
 }
 
+internal class ChoferLocationConfig : IEntityTypeConfiguration<ChoferLocation>
+{
+    public void Configure(EntityTypeBuilder<ChoferLocation> e)
+    {
+        e.ToTable("ChoferLocations");
+        e.Property(x => x.Location).HasColumnType("geography");
+        e.HasOne(x => x.RutaDia).WithMany().HasForeignKey(x => x.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        // The recorrido of a ruta in order, and its last position after a restart.
+        e.HasIndex(x => new { x.RutaDiaId, x.RecordedAt });
+    }
+}
+
 internal class ReferencePaymentConfig : IEntityTypeConfiguration<ReferencePayment>
 {
     public void Configure(EntityTypeBuilder<ReferencePayment> e)

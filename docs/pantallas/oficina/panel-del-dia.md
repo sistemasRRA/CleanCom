@@ -27,7 +27,9 @@ Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de
 - `GET /panel?fecha=` resumen, alertas y tarjetas.
 - `GET /rutas/dia?fecha=` rutas con paradas para el mapa.
 - `GET /agenda/carga?desde=&dias=7`.
-- Hub SignalR `operacion`: ubicaciones de choferes y cambios de estado de paradas.
+- `GET /ubicaciones?fecha=` (hecho): última posición conocida de cada ruta del día (`live: false` cuando viene del historial, por ejemplo después de reiniciar el API).
+- `GET /rutas/dia/{id}/recorrido` (hecho): puntos del recorrido en orden, para comparar contra la ruta planeada.
+- Hub SignalR `operacion` en `/hubs/operacion` (hecho): eventos `ubicacion` (misma forma que `GET /ubicaciones`) y `parada` (`rutaDiaId`, `date`, `paradaId`, `state`) cuando el chofer marca en camino, llegué, cerrada o no realizada. El token va en `access_token` de la URL. Permiso: ver Panel del día o Rutas.
 
 ## Criterios de aceptación
 

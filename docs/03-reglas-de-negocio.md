@@ -24,7 +24,9 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Parada.MinutosRecoleccion` | 15 | Horas estimadas |
 | `Parada.MinutosEntrega` | 10 | |
 | `Parada.MinutosTraslado` | 12 | Traslado o insumos |
-| `Gps.ToleranciaMetros` | 300 | Validar llegada y evidencia |
+| `Gps.ToleranciaMetros` | 300 | Validar llegada y evidencia; también descarta lecturas de GPS menos precisas |
+| `Gps.HistorialSegundos` | 120 | Cada cuánto se guarda la ubicación del chofer en el recorrido |
+| `Gps.HistorialMetros` | 100 | Distancia que guarda la ubicación antes de tiempo |
 | `Visita.FotoObligatoria` | Sí | |
 | `Visita.OrdenObligatorio` | Sí | El chofer registra las paradas en el orden asignado |
 | `Fijas.DiasAnticipacion` | 7 | Generación automática |
@@ -242,6 +244,15 @@ Cada indicador tiene periodo (diario, semanal o mensual), responsable, rojo, ver
 | Experiencia | Recurrencia | Servicios por invitado en el periodo |
 
 Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se cruzan en BigQuery.
+
+## GPS del chofer
+
+1. Durante el turno, la app manda la ubicación del teléfono cada 30 a 60 segundos. Sin señal las guarda y las manda juntas al volver la conexión.
+2. Solo se guarda si el chofer tiene ruta ese día. Se descartan las lecturas que no son del día de la ruta, las que tienen hora futura y las que tienen precisión peor que `Gps.ToleranciaMetros`.
+3. **Mapa en vivo:** la lectura más reciente es la posición del chofer y se envía a oficina en ese momento (SignalR). Una lectura atrasada (por ejemplo, de cuando no había señal) no regresa el punto del mapa.
+4. **Recorrido (historial reducido):** se guarda la primera lectura del día y después una cada `Gps.HistorialSegundos`, o antes si el chofer se movió `Gps.HistorialMetros` o más. Un reenvío no se guarda dos veces.
+
+Ejemplo: con lecturas cada 30 s sin moverse, se guardan las de 10:02 y 10:04 después de la de 10:00. Si a las 10:01 ya avanzó 150 m, esa también se guarda.
 
 ## Flota
 

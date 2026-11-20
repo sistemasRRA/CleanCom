@@ -42,6 +42,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Evidence> Evidence => Set<Evidence>();
     public DbSet<ReferencePayment> ReferencePayments => Set<ReferencePayment>();
+    public DbSet<ChoferLocation> ChoferLocations => Set<ChoferLocation>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

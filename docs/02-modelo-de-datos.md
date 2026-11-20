@@ -49,7 +49,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API. En código: `Evidence` (tabla `evidence`) |
 | `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS. En código: `ReferencePayment` (tabla `reference_payments`) |
 | `CorteCaja` | OperadorId, Fecha, Declarado (por forma de pago), Registrado, Diferencias, Folio, CerradoPor | |
-| `UbicacionChofer` | RutaDiaId, Ubicacion, Fecha | Historial reducido; la última posición también en memoria |
+| `UbicacionChofer` | RutaDiaId, Ubicacion, TomadaEn, PrecisionMetros? | Historial reducido (reglas en GPS del chofer); la última posición también en memoria |
 
 ## Flota
 

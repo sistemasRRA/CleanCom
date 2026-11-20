@@ -23,7 +23,8 @@ public class ChoferService(
     ICurrentUser currentUser,
     IBusinessClock clock,
     ISettingService settings,
-    RutaDiaService plans)
+    RutaDiaService plans,
+    IOperacionNotifier notifier)
 {
     /// <summary>The chofer's ruta on a day, or why there is none.</summary>
     private sealed record Resolved(Operador? Operador, Ruta? Ruta, RutaDia? RutaDia, bool Assigned, string? Problem);
@@ -116,6 +117,7 @@ public class ChoferService(
             PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, at, "El chofer va en camino.");
         }
         await db.SaveChangesAsync(ct);
+        await NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await RutaAsync(date, ct);
     }
 
@@ -155,6 +157,7 @@ public class ChoferService(
         parada.ArrivedDistanceMeters = distance;
         parada.ArrivedOutsideRadius = !inside;
         await db.SaveChangesAsync(ct);
+        await NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await RutaAsync(date, ct);
     }
 
@@ -204,6 +207,23 @@ public class ChoferService(
                 : p.Location != null ? p.Location
                 : p.Lugar != null ? p.Lugar.Location : null)
             .FirstOrDefaultAsync(ct);
+
+    /// <summary>The chofer's RutaDia today (with its ruta) and their name; RutaDia is null when there is nothing today.</summary>
+    internal async Task<(RutaDia? RutaDia, string? OperadorName)> TodayAsync(CancellationToken ct)
+    {
+        var resolved = await ResolveAsync(clock.Today, ct);
+        return (resolved.RutaDia, resolved.Operador?.Name);
+    }
+
+    /// <summary>
+    /// Tells the office a parada changed. The state is read back from the database because closing a visit can
+    /// reschedule it through the agenda.
+    /// </summary>
+    internal async Task NotifyParadaAsync(int paradaId, int rutaDiaId, DateOnly date, CancellationToken ct)
+    {
+        var state = await db.Paradas.AsNoTracking().Where(p => p.Id == paradaId).Select(p => p.State).FirstAsync(ct);
+        await notifier.ParadaAsync(new ParadaChangedDto(rutaDiaId, date, paradaId, state), ct);
+    }
 
     private async Task<Resolved> ResolveAsync(DateOnly day, CancellationToken ct)
     {

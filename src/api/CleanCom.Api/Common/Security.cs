@@ -26,6 +26,11 @@ public static class Policies
     /// </summary>
     public const string CapturesAddresses = "CapturesAddresses";
 
+    /// <summary>
+    /// The day's live operation (hub "operacion", live locations and recorridos): seeing Panel del día or Rutas.
+    /// </summary>
+    public const string SeesOperacion = "SeesOperacion";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -143,6 +148,19 @@ public static class Security
                     RoleClaimType = CleanComClaims.Role,
                     ClockSkew = TimeSpan.FromSeconds(30),
                 };
+                // WebSockets cannot carry the Authorization header: the SignalR client sends the token in the query.
+                o.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(token) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    },
+                };
             });
 
         services.AddSingleton<IAuthorizationPolicyProvider, ScreenPolicyProvider>();
@@ -159,7 +177,9 @@ public static class Security
                 .RequireRole(Roles.SuperUser, Roles.Administracion))
             .AddPolicy(Policies.CapturesAddresses, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement(
-                    [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)));
+                    [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)))
+            .AddPolicy(Policies.SeesOperacion, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.View)));
 
         return services;
     }

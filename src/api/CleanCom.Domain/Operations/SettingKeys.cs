@@ -38,4 +38,6 @@ public static class SettingKeys
     public const string ParadaSpecificTimeWindow = "Parada.VentanaHoraEspecifica";
     public const string BaseAddress = "Base.Direccion";
     public const string BaseLocation = "Base.Ubicacion";
+    public const string GpsHistorySeconds = "Gps.HistorialSegundos";
+    public const string GpsHistoryMeters = "Gps.HistorialMetros";
 }

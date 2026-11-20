@@ -47,6 +47,8 @@ public static class SettingCatalog
         new(RutaAverageSpeed, T.Decimal, "18", "Velocidad promedio en km/h para estimar traslados mientras no se conecta Google"),
         new(RutaDistanceFactor, T.Decimal, "1.4", "Distancia en calle respecto a la línea recta, para estimar traslados mientras no se conecta Google"),
         new(ParadaSpecificTimeWindow, T.Integer, "30", "Minutos antes y después de una hora específica que forman su ventana"),
+        new(GpsHistorySeconds, T.Integer, "120", "Cada cuántos segundos se guarda la ubicación del chofer en el historial del recorrido"),
+        new(GpsHistoryMeters, T.Integer, "100", "Metros que debe moverse el chofer para guardar su ubicación antes de tiempo"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

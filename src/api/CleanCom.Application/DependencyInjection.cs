@@ -9,6 +9,7 @@ using CleanCom.Application.Crm;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Rutas;
+using CleanCom.Application.Tracking;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +41,8 @@ public static class DependencyInjection
         services.AddScoped<PlantaService>();
         services.AddScoped<ChoferVisitService>();
         services.AddScoped<EvidenceService>();
+        services.AddSingleton<LiveLocations>();
+        services.AddScoped<LocationService>();
         return services;
     }
 }

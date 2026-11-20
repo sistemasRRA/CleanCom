@@ -118,6 +118,7 @@ public class ChoferVisitService(
             }
         }
         await db.SaveChangesAsync(ct);
+        await chofer.NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await chofer.RutaAsync(date, ct) with { Message = message ?? "Visita cerrada." };
     }
 
@@ -165,6 +166,7 @@ public class ChoferVisitService(
             await db.SaveChangesAsync(ct);
             message = "Visita no realizada; oficina la verá.";
         }
+        await chofer.NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await chofer.RutaAsync(date, ct) with { Message = message };
     }
 

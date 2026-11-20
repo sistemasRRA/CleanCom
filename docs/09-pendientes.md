@@ -44,6 +44,7 @@
 - [ ] App del chofer en Android: el mapa usa Google Maps y en la app instalada (no en Expo Go) necesita una llave de Maps SDK for Android en `android.config.googleMaps.apiKey` de `app.json`. Llega con las llaves de Google. En iPhone usa Apple Maps y no necesita llave.
 - [ ] App del chofer: no hay "deshacer en camino" si lo marcó por error; mientras, oficina puede pedirle que marque Llegué al llegar. Confirmar si se necesita.
 - [ ] App del chofer: una parada "en sitio" sin cerrar no bloquea la siguiente; oficina la ve en Rutas. Confirmar si debe bloquear.
+- [ ] GPS del chofer: el recorrido guarda una ubicación cada 120 s o cada 100 m (`Gps.HistorialSegundos`, `Gps.HistorialMetros`), y se descartan las lecturas con precisión peor que `Gps.ToleranciaMetros`. Son valores propuestos: confirmar con Logística. La última posición vive en memoria del API; con un solo servidor basta, y si algún día hay varios se necesita un backplane de SignalR.
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
 - [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
