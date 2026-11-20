@@ -11,6 +11,8 @@ export default defineConfig({
         target: 'http://localhost:5111',
         changeOrigin: true,
         rewrite: (ruta) => ruta.replace(/^\/api/, ''),
+        // SignalR (/api/hubs/...) uses WebSockets.
+        ws: true,
       },
     },
   },

@@ -21,7 +21,13 @@ public record PanelDto(
     PanelLoadDto Load,
     IReadOnlyList<PanelVisitDto> LatestVisits,
     double BaseLat,
-    double BaseLng);
+    double BaseLng,
+    IReadOnlyList<PanelChoiceDto> Operadores,
+    IReadOnlyList<PanelChoiceDto> Unidades);
+
+/// <summary>An operador or unidad to choose in a ruta card.</summary>
+/// <param name="Note">Why to think twice (a unidad with something pending), in Spanish.</param>
+public record PanelChoiceDto(int Id, string Name, string? Note = null);
 
 /// <param name="OnTimePercent">Arrivals within ± Parada.ToleranciaLlegadaMinutos of their estimate; null without arrivals.</param>
 /// <param name="Collected">Reference payments declared by the choferes that day.</param>

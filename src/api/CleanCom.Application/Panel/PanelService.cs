@@ -5,6 +5,7 @@ using CleanCom.Application.Operations;
 using CleanCom.Application.Rutas;
 using CleanCom.Application.Tracking;
 using CleanCom.Domain.Agenda;
+using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.Routing;
@@ -124,7 +125,11 @@ public class PanelService(
             cards,
             new PanelLoadDto(board.Rutas, board.Days),
             await LatestVisitsAsync(day, ct),
-            plans.BaseLat, plans.BaseLng);
+            plans.BaseLat, plans.BaseLng,
+            await db.Operadores.AsNoTracking().Where(o => o.Active).OrderBy(o => o.Name)
+                .Select(o => new PanelChoiceDto(o.Id, o.Name, null)).ToListAsync(ct),
+            fleet.Unidades.Where(u => u.Active).Select(u => new PanelChoiceDto(u.Id, $"{u.Plate} · {u.Brand} {u.Model}",
+                u.Pending ? string.Join(" ", u.Alerts.Where(a => a.Level != FleetAlertLevel.PorVencer).Select(a => a.Message)) : null)).ToList());
     }
 
     /// <summary>The pending tray, always as of today: these are things to fix now, whatever day is on screen.</summary>

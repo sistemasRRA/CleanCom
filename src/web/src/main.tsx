@@ -24,6 +24,7 @@ import { ParadasFijas } from './pages/fijas/ParadasFijas';
 import { Rutas as RutasDelDia } from './pages/rutas/Rutas';
 import { Pedidos } from './pages/pedidos/Pedidos';
 import { TicketsEnPlanta } from './pages/planta/TicketsEnPlanta';
+import { PanelDelDia } from './pages/panel/PanelDelDia';
 import './styles.css';
 
 const queryClient = new QueryClient({
@@ -76,6 +77,7 @@ function App() {
         {can('agendar') && <Route path="agendar" element={<Agendar />} />}
         {can('clientes-crm') && <Route path="clientes" element={<Clientes />} />}
         {can('paradas-fijas') && <Route path="paradas-fijas" element={<ParadasFijas />} />}
+        {can('panel-del-dia') && <Route path="panel-del-dia" element={<PanelDelDia />} />}
         {can('rutas') && <Route path="rutas" element={<RutasDelDia />} />}
         {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}
         {can('tickets-en-planta') && <Route path="tickets-en-planta" element={<TicketsEnPlanta />} />}

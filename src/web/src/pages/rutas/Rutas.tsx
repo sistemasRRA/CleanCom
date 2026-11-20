@@ -1,5 +1,6 @@
 import { Fragment, lazy, Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useOperadores } from '../../api/queries';
 import { useSession } from '../../session/Session';
@@ -63,7 +64,12 @@ function addDays(iso: string, days: number) {
  * lunch, return to Leones and alerts. Everything is calculated by the API.
  */
 export function Rutas() {
-  const [date, setDate] = useState(today);
+  // ?fecha=yyyy-MM-dd opens that day (from the Panel del día).
+  const [params] = useSearchParams();
+  const [date, setDate] = useState(() => {
+    const fecha = params.get('fecha') ?? '';
+    return /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : today();
+  });
   const plan = useQuery({
     queryKey: [...keys.rutasDia, date],
     queryFn: () => unwrap(api.GET('/rutas/dia', { params: { query: { fecha: date } } })),

@@ -31,6 +31,9 @@ public static class Policies
     /// </summary>
     public const string SeesOperacion = "SeesOperacion";
 
+    /// <summary>Choosing the chofer and unidad of a ruta del día: editing Panel del día or Rutas.</summary>
+    public const string AssignsRutaDia = "AssignsRutaDia";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -179,7 +182,9 @@ public static class Security
                 .AddRequirements(new AnyScreenRequirement(
                     [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)))
             .AddPolicy(Policies.SeesOperacion, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.View)));
+                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.View)))
+            .AddPolicy(Policies.AssignsRutaDia, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.Edit)));
 
         return services;
     }

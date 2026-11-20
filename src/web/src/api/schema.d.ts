@@ -5513,6 +5513,12 @@ export interface components {
             /** Format: int32 */
             userId: null | number;
         };
+        PanelChoiceDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            note?: null | string;
+        };
         PanelDto: {
             /** Format: date */
             date: string;
@@ -5534,6 +5540,8 @@ export interface components {
             baseLat: number;
             /** Format: double */
             baseLng: number;
+            operadores: components["schemas"]["PanelChoiceDto"][];
+            unidades: components["schemas"]["PanelChoiceDto"][];
         };
         PanelIndicatorsDto: {
             /** Format: int32 */

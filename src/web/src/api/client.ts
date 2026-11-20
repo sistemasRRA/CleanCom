@@ -8,7 +8,7 @@ import type { components, paths } from './schema';
 export type Schemas = components['schemas'];
 export type Session = Schemas['SessionDto'];
 
-const API_URL = import.meta.env.VITE_API_URL ?? '/api';
+export const API_URL = import.meta.env.VITE_API_URL ?? '/api';
 const SESSION_KEY = 'cleancom.session';
 
 // ---- Session stored in the browser ----

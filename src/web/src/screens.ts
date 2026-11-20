@@ -12,7 +12,7 @@ export type MenuScreen = {
 };
 
 export const SCREENS: MenuScreen[] = [
-  { key: 'panel-del-dia', name: 'Panel del día', path: '/panel-del-dia', group: 'Operación diaria', week: 5 },
+  { key: 'panel-del-dia', name: 'Panel del día', path: '/panel-del-dia', group: 'Operación diaria' },
   { key: 'agendar', name: 'Agendar', path: '/agendar', group: 'Operación diaria' },
   { key: 'rutas', name: 'Rutas', path: '/rutas', group: 'Operación diaria' },
   { key: 'paradas-fijas', name: 'Paradas fijas', path: '/paradas-fijas', group: 'Operación diaria' },

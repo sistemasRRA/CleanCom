@@ -1,6 +1,6 @@
 # Panel del día
 
-**Ruta actual:** `/logistica` · **Rol:** Administración
+**Ruta actual:** `/logistica` · **Ruta nueva:** `/panel-del-dia` (semana 5, hecho) · **Rol:** Administración
 
 Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de los próximos 7 días y últimas visitas.
 
@@ -36,3 +36,14 @@ Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de
 - El panel se actualiza sin recargar cuando un chofer cierra una visita.
 - Los contadores de alertas coinciden con las listas que abren.
 - La carga de 7 días incluye las paradas fijas.
+
+## Cómo quedó (semana 5)
+
+- Encabezado con la fecha (anterior, siguiente, hoy), salida y regreso, y el estado de la conexión en vivo.
+- Franja de indicadores: recolecciones y entregas realizadas contra planeadas, cobrado de referencia, % de llegadas a tiempo y pedidos en planta.
+- Bandeja de pendientes: un contador por tipo que abre su lista (con enlace a Rutas, Pedidos o Tickets en planta) y el contador de unidades con pendientes, que lleva a Unidades.
+- Una tarjeta por ruta: zonas, estado, avance contra la meta, entregas, paradas cerradas, km, regreso estimado, cobrado, hora del último GPS, alertas, y selector de chofer y unidad (con permiso de editar el Panel o Rutas). Una unidad con pendientes pide confirmar.
+- Mapa del día con las paradas de cada ruta y el chofer en vivo (`ubicacion` del hub). Cuando un chofer cambia una parada (`parada`), el panel y el mapa se recargan solos; además se refresca cada minuto para el atraso y el "sin GPS".
+- Carga de los próximos 7 días por ruta contra el cupo; el día excedido se resalta y al hacer clic abre Rutas en ese día (`/rutas?fecha=`).
+- Últimas visitas con fotos y firma.
+- Falta: ruta planeada contra recorrida en el mapa y arrastrar paradas sin asignar a una ruta.

@@ -1,6 +1,7 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Rutas;
 using CleanCom.Domain.Access;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCom.Api.Controllers;
@@ -14,13 +15,13 @@ public class RutaDiaController(RutaDiaService service) : ControllerBase
 {
     /// <summary>Every active ruta on a day (today when empty): chofer, paradas in order with estimated times, km, return and alerts.</summary>
     [HttpGet("rutas/dia")]
-    [RequireScreen(Screens.Rutas, AccessLevel.View)]
+    [Authorize(Policy = Policies.SeesOperacion)]
     public Task<RutasDiaDto> Day([FromQuery(Name = "fecha")] DateOnly? date, CancellationToken ct) =>
         service.DayAsync(date, ct);
 
     /// <summary>The chofer of a ruta on a day; null goes back to the operador whose usual ruta it is.</summary>
     [HttpPut("rutas/{rutaId:int}/dias/{fecha}/chofer")]
-    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    [Authorize(Policy = Policies.AssignsRutaDia)]
     public Task<RutaPlanDto> AssignOperador(int rutaId, [FromRoute(Name = "fecha")] DateOnly date, AssignOperadorRequest request, CancellationToken ct) =>
         service.AssignOperadorAsync(rutaId, date, request, ct);
 
@@ -29,7 +30,7 @@ public class RutaDiaController(RutaDiaService service) : ControllerBase
     /// the office confirms (confirm: true).
     /// </summary>
     [HttpPut("rutas/{rutaId:int}/dias/{fecha}/unidad")]
-    [RequireScreen(Screens.Rutas, AccessLevel.Edit)]
+    [Authorize(Policy = Policies.AssignsRutaDia)]
     public Task<RutaPlanDto> AssignUnidad(int rutaId, [FromRoute(Name = "fecha")] DateOnly date, AssignUnidadRequest request, CancellationToken ct) =>
         service.AssignUnidadAsync(rutaId, date, request, ct);
 
