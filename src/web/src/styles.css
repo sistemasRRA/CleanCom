@@ -721,3 +721,13 @@ dialog:has(.unidad-detail) { width: min(920px, calc(100vw - 32px)); }
 .unidad-card__head { display: grid; grid-template-columns: auto minmax(0, 1fr); min-width: 0; }
 .unidad-card__head .muted { display: block; }
 .unidad-card .muted, .unidad-alerts li, .unidad-facts dd { overflow-wrap: anywhere; }
+
+/* ---- Success popup (every save) ---- */
+dialog.success-popup { width: min(380px, calc(100vw - 32px)); padding: 28px 24px 22px; text-align: center; display: grid; justify-items: center; gap: 14px; }
+dialog.success-popup::backdrop { background: rgb(15 23 42 / 30%); }
+dialog.success-popup[open] { animation: success-in 160ms ease-out; }
+.success-popup__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 999px; background: var(--success-soft); color: var(--success); }
+.success-popup p { margin: 0; font-size: 16px; font-weight: 600; color: var(--text); }
+.success-popup button { min-width: 120px; }
+@keyframes success-in { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { dialog.success-popup[open] { animation: none; } }

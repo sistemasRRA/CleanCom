@@ -6,6 +6,7 @@ import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDateTime, optional, useSave } from '../../components/Common';
 import { Loader } from '../../components/Loader';
+import { useNotify } from '../../components/Toasts';
 
 type Card = Schemas['PedidoCardDto'];
 type Etapa = Schemas['PedidoEtapa'];
@@ -317,11 +318,12 @@ function MoveForm({ detail: d, onDone }: { detail: Detail; onDone: () => void })
 }
 
 function EntregaForm({ id, onDone }: { id: number; onDone: () => void }) {
+  const notify = useNotify();
   const days = useQuery({ queryKey: [...keys.pedidos, 'fechas-entrega', id], queryFn: () => unwrap(api.GET('/pedidos/{id}/fechas-entrega', { params: { path: { id } } })) });
   const [date, setDate] = useState<string | null>(null);
   const save = useSave(
     () => unwrap(api.POST('/pedidos/{id}/programar-entrega', { params: { path: { id } }, body: { date } })),
-    { refetch, onDone: (r) => (r.scheduled ? onDone() : undefined) },
+    { refetch, onDone: (r) => (r.scheduled ? (notify(r.message ?? 'Entrega programada.'), onDone()) : undefined) },
   );
   return (
     <div className="inline-form">
