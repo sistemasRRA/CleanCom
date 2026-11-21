@@ -23,7 +23,8 @@ public class ChoferService(
     ICurrentUser currentUser,
     IBusinessClock clock,
     ISettingService settings,
-    RutaDiaService plans)
+    RutaDiaService plans,
+    IOperacionNotifier notifier)
 {
     /// <summary>The chofer's ruta on a day, or why there is none.</summary>
     private sealed record Resolved(Operador? Operador, Ruta? Ruta, RutaDia? RutaDia, bool Assigned, string? Problem);
@@ -35,8 +36,42 @@ public class ChoferService(
     public async Task<ChoferRutaDto> RutaAsync(DateOnly? date, CancellationToken ct)
     {
         var day = date ?? clock.Today;
+        return await BuildAsync(day, await ResolveAsync(day, ct), ct);
+    }
+
+    /// <summary>
+    /// Vista del chofer (docs/pantallas/oficina/vista-del-chofer.md): exactly what the chofer of a ruta sees on a day,
+    /// for the office. The chofer is the one assigned that day, or the operador whose usual ruta it is.
+    /// </summary>
+    public async Task<ChoferRutaDto> PreviewAsync(int rutaId, DateOnly? date, CancellationToken ct)
+    {
+        var day = date ?? clock.Today;
+        var ruta = await db.Rutas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == rutaId && r.Active, ct)
+            ?? throw new NotFoundException("La ruta no existe o está inactiva.");
+        var rutaDia = await db.RutaDias.AsNoTracking().Include(d => d.Ruta).FirstOrDefaultAsync(d => d.RutaId == rutaId && d.Date == day, ct);
+        Operador? operador;
+        if (rutaDia?.OperadorId is { } assignedId)
+        {
+            operador = await db.Operadores.AsNoTracking().FirstOrDefaultAsync(o => o.Id == assignedId, ct);
+        }
+        else
+        {
+            // Same as Rutas: the operador whose usual ruta it is, unless the office gave them another ruta that day.
+            var busy = await db.RutaDias.AsNoTracking().Where(d => d.Date == day && d.OperadorId != null).Select(d => d.OperadorId!.Value).ToListAsync(ct);
+            operador = await db.Operadores.AsNoTracking().Where(o => o.Active && o.UsualRutaId == rutaId && !busy.Contains(o.Id))
+                .OrderBy(o => o.Name).FirstOrDefaultAsync(ct);
+        }
+
+        var view = await BuildAsync(day, new Resolved(operador, ruta, rutaDia, rutaDia?.OperadorId is not null, null), ct);
+        return operador is null
+            ? view with { Notice = $"Sin ruta asignada: logística no ha asignado chofer a la ruta {ruta.Code} el {view.Label}." }
+            : view;
+    }
+
+    /// <summary>What the chofer sees, once it is known whose ruta and which day.</summary>
+    private async Task<ChoferRutaDto> BuildAsync(DateOnly day, Resolved resolved, CancellationToken ct)
+    {
         var label = AgendaCalculator.Format(day);
-        var resolved = await ResolveAsync(day, ct);
         if (resolved.Problem is not null || resolved.Ruta is null)
         {
             return new ChoferRutaDto(day, label, resolved.Operador?.Name, null, false, resolved.Problem, []);
@@ -52,7 +87,7 @@ public class ChoferService(
             .Where(d => d.Active && d.Date == day).Select(d => d.Reason).FirstOrDefaultAsync(ct);
         if (resolved.RutaDia is not { } rutaDia)
         {
-            return new ChoferRutaDto(day, label, resolved.Operador!.Name, rutaInfo, false,
+            return new ChoferRutaDto(day, label, resolved.Operador?.Name, rutaInfo, false,
                 nonWorking is null ? $"La ruta {ruta.Code} no tiene paradas el {label}." : $"Día inhábil: {nonWorking}.", [],
                 isToday, null, orderRequired, tolerance, photoRequired);
         }
@@ -91,7 +126,7 @@ public class ChoferService(
 
         var next = isToday ? ChoferFlow.Next(Flow(paradas)) : null;
         var notice = nonWorking is not null ? $"Día inhábil: {nonWorking}." : paradas.Count == 0 ? $"La ruta {ruta.Code} no tiene paradas el {label}." : null;
-        return new ChoferRutaDto(day, label, resolved.Operador!.Name, rutaInfo, resolved.Assigned, notice, paradas,
+        return new ChoferRutaDto(day, label, resolved.Operador?.Name, rutaInfo, resolved.Assigned, notice, paradas,
             isToday, next?.Id, orderRequired, tolerance, photoRequired);
     }
 
@@ -116,6 +151,7 @@ public class ChoferService(
             PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, at, "El chofer va en camino.");
         }
         await db.SaveChangesAsync(ct);
+        await NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await RutaAsync(date, ct);
     }
 
@@ -155,6 +191,7 @@ public class ChoferService(
         parada.ArrivedDistanceMeters = distance;
         parada.ArrivedOutsideRadius = !inside;
         await db.SaveChangesAsync(ct);
+        await NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);
         return await RutaAsync(date, ct);
     }
 
@@ -204,6 +241,23 @@ public class ChoferService(
                 : p.Location != null ? p.Location
                 : p.Lugar != null ? p.Lugar.Location : null)
             .FirstOrDefaultAsync(ct);
+
+    /// <summary>The chofer's RutaDia today (with its ruta) and their name; RutaDia is null when there is nothing today.</summary>
+    internal async Task<(RutaDia? RutaDia, string? OperadorName)> TodayAsync(CancellationToken ct)
+    {
+        var resolved = await ResolveAsync(clock.Today, ct);
+        return (resolved.RutaDia, resolved.Operador?.Name);
+    }
+
+    /// <summary>
+    /// Tells the office a parada changed. The state is read back from the database because closing a visit can
+    /// reschedule it through the agenda.
+    /// </summary>
+    internal async Task NotifyParadaAsync(int paradaId, int rutaDiaId, DateOnly date, CancellationToken ct)
+    {
+        var state = await db.Paradas.AsNoTracking().Where(p => p.Id == paradaId).Select(p => p.State).FirstAsync(ct);
+        await notifier.ParadaAsync(new ParadaChangedDto(rutaDiaId, date, paradaId, state), ct);
+    }
 
     private async Task<Resolved> ResolveAsync(DateOnly day, CancellationToken ct)
     {

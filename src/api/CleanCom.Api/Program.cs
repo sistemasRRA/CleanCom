@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using CleanCom.Api.Common;
+using CleanCom.Api.Realtime;
+using CleanCom.Application.Common;
 using CleanCom.Application;
 using CleanCom.Infrastructure;
 using CleanCom.Jobs;
@@ -22,6 +24,9 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddJobs();
     builder.Services.AddSecurity();
+    builder.Services.AddSignalR().AddJsonProtocol(o =>
+        o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    builder.Services.AddSingleton<IOperacionNotifier, SignalROperacionNotifier>();
     builder.Services.AddProblemDetails();
     builder.Services.AddExceptionHandler<ErrorHandler>();
 
@@ -55,7 +60,9 @@ try
     builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
         .WithOrigins(origins)
         .AllowAnyHeader()
-        .AllowAnyMethod()));
+        .AllowAnyMethod()
+        // The SignalR browser client negotiates with credentials.
+        .AllowCredentials()));
 
     builder.Services.AddOpenApi(o => o.AddDocumentTransformer((document, _, _) =>
     {
@@ -96,6 +103,7 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+    app.MapHub<OperacionHub>(OperacionHub.Path);
 
     await app.Services.SeedAdministratorAsync(app.Configuration);
     await app.Services.SeedCatalogsAsync();

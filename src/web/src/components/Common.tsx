@@ -57,6 +57,8 @@ export function Dialog({
 
   function submit(e: FormEvent) {
     e.preventDefault();
+    // React passes a submit on to the forms around it; a dialog opened from another must not submit (close) that one.
+    e.stopPropagation();
     onSubmit();
   }
 

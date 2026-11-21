@@ -49,17 +49,17 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API. En código: `Evidence` (tabla `evidence`) |
 | `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS. En código: `ReferencePayment` (tabla `reference_payments`) |
 | `CorteCaja` | OperadorId, Fecha, Declarado (por forma de pago), Registrado, Diferencias, Folio, CerradoPor | |
-| `UbicacionChofer` | RutaDiaId, Ubicacion, Fecha | Historial reducido; la última posición también en memoria |
+| `UbicacionChofer` | RutaDiaId, Ubicacion, TomadaEn, PrecisionMetros? | Historial reducido (reglas en GPS del chofer); la última posición también en memoria |
 
 ## Flota
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
-| `Unidad` | Placa, Marca, Modelo, Anio, CapacidadPrendas, KmActual, EstadoServicio (Activa, FueraDeServicio) | |
-| `DocumentoUnidad` | UnidadId, Tipo (Seguro, Tarjeta, Verificacion), Vigencia, Archivo | |
-| `EventoUnidad` | UnidadId, Tipo (Servicio, Reparacion, Falla, Pago), Fecha, Km?, Monto?, Descripcion, Gravedad?, Archivo?, ReportadoPor | Bitácora |
-| `PagoRecurrente` | UnidadId, Concepto, Monto, Periodicidad, ProximaFecha | Tenencia, crédito, póliza en pagos |
-| `ReglaAviso` | Evento, DiasAntes, Destinatarios, Canales | Notificaciones de flota |
+| `Unidad` | Placa, Marca, Modelo, Anio, Tipo (Furgoneta, Pickup, Trimoto, Otro), CapacidadPrendas?, KmActual, KmActualizadoEn, EstadoServicio (Activa, FueraDeServicio), ExentaVerificacion, ServicioCadaKm?, ServicioCadaMeses?, Notas, Activa | Placa única entre activas |
+| `DocumentoUnidad` | UnidadId, Tipo (Seguro, TarjetaCirculacion, Verificacion, Comprobante, Otro, Foto), VigenteDesde?, VigenteHasta?, Descripcion, EventoId?, Archivo?, Activo | En código: `UnidadDocument`. El archivo va en disco |
+| `EventoUnidad` | UnidadId, Tipo (Servicio, Reparacion, Falla, Pago, Kilometraje), Fecha, Km?, Monto?, Descripcion, Gravedad?, ResueltaEl?, PagoRecurrenteId?, Activo; quién lo registró en `created_by` | Bitácora. En código: `UnidadEvent` |
+| `PagoRecurrente` | UnidadId, Concepto, Monto, Periodicidad (Mensual, Bimestral, Trimestral, Semestral, Anual), ProximaFecha, Activo | Tenencia, crédito, póliza en pagos. En código: `RecurringPayment` |
+| `ReglaAviso` | Evento (uno por evento), DiasAntes, Destinatarios, Canales | Notificaciones de flota. En código: `FleetAlertRule` |
 
 ## Promociones y mensajes
 

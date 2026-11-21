@@ -260,11 +260,18 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
 | App del chofer | `GET /chofer/ruta?fecha=` | App del chofer: View |
+| Vista del chofer | `GET /chofer/vista?ruta=&fecha=` (lo que ve el chofer de esa ruta, más su última ubicación) | Vista del chofer: View |
+| App del chofer | `POST /chofer/ubicacion` (lecturas de GPS; varias juntas si no hubo señal) | App del chofer: Edit |
+| Panel del día | `GET /panel?fecha=` | Panel del día: View |
+| Tiempo real | `GET /ubicaciones?fecha=`, `GET /rutas/dia/{id}/recorrido`, hub SignalR `/hubs/operacion` (eventos `ubicacion` y `parada`; token en `access_token`) | Panel del día, Rutas o Vista del chofer: View (política `SeesOperacion`) |
+| Unidades | `GET /unidades` (`?includeInactive=`), `GET /unidades/{id}`, `GET /unidades/{id}/documentos/{documentoId}/archivo`, `GET /avisos-flota/reglas` | Unidades: View |
+| Unidades | `POST /unidades`, `PUT /unidades/{id}`, `POST /unidades/{id}/eventos`, `POST /unidades/{id}/eventos/{eventoId}/resolver`, `POST /unidades/{id}/documentos` (multipart: PDF, JPG, PNG o WebP hasta 15 MB), `DELETE /unidades/{id}/documentos/{documentoId}`, `POST /unidades/{id}/pagos`, `PUT /unidades/{id}/pagos/{pagoId}`, `PUT /avisos-flota/reglas` | Unidades: Edit |
+| Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer` y `/unidad` (la unidad responde 409 hasta confirmar si tiene pendientes) | Panel del día o Rutas: Edit (política `AssignsRutaDia`) |
 | App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
 | App del chofer | `GET /chofer/motivos` | App del chofer: View |
 | App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId` y la hora del teléfono (`at`); un reenvío no duplica. `en-camino` y `llegue` también aceptan `localId` y `at` | App del chofer: Edit |
 | Evidencias | `GET /evidencias/{id}/archivo` | Pedidos: View |
-| Rutas | `GET /rutas/dia?fecha=` | Rutas: View |
+| Rutas | `GET /rutas/dia?fecha=` | Panel del día o Rutas: View (política `SeesOperacion`; el Panel lo usa para su mapa) |
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |
 | Paradas fijas | `GET /paradas-fijas` (`?tipo=&inactivas=`), `GET /paradas-fijas/{id}`, `GET /paradas-fijas/semana?fecha=` | Paradas fijas: View |
 | Paradas fijas | `POST /paradas-fijas`, `PUT /paradas-fijas/{id}`, `POST /paradas-fijas/{id}/excepciones`, `DELETE /paradas-fijas/{id}/excepciones/{excepcionId}` (baja lógica), `POST /paradas-fijas/generar?fecha=` | Paradas fijas: Edit |

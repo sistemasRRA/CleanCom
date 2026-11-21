@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Schemas } from '../api/client';
+import type { LiveLocation } from '../api/realtime';
 
 type Plan = Schemas['RutaPlanDto'];
 
@@ -11,11 +12,13 @@ const hm = (t?: string | null) => (t ? t.slice(0, 5) : '');
 /**
  * Map of the day's rutas: the base (B) and each ruta's paradas numbered in visit order with the ruta's color,
  * joined in that order from and back to the base. Lines are straight (no streets) until Google Routes is connected.
+ * `live`: where each chofer is now (hub "operacion"), drawn over the plan with the ruta's color.
  */
-export function RoutesMap({ base, rutas }: { base: { lat: number; lng: number }; rutas: Plan[] }) {
+export function RoutesMap({ base, rutas, live = [] }: { base: { lat: number; lng: number }; rutas: Plan[]; live?: LiveLocation[] }) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
+  const liveLayer = useRef<L.LayerGroup | null>(null);
   const [hidden, setHidden] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -28,6 +31,7 @@ export function RoutesMap({ base, rutas }: { base: { lat: number; lng: number };
     m.on('click', () => m.scrollWheelZoom.enable());
     m.on('mouseout', () => m.scrollWheelZoom.disable());
     layer.current = L.layerGroup().addTo(m);
+    liveLayer.current = L.layerGroup().addTo(m);
     map.current = m;
     const resize = new ResizeObserver(() => m.invalidateSize());
     resize.observe(container.current!);
@@ -86,6 +90,31 @@ export function RoutesMap({ base, rutas }: { base: { lat: number; lng: number };
       m.fitBounds(bounds.pad(0.1), { maxZoom: 15 });
     }
   }, [rutas, hidden, base.lat, base.lng, shownKey]);
+
+  // Choferes now: redrawn on every reading, without moving the view.
+  useEffect(() => {
+    const g = liveLayer.current;
+    if (!g) return;
+    g.clearLayers();
+    for (const l of live) {
+      const ruta = rutas.find((r) => r.rutaId === l.rutaId);
+      if (ruta && hidden.has(ruta.rutaId)) continue;
+      const color = ruta?.color ?? l.rutaColor ?? '#1e2a78';
+      const at = new Date(l.at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' });
+      const icon = L.divIcon({
+        className: `routes-map__live${l.live ? '' : ' stale'}`,
+        html: `<span style="background:${escape(color)}">${escape(l.rutaCode)}</span>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+      });
+      L.marker([l.lat, l.lng], { icon, zIndexOffset: 2000, title: `Ruta ${l.rutaCode}` })
+        .bindTooltip(
+          `<strong>Ruta ${escape(l.rutaCode)} · ${escape(l.operadorName ?? 'Chofer')}</strong><br>${l.live ? 'Ubicación' : 'Última ubicación guardada'} de las ${at}`,
+          { direction: 'top', offset: [0, -16] },
+        )
+        .addTo(g);
+    }
+  }, [live, rutas, hidden]);
 
   const withoutLocation = rutas.filter((r) => !hidden.has(r.rutaId)).reduce((n, r) => n + r.paradas.filter((p) => p.lat == null || p.lng == null).length, 0);
 

@@ -42,8 +42,10 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "CleanCom Chofer usa tu ubicación durante el turno para registrar tu llegada a cada parada y avisarte cuando estás cerca.",
-          "isAndroidBackgroundLocationEnabled": false,
-          "isIosBackgroundLocationEnabled": false
+          "locationAlwaysAndWhenInUsePermission": "CleanCom Chofer comparte tu ubicación con oficina durante el turno, también con la app en segundo plano, para seguir la ruta en vivo. Deja de hacerlo al terminar tus paradas.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true
         }
       ],
       [

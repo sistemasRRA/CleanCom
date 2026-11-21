@@ -24,7 +24,13 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Parada.MinutosRecoleccion` | 15 | Horas estimadas |
 | `Parada.MinutosEntrega` | 10 | |
 | `Parada.MinutosTraslado` | 12 | Traslado o insumos |
-| `Gps.ToleranciaMetros` | 300 | Validar llegada y evidencia |
+| `Gps.ToleranciaMetros` | 300 | Validar llegada y evidencia; también descarta lecturas de GPS menos precisas |
+| `Gps.HistorialSegundos` | 120 | Cada cuánto se guarda la ubicación del chofer en el recorrido |
+| `Gps.HistorialMetros` | 100 | Distancia que guarda la ubicación antes de tiempo |
+| `Unidad.ServicioCadaKm` | 10000 | Kilómetros entre servicios, si la unidad no tiene los suyos |
+| `Unidad.ServicioCadaMeses` | 6 | Meses entre servicios, si la unidad no tiene los suyos |
+| `Parada.ToleranciaLlegadaMinutos` | 15 | Llegada a tiempo (± minutos de la hora estimada) y aviso de atraso en el Panel del día |
+| `Gps.SinSenalMinutos` | 10 | Minutos sin ubicación de un chofer en ruta para avisar "sin GPS" |
 | `Visita.FotoObligatoria` | Sí | |
 | `Visita.OrdenObligatorio` | Sí | El chofer registra las paradas en el orden asignado |
 | `Fijas.DiasAnticipacion` | 7 | Generación automática |
@@ -243,6 +249,26 @@ Cada indicador tiene periodo (diario, semanal o mensual), responsable, rojo, ver
 
 Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se cruzan en BigQuery.
 
+## Panel del día
+
+1. **Estado de cada ruta:** "sin salir" mientras ninguna parada empezó; "en ruta" con alguna en camino, en sitio o cerrada y otras por visitar; "de regreso" cuando todas están cerradas. Salida, regreso y comida no cuentan como visitas.
+2. **Llegada a tiempo:** la hora real de "Llegué" está a ± `Parada.ToleranciaLlegadaMinutos` de la hora estimada del plan. El indicador es llegadas a tiempo / llegadas del día. Ejemplo: estimada 10:30, cuentan de 10:15 a 10:45.
+3. **Atraso (solo hoy):** la siguiente parada por visitar tenía hora estimada hace más de `Parada.ToleranciaLlegadaMinutos`. Ejemplo: estimada 10:30, a las 10:46 la tarjeta avisa "Atraso de 16 min".
+4. **Horas extra:** el regreso estimado pasa de `Ruta.RegresoMaximo` (o el de sábado).
+5. **Sin GPS (solo hoy):** una ruta "en ruta" cuyo chofer no ha mandado ubicación en `Gps.SinSenalMinutos`, o nunca.
+6. **Pendientes (siempre al día de hoy, sin importar el día en pantalla):** paradas de días pasados sin cerrar; pedidos en Listo sin fecha de entrega; pedidos con `Planta.DiasProceso` días o más en planta (contados desde que entraron a esa etapa). Cada contador es el tamaño de la lista que abre.
+7. **Indicadores del día:** recolecciones y entregas realizadas contra planeadas, cobrado de referencia (lo que declaran los choferes), % de llegadas a tiempo y pedidos en planta ahora (en planta o listos).
+8. **Carga de 7 días** desde hoy: paradas que ocupan cupo, con las fijas, contra el cupo de cada ruta (lo mismo que cuenta la agenda).
+
+## GPS del chofer
+
+1. Durante el turno, la app manda la ubicación del teléfono cada 30 a 60 segundos. Sin señal las guarda y las manda juntas al volver la conexión.
+2. Solo se guarda si el chofer tiene ruta ese día. Se descartan las lecturas que no son del día de la ruta, las que tienen hora futura y las que tienen precisión peor que `Gps.ToleranciaMetros`.
+3. **Mapa en vivo:** la lectura más reciente es la posición del chofer y se envía a oficina en ese momento (SignalR). Una lectura atrasada (por ejemplo, de cuando no había señal) no regresa el punto del mapa.
+4. **Recorrido (historial reducido):** se guarda la primera lectura del día y después una cada `Gps.HistorialSegundos`, o antes si el chofer se movió `Gps.HistorialMetros` o más. Un reenvío no se guarda dos veces.
+
+Ejemplo: con lecturas cada 30 s sin moverse, se guardan las de 10:02 y 10:04 después de la de 10:00. Si a las 10:01 ya avanzó 150 m, esa también se guarda.
+
 ## Flota
 
 | Evento | Avisa |
@@ -257,3 +283,14 @@ Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se c
 - Avisos por correo y notificación; el aviso se repite hasta que se registra el pago o la renovación con comprobante.
 - Resumen semanal por correo de lo que vence en 30 días.
 - El kilometraje de la unidad se actualiza con el inicial y final de cada turno.
+
+Cómo se calcula (semana 5, en el API):
+
+1. **Días de aviso editables.** Los días de cada evento, sus destinatarios y canales están en las reglas de aviso (`GET|PUT /avisos-flota/reglas`). Valores iniciales: verificación 15 y 0, seguro 30, 7 y 0, pagos 15 y 3, tarjeta 30, servicio 15 y 0, falla 0.
+2. **Verificación por placa (calendario de la CDMX).** Una unidad marcada "exenta de verificación" (las trimotos) no tiene calendario ni aviso. Para las demás cuenta el último dígito de la placa: 5 y 6 verifican en enero-febrero y julio-agosto; 7 y 8 en febrero-marzo y agosto-septiembre; 3 y 4 en marzo-abril y septiembre-octubre; 1 y 2 en abril-mayo y octubre-noviembre; 9 y 0 en mayo-junio y noviembre-diciembre. Si no hay verificación registrada desde que empezó el periodo vigente, "toca verificar" hasta que cierra y después queda vencida. Ejemplo: placa que termina en 4, última verificación en marzo; el 20 de noviembre está vencida porque el periodo de septiembre-octubre cerró sin verificar.
+3. **Seguro y tarjeta de circulación** por su fecha de vigencia. Ejemplo: seguro que vence el 20 de diciembre avisa el 20 de noviembre (30 días), el 13 de diciembre (7) y el 20 de diciembre.
+4. **Servicio por km o fecha, lo que llegue primero.** El siguiente servicio es el último más `ServicioCadaKm` y más `ServicioCadaMeses` (de la unidad o de la configuración). Ejemplo: servicio el 1 de mayo a 20,000 km, cada 10,000 km o 6 meses → toca el 1 de noviembre o a los 30,000 km. Una unidad sin servicio registrado se marca.
+5. **Pagos recurrentes** por su próxima fecha. Registrar el pago en la bitácora mueve la fecha según su periodicidad (mensual, bimestral, trimestral, semestral o anual) y suma al gasto del año.
+6. **Recordatorio:** pasada la fecha, el aviso se repite cada 7 días hasta que se registra algo. El servicio vencido por kilometraje (sin fecha) se recuerda los lunes.
+7. **Gasto del año y costo por km:** suma de los montos de la bitácora del año, entre los kilómetros recorridos en el año (del primer kilometraje registrado del año al actual).
+8. **Asignar una unidad a una ruta** fuera de servicio, con falla abierta o con seguro, tarjeta o verificación vencidos pide confirmar. Una unidad no puede estar en dos rutas el mismo día.

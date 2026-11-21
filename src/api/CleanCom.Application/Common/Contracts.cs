@@ -1,6 +1,7 @@
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
+using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -40,9 +41,46 @@ public interface ICleanComDbContext
     DbSet<Ticket> Tickets { get; }
     DbSet<Evidence> Evidence { get; }
     DbSet<ReferencePayment> ReferencePayments { get; }
+    DbSet<ChoferLocation> ChoferLocations { get; }
+    DbSet<Unidad> Unidades { get; }
+    DbSet<UnidadDocument> UnidadDocuments { get; }
+    DbSet<UnidadEvent> UnidadEvents { get; }
+    DbSet<RecurringPayment> RecurringPayments { get; }
+    DbSet<FleetAlertRule> FleetAlertRules { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
+
+/// <summary>
+/// Pushes what changes during the day to the office in real time (SignalR hub "operacion"). A failure to push never
+/// fails the request: the screens also reload on their own.
+/// </summary>
+public interface IOperacionNotifier
+{
+    /// <summary>Where a chofer is now (live map).</summary>
+    Task LocationAsync(LiveLocationDto location, CancellationToken ct);
+
+    /// <summary>A parada changed state (en camino, llegué, cerrada, no realizada).</summary>
+    Task ParadaAsync(ParadaChangedDto change, CancellationToken ct);
+}
+
+/// <summary>The chofer's last known position on a RutaDia.</summary>
+/// <param name="Live">Received in this run of the API; false when it comes from the saved history after a restart.</param>
+public record LiveLocationDto(
+    int RutaDiaId,
+    DateOnly Date,
+    int RutaId,
+    string RutaCode,
+    string? RutaColor,
+    string? OperadorName,
+    double Lat,
+    double Lng,
+    DateTimeOffset At,
+    int? AccuracyMeters,
+    bool Live = true);
+
+/// <summary>A parada that changed state; the office reloads that ruta.</summary>
+public record ParadaChangedDto(int RutaDiaId, DateOnly Date, int ParadaId, CleanCom.Domain.Routing.ParadaState State);
 
 /// <summary>
 /// User making the request (null in background jobs or anonymous requests).

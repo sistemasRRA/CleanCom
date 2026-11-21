@@ -1,6 +1,6 @@
 # Panel del día
 
-**Ruta actual:** `/logistica` · **Rol:** Administración
+**Ruta actual:** `/logistica` · **Ruta nueva:** `/panel-del-dia` (semana 5, hecho) · **Rol:** Administración
 
 Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de los próximos 7 días y últimas visitas.
 
@@ -24,13 +24,26 @@ Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de
 
 ## Endpoints
 
-- `GET /panel?fecha=` resumen, alertas y tarjetas.
+- `GET /panel?fecha=` (hecho): indicadores, pendientes con sus listas, contador de flota, una tarjeta por ruta (zonas, chofer, unidad, avance de recolecciones contra meta y de entregas, estado, km y regreso estimados, última ubicación, cobrado y alertas de atraso, horas extra, sin GPS y sin unidad), carga de 7 días y últimas visitas. Reglas en [reglas de negocio · Panel del día](../../03-reglas-de-negocio.md#panel-del-día). Chofer y unidad se asignan con `PUT /rutas/{rutaId}/dias/{fecha}/chofer` y `/unidad`.
 - `GET /rutas/dia?fecha=` rutas con paradas para el mapa.
 - `GET /agenda/carga?desde=&dias=7`.
-- Hub SignalR `operacion`: ubicaciones de choferes y cambios de estado de paradas.
+- `GET /ubicaciones?fecha=` (hecho): última posición conocida de cada ruta del día (`live: false` cuando viene del historial, por ejemplo después de reiniciar el API).
+- `GET /rutas/dia/{id}/recorrido` (hecho): puntos del recorrido en orden, para comparar contra la ruta planeada.
+- Hub SignalR `operacion` en `/hubs/operacion` (hecho): eventos `ubicacion` (misma forma que `GET /ubicaciones`) y `parada` (`rutaDiaId`, `date`, `paradaId`, `state`) cuando el chofer marca en camino, llegué, cerrada o no realizada. El token va en `access_token` de la URL. Permiso: ver Panel del día o Rutas.
 
 ## Criterios de aceptación
 
 - El panel se actualiza sin recargar cuando un chofer cierra una visita.
 - Los contadores de alertas coinciden con las listas que abren.
 - La carga de 7 días incluye las paradas fijas.
+
+## Cómo quedó (semana 5)
+
+- Encabezado con la fecha (anterior, siguiente, hoy), salida y regreso, y el estado de la conexión en vivo.
+- Franja de indicadores: recolecciones y entregas realizadas contra planeadas, cobrado de referencia, % de llegadas a tiempo y pedidos en planta.
+- Bandeja de pendientes: un contador por tipo que abre su lista (con enlace a Rutas, Pedidos o Tickets en planta) y el contador de unidades con pendientes, que lleva a Unidades.
+- Una tarjeta por ruta: zonas, estado, avance contra la meta, entregas, paradas cerradas, km, regreso estimado, cobrado, hora del último GPS, alertas, y selector de chofer y unidad (con permiso de editar el Panel o Rutas). Una unidad con pendientes pide confirmar.
+- Mapa del día con las paradas de cada ruta y el chofer en vivo (`ubicacion` del hub). Cuando un chofer cambia una parada (`parada`), el panel y el mapa se recargan solos; además se refresca cada minuto para el atraso y el "sin GPS".
+- Carga de los próximos 7 días por ruta contra el cupo; el día excedido se resalta y al hacer clic abre Rutas en ese día (`/rutas?fecha=`).
+- Últimas visitas con fotos y firma.
+- Falta: ruta planeada contra recorrida en el mapa y arrastrar paradas sin asignar a una ruta.

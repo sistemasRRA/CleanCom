@@ -1,4 +1,5 @@
 using CleanCom.Application.Common;
+using CleanCom.Application.Fleet;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Domain.Agenda;
@@ -22,7 +23,8 @@ public class RutaDiaService(
     ISettingService settings,
     IBusinessClock clock,
     IValidator<PatchParadaRequest> patchValidator,
-    IValidator<AddToRutaRequest> addValidator)
+    IValidator<AddToRutaRequest> addValidator,
+    UnidadService unidades)
 {
     public async Task<RutasDiaDto> DayAsync(DateOnly? date, CancellationToken ct)
     {
@@ -72,6 +74,44 @@ public class RutaDiaService(
             db.RutaDias.Add(rutaDia);
         }
         rutaDia.OperadorId = r.OperadorId;
+        await db.SaveChangesAsync(ct);
+        return await PlanAsync(ruta, date, rutaDia, await ContextAsync(date, ct), ct);
+    }
+
+    /// <summary>
+    /// The unidad that does the ruta that day. One out of service, with an open falla or an expired document needs the
+    /// office to confirm (docs/pantallas/oficina/unidades.md); a unidad cannot be in two rutas the same day.
+    /// </summary>
+    public async Task<RutaPlanDto> AssignUnidadAsync(int rutaId, DateOnly date, AssignUnidadRequest r, CancellationToken ct)
+    {
+        var ruta = await db.Rutas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == rutaId && x.Active, ct)
+            ?? throw new NotFoundException($"La ruta {rutaId} no existe o está inactiva.");
+        if (date < clock.Today)
+        {
+            throw new DomainException("No se puede cambiar la unidad de un día que ya pasó.");
+        }
+        if (r.UnidadId is { } unidadId)
+        {
+            var issues = await unidades.IssuesAsync(unidadId, ct);
+            var other = await db.RutaDias.AsNoTracking().Include(d => d.Ruta).Include(d => d.Unidad)
+                .FirstOrDefaultAsync(d => d.Date == date && d.UnidadId == unidadId && d.RutaId != rutaId, ct);
+            if (other is not null)
+            {
+                throw new ConflictException($"La unidad {other.Unidad!.Plate} ya está en la ruta {other.Ruta!.Code} el {AgendaCalculator.Format(date)}.");
+            }
+            if (issues.Count > 0 && !r.Confirm)
+            {
+                throw new ConfirmationRequiredException($"{string.Join(" ", issues)} ¿Asignarla de todos modos?");
+            }
+        }
+
+        var rutaDia = await db.RutaDias.FirstOrDefaultAsync(d => d.RutaId == rutaId && d.Date == date, ct);
+        if (rutaDia is null)
+        {
+            rutaDia = new RutaDia { RutaId = rutaId, Date = date };
+            db.RutaDias.Add(rutaDia);
+        }
+        rutaDia.UnidadId = r.UnidadId;
         await db.SaveChangesAsync(ct);
         return await PlanAsync(ruta, date, rutaDia, await ContextAsync(date, ct), ct);
     }
@@ -277,6 +317,14 @@ public class RutaDiaService(
     private async Task<RutaPlanDto> PlanAsync(Ruta ruta, DateOnly date, RutaDia? rutaDia, DayContext context, CancellationToken ct)
     {
         var plan = await PlanSettingsAsync(ruta, date, context, ct);
+        // The unidad of the day carries its own capacity; Unidad.CapacidadPrendas otherwise.
+        var unidad = rutaDia?.UnidadId is { } unidadId
+            ? await db.Unidades.AsNoTracking().Where(u => u.Id == unidadId).Select(u => new { u.Id, u.Plate, u.GarmentCapacity }).FirstOrDefaultAsync(ct)
+            : null;
+        if (unidad?.GarmentCapacity is { } capacity)
+        {
+            plan = plan with { Capacity = capacity };
+        }
         var cupo = await settings.GetIntegerAsync(SettingKeys.RutaCupoParadas, ct, ruta.Id);
 
         // Chofer: the one assigned for the day, else the operador whose usual ruta this is (if not busy in another ruta).
@@ -345,7 +393,8 @@ public class RutaDiaService(
         return new RutaPlanDto(
             ruta.Id, ruta.Code, ruta.Name, ruta.Color, rutaDia?.Id, operadorId, operadorName, usual,
             occupied, cupo, optimized, Time(plan.Departure), schedule.LunchStart is { } l ? Time(l) : null,
-            Time(schedule.ReturnAt), Time(plan.MaxReturn), schedule.Km, schedule.Garments, plan.Capacity, alerts, paradas);
+            Time(schedule.ReturnAt), Time(plan.MaxReturn), schedule.Km, schedule.Garments, plan.Capacity, alerts, paradas,
+            unidad?.Id, unidad?.Plate);
     }
 
     private sealed record Row(

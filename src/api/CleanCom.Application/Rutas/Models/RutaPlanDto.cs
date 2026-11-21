@@ -25,4 +25,6 @@ public record RutaPlanDto(
     int Garments,
     int Capacity,
     IReadOnlyList<string> Alerts,
-    IReadOnlyList<RutaPlanParadaDto> Paradas);
+    IReadOnlyList<RutaPlanParadaDto> Paradas,
+    int? UnidadId = null,
+    string? UnidadPlate = null);

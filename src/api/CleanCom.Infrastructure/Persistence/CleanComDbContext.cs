@@ -2,6 +2,7 @@ using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
+using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -42,6 +43,12 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Evidence> Evidence => Set<Evidence>();
     public DbSet<ReferencePayment> ReferencePayments => Set<ReferencePayment>();
+    public DbSet<ChoferLocation> ChoferLocations => Set<ChoferLocation>();
+    public DbSet<Unidad> Unidades => Set<Unidad>();
+    public DbSet<UnidadDocument> UnidadDocuments => Set<UnidadDocument>();
+    public DbSet<UnidadEvent> UnidadEvents => Set<UnidadEvent>();
+    public DbSet<RecurringPayment> RecurringPayments => Set<RecurringPayment>();
+    public DbSet<FleetAlertRule> FleetAlertRules => Set<FleetAlertRule>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -68,6 +75,13 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<CrmStatus>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactChannel>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<ContactResult>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<UnidadState>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<UnidadType>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<UnidadDocumentKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<UnidadEventKind>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<FailureSeverity>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PaymentFrequency>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<FleetAlertEvent>().HaveConversion<string>().HaveMaxLength(30);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

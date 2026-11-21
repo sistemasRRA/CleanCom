@@ -1,5 +1,6 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Chofer;
+using CleanCom.Application.Tracking;
 using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,8 +12,26 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("chofer")]
 [Tags("App del chofer")]
-public class ChoferController(ChoferService service, ChoferVisitService visits) : ControllerBase
+public class ChoferController(ChoferService service, ChoferVisitService visits, LocationService locations, ChoferPreviewService preview) : ControllerBase
 {
+    /// <summary>
+    /// Vista del chofer (office, read only): what the chofer of a ruta sees on a day (yyyy-MM-dd; today when empty),
+    /// with the same paradas, order and times as the app, and their last position.
+    /// </summary>
+    [HttpGet("vista")]
+    [RequireScreen(Screens.VistaDelChofer, AccessLevel.View)]
+    public Task<ChoferPreviewDto> Preview([FromQuery(Name = "ruta")] int rutaId, [FromQuery(Name = "fecha")] DateOnly? date, CancellationToken ct) =>
+        preview.GetAsync(rutaId, date, ct);
+
+    /// <summary>
+    /// GPS readings of the phone during the shift (every 30 to 60 s; the ones kept without signal go together). The
+    /// last one goes to the office's live map and some to the recorrido. Without a ruta today they are not saved.
+    /// </summary>
+    [HttpPost("ubicacion")]
+    [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
+    public Task<LocationResultDto> RecordLocation(ChoferLocationsRequest request, CancellationToken ct) =>
+        locations.RecordAsync(request, ct);
+
     /// <summary>
     /// Paradas of the chofer's ruta on a day (yyyy-MM-dd; today in Mexico City when empty): the ruta the office assigned
     /// that day, or the usual ruta. Same order and estimated times as the Rutas screen.

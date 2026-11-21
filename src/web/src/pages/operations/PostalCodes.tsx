@@ -44,6 +44,7 @@ export function PostalCodes() {
       ),
     {
       refetch: [keys.postalCodes],
+      message: 'Catálogo de códigos postales importado.',
       onDone: () => setFile(null),
     },
   );
