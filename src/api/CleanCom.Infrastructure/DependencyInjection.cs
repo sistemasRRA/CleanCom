@@ -80,6 +80,15 @@ public static class DependencyInjection
 
         services.AddScoped<TokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        // The code goes by WhatsApp once Meta is connected (week 6); in development it is written to the log.
+        if (configuration.GetValue<bool>("AccessCodes:LogToConsole"))
+        {
+            services.AddSingleton<IAccessCodeSender, Messaging.LoggingAccessCodeSender>();
+        }
+        else
+        {
+            services.AddSingleton<IAccessCodeSender, Messaging.UnavailableAccessCodeSender>();
+        }
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddSingleton<IPermissionStore, PermissionStore>();

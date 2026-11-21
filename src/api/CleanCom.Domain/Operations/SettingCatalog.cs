@@ -53,6 +53,10 @@ public static class SettingCatalog
         new(UnidadServiceEveryMonths, T.Integer, "6", "Meses entre servicios de una unidad, si la unidad no tiene los suyos"),
         new(ParadaArrivalToleranceMinutes, T.Integer, "15", "Minutos antes o después de la hora estimada para contar una llegada a tiempo y avisar atraso"),
         new(GpsNoSignalMinutes, T.Integer, "10", "Minutos sin ubicación del chofer en ruta para avisar \"sin GPS\" en el Panel del día"),
+        new(AccessCodeMinutes, T.Integer, "10", "Minutos que vale el código de acceso de la app del invitado"),
+        new(AccessCodeAttempts, T.Integer, "5", "Intentos para escribir bien el código de acceso"),
+        new(AccessCodeResendSeconds, T.Integer, "60", "Segundos de espera para pedir otro código de acceso"),
+        new(AccessCodesPerHour, T.Integer, "5", "Códigos de acceso que se pueden pedir por hora para un mismo celular"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

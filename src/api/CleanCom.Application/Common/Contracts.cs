@@ -122,3 +122,12 @@ public class ConfirmationRequiredException(string message) : Exception(message);
 
 /// <summary>401: invalid credentials or token.</summary>
 public class UnauthorizedException(string message) : Exception(message);
+
+/// <summary>
+/// Sends the invitado app's sign-in code (WhatsApp, SMS as backup). Until Meta and Twilio are connected (week 6), the
+/// development build writes it to the log.
+/// </summary>
+public interface IAccessCodeSender
+{
+    Task SendAsync(string phone, string code, int minutes, CancellationToken ct);
+}

@@ -44,4 +44,8 @@ public static class SettingKeys
     public const string UnidadServiceEveryMonths = "Unidad.ServicioCadaMeses";
     public const string ParadaArrivalToleranceMinutes = "Parada.ToleranciaLlegadaMinutos";
     public const string GpsNoSignalMinutes = "Gps.SinSenalMinutos";
+    public const string AccessCodeMinutes = "Acceso.CodigoMinutos";
+    public const string AccessCodeAttempts = "Acceso.CodigoIntentos";
+    public const string AccessCodeResendSeconds = "Acceso.CodigoReenvioSegundos";
+    public const string AccessCodesPerHour = "Acceso.CodigosPorHora";
 }
