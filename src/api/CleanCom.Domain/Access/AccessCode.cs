@@ -61,7 +61,11 @@ public static class AccessCodes
     /// </summary>
     public static void Verify(AccessCode? open, string phone, string code, DateTimeOffset now, int maxAttempts)
     {
-        if (open is null || open.ClosedAt is not null || open.ExpiresAt <= now)
+        if (open is null || open.ClosedAt is not null)
+        {
+            throw new DomainException("Ese código ya no sirve: ya se usó o pediste uno más nuevo. Pide uno nuevo.");
+        }
+        if (open.ExpiresAt <= now)
         {
             throw new DomainException("El código venció. Pide uno nuevo.");
         }

@@ -41,10 +41,10 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 
 ## Endpoints
 
-- `POST /auth/codigo`, `POST /auth/verificar`.
-- `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`.
-- `POST /agenda/disponibilidad`, `POST /agenda/agendar` (mismos que oficina, con reglas de rol Invitado).
-- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento`, `POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar`.
+- `POST /auth/codigo`, `POST /auth/verificar` (hecho): código de 6 dígitos; solo se guarda su hash. Vale `Acceso.CodigoMinutos` (10), con `Acceso.CodigoIntentos` (5), uno nuevo tras `Acceso.CodigoReenvioSegundos` (60) y hasta `Acceso.CodigosPorHora` (5); además 10 peticiones por minuto por IP. Un celular que ya está en el CRM se liga a ese invitado; si no, se crea con fuente "App" (o la campaña del link) y `newInvitado: true` para pedir nombre y "¿cómo nos conociste?". La primera vez se le crea un usuario con rol Invitado. Mientras no esté WhatsApp (semana 6), en desarrollo el código se escribe en el log del API (`AccessCodes:LogToConsole`); en otro ambiente el API responde que el acceso con celular aún no está disponible.
+- `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones` (hecho): sin notas de oficina; el celular no se cambia; la zona sale de la dirección (una zona puesta a mano por oficina se conserva). `profileComplete` dice si ya dio su nombre y cómo nos conoció.
+- `POST /agenda/disponibilidad`, `POST /agenda/agendar` (hecho; mismos que oficina, con reglas de rol Invitado): solo para sí y sus direcciones; sin hora específica, prioridad, zona a mano ni hora de registro (siempre ahora); el pedido queda con origen App.
+- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` (hecho): etapas con su hora y el estado de la visita de hoy; solo los propios (otro responde 404). `POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar` (semana 6).
 - `GET /yo/beneficios`, `POST /yo/encuestas/{id}`.
 - Hub SignalR `seguimiento` (ubicación del chofer de su pedido mientras está en camino).
 

@@ -32,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<ZonaLocator>();
         services.AddScoped<AgendaService>();
         services.AddScoped<InvitadoService>();
+        services.AddScoped<MeService>();
+        services.AddScoped<InvitadoAgendaService>();
         services.AddScoped<PedidoService>();
         services.AddScoped<PostalCodeService>();
         services.AddScoped<CrmService>();

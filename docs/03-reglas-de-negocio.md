@@ -81,7 +81,7 @@ Ejemplo (sistema actual): zona K3, registro a las 18:51 después del corte de la
 3. Crear el pedido en etapa Agendado y la parada de recolección en la `RutaDia`.
 4. Disparar el aviso "cita agendada".
 
-- La **hora de registro** es automática en la app del invitado; en oficina es editable (para capturar una llamada de antes del corte).
+- La **hora de registro** es automática en la app del invitado; en oficina es editable (para capturar una llamada de antes del corte). Desde la app tampoco se puede elegir la zona a mano ni agendar para otro invitado o con una dirección ajena.
 - **Hora específica** y **prioridad** solo las puede usar oficina.
 
 ### Cambios y cancelaciones desde la app del invitado
