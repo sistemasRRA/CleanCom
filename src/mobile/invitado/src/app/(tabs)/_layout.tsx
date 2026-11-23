@@ -1,7 +1,8 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import type { ColorValue } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useLayout, useTheme } from '@cleancom/mobile-shared';
+import { api, unwrap, useLayout, useTheme } from '@cleancom/mobile-shared';
+import { useLoad } from '../../ui';
 
 type Icon = keyof typeof Ionicons.glyphMap;
 
@@ -9,6 +10,9 @@ type Icon = keyof typeof Ionicons.glyphMap;
 export default function TabsLayout() {
   const { colors } = useTheme();
   const { isTablet } = useLayout();
+  // Until the invitado gives their name and "¿cómo nos conociste?", that comes first.
+  const me = useLoad(() => unwrap(api.GET('/yo')), []);
+  if (me.data && !me.data.profileComplete) return <Redirect href="/perfil" />;
   const icon = (name: Icon) => ({ color, size }: { color: ColorValue; size: number }) => <Ionicons name={name} size={size} color={typeof color === 'string' ? color : undefined} />;
 
   return (

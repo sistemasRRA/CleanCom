@@ -11,6 +11,24 @@ export type ParadaChanged = { rutaDiaId: number; date: string; paradaId: number;
 export type LiveStatus = 'connecting' | 'live' | 'reconnecting' | 'offline';
 
 /**
+ * Whether a position is no longer current: it comes from the saved history, or no newer one arrived before its
+ * signalLostAt (the API's Gps.SinSenalMinutos). `now` comes from useNow so the map greys it without a new event.
+ */
+export function isOld(l: LiveLocation, now: number) {
+  return !l.live || (l.signalLostAt != null && now >= Date.parse(l.signalLostAt));
+}
+
+/** The current time, refreshed every `ms`. */
+export function useNow(ms = 30_000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), ms);
+    return () => clearInterval(timer);
+  }, [ms]);
+  return now;
+}
+
+/**
  * The hub "operacion" (docs/pantallas/oficina/panel-del-dia.md): choferes' positions and paradas that change state,
  * pushed by the API. Reconnects by itself; the screens also reload on their own, so a missed event is not lost.
  */

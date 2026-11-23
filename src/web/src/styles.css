@@ -283,6 +283,8 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 /* Fields line up at the top, so a hint under one field ("10 dígitos") doesn't push its neighbor down. */
 .form-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); align-items: start; }
+/* A select as wide as its longest option must not push the grid (and its card) wider. */
+.form-grid > * { min-width: 0; }
 /* A checkbox or button in the grid still sits at the bottom, next to the inputs. */
 .form-grid > .checkbox, .form-grid > button { align-self: end; min-height: 38px; }
 .form-grid .wide { grid-column: 1 / -1; }
@@ -451,7 +453,7 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .agenda__title { text-transform: capitalize; margin-left: 4px; }
 .agenda__toolbar input[type='date'] { width: auto; }
 .agenda-week { display: grid; grid-template-columns: repeat(7, minmax(150px, 1fr)); overflow-x: auto; }
-.agenda-day { display: flex; flex-direction: column; gap: 8px; padding: 10px 8px 14px; border-right: 1px solid var(--border); min-height: 260px; }
+.agenda-day { display: flex; flex-direction: column; min-width: 0; gap: 8px; padding: 10px 8px 14px; border-right: 1px solid var(--border); min-height: 260px; }
 .agenda-day:last-child { border-right: none; }
 .agenda-day.off { background: var(--surface-2); }
 .agenda-day.selected { background: color-mix(in srgb, var(--brand-soft) 45%, transparent); }
@@ -460,7 +462,7 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .agenda-day.today .agenda-day__number { color: #fff; background: var(--brand); border-radius: 999px; min-width: 30px; text-align: center; padding: 0 6px; }
 [data-theme='dark'] .agenda-day.today .agenda-day__number { color: #0f172a; }
 .agenda-day__occupancy { display: grid; gap: 4px; }
-.agenda-day__list { display: grid; gap: 6px; align-content: start; }
+.agenda-day__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; }
 .agenda-day__empty { font-size: 12.5px; padding: 0 4px; }
 .occupancy { display: grid; gap: 2px; font-size: 12px; }
 .occupancy__label { color: var(--text-muted); }
@@ -468,13 +470,15 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .occupancy__bar { height: 5px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
 .occupancy__bar span { display: block; height: 100%; border-radius: 999px; background: var(--danger); }
 .agenda-card {
-  display: grid; gap: 1px; width: 100%; text-align: left; font-size: 12.5px; line-height: 1.35;
+  display: grid; gap: 1px; width: 100%; min-width: 0; text-align: left; font-size: 12.5px; line-height: 1.35;
   padding: 6px 8px; border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: var(--radius-sm);
   background: var(--surface);
 }
 .agenda-card:hover:not(:disabled) { background: var(--surface-2); }
 .agenda-card__top { display: flex; justify-content: space-between; gap: 6px; align-items: center; }
-.agenda-card__top strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Long names end in "…" inside the day column (the full name is in the card's detail). */
+.agenda-card__top strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-card > .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda-dayview { display: grid; overflow-x: auto; }
 .agenda-dayview > * { padding: 10px; border-bottom: 1px solid var(--border); }
 .agenda-dayview__ruta { display: grid; gap: 6px; border-left: 1px solid var(--border); }
@@ -666,7 +670,9 @@ button.selected { background: var(--brand-soft); color: var(--brand); border-col
 .panel-ruta.alert-left { border-left: 4px solid var(--warning); }
 .panel-goal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 13.5px; margin-bottom: 6px; }
 .panel-ruta .occupancy__bar { display: block; height: 8px; }
-.panel-assign { grid-template-columns: 1fr 1fr; gap: 10px; }
+.panel-assign { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.panel-assign select { width: 100%; }
+.panel-ruta .card__body > * { min-width: 0; }
 .panel-alerts { margin: 0; padding: 8px 12px 8px 28px; border-radius: var(--radius-sm); background: var(--warning-soft); color: var(--warning); font-size: 13px; display: grid; gap: 2px; }
 .panel-link { justify-self: start; font-size: 14px; }
 .panel-bottom { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
@@ -681,7 +687,7 @@ button.selected { background: var(--brand-soft); color: var(--brand); border-col
 .panel-visits li:last-child { border-bottom: none; }
 .panel-visits .badge { margin-left: 6px; }
 .routes-map__live span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 10px; color: #fff; font-weight: 800; font-size: 13px; border: 3px solid #fff; box-shadow: 0 0 0 3px rgb(0 0 0 / 15%), 0 2px 8px rgb(0 0 0 / 40%); animation: live-pulse 2s ease-out infinite; }
-.routes-map__live.stale span { animation: none; opacity: 0.6; }
+.routes-map__live.stale span { animation: none; opacity: 0.6; filter: grayscale(1); }
 @keyframes live-pulse { 0% { box-shadow: 0 0 0 0 rgb(30 42 120 / 45%), 0 2px 8px rgb(0 0 0 / 40%); } 100% { box-shadow: 0 0 0 14px rgb(30 42 120 / 0%), 0 2px 8px rgb(0 0 0 / 40%); } }
 @media (prefers-reduced-motion: reduce) { .routes-map__live span { animation: none; } }
 
@@ -758,3 +764,31 @@ dialog { overscroll-behavior: contain; }
 .vista-parada__body { display: grid; gap: 2px; font-size: 13.5px; overflow-wrap: anywhere; }
 .vista-parada__top { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .vista-map__canvas { height: 560px; }
+
+/* ---- Polygon map (Zonas) ---- */
+dialog.map-dialog { width: min(900px, calc(100vw - 32px)); }
+.polygon-map { height: 420px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; z-index: 0; cursor: crosshair; }
+.polygon-map.overview { height: 360px; cursor: grab; }
+.polygon-map.leaflet-container { font: inherit; font-size: 12px; }
+@media (max-width: 640px) { .polygon-map { height: 320px; } }
+.polygon-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.polygon-toolbar > span:first-child { font-size: 13px; font-weight: 550; color: var(--text-muted); }
+.polygon-toolbar > span.muted { font-size: 12px; margin-right: auto; }
+.polygon-vertex { background: #fff; border: 3px solid var(--brand); border-radius: 50%; box-shadow: 0 1px 4px rgb(0 0 0 / 35%); cursor: move; }
+.polygon-vertex.middle { border-width: 2px; opacity: 0.75; cursor: copy; }
+.polygon-label { background: rgb(255 255 255 / 85%); border: none; box-shadow: none; padding: 0 4px; font-weight: 700; font-size: 12px; color: #0f172a; }
+.polygon-label::before { display: none; }
+
+/* ---- Confirm popup (useConfirm) ---- */
+dialog.confirm-popup { width: min(400px, calc(100vw - 32px)); padding: 26px 24px 20px; text-align: center; display: grid; justify-items: center; gap: 12px; }
+dialog.confirm-popup::backdrop { background: rgb(15 23 42 / 35%); }
+dialog.confirm-popup[open] { animation: success-in 160ms ease-out; }
+.confirm-popup__icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 999px; background: var(--warning-soft); color: var(--warning); }
+.confirm-popup.danger .confirm-popup__icon { background: var(--danger-soft); color: var(--danger); }
+.confirm-popup p { margin: 0; font-size: 16px; font-weight: 600; color: var(--text); }
+.confirm-popup p.muted { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+.confirm-popup .actions { justify-content: center; margin-top: 6px; }
+.confirm-popup .actions button { min-width: 120px; }
+button.danger-solid { background: var(--danger); border-color: var(--danger); color: #fff; }
+button.danger-solid:hover:not(:disabled) { filter: brightness(0.92); }
+@media (prefers-reduced-motion: reduce) { dialog.confirm-popup[open] { animation: none; } }

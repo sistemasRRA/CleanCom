@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Body, Button, Logo, Screen, Title, space, useLayout, useTheme } from '@cleancom/mobile-shared';
-import { usePreview } from '../preview';
 
 const FEATURES: { icon: keyof typeof Ionicons.glyphMap; title: string; text: string }[] = [
   { icon: 'calendar-outline', title: 'Pide tu recolección', text: 'Elige el día disponible para tu zona en segundos.' },
@@ -13,7 +12,6 @@ const FEATURES: { icon: keyof typeof Ionicons.glyphMap; title: string; text: str
 export default function Bienvenida() {
   const { colors } = useTheme();
   const { isTablet } = useLayout();
-  const { setPreview } = usePreview();
 
   return (
     <Screen center maxWidth={isTablet ? 760 : 480}>
@@ -53,7 +51,6 @@ export default function Bienvenida() {
       </View>
 
       <Button title="Entrar con mi celular" onPress={() => router.push('/acceso')} />
-      {__DEV__ && <Button title="Ver la app sin cuenta (solo desarrollo)" variant="ghost" onPress={() => setPreview(true)} />}
     </Screen>
   );
 }

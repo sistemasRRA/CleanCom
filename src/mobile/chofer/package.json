@@ -9,7 +9,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "simular": "node scripts/simular-ruta.mjs"
   },
   "dependencies": {
     "@cleancom/mobile-shared": "*",

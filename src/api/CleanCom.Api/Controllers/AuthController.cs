@@ -3,6 +3,7 @@ using CleanCom.Application.Access;
 using CleanCom.Application.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CleanCom.Api.Controllers;
 
@@ -16,6 +17,26 @@ public class AuthController(IAuthService service) : ControllerBase
     [AllowAnonymous]
     public Task<SessionDto> Login(LoginRequest request, CancellationToken ct) =>
         service.LoginAsync(request, ct);
+
+    /// <summary>
+    /// Invitado app: sends a sign-in code to the cell phone (WhatsApp; SMS as backup). One every
+    /// Acceso.CodigoReenvioSegundos and Acceso.CodigosPorHora per hour; limited per IP too.
+    /// </summary>
+    [HttpPost("codigo")]
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimits.AccessCodes)]
+    public Task<CodeSentDto> SendCode(SendCodeRequest request, CancellationToken ct) =>
+        service.SendCodeAsync(request, ct);
+
+    /// <summary>
+    /// Invitado app: checks the code (Acceso.CodigoIntentos attempts, valid Acceso.CodigoMinutos) and opens the
+    /// session. A phone already in the CRM links to that invitado; a new one is created.
+    /// </summary>
+    [HttpPost("verificar")]
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimits.AccessCodes)]
+    public Task<InvitadoSessionDto> VerifyCode(VerifyCodeRequest request, CancellationToken ct) =>
+        service.VerifyCodeAsync(request, ct);
 
     [HttpPost("renovar")]
     [AllowAnonymous]

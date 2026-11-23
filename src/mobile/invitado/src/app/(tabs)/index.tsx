@@ -1,44 +1,58 @@
-import { View } from 'react-native';
+import { useCallback } from 'react';
+import { Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Alert, Body, Card, Screen, Title, space, useLayout, useTheme } from '@cleancom/mobile-shared';
+import { Alert, Body, Button, Card, Screen, Title, api, space, unwrap, useLayout, useTheme } from '@cleancom/mobile-shared';
+import { ETAPA_ICON, Row, day, useLoad } from '../../ui';
 
-const STEPS: { icon: keyof typeof Ionicons.glyphMap; title: string; text: string }[] = [
-  { icon: 'location-outline', title: 'Dirección', text: 'Una guardada o tu ubicación en el mapa.' },
-  { icon: 'shirt-outline', title: 'Servicio', text: 'Línea de servicio, prendas aproximadas y notas para el chofer.' },
-  { icon: 'calendar-outline', title: 'Fecha y turno', text: 'La primera fecha disponible de tu zona, u otro día; mañana, tarde o cualquier hora.' },
-  { icon: 'pricetag-outline', title: 'Beneficios', text: 'Aplica tus sellos o cupones vigentes.' },
-];
-
-/** Ask for a pickup. Uses the same scheduling engine as the office (POST /agenda/disponibilidad), week 5. */
-export default function Pedir() {
+/** Home: ask for a service and see the pedido in progress. */
+export default function Inicio() {
   const { colors } = useTheme();
   const { isTablet } = useLayout();
+  const me = useLoad(() => unwrap(api.GET('/yo')), []);
+  const pedidos = useLoad(() => unwrap(api.GET('/yo/pedidos')), []);
+  // Back from asking for a service: show the new pedido.
+  useFocusEffect(
+    useCallback(() => {
+      void pedidos.reload();
+    }, [pedidos.reload]),
+  );
+  const current = (pedidos.data ?? []).filter((p) => p.etapa !== 'Entregado' && p.etapa !== 'Cancelado');
+  const firstName = me.data?.name.split(' ')[0];
 
   return (
     <Screen maxWidth={isTablet ? 960 : 640}>
       <View style={{ gap: space.xs }}>
-        <Title size="xxl">Pide tu servicio</Title>
-        <Body muted>Recolección a domicilio en CDMX.</Body>
+        <Title size="xxl">{firstName ? `Hola, ${firstName}` : 'Hola'}</Title>
+        <Body muted>Recogemos y entregamos tus prendas a domicilio.</Body>
       </View>
-      <Alert tone="info">Pedir servicio se conecta al motor de agenda en la semana 5.</Alert>
-      {/* Two columns on tablets, one on phones. */}
-      <View style={{ flexDirection: isTablet ? 'row' : 'column', flexWrap: 'wrap', gap: space.md }}>
-        {STEPS.map((s, i) => (
-          <Card key={s.title} style={{ flexBasis: isTablet ? '48%' : 'auto', flexGrow: 1, flexDirection: 'row', alignItems: 'flex-start' }}>
-            <View
-              style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Ionicons name={s.icon} size={22} color={colors.brand} />
-            </View>
-            <View style={{ flex: 1, gap: 2 }}>
-              <Body>
-                {i + 1}. {s.title}
-              </Body>
-              <Body muted>{s.text}</Body>
-            </View>
-          </Card>
-        ))}
-      </View>
+
+      <Card style={{ backgroundColor: colors.navy, borderColor: colors.navy }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+          <Ionicons name="shirt-outline" size={34} color="#fff" />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ color: '#fff', fontSize: 19, fontWeight: '700' }}>¿Pasamos por tus prendas?</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15 }}>Elige dirección, servicio y el día disponible de tu zona.</Text>
+          </View>
+        </View>
+        <Button title="Pedir servicio" onPress={() => router.push('/pedir')} icon={<Ionicons name="add-circle-outline" size={20} color={colors.onBrand} />} />
+      </Card>
+
+      {pedidos.error && <Alert>{pedidos.error}</Alert>}
+      {current.length > 0 && (
+        <View style={{ gap: space.sm }}>
+          <Title size="lg">En curso</Title>
+          {current.map((p) => (
+            <Row
+              key={p.id}
+              icon={ETAPA_ICON[p.etapa]}
+              title={`${p.etapaName} · pedido ${p.id}`}
+              text={p.etapa === 'Agendado' ? `Recolección el ${day(p.recoleccionDate, true)}` : p.entregaDate ? `Entrega el ${day(p.entregaDate, true)}` : p.address}
+              onPress={() => router.push({ pathname: '/pedido/[id]', params: { id: String(p.id) } })}
+            />
+          ))}
+        </View>
+      )}
     </Screen>
   );
 }

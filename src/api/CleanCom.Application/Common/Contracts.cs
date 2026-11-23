@@ -66,6 +66,10 @@ public interface IOperacionNotifier
 
 /// <summary>The chofer's last known position on a RutaDia.</summary>
 /// <param name="Live">Received in this run of the API; false when it comes from the saved history after a restart.</param>
+/// <param name="SignalLostAt">
+/// When this position stops counting as current if no newer one arrives (<see cref="At"/> + Gps.SinSenalMinutos); the
+/// map shows it as old from then on.
+/// </param>
 public record LiveLocationDto(
     int RutaDiaId,
     DateOnly Date,
@@ -77,7 +81,8 @@ public record LiveLocationDto(
     double Lng,
     DateTimeOffset At,
     int? AccuracyMeters,
-    bool Live = true);
+    bool Live = true,
+    DateTimeOffset? SignalLostAt = null);
 
 /// <summary>A parada that changed state; the office reloads that ruta.</summary>
 public record ParadaChangedDto(int RutaDiaId, DateOnly Date, int ParadaId, CleanCom.Domain.Routing.ParadaState State);
@@ -122,3 +127,12 @@ public class ConfirmationRequiredException(string message) : Exception(message);
 
 /// <summary>401: invalid credentials or token.</summary>
 public class UnauthorizedException(string message) : Exception(message);
+
+/// <summary>
+/// Sends the invitado app's sign-in code (WhatsApp, SMS as backup). Until Meta and Twilio are connected (week 6), the
+/// development build writes it to the log.
+/// </summary>
+public interface IAccessCodeSender
+{
+    Task SendAsync(string phone, string code, int minutes, CancellationToken ct);
+}

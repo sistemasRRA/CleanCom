@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { useSession } from '../../session/Session';
 import { ActiveBadge, Checkbox, Dialog, Field, PageHeader, QueryState, optional, optionalNumber, useAction, useSave } from '../../components/Common';
+import { useConfirm } from '../../components/Toasts';
 import { LABEL as TYPE_LABEL, UnidadIcon } from '../../components/UnidadIcon';
 
 type Card = Schemas['UnidadCardDto'];
@@ -193,6 +194,7 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
     [listKey, detailKey(id)],
     'Falla marcada como resuelta.',
   );
+  const ask = useConfirm();
   const removeDocument = useAction(
     (documentoId: number) => unwrap(api.DELETE('/unidades/{id}/documentos/{documentoId}', { params: { path: { id, documentoId } } })),
     [listKey, detailKey(id)],
@@ -310,7 +312,7 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
                       <span className="actions tight">
                         {doc.hasFile && <DocumentLink unidadId={id} documentoId={doc.id} />}
                         {canEdit && (
-                          <button type="button" className="small" onClick={() => confirm('¿Dar de baja este documento?') && removeDocument.mutate(doc.id)}>
+                          <button type="button" className="small" onClick={async () => (await ask('¿Dar de baja este documento?', { confirmText: 'Dar de baja', danger: true })) && removeDocument.mutate(doc.id)}>
                             Quitar
                           </button>
                         )}
@@ -332,7 +334,7 @@ function UnidadDialog({ id, canEdit, onClose }: { id: number; canEdit: boolean; 
                       </span>
                       {canEdit && (
                         <span className="actions tight">
-                          <button type="button" className="small" disabled={pay.isPending} onClick={() => confirm(`¿Registrar hoy el pago de ${p.concept} por ${money(p.amount)}?`) && pay.mutate(p)}>
+                          <button type="button" className="small" disabled={pay.isPending} onClick={async () => (await ask(`¿Registrar hoy el pago de ${p.concept} por ${money(p.amount)}?`, { confirmText: 'Registrar pago' })) && pay.mutate(p)}>
                             Registrar pago
                           </button>
                           <button type="button" className="small" onClick={() => setAction({ payment: p })}>

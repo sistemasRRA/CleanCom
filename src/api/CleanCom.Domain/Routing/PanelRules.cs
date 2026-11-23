@@ -46,6 +46,12 @@ public static class PanelRules
     public static bool WithoutGps(RutaProgress progress, DateTimeOffset? lastReading, DateTimeOffset now, int minutes) =>
         progress == RutaProgress.EnRuta && (lastReading is null || (now - lastReading.Value).TotalMinutes > minutes);
 
+    /// <summary>
+    /// From when a chofer's last position counts as old on the map if no newer one arrives: the same Gps.SinSenalMinutos
+    /// as <see cref="WithoutGps"/>, whatever the state of the ruta.
+    /// </summary>
+    public static DateTimeOffset SignalLostAt(DateTimeOffset lastReading, int minutes) => lastReading.AddMinutes(minutes);
+
     /// <summary>Whole percent, or null when there is nothing to measure.</summary>
     public static int? Percent(int part, int total) => total == 0 ? null : (int)Math.Round(100.0 * part / total);
 }

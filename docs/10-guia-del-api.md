@@ -247,7 +247,10 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Usuarios | `GET/POST /operadores` (`?includeInactive=`), `PUT /operadores/{id}` | Usuarios |
 | Configuración | `GET/PUT /configuracion`, `GET /configuracion/historial` (`?key=`) | Operación |
 | Catálogos | `/rutas`, `/zonas` (y `PUT /zonas/{id}/dias`), `/lugares`, `/tipos-parada`, `/lineas-servicio`, `/motivos` (`?type=`), `/dias-inhabiles` (`?from=&to=`), `/cobertura` (`?search=&zonaId=`) | Leer: sesión. Cambiar: Operación Edit |
-| Agenda | `POST /agenda/disponibilidad`, `POST /agenda/agendar`, `GET /agenda/tablero` (`?from=&days=`) | Agendar: View para consultar, Edit para agendar |
+| Agenda | `GET /agenda/tablero` (`?from=&days=`) | Agendar: View |
+| Agenda | `POST /agenda/disponibilidad`, `POST /agenda/agendar` | Agendar o App del invitado: View para consultar, Edit para agendar (políticas `UsesAgenda`, `SchedulesAgenda`). Con rol Invitado aplican sus reglas |
+| App del invitado | `POST /auth/codigo`, `POST /auth/verificar` (límite por IP) | Ninguno |
+| App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` | App del invitado: View para leer, Edit para cambiar |
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{addressId}` | Agendar: View para leer, Edit para cambiar |
 | Invitados y pedidos | `DELETE /invitados/{id}` (con sus direcciones y pedidos), `DELETE /pedidos/{id}` | Solo SuperUser y Administración (política `Administrators`, fija en código). Son baja lógica; liberan el cupo |
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |

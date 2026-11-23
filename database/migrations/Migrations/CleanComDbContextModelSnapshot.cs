@@ -23,6 +23,65 @@ namespace CleanCom.Migrations.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CleanCom.Domain.Access.AccessCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int")
+                        .HasColumnName("attempts");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("closed_at");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("code_hash");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("expires_at");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .HasColumnName("phone")
+                        .IsFixedLength();
+
+                    b.HasKey("Id")
+                        .HasName("pk_access_codes");
+
+                    b.HasIndex("Phone", "CreatedAt")
+                        .HasDatabaseName("ix_access_codes_phone_created_at");
+
+                    b.ToTable("access_codes", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Access.RolePermission", b =>
                 {
                     b.Property<int>("Id")
@@ -2087,6 +2146,46 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "10"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Acceso.CodigoMinutos",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "10"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Acceso.CodigoIntentos",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "5"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Acceso.CodigoReenvioSegundos",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "60"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Acceso.CodigosPorHora",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "5"
                         });
                 });
 

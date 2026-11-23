@@ -4,6 +4,7 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { QueryState, formatDate, useAction } from '../../components/Common';
+import { useConfirm } from '../../components/Toasts';
 
 type Pedido = Schemas['PedidoDto'];
 type Board = Schemas['AgendaBoardDto'];
@@ -248,6 +249,7 @@ function PedidoCard({ pedido: p, ruta, onClick, compact }: { pedido: Pedido; rut
 function PedidoDetail({ pedido: p, ruta, onClose }: { pedido: Pedido; ruta?: Ruta; onClose: () => void }) {
   const role = useSession().user?.role;
   const isAdmin = role === 'SuperUser' || role === 'Administracion';
+  const ask = useConfirm();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -303,8 +305,8 @@ function PedidoDetail({ pedido: p, ruta, onClose }: { pedido: Pedido; ruta?: Rut
             type="button"
             className="danger"
             disabled={remove.isPending}
-            onClick={() => {
-              if (!confirm(`¿Eliminar la recolección de ${p.invitadoName} del ${formatDate(p.recoleccionDate)}? Su lugar queda libre.`)) return;
+            onClick={async () => {
+              if (!(await ask(`¿Eliminar la recolección de ${p.invitadoName} del ${formatDate(p.recoleccionDate)}?`, { detail: 'Su lugar en la agenda queda libre.', confirmText: 'Eliminar', danger: true }))) return;
               remove.mutate(p.id, { onSuccess: onClose });
             }}
           >

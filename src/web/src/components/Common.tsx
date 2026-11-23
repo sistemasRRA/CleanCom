@@ -39,6 +39,7 @@ export function Dialog({
   submitText = 'Guardar',
   error,
   children,
+  className,
 }: {
   title: string;
   onClose: () => void;
@@ -47,6 +48,8 @@ export function Dialog({
   submitText?: string;
   error?: Error | null;
   children: ReactNode;
+  /** Extra class for the dialog, e.g. a wider one with a map. */
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -63,7 +66,7 @@ export function Dialog({
   }
 
   return (
-    <dialog ref={ref} onClose={onClose}>
+    <dialog ref={ref} onClose={onClose} className={className}>
       <form onSubmit={submit}>
         <div className="dialog__header">
           <h2>{title}</h2>

@@ -586,3 +586,15 @@ internal class FleetAlertRuleConfig : IEntityTypeConfiguration<FleetAlertRule>
         }));
     }
 }
+
+internal class AccessCodeConfig : IEntityTypeConfiguration<AccessCode>
+{
+    public void Configure(EntityTypeBuilder<AccessCode> e)
+    {
+        e.ToTable("AccessCodes");
+        e.Property(x => x.Phone).HasMaxLength(10).IsFixedLength();
+        e.Property(x => x.CodeHash).HasMaxLength(64);
+        // The newest code of a phone, and the codes of the last hour.
+        e.HasIndex(x => new { x.Phone, x.CreatedAt });
+    }
+}

@@ -24,6 +24,7 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddJobs();
     builder.Services.AddSecurity();
+    builder.Services.AddRateLimits();
     builder.Services.AddSignalR().AddJsonProtocol(o =>
         o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     builder.Services.AddSingleton<IOperacionNotifier, SignalROperacionNotifier>();
@@ -101,6 +102,7 @@ try
     app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
 
     app.MapControllers();
     app.MapHub<OperacionHub>(OperacionHub.Path);

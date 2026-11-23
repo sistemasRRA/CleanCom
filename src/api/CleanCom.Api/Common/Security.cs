@@ -34,6 +34,13 @@ public static class Policies
     /// <summary>Choosing the chofer and unidad of a ruta del día: editing Panel del día or Rutas.</summary>
     public const string AssignsRutaDia = "AssignsRutaDia";
 
+    /// <summary>
+    /// The agenda engine (disponibilidad, agendar): the office with Agendar, or the invitado app (App del invitado), which
+    /// gets the Invitado role's rules.
+    /// </summary>
+    public const string UsesAgenda = "UsesAgenda";
+    public const string SchedulesAgenda = "SchedulesAgenda";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -184,7 +191,11 @@ public static class Security
             .AddPolicy(Policies.SeesOperacion, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas, Screens.VistaDelChofer], AccessLevel.View)))
             .AddPolicy(Policies.AssignsRutaDia, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.Edit)));
+                .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas], AccessLevel.Edit)))
+            .AddPolicy(Policies.UsesAgenda, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.AppInvitado], AccessLevel.View)))
+            .AddPolicy(Policies.SchedulesAgenda, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.AppInvitado], AccessLevel.Edit)));
 
         return services;
     }

@@ -5,7 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { useRutas } from '../../api/queries';
-import { useOperacion, type LiveLocation } from '../../api/realtime';
+import { isOld, useNow, useOperacion, type LiveLocation } from '../../api/realtime';
 import { PageHeader, QueryState } from '../../components/Common';
 
 type Vista = Schemas['ChoferRutaDto'];
@@ -198,6 +198,7 @@ function ChoferMap({ vista, live }: { vista: Vista; live: LiveLocation | null })
   const map = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
   const lastFit = useRef('');
+  const now = useNow();
 
   useEffect(() => {
     const m = L.map(container.current!, { center: [19.4, -99.17], zoom: 12, scrollWheelZoom: false });
@@ -239,13 +240,16 @@ function ChoferMap({ vista, live }: { vista: Vista; live: LiveLocation | null })
         .addTo(g);
     }
     if (live) {
+      const old = isOld(live, now);
       const icon = L.divIcon({
-        className: `routes-map__live${live.live ? '' : ' stale'}`,
+        className: `routes-map__live${old ? ' stale' : ''}`,
         html: `<span style="background:${escape(color)}">${escape(live.rutaCode)}</span>`,
         iconSize: [34, 34],
         iconAnchor: [17, 17],
       });
-      L.marker([live.lat, live.lng], { icon, zIndexOffset: 2000 }).bindTooltip(`${escape(live.operadorName ?? 'Chofer')} · ${clock(live.at)}`, { direction: 'top', offset: [0, -16] }).addTo(g);
+      L.marker([live.lat, live.lng], { icon, zIndexOffset: 2000 })
+        .bindTooltip(`${escape(live.operadorName ?? 'Chofer')} · ${old ? 'sin señal desde las ' : ''}${clock(live.at)}`, { direction: 'top', offset: [0, -16] })
+        .addTo(g);
     }
     // Fit only when the ruta or the day changes, not on every position.
     const fitKey = `${vista.ruta?.id}|${vista.date}|${points.length}`;
@@ -254,7 +258,7 @@ function ChoferMap({ vista, live }: { vista: Vista; live: LiveLocation | null })
       lastFit.current = fitKey;
       m.fitBounds(L.latLngBounds(all).pad(0.15), { maxZoom: 15 });
     }
-  }, [vista, live]);
+  }, [vista, live, now]);
 
   return <div ref={container} className="routes-map__canvas vista-map__canvas" />;
 }

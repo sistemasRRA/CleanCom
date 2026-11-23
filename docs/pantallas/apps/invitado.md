@@ -41,12 +41,22 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 
 ## Endpoints
 
-- `POST /auth/codigo`, `POST /auth/verificar`.
-- `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`.
-- `POST /agenda/disponibilidad`, `POST /agenda/agendar` (mismos que oficina, con reglas de rol Invitado).
-- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento`, `POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar`.
+- `POST /auth/codigo`, `POST /auth/verificar` (hecho): código de 6 dígitos; solo se guarda su hash. Vale `Acceso.CodigoMinutos` (10), con `Acceso.CodigoIntentos` (5), uno nuevo tras `Acceso.CodigoReenvioSegundos` (60) y hasta `Acceso.CodigosPorHora` (5); además 10 peticiones por minuto por IP. Un celular que ya está en el CRM se liga a ese invitado; si no, se crea con fuente "App" (o la campaña del link) y `newInvitado: true` para pedir nombre y "¿cómo nos conociste?". La primera vez se le crea un usuario con rol Invitado. Mientras no esté WhatsApp (semana 6), en desarrollo el código se escribe en el log del API (`AccessCodes:LogToConsole`); en otro ambiente el API responde que el acceso con celular aún no está disponible.
+- `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones` (hecho): sin notas de oficina; el celular no se cambia; la zona sale de la dirección (una zona puesta a mano por oficina se conserva). `profileComplete` dice si ya dio su nombre y cómo nos conoció.
+- `POST /agenda/disponibilidad`, `POST /agenda/agendar` (hecho; mismos que oficina, con reglas de rol Invitado): solo para sí y sus direcciones; sin hora específica, prioridad, zona a mano ni hora de registro (siempre ahora); el pedido queda con origen App.
+- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` (hecho): etapas con su hora y el estado de la visita de hoy; solo los propios (otro responde 404). `POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar` (semana 6).
 - `GET /yo/beneficios`, `POST /yo/encuestas/{id}`.
 - Hub SignalR `seguimiento` (ubicación del chofer de su pedido mientras está en camino).
+
+## Cómo quedó (semana 5)
+
+- **Acceso:** bienvenida → celular → código de 6 dígitos (se verifica solo al escribir el sexto, con cuenta regresiva para pedir otro y "Cambiar el número"). La cuenta sigue al celular: si oficina pasa ese número a otro invitado, la cuenta se liga al nuevo.
+- **Perfil:** un invitado nuevo (o del CRM sin "¿cómo nos conociste?") da su nombre, correo opcional y elige una opción del catálogo de oficina antes de entrar. Después se edita en Mi cuenta.
+- **Inicio:** "Pedir servicio" y los pedidos en curso.
+- **Pedir servicio:** dirección guardada u "Otra dirección" (código postal → colonias y alcaldía del catálogo oficial; la zona la pone el API), líneas de servicio, prendas aproximadas y notas para el chofer, turno (mañana, tarde o cualquier hora), primer día disponible de su zona u otro con lugar, y Confirmar. Fuera de cobertura lo dice y no deja confirmar. Si el día se llenó mientras tanto, propone el siguiente.
+- **Mis pedidos y seguimiento:** etapas con su hora, "Tu visita es hoy" / "va en camino" / "llegó" el día de la visita.
+- **Mi cuenta:** mis datos, mis direcciones (agregar, editar, quitar), modo oscuro y cerrar sesión.
+- Falta (semana 6): beneficios, cambiar día y cancelar, chofer en el mapa, avisos push y por WhatsApp (el código hoy solo se ve en el log del API en desarrollo). Un invitado que ya estaba en el CRM entra directo sin el paso de "confirmar sus datos y direcciones".
 
 ## Criterios de aceptación
 

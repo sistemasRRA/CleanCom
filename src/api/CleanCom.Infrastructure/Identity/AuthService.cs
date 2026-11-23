@@ -1,5 +1,8 @@
 using CleanCom.Application.Access;
 using CleanCom.Application.Common;
+using CleanCom.Application.Operations;
+using CleanCom.Domain.Operations;
+using CleanCom.Domain.People;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Time;
@@ -17,7 +20,11 @@ public class AuthService(
     IPermissionStore permissionStore,
     IBusinessClock clock,
     IValidator<LoginRequest> loginValidator,
-    IValidator<ChangePasswordRequest> changeValidator) : IAuthService
+    IValidator<ChangePasswordRequest> changeValidator,
+    IValidator<SendCodeRequest> sendCodeValidator,
+    IValidator<VerifyCodeRequest> verifyCodeValidator,
+    ISettingService settings,
+    IAccessCodeSender codeSender) : IAuthService
 {
     private const string InvalidCredentials = "Usuario o contraseña incorrectos.";
     private const string SessionExpired = "La sesión expiró. Inicia sesión de nuevo.";
@@ -109,6 +116,106 @@ public class AuthService(
             ?? throw new NotFoundException("El usuario no existe.");
         var (role, roleName, permissions) = await RoleAndPermissionsAsync(user, ct);
         return ToSessionUser(user, role, roleName, permissions);
+    }
+
+    public async Task<CodeSentDto> SendCodeAsync(SendCodeRequest request, CancellationToken ct)
+    {
+        await sendCodeValidator.ValidateAndThrowAsync(request, ct);
+        var phone = Phones.Normalize(request.Phone);
+        var now = clock.UtcNow;
+        var minutes = await settings.GetIntegerAsync(SettingKeys.AccessCodeMinutes, ct);
+        var resendSeconds = await settings.GetIntegerAsync(SettingKeys.AccessCodeResendSeconds, ct);
+
+        var recent = await db.AccessCodes.Where(c => c.Phone == phone && c.CreatedAt > now.AddHours(-1)).ToListAsync(ct);
+        AccessCodes.EnsureCanSend(recent.Select(c => c.CreatedAt).ToList(), now, resendSeconds,
+            await settings.GetIntegerAsync(SettingKeys.AccessCodesPerHour, ct));
+
+        // Only the newest code works.
+        foreach (var open in recent.Where(c => c.ClosedAt is null))
+        {
+            open.ClosedAt = now;
+        }
+        var code = AccessCodes.Generate();
+        db.AccessCodes.Add(new AccessCode
+        {
+            Phone = phone,
+            CodeHash = AccessCodes.Hash(phone, code),
+            ExpiresAt = now.AddMinutes(minutes),
+            CreatedAt = now,
+        });
+        await db.SaveChangesAsync(ct);
+        await codeSender.SendAsync(phone, code, minutes, ct);
+        return new CodeSentDto(AccessCodes.Mask(phone), minutes, resendSeconds);
+    }
+
+    public async Task<InvitadoSessionDto> VerifyCodeAsync(VerifyCodeRequest request, CancellationToken ct)
+    {
+        await verifyCodeValidator.ValidateAndThrowAsync(request, ct);
+        var phone = Phones.Normalize(request.Phone);
+        var now = clock.UtcNow;
+        var open = await db.AccessCodes.Where(c => c.Phone == phone && c.ClosedAt == null)
+            .OrderByDescending(c => c.CreatedAt).FirstOrDefaultAsync(ct);
+        try
+        {
+            AccessCodes.Verify(open, phone, request.Code, now, await settings.GetIntegerAsync(SettingKeys.AccessCodeAttempts, ct));
+        }
+        finally
+        {
+            // The attempt counts even when the code is wrong.
+            await db.SaveChangesAsync(ct);
+        }
+
+        // The phone links to its invitado in the CRM; otherwise a new one is created with source "App".
+        var invitado = await db.Invitados.FirstOrDefaultAsync(i => i.WhatsAppPhone == phone && i.Active, ct);
+        var isNew = invitado is null;
+        if (invitado is null)
+        {
+            invitado = new Invitado
+            {
+                // The app asks the name right away; until then the office sees who it is by the phone.
+                Name = $"Invitado {phone[6..]}",
+                WhatsAppPhone = phone,
+                Campaign = string.IsNullOrWhiteSpace(request.Campaign) ? "App" : request.Campaign.Trim(),
+            };
+            db.Invitados.Add(invitado);
+            await db.SaveChangesAsync(ct);
+        }
+
+        var user = invitado.UserId is { } userId ? await users.FindByIdAsync(userId.ToString()) : null;
+        // The sign-in is the phone, so its account follows the phone: when the office moved this number to another
+        // invitado (or gave the old one de baja), the existing user is linked here instead of creating a second one.
+        if (user is null && await users.FindByNameAsync($"inv{phone}") is { } byPhone)
+        {
+            user = byPhone;
+            foreach (var previous in await db.Invitados.Where(i => i.UserId == byPhone.Id && i.Id != invitado.Id).ToListAsync(ct))
+            {
+                previous.UserId = null;
+            }
+            invitado.UserId = byPhone.Id;
+        }
+        if (user is not null && !user.Active)
+        {
+            throw new UnauthorizedException("Tu cuenta está bloqueada. Escríbenos por WhatsApp para ayudarte.");
+        }
+        if (user is null)
+        {
+            user = new User
+            {
+                UserName = $"inv{phone}",
+                FullName = invitado.Name,
+                PhoneNumber = phone,
+                PhoneNumberConfirmed = true,
+                MustChangePassword = false,
+                CreatedAt = now,
+            };
+            IdentityErrors.ThrowIfFailed(await users.CreateAsync(user));
+            IdentityErrors.ThrowIfFailed(await users.AddToRoleAsync(user, Roles.Invitado));
+            invitado.UserId = user.Id;
+        }
+        user.LastAccess = now;
+        await users.UpdateAsync(user);
+        await db.SaveChangesAsync(ct);
+        return new InvitadoSessionDto(await IssueSessionAsync(user, ct), isNew);
     }
 
     private async Task<SessionDto> IssueSessionAsync(User user, CancellationToken ct)

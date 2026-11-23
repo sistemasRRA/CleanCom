@@ -50,6 +50,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<RecurringPayment> RecurringPayments => Set<RecurringPayment>();
     public DbSet<FleetAlertRule> FleetAlertRules => Set<FleetAlertRule>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<AccessCode> AccessCodes => Set<AccessCode>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {

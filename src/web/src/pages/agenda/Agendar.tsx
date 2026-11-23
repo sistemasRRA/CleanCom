@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys } from '../../api/queries';
 import { useSession } from '../../session/Session';
-import { useNotify } from '../../components/Toasts';
+import { useConfirm, useNotify } from '../../components/Toasts';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
 import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 import { AgendaBoard } from './AgendaBoard';
@@ -218,12 +218,13 @@ function InvitadoCard({
   const [editing, setEditing] = useState(false);
   const queryClient = useQueryClient();
   const notify = useNotify();
+  const ask = useConfirm();
   const [removing, setRemoving] = useState(false);
 
   async function remove() {
     const pedidos = await unwrap(api.GET('/pedidos', { params: { query: { invitadoId: invitado.id } } }));
     const extra = pedidos.length ? ` y sus ${pedidos.length} pedido${pedidos.length === 1 ? '' : 's'}` : '';
-    if (!confirm(`¿Eliminar a ${invitado.name}${extra}? Se dan de baja; sus lugares en la agenda quedan libres.`)) return;
+    if (!(await ask(`¿Eliminar a ${invitado.name}${extra}?`, { detail: 'Se dan de baja; sus lugares en la agenda quedan libres.', confirmText: 'Eliminar', danger: true }))) return;
     setRemoving(true);
     try {
       await unwrap(api.DELETE('/invitados/{id}', { params: { path: { id: invitado.id } } }));
