@@ -283,6 +283,8 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 /* Fields line up at the top, so a hint under one field ("10 dígitos") doesn't push its neighbor down. */
 .form-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); align-items: start; }
+/* A select as wide as its longest option must not push the grid (and its card) wider. */
+.form-grid > * { min-width: 0; }
 /* A checkbox or button in the grid still sits at the bottom, next to the inputs. */
 .form-grid > .checkbox, .form-grid > button { align-self: end; min-height: 38px; }
 .form-grid .wide { grid-column: 1 / -1; }
@@ -451,7 +453,7 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .agenda__title { text-transform: capitalize; margin-left: 4px; }
 .agenda__toolbar input[type='date'] { width: auto; }
 .agenda-week { display: grid; grid-template-columns: repeat(7, minmax(150px, 1fr)); overflow-x: auto; }
-.agenda-day { display: flex; flex-direction: column; gap: 8px; padding: 10px 8px 14px; border-right: 1px solid var(--border); min-height: 260px; }
+.agenda-day { display: flex; flex-direction: column; min-width: 0; gap: 8px; padding: 10px 8px 14px; border-right: 1px solid var(--border); min-height: 260px; }
 .agenda-day:last-child { border-right: none; }
 .agenda-day.off { background: var(--surface-2); }
 .agenda-day.selected { background: color-mix(in srgb, var(--brand-soft) 45%, transparent); }
@@ -460,7 +462,7 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .agenda-day.today .agenda-day__number { color: #fff; background: var(--brand); border-radius: 999px; min-width: 30px; text-align: center; padding: 0 6px; }
 [data-theme='dark'] .agenda-day.today .agenda-day__number { color: #0f172a; }
 .agenda-day__occupancy { display: grid; gap: 4px; }
-.agenda-day__list { display: grid; gap: 6px; align-content: start; }
+.agenda-day__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; }
 .agenda-day__empty { font-size: 12.5px; padding: 0 4px; }
 .occupancy { display: grid; gap: 2px; font-size: 12px; }
 .occupancy__label { color: var(--text-muted); }
@@ -468,13 +470,15 @@ dialog.agendar-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc
 .occupancy__bar { height: 5px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
 .occupancy__bar span { display: block; height: 100%; border-radius: 999px; background: var(--danger); }
 .agenda-card {
-  display: grid; gap: 1px; width: 100%; text-align: left; font-size: 12.5px; line-height: 1.35;
+  display: grid; gap: 1px; width: 100%; min-width: 0; text-align: left; font-size: 12.5px; line-height: 1.35;
   padding: 6px 8px; border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: var(--radius-sm);
   background: var(--surface);
 }
 .agenda-card:hover:not(:disabled) { background: var(--surface-2); }
 .agenda-card__top { display: flex; justify-content: space-between; gap: 6px; align-items: center; }
-.agenda-card__top strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Long names end in "…" inside the day column (the full name is in the card's detail). */
+.agenda-card__top strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-card > .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda-dayview { display: grid; overflow-x: auto; }
 .agenda-dayview > * { padding: 10px; border-bottom: 1px solid var(--border); }
 .agenda-dayview__ruta { display: grid; gap: 6px; border-left: 1px solid var(--border); }
@@ -666,7 +670,9 @@ button.selected { background: var(--brand-soft); color: var(--brand); border-col
 .panel-ruta.alert-left { border-left: 4px solid var(--warning); }
 .panel-goal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 13.5px; margin-bottom: 6px; }
 .panel-ruta .occupancy__bar { display: block; height: 8px; }
-.panel-assign { grid-template-columns: 1fr 1fr; gap: 10px; }
+.panel-assign { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.panel-assign select { width: 100%; }
+.panel-ruta .card__body > * { min-width: 0; }
 .panel-alerts { margin: 0; padding: 8px 12px 8px 28px; border-radius: var(--radius-sm); background: var(--warning-soft); color: var(--warning); font-size: 13px; display: grid; gap: 2px; }
 .panel-link { justify-self: start; font-size: 14px; }
 .panel-bottom { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
