@@ -216,6 +216,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/codigo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SendCodeRequest"];
+                    "text/json": components["schemas"]["SendCodeRequest"];
+                    "application/*+json": components["schemas"]["SendCodeRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CodeSentDto"];
+                        "application/json": components["schemas"]["CodeSentDto"];
+                        "text/json": components["schemas"]["CodeSentDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verificar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VerifyCodeRequest"];
+                    "text/json": components["schemas"]["VerifyCodeRequest"];
+                    "application/*+json": components["schemas"]["VerifyCodeRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["InvitadoSessionDto"];
+                        "application/json": components["schemas"]["InvitadoSessionDto"];
+                        "text/json": components["schemas"]["InvitadoSessionDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/renovar": {
         parameters: {
             query?: never;
@@ -1772,6 +1858,278 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeDto"];
+                        "application/json": components["schemas"]["MeDto"];
+                        "text/json": components["schemas"]["MeDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateMeRequest"];
+                    "text/json": components["schemas"]["UpdateMeRequest"];
+                    "application/*+json": components["schemas"]["UpdateMeRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeDto"];
+                        "application/json": components["schemas"]["MeDto"];
+                        "text/json": components["schemas"]["MeDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/direcciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AddressDto"][];
+                        "application/json": components["schemas"]["AddressDto"][];
+                        "text/json": components["schemas"]["AddressDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveAddressRequest"];
+                    "text/json": components["schemas"]["SaveAddressRequest"];
+                    "application/*+json": components["schemas"]["SaveAddressRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeDto"];
+                        "application/json": components["schemas"]["MeDto"];
+                        "text/json": components["schemas"]["MeDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/direcciones/{addressId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    addressId: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveAddressRequest"];
+                    "text/json": components["schemas"]["SaveAddressRequest"];
+                    "application/*+json": components["schemas"]["SaveAddressRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeDto"];
+                        "application/json": components["schemas"]["MeDto"];
+                        "text/json": components["schemas"]["MeDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    addressId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeDto"];
+                        "application/json": components["schemas"]["MeDto"];
+                        "text/json": components["schemas"]["MeDto"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/pedidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MyPedidoDto"][];
+                        "application/json": components["schemas"]["MyPedidoDto"][];
+                        "text/json": components["schemas"]["MyPedidoDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/pedidos/{id}/seguimiento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MySeguimientoDto"];
+                        "application/json": components["schemas"]["MySeguimientoDto"];
+                        "text/json": components["schemas"]["MySeguimientoDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -5205,6 +5563,13 @@ export interface components {
             /** Format: date-time */
             at?: null | string;
         };
+        CodeSentDto: {
+            sentTo: string;
+            /** Format: int32 */
+            expiresInMinutes: number;
+            /** Format: int32 */
+            resendInSeconds: number;
+        };
         /** @enum {unknown} */
         ContactChannel: "Llamada" | "WhatsApp";
         ContactDto: {
@@ -5454,6 +5819,10 @@ export interface components {
             receivesWhatsApp: boolean;
             addresses: components["schemas"]["AddressDto"][];
         };
+        InvitadoSessionDto: {
+            session: components["schemas"]["SessionDto"];
+            newInvitado: boolean;
+        };
         /** @enum {unknown} */
         InvitadoType: "ClienteFinal" | "Convenio" | "Empresa" | "TiendaInterna";
         LineaServicioDto: {
@@ -5518,9 +5887,52 @@ export interface components {
         };
         /** @enum {unknown} */
         LugarType: "Base" | "Bodega" | "Tienda";
+        MeDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            whatsAppPhone: string;
+            otherPhone: null | string;
+            email: null | string;
+            howFoundUs: null | string;
+            receivesWhatsApp: boolean;
+            profileComplete: boolean;
+            addresses: components["schemas"]["AddressDto"][];
+        };
         MoveEtapaRequest: {
             etapa: components["schemas"]["PedidoEtapa"];
             reason: null | string;
+        };
+        MyPedidoDto: {
+            /** Format: int32 */
+            id: number;
+            etapa: components["schemas"]["PedidoEtapa"];
+            etapaName: string;
+            /** Format: date */
+            recoleccionDate: string;
+            /** Format: date */
+            entregaDate: null | string;
+            turno: components["schemas"]["Turno"];
+            lineasServicio: string[];
+            /** Format: int32 */
+            garmentsApprox: null | number;
+            address: string;
+            origin: components["schemas"]["PedidoOrigin"];
+            /** Format: date-time */
+            registeredAt: string;
+        };
+        MyPedidoStepDto: {
+            etapa: components["schemas"]["PedidoEtapa"];
+            name: string;
+            /** Format: date-time */
+            at: null | string;
+            done: boolean;
+            current: boolean;
+        };
+        MySeguimientoDto: {
+            pedido: components["schemas"]["MyPedidoDto"];
+            steps: components["schemas"]["MyPedidoStepDto"][];
+            visitState: null | components["schemas"]["ParadaState"];
         };
         NoEntregadoRequest: {
             /** Format: int32 */
@@ -6412,6 +6824,9 @@ export interface components {
             name: string;
             group: string;
         };
+        SendCodeRequest: {
+            phone: string;
+        };
         SessionDto: {
             accessToken: string;
             /** Format: date-time */
@@ -6634,6 +7049,14 @@ export interface components {
         UnidadState: "Activa" | "FueraDeServicio";
         /** @enum {unknown} */
         UnidadType: "Otro" | "Furgoneta" | "Pickup" | "Trimoto";
+        UpdateMeRequest: {
+            name: string;
+            email: null | string;
+            otherPhone: null | string;
+            howFoundUs: null | string;
+            /** @default true */
+            receivesWhatsApp: boolean;
+        };
         UpdateUserRequest: {
             fullName: string;
             email: null | string;
@@ -6659,6 +7082,11 @@ export interface components {
             /** Format: int32 */
             operadorId: null | number;
             operadorName: null | string;
+        };
+        VerifyCodeRequest: {
+            phone: string;
+            code: string;
+            campaign?: null | string;
         };
         Vertex: {
             /** Format: double */

@@ -11,6 +11,8 @@ type SessionContext = {
   login: (userName: string, password: string) => Promise<void>;
   changePassword: (current: string, next: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Opens a session the API already gave (the invitado app signs in with a phone and a code). */
+  signIn: (session: Session) => Promise<void>;
   /** Only decides what is shown; the API checks the permission again on every request. */
   can: (screen: string, level?: Level) => boolean;
 };
@@ -79,6 +81,7 @@ export function SessionProvider({ appScreen, appName, children }: { appScreen: s
       async changePassword(currentPassword, newPassword) {
         await accept(await unwrap(api.POST('/auth/cambiar-contrasena', { body: { currentPassword, newPassword } })));
       },
+      signIn: (next) => accept(next),
       async logout() {
         const refreshToken = session?.refreshToken;
         await saveSession(null);

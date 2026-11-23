@@ -182,6 +182,17 @@ public class AuthService(
         }
 
         var user = invitado.UserId is { } userId ? await users.FindByIdAsync(userId.ToString()) : null;
+        // The sign-in is the phone, so its account follows the phone: when the office moved this number to another
+        // invitado (or gave the old one de baja), the existing user is linked here instead of creating a second one.
+        if (user is null && await users.FindByNameAsync($"inv{phone}") is { } byPhone)
+        {
+            user = byPhone;
+            foreach (var previous in await db.Invitados.Where(i => i.UserId == byPhone.Id && i.Id != invitado.Id).ToListAsync(ct))
+            {
+                previous.UserId = null;
+            }
+            invitado.UserId = byPhone.Id;
+        }
         if (user is not null && !user.Active)
         {
             throw new UnauthorizedException("Tu cuenta está bloqueada. Escríbenos por WhatsApp para ayudarte.");

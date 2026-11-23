@@ -48,6 +48,16 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - `GET /yo/beneficios`, `POST /yo/encuestas/{id}`.
 - Hub SignalR `seguimiento` (ubicación del chofer de su pedido mientras está en camino).
 
+## Cómo quedó (semana 5)
+
+- **Acceso:** bienvenida → celular → código de 6 dígitos (se verifica solo al escribir el sexto, con cuenta regresiva para pedir otro y "Cambiar el número"). La cuenta sigue al celular: si oficina pasa ese número a otro invitado, la cuenta se liga al nuevo.
+- **Perfil:** un invitado nuevo (o del CRM sin "¿cómo nos conociste?") da su nombre, correo opcional y elige una opción del catálogo de oficina antes de entrar. Después se edita en Mi cuenta.
+- **Inicio:** "Pedir servicio" y los pedidos en curso.
+- **Pedir servicio:** dirección guardada u "Otra dirección" (código postal → colonias y alcaldía del catálogo oficial; la zona la pone el API), líneas de servicio, prendas aproximadas y notas para el chofer, turno (mañana, tarde o cualquier hora), primer día disponible de su zona u otro con lugar, y Confirmar. Fuera de cobertura lo dice y no deja confirmar. Si el día se llenó mientras tanto, propone el siguiente.
+- **Mis pedidos y seguimiento:** etapas con su hora, "Tu visita es hoy" / "va en camino" / "llegó" el día de la visita.
+- **Mi cuenta:** mis datos, mis direcciones (agregar, editar, quitar), modo oscuro y cerrar sesión.
+- Falta (semana 6): beneficios, cambiar día y cancelar, chofer en el mapa, avisos push y por WhatsApp (el código hoy solo se ve en el log del API en desarrollo). Un invitado que ya estaba en el CRM entra directo sin el paso de "confirmar sus datos y direcciones".
+
 ## Criterios de aceptación
 
 - Un invitado no puede ver datos ni ubicación de pedidos que no son suyos.

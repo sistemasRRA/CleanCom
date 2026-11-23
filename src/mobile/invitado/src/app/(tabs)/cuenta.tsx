@@ -1,35 +1,72 @@
-import { View } from 'react-native';
+import { useCallback } from 'react';
+import { Alert as NativeAlert, Pressable, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Alert, Body, Button, Card, Screen, Title, space, useSession, useTheme } from '@cleancom/mobile-shared';
-import { usePreview } from '../../preview';
+import { Alert, Body, Button, Screen, Title, api, space, unwrap, useSession, useTheme } from '@cleancom/mobile-shared';
+import { Row, addressLine, useLoad } from '../../ui';
 
-/** My data, addresses and notification preferences (GET|PUT /yo, /yo/direcciones). */
+/** Mi cuenta: my data (GET /yo), my addresses (/yo/direcciones), theme and sign out. */
 export default function Cuenta() {
-  const { user, logout } = useSession();
+  const { logout } = useSession();
   const { colors, scheme, toggleScheme } = useTheme();
-  const { preview, setPreview } = usePreview();
+  const me = useLoad(() => unwrap(api.GET('/yo')), []);
+  useFocusEffect(
+    useCallback(() => {
+      void me.reload();
+    }, [me.reload]),
+  );
 
+  function remove(addressId: number, name: string) {
+    NativeAlert.alert('¿Quitar esta dirección?', name, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Quitar',
+        style: 'destructive',
+        onPress: () =>
+          void unwrap(api.DELETE('/yo/direcciones/{addressId}', { params: { path: { addressId } } }))
+            .then(() => me.reload())
+            .catch((e: Error) => NativeAlert.alert('No se pudo quitar', e.message)),
+      },
+    ]);
+  }
+
+  const d = me.data;
   return (
     <Screen>
       <Title size="xxl">Mi cuenta</Title>
-      {preview && <Alert tone="warning">Vista previa sin cuenta (solo desarrollo).</Alert>}
-      <Card>
-        <Body>{user?.fullName ?? 'Invitado'}</Body>
-        <Body muted>Mis datos, mis direcciones y avisos (push y WhatsApp) llegan en la semana 6.</Body>
-      </Card>
+      {me.error && <Alert>{me.error}</Alert>}
+      {d && (
+        <>
+          <Row icon="person-outline" title={d.name} text={[d.whatsAppPhone, d.email].filter(Boolean).join(' · ')} onPress={() => router.push('/perfil')} />
+
+          <View style={{ gap: space.sm }}>
+            <Title size="lg">Mis direcciones</Title>
+            {d.addresses.length === 0 && <Body muted>Agrega la dirección donde pasamos por tus prendas.</Body>}
+            {d.addresses.map((a) => (
+              <Row
+                key={a.id}
+                icon="location-outline"
+                title={a.label || addressLine(a)}
+                text={a.label ? addressLine(a) : (a.borough ?? undefined)}
+                onPress={() => router.push({ pathname: '/direccion', params: { id: String(a.id) } })}
+                right={
+                  <Pressable accessibilityRole="button" accessibilityLabel="Quitar dirección" hitSlop={8} onPress={() => remove(a.id, a.label || addressLine(a))}>
+                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                  </Pressable>
+                }
+              />
+            ))}
+            <Button title="Agregar dirección" variant="secondary" onPress={() => router.push('/direccion')} icon={<Ionicons name="add" size={20} color={colors.text} />} />
+          </View>
+        </>
+      )}
       <Button
         title={scheme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
         variant="secondary"
         onPress={toggleScheme}
         icon={<Ionicons name={scheme === 'dark' ? 'sunny-outline' : 'moon-outline'} size={20} color={colors.text} />}
       />
-      <View style={{ gap: space.sm }}>
-        {preview ? (
-          <Button title="Salir de la vista previa" variant="danger" onPress={() => setPreview(false)} />
-        ) : (
-          <Button title="Cerrar sesión" variant="danger" onPress={() => void logout()} />
-        )}
-      </View>
+      <Button title="Cerrar sesión" variant="danger" onPress={() => void logout()} />
     </Screen>
   );
 }
