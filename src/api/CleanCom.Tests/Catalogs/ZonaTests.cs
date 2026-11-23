@@ -113,4 +113,17 @@ public class GeoTests
     {
         Assert.Throws<DomainException>(() => Geo.CreatePolygon([new Vertex(19.4, -99.2), new Vertex(19.3, -99.1)]));
     }
+
+    [Fact]
+    public void Reading_a_polygon_back_gives_each_vertex_once()
+    {
+        // The stored ring repeats the first vertex to close it; the map editor gets each one once.
+        var polygon = Geo.CreatePolygon([new Vertex(19.355, -99.19), new Vertex(19.355, -99.18), new Vertex(19.345, -99.18)]);
+
+        var vertices = Geo.ToVertices(polygon);
+
+        Assert.Equal(3, vertices.Count);
+        Assert.Equal(3, vertices.Distinct().Count());
+        Assert.Equal(4, Geo.CreatePolygon(vertices).ExteriorRing.NumPoints);
+    }
 }

@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiError } from './api/client';
 import { SessionProvider, useSession } from './session/Session';
-import { ToastProvider } from './components/Toasts';
+import { ConfirmProvider, ToastProvider } from './components/Toasts';
 import { LoadingOverlay } from './components/Loader';
 import { ThemeProvider } from './theme/Theme';
 import { SCREENS } from './screens';
@@ -101,12 +101,14 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <SessionProvider>
-            <BrowserRouter>
-              <App />
-              <LoadingOverlay />
-            </BrowserRouter>
-          </SessionProvider>
+          <ConfirmProvider>
+            <SessionProvider>
+              <BrowserRouter>
+                <App />
+                <LoadingOverlay />
+              </BrowserRouter>
+            </SessionProvider>
+          </ConfirmProvider>
         </ToastProvider>
       </QueryClientProvider>
     </ThemeProvider>

@@ -17,6 +17,7 @@ import {
 import { useSession } from '../../session/Session';
 import { Pagination, usePaged } from '../../components/Pagination';
 import { AddressLocation, parsePoint } from '../../components/AddressLocation';
+import { useConfirm } from '../../components/Toasts';
 
 const useCanEdit = () => useSession().can('operacion', 'edit');
 
@@ -27,6 +28,7 @@ const LUGAR_TYPES: Record<Lugar['type'], string> = { Base: 'Base', Bodega: 'Bode
 
 export function Lugares() {
   const canEdit = useCanEdit();
+  const ask = useConfirm();
   const lugares = useQuery({
     queryKey: keys.lugares,
     queryFn: () => unwrap(api.GET('/lugares', { params: { query: { includeInactive: true } } })),
@@ -87,7 +89,7 @@ export function Lugares() {
                             type="button"
                             className="small danger"
                             disabled={deactivate.isPending}
-                            onClick={() => confirm(`¿Desactivar ${l.name}?`) && deactivate.mutate(l.id)}
+                            onClick={async () => (await ask(`¿Desactivar ${l.name}?`, { confirmText: 'Desactivar', danger: true })) && deactivate.mutate(l.id)}
                           >
                             Desactivar
                           </button>
@@ -182,6 +184,7 @@ function LugarForm({ lugar, onClose }: { lugar: Lugar | null; onClose: () => voi
 
 export function NonWorkingDays() {
   const canEdit = useCanEdit();
+  const ask = useConfirm();
   const days = useQuery({ queryKey: keys.nonWorkingDays, queryFn: () => unwrap(api.GET('/dias-inhabiles')) });
   const [adding, setAdding] = useState(false);
   const remove = useAction(
@@ -227,7 +230,7 @@ export function NonWorkingDays() {
                         type="button"
                         className="small danger"
                         disabled={remove.isPending}
-                        onClick={() => confirm(`¿Quitar ${formatDate(d.date)}?`) && remove.mutate(d.id)}
+                        onClick={async () => (await ask(`¿Quitar el día inhábil ${formatDate(d.date)}?`, { confirmText: 'Quitar', danger: true })) && remove.mutate(d.id)}
                       >
                         Quitar
                       </button>
@@ -272,6 +275,7 @@ type Coverage = Schemas['CoverageDto'];
 
 export function CoveragePage() {
   const canEdit = useCanEdit();
+  const ask = useConfirm();
   const zonas = useZonas();
   const [search, setSearch] = useState('');
   const [zonaId, setZonaId] = useState('');
@@ -350,7 +354,7 @@ export function CoveragePage() {
                           type="button"
                           className="small danger"
                           disabled={remove.isPending}
-                          onClick={() => confirm(`¿Quitar ${c.postalCode} ${c.neighborhood}?`) && remove.mutate(c.id)}
+                          onClick={async () => (await ask(`¿Quitar ${c.postalCode} ${c.neighborhood} de la cobertura?`, { confirmText: 'Quitar', danger: true })) && remove.mutate(c.id)}
                         >
                           Quitar
                         </button>

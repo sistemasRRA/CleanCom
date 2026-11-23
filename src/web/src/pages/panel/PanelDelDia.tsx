@@ -7,7 +7,7 @@ import { useOperacion, type LiveLocation, type LiveStatus } from '../../api/real
 import { useSession } from '../../session/Session';
 import { PageHeader, QueryState } from '../../components/Common';
 import { Loader } from '../../components/Loader';
-import { useNotify } from '../../components/Toasts';
+import { useConfirm, useNotify } from '../../components/Toasts';
 
 const RoutesMap = lazy(() => import('../../components/RoutesMap').then((m) => ({ default: m.RoutesMap })));
 
@@ -344,13 +344,15 @@ function RutaCard({ card: r, panel, date }: { card: Card; panel: Panel; date: st
 function Assignments({ card: r, panel, date, canEdit }: { card: Card; panel: Panel; date: string; canEdit: boolean }) {
   const queryClient = useQueryClient();
   const notify = useNotify();
+  const ask = useConfirm();
   const [busy, setBusy] = useState(false);
   const past = date < today();
 
+  /** Runs a change and refreshes; an action that returns `false` was cancelled by the user (no message). */
   async function run(action: () => Promise<unknown>, message: string) {
     setBusy(true);
     try {
-      await action();
+      if ((await action()) === false) return;
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: panelKey }),
         queryClient.invalidateQueries({ queryKey: keys.rutasDia }),
@@ -374,11 +376,9 @@ function Assignments({ card: r, panel, date, canEdit }: { card: Card; panel: Pan
         await put(false);
       } catch (e) {
         // 409 with a question: the unidad has something pending; the API says what.
-        if (e instanceof ApiError && e.status === 409 && e.message.includes('¿') && window.confirm(e.message)) {
-          await put(true);
-        } else {
-          throw e;
-        }
+        if (!(e instanceof ApiError && e.status === 409 && e.message.includes('¿'))) throw e;
+        if (!(await ask(e.message, { confirmText: 'Asignar de todos modos' }))) return false;
+        await put(true);
       }
     }, 'Unidad asignada.');
 

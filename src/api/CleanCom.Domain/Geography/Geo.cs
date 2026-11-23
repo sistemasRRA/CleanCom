@@ -98,8 +98,16 @@ public static class Geo
         return false;
     }
 
-    public static IReadOnlyList<Vertex> ToVertices(Polygon polygon) =>
-        polygon.ExteriorRing.Coordinates.Select(c => new Vertex(c.Y, c.X)).ToList();
+    /// <summary>
+    /// The vertices of the polygon, each once: the ring repeats the first one at the end to close it, and that copy
+    /// is left out so a map editor doesn't show two vertices in the same place. <see cref="CreatePolygon"/> closes it again.
+    /// </summary>
+    public static IReadOnlyList<Vertex> ToVertices(Polygon polygon)
+    {
+        var ring = polygon.ExteriorRing.Coordinates;
+        var count = ring.Length > 1 && ring[0].Equals2D(ring[^1]) ? ring.Length - 1 : ring.Length;
+        return ring.Take(count).Select(c => new Vertex(c.Y, c.X)).ToList();
+    }
 
     private static void ValidateCoordinate(double lat, double lng)
     {

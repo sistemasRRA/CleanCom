@@ -22,7 +22,7 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - Tiempos aprendidos: sugerencia de minutos por tipo de parada con el promedio real medido por la app.
 - "Llegué" sugerido al entrar al radio de la tolerancia GPS.
 - Historial de cambios y cambios programados a partir de una fecha.
-- Editor de zonas en mapa: dibujar polígonos partiendo de la cobertura por CP.
+- Editor de zonas en mapa: dibujar polígonos partiendo de la cobertura por CP. Hecho el dibujo en el mapa (ver Zonas abajo); falta partir de la cobertura por CP.
 - Días de visita corregidos al máster en la migración (zona 1 lunes y jueves, zona 2 martes y viernes, zona 3 miércoles y sábado).
 
 ## Endpoints
@@ -32,6 +32,8 @@ Reglas que mueven la agenda y el ruteo; todo cambio se aplica de inmediato. Los 
 - `GET|POST|PUT /rutas`, `/tipos-parada`, `/lineas-servicio`, `/motivos?type=`.
 - `GET /codigos-postales/{cp}` (colonias del CP), `GET /codigos-postales?search=`, `GET /codigos-postales/resumen`: solo sesión. `POST /codigos-postales/importar` (multipart, campo `file`): solo SuperUser y Administración.
 
-Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` siempre es baja lógica (lugares, zonas, días inhábiles y cobertura); nada se borra de la base. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`.
+Leer catálogos solo pide sesión iniciada (los usan todas las pantallas y apps); cambiarlos y ver la configuración pide permiso sobre Operación. `DELETE` siempre es baja lógica (lugares, zonas, días inhábiles y cobertura); nada se borra de la base. Los polígonos se envían como lista de vértices `{lat, lng}` y el API los cierra y orienta para `geography`; al leerlos devuelve cada vértice una vez, sin repetir el primero al final.
+
+Zonas: arriba de la tabla, un mapa de OpenStreetMap con los polígonos de las zonas activas en el color de su ruta. Al editar una zona, el polígono se dibuja en el mapa: clic para agregar un vértice al final, arrastrar un vértice para moverlo o clic en él para quitarlo, y arrastrar el punto pequeño entre dos vértices para agregar uno en medio; también "Deshacer último" y "Borrar polígono". Las demás zonas se ven de fondo. Debajo quedan las coordenadas en texto (un vértice por renglón), sincronizadas con el mapa, para pegarlas. Si los lados se cruzan, el API lo rechaza con su mensaje.
 
 Lugares: la ubicación se captura en un solo campo "latitud, longitud" con el mapa de OpenStreetMap (el mismo de Agendar y Paradas fijas): con la dirección escrita el pin se coloca solo y se arrastra al lugar; también acepta el link completo de Google Maps. Al guardar, la web lo convierte en `lat` y `lng`.

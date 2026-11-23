@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { api, unwrap, type Schemas } from '../../api/client';
+import { PolygonMap, type MapZona } from '../../components/PolygonMap';
+import { useConfirm } from '../../components/Toasts';
+import type { Point } from '../../components/LocationMap';
 import { keys, useRutas, useZonas } from '../../api/queries';
 import {
   ActiveBadge,
@@ -161,8 +164,11 @@ function RutaForm({ ruta, onClose }: { ruta: Ruta | null; onClose: () => void })
 export function Zonas() {
   const canEdit = useSession().can('operacion', 'edit');
   const zonas = useZonas();
+  const rutas = useRutas();
+  const ask = useConfirm();
   const [editing, setEditing] = useState<Zona | 'new' | null>(null);
   const [days, setDays] = useState<Zona | null>(null);
+  const drawn = mapZonas(zonas.data ?? [], rutas.data ?? []);
   const deactivate = useAction(
     (id: number) => unwrap(api.DELETE('/zonas/{id}', { params: { path: { id } } })),
     [keys.zonas],
@@ -183,6 +189,11 @@ export function Zonas() {
         )}
       </div>
       <QueryState loading={zonas.isPending} error={zonas.error}>
+        {drawn.length > 0 && (
+          <div className="card__body">
+            <PolygonMap others={drawn} className="polygon-map overview" />
+          </div>
+        )}
         <div className="table-wrap">
           <table>
             <thead>
@@ -232,7 +243,7 @@ export function Zonas() {
                             type="button"
                             className="small danger"
                             disabled={deactivate.isPending}
-                            onClick={() => confirm(`¿Desactivar la zona ${z.code}?`) && deactivate.mutate(z.id)}
+                            onClick={async () => (await ask(`¿Desactivar la zona ${z.code}?`, { confirmText: 'Desactivar', danger: true })) && deactivate.mutate(z.id)}
                           >
                             Desactivar
                           </button>
@@ -271,9 +282,15 @@ function ZonaForm({ zona, zonas, onClose }: { zona: Zona | null; zonas: Zona[]; 
   const [code, setCode] = useState(zona?.code ?? '');
   const [rutaId, setRutaId] = useState(zona?.rutaId.toString() ?? '');
   const [nucleoId, setNucleoId] = useState(zona?.zonaNucleoId?.toString() ?? '');
-  const [polygon, setPolygon] = useState(zona?.polygon?.map((v) => `${v.lat}, ${v.lng}`).join('\n') ?? '');
+  const [polygon, setPolygon] = useState(zona?.polygon ? polygonText(toPoints(zona.polygon)) : '');
   const [active, setActive] = useState(zona?.active ?? true);
+  const ask = useConfirm();
   const nucleos = zonas.filter((z) => !z.zonaNucleoId && z.id !== zona?.id && z.active);
+  // The map edits the same text: what is typed or pasted shows on the map, and what is drawn rewrites the text.
+  const vertices = toPoints(parsePolygon(polygon) ?? []);
+  const setVertices = (list: Point[]) => setPolygon(polygonText(list));
+  const color = rutas.data?.find((r) => r.id === Number(rutaId))?.color;
+  const others = mapZonas(zonas.filter((z) => z.id !== zona?.id), rutas.data ?? []);
 
   const save = useSave(
     () => {
@@ -292,7 +309,14 @@ function ZonaForm({ zona, zonas, onClose }: { zona: Zona | null; zonas: Zona[]; 
   );
 
   return (
-    <Dialog title={zona ? `Zona ${zona.code}` : 'Nueva zona'} onClose={onClose} onSubmit={() => save.mutate(undefined)} busy={save.isPending} error={save.error}>
+    <Dialog
+      title={zona ? `Zona ${zona.code}` : 'Nueva zona'}
+      className="map-dialog"
+      onClose={onClose}
+      onSubmit={() => save.mutate(undefined)}
+      busy={save.isPending}
+      error={save.error}
+    >
       <div className="form-grid">
         <Field label="Código" hint="Por ejemplo F1 o F1EXT.">
           <input autoFocus value={code} onChange={(e) => setCode(e.target.value)} required />
@@ -317,9 +341,32 @@ function ZonaForm({ zona, zonas, onClose }: { zona: Zona | null; zonas: Zona[]; 
             ))}
           </select>
         </Field>
-        <Field label="Polígono" hint="Un vértice por renglón: latitud, longitud. El editor en mapa llega con Google Maps." wide>
+        <div className="field wide">
+          <div className="polygon-toolbar">
+            <span>Polígono</span>
+            <span className="muted">{vertices.length === 0 ? 'sin dibujar' : `${vertices.length} vértices`}</span>
+            <button type="button" className="small" disabled={vertices.length === 0} onClick={() => setVertices(vertices.slice(0, -1))}>
+              Deshacer último
+            </button>
+            <button
+              type="button"
+              className="small danger"
+              disabled={vertices.length === 0}
+              onClick={async () => (await ask('¿Borrar todo el polígono?', { detail: 'Se quita del mapa; se guarda hasta que presiones Guardar.', confirmText: 'Borrar', danger: true })) && setPolygon('')}
+            >
+              Borrar polígono
+            </button>
+          </div>
+          <PolygonMap value={vertices} color={color} others={others} onChange={setVertices} />
+          <small>
+            Haz clic en el mapa para agregar vértices. Arrastra un vértice para moverlo o haz clic en él para quitarlo; arrastra el punto
+            pequeño entre dos vértices para agregar uno en medio. Las demás zonas se ven de fondo. Sin polígono, la zona se busca por
+            código postal.
+          </small>
+        </div>
+        <Field label="Coordenadas" hint="Un vértice por renglón: latitud, longitud. Puedes pegarlas aquí y se dibujan en el mapa." wide>
           <textarea
-            rows={5}
+            rows={4}
             value={polygon}
             onChange={(e) => setPolygon(e.target.value)}
             placeholder={'19.3550, -99.1900\n19.3550, -99.1800\n19.3450, -99.1800'}
@@ -331,6 +378,19 @@ function ZonaForm({ zona, zonas, onClose }: { zona: Zona | null; zonas: Zona[]; 
       </div>
     </Dialog>
   );
+}
+
+const polygonText = (list: Point[]) => list.map((v) => `${v.lat}, ${v.lng}`).join('\n');
+
+/** Vertices with both numbers (half-typed lines are skipped on the map). */
+const toPoints = (list: Schemas['Vertex'][]): Point[] =>
+  list.filter((v): v is Point => Number.isFinite(v.lat) && Number.isFinite(v.lng));
+
+/** The zonas with a polygon, in the color of their ruta, for the map. */
+function mapZonas(zonas: Zona[], rutas: Ruta[]): MapZona[] {
+  return zonas
+    .filter((z) => z.active && (z.polygon?.length ?? 0) >= 3)
+    .map((z) => ({ id: z.id, code: z.code, color: rutas.find((r) => r.id === z.rutaId)?.color ?? '#64748b', polygon: toPoints(z.polygon!) }));
 }
 
 /** Only splits the text into numbers; the API validates and closes the polygon. */

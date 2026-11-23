@@ -5,6 +5,7 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useOperadores } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Dialog, Field, PageHeader, QueryState, optional, useAction, useSave } from '../../components/Common';
+import { useConfirm } from '../../components/Toasts';
 import { Loader } from '../../components/Loader';
 import {
   ACTIONS,
@@ -132,6 +133,7 @@ export function Rutas() {
 
 function RutaCard({ plan: r, date }: { plan: Plan; date: string }) {
   const canEdit = useSession().can('rutas', 'edit');
+  const ask = useConfirm();
   const operadores = useOperadores();
   const refetch = [keys.rutasDia, keys.agendaBoard];
   const assign = useAction(
@@ -257,8 +259,8 @@ function RutaCard({ plan: r, date }: { plan: Plan; date: string }) {
                     busy={busy}
                     onMove={(by) => patch.mutate({ id: p.id, position: p.order + by, fixed: null })}
                     onPin={() => patch.mutate({ id: p.id, position: null, fixed: !p.positionFixed })}
-                    onRemove={() =>
-                      confirm(p.viaje ? `¿Quitar todo el viaje "${p.viaje.split(' · ')[0]}" de la ruta este día?` : `¿Quitar "${p.name}" de la ruta este día?`) &&
+                    onRemove={async () =>
+                      (await ask(p.viaje ? `¿Quitar todo el viaje "${p.viaje.split(' · ')[0]}" de la ruta este día?` : `¿Quitar "${p.name}" de la ruta este día?`, { confirmText: 'Quitar', danger: true })) &&
                       remove.mutate(p.id)
                     }
                   />
