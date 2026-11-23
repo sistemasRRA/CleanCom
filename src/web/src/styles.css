@@ -687,7 +687,7 @@ button.selected { background: var(--brand-soft); color: var(--brand); border-col
 .panel-visits li:last-child { border-bottom: none; }
 .panel-visits .badge { margin-left: 6px; }
 .routes-map__live span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 10px; color: #fff; font-weight: 800; font-size: 13px; border: 3px solid #fff; box-shadow: 0 0 0 3px rgb(0 0 0 / 15%), 0 2px 8px rgb(0 0 0 / 40%); animation: live-pulse 2s ease-out infinite; }
-.routes-map__live.stale span { animation: none; opacity: 0.6; }
+.routes-map__live.stale span { animation: none; opacity: 0.6; filter: grayscale(1); }
 @keyframes live-pulse { 0% { box-shadow: 0 0 0 0 rgb(30 42 120 / 45%), 0 2px 8px rgb(0 0 0 / 40%); } 100% { box-shadow: 0 0 0 14px rgb(30 42 120 / 0%), 0 2px 8px rgb(0 0 0 / 40%); } }
 @media (prefers-reduced-motion: reduce) { .routes-map__live span { animation: none; } }
 

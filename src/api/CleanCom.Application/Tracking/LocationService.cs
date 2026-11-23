@@ -76,8 +76,10 @@ public class LocationService(
         var shown = current is null ? (LocationReading?)null : new LocationReading(current.Lat, current.Lng, current.At, current.AccuracyMeters);
         if (LocationTrail.Latest(shown, readings) is { } latest && latest != shown)
         {
+            var noSignal = await settings.GetIntegerAsync(SettingKeys.GpsNoSignalMinutes, ct);
             var location = new LiveLocationDto(rutaDia.Id, rutaDia.Date, rutaDia.RutaId, rutaDia.Ruta!.Code, rutaDia.Ruta.Color,
-                today.OperadorName, latest.Lat, latest.Lng, latest.At, latest.AccuracyMeters);
+                today.OperadorName, latest.Lat, latest.Lng, latest.At, latest.AccuracyMeters,
+                SignalLostAt: PanelRules.SignalLostAt(latest.At, noSignal));
             live.Set(location);
             await notifier.LocationAsync(location, ct);
         }
@@ -111,17 +113,20 @@ public class LocationService(
             .Select(g => g.OrderByDescending(u => u.RecordedAt).First())
             .ToDictionaryAsync(u => u.RutaDiaId, ct);
 
+        // Read now, so a change of Gps.SinSenalMinutos also applies to the positions already in memory.
+        var noSignal = await settings.GetIntegerAsync(SettingKeys.GpsNoSignalMinutes, ct);
         var result = new List<LiveLocationDto>();
         foreach (var d in rutaDias)
         {
             if (live.Get(d.Id) is { } inMemory)
             {
-                result.Add(inMemory);
+                result.Add(inMemory with { SignalLostAt = PanelRules.SignalLostAt(inMemory.At, noSignal) });
             }
             else if (saved.GetValueOrDefault(d.Id) is { } point)
             {
                 result.Add(new LiveLocationDto(d.Id, day, d.RutaId, d.Code, d.Color, d.Operador,
-                    point.Location.Y, point.Location.X, point.RecordedAt, point.AccuracyMeters, Live: false));
+                    point.Location.Y, point.Location.X, point.RecordedAt, point.AccuracyMeters, Live: false,
+                    SignalLostAt: PanelRules.SignalLostAt(point.RecordedAt, noSignal)));
             }
         }
         return result;

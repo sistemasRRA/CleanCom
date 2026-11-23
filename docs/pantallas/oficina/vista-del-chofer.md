@@ -11,7 +11,7 @@ La vista del chofer pasa a la app móvil ([../apps/chofer.md](../apps/chofer.md)
 
 ## Mejora
 
-- Muestra el estado en vivo de cada parada y la última ubicación del chofer.
+- Muestra el estado en vivo de cada parada y la última ubicación del chofer; en gris cuando lleva `Gps.SinSenalMinutos` sin reportar.
 
 ## Endpoints
 

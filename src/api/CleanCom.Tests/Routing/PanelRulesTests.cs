@@ -48,6 +48,14 @@ public class PanelRulesTests
     }
 
     [Fact]
+    public void The_last_position_counts_as_old_after_the_no_signal_minutes()
+    {
+        // Last reading at 17:00 (11:00 in Mexico City) with Gps.SinSenalMinutos 10 → old from 17:10.
+        var at = new DateTimeOffset(2026, 11, 20, 17, 0, 0, TimeSpan.Zero);
+        Assert.Equal(at.AddMinutes(10), PanelRules.SignalLostAt(at, 10));
+    }
+
+    [Fact]
     public void Percent_is_rounded_and_empty_without_data()
     {
         Assert.Equal(67, PanelRules.Percent(2, 3));

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Schemas } from '../api/client';
-import type { LiveLocation } from '../api/realtime';
+import { isOld, useNow, type LiveLocation } from '../api/realtime';
 
 type Plan = Schemas['RutaPlanDto'];
 
@@ -20,6 +20,7 @@ export function RoutesMap({ base, rutas, live = [] }: { base: { lat: number; lng
   const layer = useRef<L.LayerGroup | null>(null);
   const liveLayer = useRef<L.LayerGroup | null>(null);
   const [hidden, setHidden] = useState<Set<number>>(new Set());
+  const now = useNow();
 
   useEffect(() => {
     const m = L.map(container.current!, { center: [base.lat, base.lng], zoom: 12, scrollWheelZoom: false });
@@ -101,20 +102,21 @@ export function RoutesMap({ base, rutas, live = [] }: { base: { lat: number; lng
       if (ruta && hidden.has(ruta.rutaId)) continue;
       const color = ruta?.color ?? l.rutaColor ?? '#1e2a78';
       const at = new Date(l.at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' });
+      const old = isOld(l, now);
       const icon = L.divIcon({
-        className: `routes-map__live${l.live ? '' : ' stale'}`,
+        className: `routes-map__live${old ? ' stale' : ''}`,
         html: `<span style="background:${escape(color)}">${escape(l.rutaCode)}</span>`,
         iconSize: [34, 34],
         iconAnchor: [17, 17],
       });
       L.marker([l.lat, l.lng], { icon, zIndexOffset: 2000, title: `Ruta ${l.rutaCode}` })
         .bindTooltip(
-          `<strong>Ruta ${escape(l.rutaCode)} · ${escape(l.operadorName ?? 'Chofer')}</strong><br>${l.live ? 'Ubicación' : 'Última ubicación guardada'} de las ${at}`,
+          `<strong>Ruta ${escape(l.rutaCode)} · ${escape(l.operadorName ?? 'Chofer')}</strong><br>${!l.live ? 'Última ubicación guardada' : old ? 'Sin señal; última ubicación' : 'Ubicación'} de las ${at}`,
           { direction: 'top', offset: [0, -16] },
         )
         .addTo(g);
     }
-  }, [live, rutas, hidden]);
+  }, [live, rutas, hidden, now]);
 
   const withoutLocation = rutas.filter((r) => !hidden.has(r.rutaId)).reduce((n, r) => n + r.paradas.filter((p) => p.lat == null || p.lng == null).length, 0);
 

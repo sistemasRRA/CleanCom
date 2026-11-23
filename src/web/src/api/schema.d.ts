@@ -5853,6 +5853,8 @@ export interface components {
             accuracyMeters: null | number;
             /** @default true */
             live: boolean;
+            /** Format: date-time */
+            signalLostAt?: null | string;
         };
         LocationReadingRequest: {
             /** Format: double */

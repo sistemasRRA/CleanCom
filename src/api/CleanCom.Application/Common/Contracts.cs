@@ -66,6 +66,10 @@ public interface IOperacionNotifier
 
 /// <summary>The chofer's last known position on a RutaDia.</summary>
 /// <param name="Live">Received in this run of the API; false when it comes from the saved history after a restart.</param>
+/// <param name="SignalLostAt">
+/// When this position stops counting as current if no newer one arrives (<see cref="At"/> + Gps.SinSenalMinutos); the
+/// map shows it as old from then on.
+/// </param>
 public record LiveLocationDto(
     int RutaDiaId,
     DateOnly Date,
@@ -77,7 +81,8 @@ public record LiveLocationDto(
     double Lng,
     DateTimeOffset At,
     int? AccuracyMeters,
-    bool Live = true);
+    bool Live = true,
+    DateTimeOffset? SignalLostAt = null);
 
 /// <summary>A parada that changed state; the office reloads that ruta.</summary>
 public record ParadaChangedDto(int RutaDiaId, DateOnly Date, int ParadaId, CleanCom.Domain.Routing.ParadaState State);

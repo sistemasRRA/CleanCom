@@ -19,7 +19,7 @@ Resumen operativo del día: alertas, avance de cada ruta, mapa en vivo, carga de
 - Bandeja de pendientes compacta: un contador por tipo de alerta que abre su lista.
 - Flota: solo un contador ("3 unidades con pendientes") que lleva a Unidades; el detalle ya no ocupa el panel.
 - Tarjetas de ruta accionables: asignar chofer y unidad desde la tarjeta; aviso de atraso, horas extra o sin GPS; avance separado en recolecciones y entregas.
-- Mapa en vivo por SignalR con ruta planeada contra recorrida y paradas sin asignar que se pueden arrastrar a una ruta.
+- Mapa en vivo por SignalR con ruta planeada contra recorrida y paradas sin asignar que se pueden arrastrar a una ruta. El punto de un chofer que lleva `Gps.SinSenalMinutos` sin reportar se queda en su última posición, en gris.
 - Carga semanal como barras contra el cupo, con el día excedido resaltado y clic para planear ese día.
 
 ## Endpoints
