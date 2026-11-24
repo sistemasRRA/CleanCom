@@ -23,7 +23,7 @@ Cada pantalla se decide con `useLayout()` de `src/mobile/shared` (`isTablet`, `l
 3. **En camino:** abre Google Maps o Waze y avisa al invitado con su hora estimada y liga de seguimiento.
 4. **Llegué:** registra la hora real; se sugiere al entrar al radio de 300 m.
 5. **Cerrar la visita** según el tipo:
-    - Recolección: prendas aproximadas, foto, notas, beneficios usados.
+    - Recolección: prendas aproximadas, foto, notas, beneficios usados. La parada muestra los beneficios que el invitado apartó (nombre, mecánica, condición y código); quedan usados al cerrar la recolección (hecho, semana 6).
     - Entrega: foto, firma del invitado, forma y monto de pago de referencia.
     - Traspaso o insumos: confirmar lo cargado o entregado.
     - No realizada: motivo de catálogo y foto; el pedido se reprograma y se avisa a oficina.

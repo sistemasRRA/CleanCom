@@ -2,6 +2,7 @@ using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Pedidos;
+using CleanCom.Application.Promociones;
 using CleanCom.Application.Tracking;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Operations;
@@ -23,7 +24,8 @@ public class InvitadoAgendaService(
     AgendaService agenda,
     LocationService locations,
     ISettingService settings,
-    PedidoBoardService pedidos)
+    PedidoBoardService pedidos,
+    BeneficioService beneficios)
 {
     private static readonly PedidoEtapa[] Path =
     [
@@ -52,6 +54,10 @@ public class InvitadoAgendaService(
         InvitadoScheduling.EnsureAllowed(r.Turno, r.SpecificTime, r.Priority, r.RegisteredAt, null);
         return await agenda.ScheduleAsync(r, PedidoOrigin.App, ct);
     }
+
+    /// <summary>My sellos and cupones (Mis beneficios), newest first.</summary>
+    public async Task<IReadOnlyList<BeneficioDto>> BeneficiosAsync(CancellationToken ct) =>
+        await beneficios.ForInvitadoAsync(await me.OwnIdAsync(ct), ct);
 
     /// <summary>The invitado's pedidos, newest first; cancelled ones stay so the invitado sees what happened.</summary>
     public async Task<IReadOnlyList<MyPedidoDto>> PedidosAsync(CancellationToken ct)

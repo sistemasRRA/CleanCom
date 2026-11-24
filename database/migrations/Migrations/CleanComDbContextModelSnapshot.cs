@@ -2186,6 +2186,36 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "5"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Promociones.MetaCanjeSellos",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "40"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Promociones.MetaCanjeCuponera",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "30"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Promociones.TopeSello",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "30"
                         });
                 });
 
@@ -2755,6 +2785,198 @@ namespace CleanCom.Migrations.Migrations
                         .HasDatabaseName("ix_operadores_usual_ruta_id");
 
                     b.ToTable("operadores", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Promociones.Beneficio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly?>("ExpiresOn")
+                        .HasColumnType("date")
+                        .HasColumnName("expires_on");
+
+                    b.Property<int?>("GrantedByPedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("granted_by_pedido_id");
+
+                    b.Property<int>("InvitadoId")
+                        .HasColumnType("int")
+                        .HasColumnName("invitado_id");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("origin");
+
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("pedido_id");
+
+                    b.Property<int>("PromocionId")
+                        .HasColumnType("int")
+                        .HasColumnName("promocion_id");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("used_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_beneficios");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_beneficios_code");
+
+                    b.HasIndex("GrantedByPedidoId")
+                        .HasDatabaseName("ix_beneficios_granted_by_pedido_id");
+
+                    b.HasIndex("PedidoId")
+                        .HasDatabaseName("ix_beneficios_pedido_id");
+
+                    b.HasIndex("PromocionId")
+                        .HasDatabaseName("ix_beneficios_promocion_id");
+
+                    b.HasIndex("InvitadoId", "PromocionId")
+                        .HasDatabaseName("ix_beneficios_invitado_id_promocion_id");
+
+                    b.ToTable("beneficios", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Promociones.Promocion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Condition")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("condition");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DiscountType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("discount_type");
+
+                    b.Property<int?>("LineaServicioId")
+                        .HasColumnType("int")
+                        .HasColumnName("linea_servicio_id");
+
+                    b.Property<decimal?>("MinimumAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("minimum_amount");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("Programa")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("programa");
+
+                    b.Property<bool>("Stackable")
+                        .HasColumnType("bit")
+                        .HasColumnName("stackable");
+
+                    b.Property<int?>("TriggerLineaServicioId")
+                        .HasColumnType("int")
+                        .HasColumnName("trigger_linea_servicio_id");
+
+                    b.Property<int?>("ValidityDays")
+                        .HasColumnType("int")
+                        .HasColumnName("validity_days");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promociones");
+
+                    b.HasIndex("LineaServicioId")
+                        .HasDatabaseName("ix_promociones_linea_servicio_id");
+
+                    b.HasIndex("TriggerLineaServicioId")
+                        .HasDatabaseName("ix_promociones_trigger_linea_servicio_id");
+
+                    b.HasIndex("Programa", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_promociones_programa_name")
+                        .HasFilter("[active] = 1");
+
+                    b.ToTable("promociones", (string)null);
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.ChoferLocation", b =>
@@ -4139,6 +4361,52 @@ namespace CleanCom.Migrations.Migrations
                         .HasConstraintName("fk_operadores_rutas_usual_ruta_id");
 
                     b.Navigation("UsualRuta");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Promociones.Beneficio", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", null)
+                        .WithMany()
+                        .HasForeignKey("GrantedByPedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_beneficios_pedidos_granted_by_pedido_id");
+
+                    b.HasOne("CleanCom.Domain.People.Invitado", null)
+                        .WithMany()
+                        .HasForeignKey("InvitadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_beneficios_invitados_invitado_id");
+
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", null)
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_beneficios_pedidos_pedido_id");
+
+                    b.HasOne("CleanCom.Domain.Promociones.Promocion", "Promocion")
+                        .WithMany()
+                        .HasForeignKey("PromocionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_beneficios_promociones_promocion_id");
+
+                    b.Navigation("Promocion");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Promociones.Promocion", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Catalogs.LineaServicio", null)
+                        .WithMany()
+                        .HasForeignKey("LineaServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_promociones_lineas_servicio_linea_servicio_id");
+
+                    b.HasOne("CleanCom.Domain.Catalogs.LineaServicio", null)
+                        .WithMany()
+                        .HasForeignKey("TriggerLineaServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_promociones_lineas_servicio_trigger_linea_servicio_id");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.ChoferLocation", b =>

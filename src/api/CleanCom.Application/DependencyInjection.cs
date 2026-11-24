@@ -10,6 +10,7 @@ using CleanCom.Application.Fleet;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Panel;
 using CleanCom.Application.ParadasFijas;
+using CleanCom.Application.Promociones;
 using CleanCom.Application.Rutas;
 using CleanCom.Application.Tracking;
 using FluentValidation;
@@ -50,6 +51,8 @@ public static class DependencyInjection
         services.AddScoped<ChoferPreviewService>();
         services.AddScoped<UnidadService>();
         services.AddScoped<PanelService>();
+        services.AddScoped<BeneficioService>();
+        services.AddScoped<PromocionService>();
         return services;
     }
 }

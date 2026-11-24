@@ -6,6 +6,7 @@ using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Promociones;
 using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -596,5 +597,38 @@ internal class AccessCodeConfig : IEntityTypeConfiguration<AccessCode>
         e.Property(x => x.CodeHash).HasMaxLength(64);
         // The newest code of a phone, and the codes of the last hour.
         e.HasIndex(x => new { x.Phone, x.CreatedAt });
+    }
+}
+
+internal class PromocionConfig : IEntityTypeConfiguration<Promocion>
+{
+    public void Configure(EntityTypeBuilder<Promocion> e)
+    {
+        e.ToTable("Promociones");
+        e.Property(x => x.Name).HasMaxLength(100);
+        e.Property(x => x.Value).HasPrecision(10, 2);
+        e.Property(x => x.MinimumAmount).HasPrecision(12, 2);
+        e.Property(x => x.Description).HasMaxLength(300);
+        e.Property(x => x.Condition).HasMaxLength(500);
+        e.HasIndex(x => new { x.Programa, x.Name }).IsUnique().HasFilter("[active] = 1");
+        e.HasOne<LineaServicio>().WithMany().HasForeignKey(x => x.LineaServicioId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<LineaServicio>().WithMany().HasForeignKey(x => x.TriggerLineaServicioId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class BeneficioConfig : IEntityTypeConfiguration<Beneficio>
+{
+    public void Configure(EntityTypeBuilder<Beneficio> e)
+    {
+        e.ToTable("Beneficios");
+        // Codes are never reused, not even after a baja.
+        e.Property(x => x.Code).HasMaxLength(20);
+        e.HasIndex(x => x.Code).IsUnique();
+        e.HasIndex(x => new { x.InvitadoId, x.PromocionId });
+        e.HasIndex(x => x.PedidoId);
+        e.HasOne(x => x.Promocion).WithMany().HasForeignKey(x => x.PromocionId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.GrantedByPedidoId).OnDelete(DeleteBehavior.Restrict);
     }
 }

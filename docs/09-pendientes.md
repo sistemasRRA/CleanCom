@@ -63,6 +63,11 @@
 
 ## Reglas propuestas que conviene validar
 
+- [ ] Promociones: los sellos se dan del segundo servicio en adelante al cerrar la recolección, según la línea "se da al cerrar un servicio de", y no se repiten mientras el invitado tenga uno sin usar. Confirmar la mecánica real de "Promociones Cruzadas" (por ejemplo, si un sello se gana con varias visitas). Los cinco sellos de la demo se capturaron sin línea que los dé ("cualquier servicio"), así que hoy un invitado recurrente recibe los cinco: confirmar qué servicio da cada uno (por ejemplo, ofrecer el de una línea que el pedido no trae). "Pago de contado" quedó en la mecánica en texto, no como forma de pago, porque contado puede ser efectivo o tarjeta: confirmar.
+- [ ] Promociones: el primer servicio es el primer pedido del invitado que pasa de Agendado (recolectado); la cuponera da un cupón de cada promoción activa. Confirmar si un invitado que ya era cliente antes del sistema (migración) debe recibir cuponera.
+- [ ] Promociones: un beneficio apartado queda usado al cerrar la recolección aunque el pedido luego cambie de fecha y pase su vencimiento. El mínimo del ticket y la forma de pago son informativos: los valida el POS. Confirmar.
+- [ ] Promociones: metas de canje 40% y 30% y tope de 30% por sello (`Promociones.*`). Ya están capturados los cinco sellos de la demo; falta que CleanCom dé el beneficio impreso de cada cupón de la cuponera para activarlos.
+
 - [ ] Orden de prioridad entre estatus del CRM cuando aplican varios: Inactivo, En riesgo, Le toca, Nuevo y Activo (Prospecto si no hay servicios). Así un invitado nuevo con fecha "le toca" aparece como Le toca.
 - [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
 

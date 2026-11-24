@@ -9,6 +9,8 @@ namespace CleanCom.Application.Agenda;
 /// <param name="Priority">Office only.</param>
 /// <param name="RegisteredAt">Hora de registro. Empty = now; the office may set an earlier one.</param>
 /// <param name="Date">Another visit day chosen from the list. Empty = the first one with cupo.</param>
+/// <param name="BeneficioIds">Sellos or cupones of the invitado to apply: reserved for this pedido and used when its
+/// recolección closes.</param>
 public record ScheduleRequest(
     int InvitadoId,
     int AddressId,
@@ -19,4 +21,5 @@ public record ScheduleRequest(
     string? DriverNotes,
     IReadOnlyList<int>? LineaServicioIds,
     DateTimeOffset? RegisteredAt,
-    DateOnly? Date);
+    DateOnly? Date,
+    IReadOnlyList<int>? BeneficioIds = null);

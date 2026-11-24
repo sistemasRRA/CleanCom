@@ -8,6 +8,7 @@ import { useConfirm, useNotify } from '../../components/Toasts';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
 import { AddressLocation, parsePoint } from '../../components/AddressLocation';
 import { ZonaPicker } from '../../components/ZonaPicker';
+import { beneficiosKey, expiry } from '../../components/Beneficios';
 import { AgendaBoard } from './AgendaBoard';
 
 type Invitado = Schemas['InvitadoDto'];
@@ -637,8 +638,15 @@ function Schedule({
   const [registeredAt, setRegisteredAt] = useState('');
   const [date, setDate] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [beneficioIds, setBeneficioIds] = useState<number[]>([]);
 
   const lineasServicio = useQuery({ queryKey: keys.lineasServicio, queryFn: () => unwrap(api.GET('/lineas-servicio')) });
+  // Sellos and cupones the invitado can still use; the API checks línea, validity and combining.
+  const beneficios = useQuery({
+    queryKey: beneficiosKey(invitado.id),
+    queryFn: () => unwrap(api.GET('/invitados/{id}/beneficios', { params: { path: { id: invitado.id } } })),
+  });
+  const available = (beneficios.data ?? []).filter((b) => b.state === 'Disponible');
   const registered = mexicoCityInstant(registeredAt);
   const availability = useQuery({
     queryKey: ['agenda', direccionId, registered],
@@ -673,11 +681,12 @@ function Schedule({
             lineaServicioIds: lineas,
             registeredAt: registered,
             date: date,
+            beneficioIds,
           },
         }),
       ),
     {
-      refetch: [['agenda'], keys.pedidos],
+      refetch: [['agenda'], keys.pedidos, beneficiosKey(invitado.id)],
       onDone: (r) => {
         // Scheduled: close the modal and confirm with a toast. Not scheduled: keep it open with the engine's reason.
         if (r.scheduled) {
@@ -805,6 +814,21 @@ function Schedule({
             <Field label="Notas para el chofer">
               <input value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
             </Field>
+            {available.length > 0 && (
+              <Field label="Aplicar beneficio" hint="Se aparta para este pedido y queda usado al cerrar la recolección. El descuento se aplica en el POS.">
+                <div className="stack">
+                  {available.map((b) => (
+                    <Checkbox
+                      key={b.id}
+                      checked={beneficioIds.includes(b.id)}
+                      onChange={(on) => setBeneficioIds(on ? [...beneficioIds, b.id] : beneficioIds.filter((x) => x !== b.id))}
+                    >
+                      {b.name} · {b.mechanic} <span className="muted">({expiry(b.expiresOn)})</span>
+                    </Checkbox>
+                  ))}
+                </div>
+              </Field>
+            )}
             <Checkbox checked={priority} onChange={setPriority}>
               Prioridad
             </Checkbox>

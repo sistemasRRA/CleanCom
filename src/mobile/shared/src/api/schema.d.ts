@@ -1309,6 +1309,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invitados/{id}/beneficios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["BeneficioDto"][];
+                        "application/json": components["schemas"]["BeneficioDto"][];
+                        "text/json": components["schemas"]["BeneficioDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["GrantBeneficioRequest"];
+                    "text/json": components["schemas"]["GrantBeneficioRequest"];
+                    "application/*+json": components["schemas"]["GrantBeneficioRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["GrantBeneficioResultDto"];
+                        "application/json": components["schemas"]["GrantBeneficioResultDto"];
+                        "text/json": components["schemas"]["GrantBeneficioResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invitados/buscar": {
         parameters: {
             query?: never;
@@ -1858,6 +1926,43 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/beneficios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["BeneficioDto"][];
+                        "application/json": components["schemas"]["BeneficioDto"][];
+                        "text/json": components["schemas"]["BeneficioDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3636,6 +3741,154 @@ export interface paths {
                         "text/plain": components["schemas"]["PostalCodeImportDto"];
                         "application/json": components["schemas"]["PostalCodeImportDto"];
                         "text/json": components["schemas"]["PostalCodeImportDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/promociones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PromocionesBoardDto"];
+                        "application/json": components["schemas"]["PromocionesBoardDto"];
+                        "text/json": components["schemas"]["PromocionesBoardDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavePromocionRequest"];
+                    "text/json": components["schemas"]["SavePromocionRequest"];
+                    "application/*+json": components["schemas"]["SavePromocionRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PromocionDto"];
+                        "application/json": components["schemas"]["PromocionDto"];
+                        "text/json": components["schemas"]["PromocionDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/promociones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavePromocionRequest"];
+                    "text/json": components["schemas"]["SavePromocionRequest"];
+                    "application/*+json": components["schemas"]["SavePromocionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PromocionDto"];
+                        "application/json": components["schemas"]["PromocionDto"];
+                        "text/json": components["schemas"]["PromocionDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/beneficios/{codigo}/usar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    codigo: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["BeneficioDto"];
+                        "application/json": components["schemas"]["BeneficioDto"];
+                        "text/json": components["schemas"]["BeneficioDto"];
                     };
                 };
             };
@@ -5515,6 +5768,35 @@ export interface components {
             /** Format: date-time */
             registeredAt?: null | string;
         };
+        BeneficioDto: {
+            /** Format: int32 */
+            id: number;
+            code: string;
+            /** Format: int32 */
+            promocionId: number;
+            name: string;
+            programa: components["schemas"]["PromocionPrograma"];
+            mechanic: string;
+            condition: null | string;
+            /** Format: int32 */
+            lineaServicioId: null | number;
+            lineaName: null | string;
+            stackable: boolean;
+            state: components["schemas"]["BeneficioState"];
+            origin: components["schemas"]["BeneficioOrigin"];
+            /** Format: date-time */
+            grantedAt: string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            /** Format: date-time */
+            usedAt: null | string;
+        };
+        /** @enum {unknown} */
+        BeneficioOrigin: "Automatico" | "Oficina";
+        /** @enum {unknown} */
+        BeneficioState: "Disponible" | "Apartado" | "Usado" | "Vencido";
         BoardDayDto: {
             /** Format: date */
             date: string;
@@ -5565,6 +5847,13 @@ export interface components {
             /** Format: date-time */
             effectiveFrom: null | string;
             note: null | string;
+        };
+        ChoferBeneficioDto: {
+            code: string;
+            name: string;
+            mechanic: string;
+            condition: null | string;
+            used: boolean;
         };
         ChoferLocationRequest: {
             /** Format: double */
@@ -5627,6 +5916,7 @@ export interface components {
             photos: number;
             /** @default false */
             signed: boolean;
+            beneficios?: null | components["schemas"]["ChoferBeneficioDto"][];
         };
         ChoferPreviewDto: {
             ruta: components["schemas"]["ChoferRutaDto"];
@@ -5795,6 +6085,8 @@ export interface components {
         };
         /** @enum {unknown} */
         DelayLevel: "None" | "Warning" | "Late";
+        /** @enum {unknown} */
+        DiscountType: "Porcentaje" | "Monto" | "ArticuloGratis" | "PrecioEspecial";
         EntityTagHeaderValue: {
             tag?: components["schemas"]["StringSegment"];
             isWeak?: boolean;
@@ -5922,6 +6214,14 @@ export interface components {
         };
         /** @enum {unknown} */
         GeocodePrecision: "Direccion" | "Calle" | "Colonia" | "CodigoPostal" | null;
+        GrantBeneficioRequest: {
+            /** Format: int32 */
+            promocionId: number;
+        };
+        GrantBeneficioResultDto: {
+            beneficio: components["schemas"]["BeneficioDto"];
+            warning: null | string;
+        };
         /** Format: binary */
         IFormFile: string;
         InvitadoDto: {
@@ -6373,6 +6673,7 @@ export interface components {
             history: components["schemas"]["PedidoEventoDto"][];
             tickets: components["schemas"]["TicketDto"][];
             paradas: components["schemas"]["PedidoParadaDto"][];
+            beneficios: components["schemas"]["BeneficioDto"][];
         };
         PedidoDto: {
             /** Format: int32 */
@@ -6545,6 +6846,62 @@ export interface components {
             /** Format: date-time */
             lastImportAt: null | string;
         };
+        ProgramaIndicatorDto: {
+            programa: components["schemas"]["PromocionPrograma"];
+            /** Format: int32 */
+            granted: number;
+            /** Format: int32 */
+            used: number;
+            /** Format: double */
+            redemptionRate: null | number;
+            /** Format: int32 */
+            goal: number;
+            meetsGoal: boolean;
+        };
+        PromocionDto: {
+            /** Format: int32 */
+            id: number;
+            programa: components["schemas"]["PromocionPrograma"];
+            name: string;
+            /** Format: int32 */
+            lineaServicioId: null | number;
+            lineaName: null | string;
+            discountType: components["schemas"]["DiscountType"];
+            /** Format: double */
+            value: number;
+            /** Format: double */
+            minimumAmount: null | number;
+            paymentMethod: null | components["schemas"]["PaymentMethod"];
+            stackable: boolean;
+            /** Format: int32 */
+            triggerLineaServicioId: null | number;
+            triggerLineaName: null | string;
+            description: null | string;
+            condition: null | string;
+            /** Format: int32 */
+            validityDays: null | number;
+            active: boolean;
+            mechanic: string;
+            /** Format: int32 */
+            granted: number;
+            /** Format: int32 */
+            used: number;
+            /** Format: int32 */
+            reserved: number;
+            /** Format: double */
+            redemptionRate: null | number;
+            /** Format: double */
+            sharePercent: null | number;
+            overCap: boolean;
+        };
+        PromocionesBoardDto: {
+            indicators: components["schemas"]["ProgramaIndicatorDto"][];
+            promociones: components["schemas"]["PromocionDto"][];
+            /** Format: int32 */
+            selloCap: number;
+        };
+        /** @enum {unknown} */
+        PromocionPrograma: "Sellos" | "Cuponera" | "Campana";
         ReasonDto: {
             /** Format: int32 */
             id: number;
@@ -6838,6 +7195,27 @@ export interface components {
             /** @default true */
             active: boolean;
         };
+        SavePromocionRequest: {
+            programa: components["schemas"]["PromocionPrograma"];
+            name: string;
+            /** Format: int32 */
+            lineaServicioId: null | number;
+            discountType: components["schemas"]["DiscountType"];
+            /** Format: double */
+            value: number;
+            /** Format: double */
+            minimumAmount: null | number;
+            paymentMethod: null | components["schemas"]["PaymentMethod"];
+            stackable: boolean;
+            /** Format: int32 */
+            triggerLineaServicioId: null | number;
+            description: null | string;
+            condition: null | string;
+            /** Format: int32 */
+            validityDays: null | number;
+            /** @default true */
+            active: boolean;
+        };
         SaveReasonRequest: {
             type: components["schemas"]["ReasonType"];
             text: string;
@@ -6955,6 +7333,7 @@ export interface components {
             registeredAt: null | string;
             /** Format: date */
             date: null | string;
+            beneficioIds?: null | number[];
         };
         ScheduleResultDto: {
             scheduled: boolean;

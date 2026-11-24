@@ -11,6 +11,7 @@ using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.Routing;
 using CleanCom.Domain.Time;
 using CleanCom.Application.Pedidos;
+using CleanCom.Application.Promociones;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanCom.Application.Chofer;
@@ -26,7 +27,8 @@ public class ChoferVisitService(
     ISettingService settings,
     IFileStore files,
     AgendaService agenda,
-    ChoferService chofer)
+    ChoferService chofer,
+    BeneficioService beneficios)
 {
     public const long MaxPhotoBytes = 8 * 1024 * 1024;
     private const int MaxStrokes = 300;
@@ -115,6 +117,11 @@ public class ChoferVisitService(
             if (PedidoFlow.Advance(pedido, etapa, at, note) is not null)
             {
                 message = $"Pedido {pedido.Id}: {PedidoFlow.Name(etapa)}.";
+                if (etapa == PedidoEtapa.Recolectado
+                    && await beneficios.OnRecolectadoAsync(pedido, at, ct) is { Count: > 0 } granted)
+                {
+                    message += $" Se le dio: {string.Join(", ", granted)}.";
+                }
             }
         }
         await db.SaveChangesAsync(ct);

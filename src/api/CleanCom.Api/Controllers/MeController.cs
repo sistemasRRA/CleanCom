@@ -1,6 +1,7 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Agenda;
 using CleanCom.Application.Invitados;
+using CleanCom.Application.Promociones;
 using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,12 @@ namespace CleanCom.Api.Controllers;
 [Tags("App del invitado")]
 public class MeController(MeService service, InvitadoAgendaService agenda) : ControllerBase
 {
+    /// <summary>My sellos and cupones with their code and expiry (Mis beneficios), newest first.</summary>
+    [HttpGet("beneficios")]
+    [RequireScreen(Screens.AppInvitado, AccessLevel.View)]
+    public async Task<IReadOnlyList<BeneficioDto>> Beneficios(CancellationToken ct) =>
+        await agenda.BeneficiosAsync(ct);
+
     [HttpGet]
     [RequireScreen(Screens.AppInvitado, AccessLevel.View)]
     public Task<MeDto> Get(CancellationToken ct) => service.GetAsync(ct);

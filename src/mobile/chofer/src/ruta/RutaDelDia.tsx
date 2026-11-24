@@ -359,6 +359,20 @@ function ParadaCard({
             </Text>
           )}
           {p.notes && <Text style={{ color: colors.warning, fontSize: 13 }}>Nota: {p.notes}</Text>}
+          {(p.beneficios ?? []).map((b) => (
+            // A sello or cupón the invitado applied: tell planta; the POS applies the discount.
+            <View
+              key={b.code}
+              style={{ flexDirection: 'row', gap: space.xs, alignItems: 'center', backgroundColor: colors.successSoft, borderRadius: radius.sm, paddingHorizontal: space.sm, paddingVertical: 4, marginTop: 2 }}
+            >
+              <Ionicons name="gift" size={15} color={colors.success} />
+              <Text style={{ color: colors.text, fontSize: 13, flex: 1 }}>
+                <Text style={{ fontWeight: '700' }}>{b.name}</Text> · {b.mechanic}
+                {b.condition ? ` · ${b.condition}` : ''} · {b.code}
+                {b.used ? ' · usado' : ''}
+              </Text>
+            </View>
+          ))}
         </View>
       </View>
       {canStart && (

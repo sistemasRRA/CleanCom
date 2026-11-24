@@ -5,6 +5,7 @@ using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Promociones;
 using CleanCom.Domain.Routing;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,8 @@ public interface ICleanComDbContext
     DbSet<UnidadEvent> UnidadEvents { get; }
     DbSet<RecurringPayment> RecurringPayments { get; }
     DbSet<FleetAlertRule> FleetAlertRules { get; }
+    DbSet<Promocion> Promociones { get; }
+    DbSet<Beneficio> Beneficios { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

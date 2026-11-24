@@ -19,7 +19,7 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 - Elegir dirección entre las guardadas del invitado.
 - Aviso automático por push o WhatsApp según el invitado; ya no se abre WhatsApp Web.
 - Línea de servicio en la captura (tintorería, lavandería, planchaduría, sastrería, calzado).
-- Aplicar un beneficio vigente del invitado.
+- Aplicar un beneficio vigente del invitado (hecho): "Aplicar beneficio" lista sus sellos y cupones disponibles; el API revisa línea, vigencia y si se combinan, y los aparta para el pedido.
 
 ## Endpoints
 

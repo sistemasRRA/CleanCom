@@ -48,4 +48,7 @@ public static class SettingKeys
     public const string AccessCodeAttempts = "Acceso.CodigoIntentos";
     public const string AccessCodeResendSeconds = "Acceso.CodigoReenvioSegundos";
     public const string AccessCodesPerHour = "Acceso.CodigosPorHora";
+    public const string PromocionesSellosGoal = "Promociones.MetaCanjeSellos";
+    public const string PromocionesCuponeraGoal = "Promociones.MetaCanjeCuponera";
+    public const string PromocionesSelloCap = "Promociones.TopeSello";
 }

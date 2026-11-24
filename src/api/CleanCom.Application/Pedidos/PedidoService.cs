@@ -93,6 +93,11 @@ public class PedidoService(ICleanComDbContext db, IBusinessClock clock)
         {
             pedido.Active = false;
         }
+        // Beneficios reserved and not used go back to the invitado.
+        foreach (var beneficio in await db.Beneficios.Where(b => b.PedidoId != null && pedidoIds.Contains(b.PedidoId.Value) && b.UsedAt == null).ToListAsync(ct))
+        {
+            beneficio.PedidoId = null;
+        }
     }
 
     private static string Address(string street, string? exterior, string? interior, string? neighborhood)

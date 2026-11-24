@@ -41,6 +41,12 @@ public static class Policies
     public const string UsesAgenda = "UsesAgenda";
     public const string SchedulesAgenda = "SchedulesAgenda";
 
+    /// <summary>An invitado's beneficios (Agendar to apply them, the CRM ficha, Pedidos and Promociones): seeing any of those.</summary>
+    public const string SeesBeneficios = "SeesBeneficios";
+
+    /// <summary>Granting a beneficio by hand or marking one as used by its code: editing Promociones, Clientes (CRM) or Pedidos.</summary>
+    public const string UsesBeneficios = "UsesBeneficios";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -195,7 +201,11 @@ public static class Security
             .AddPolicy(Policies.UsesAgenda, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.AppInvitado], AccessLevel.View)))
             .AddPolicy(Policies.SchedulesAgenda, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.AppInvitado], AccessLevel.Edit)));
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.AppInvitado], AccessLevel.Edit)))
+            .AddPolicy(Policies.SeesBeneficios, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.ClientesCrm, Screens.Pedidos, Screens.Promociones], AccessLevel.View)))
+            .AddPolicy(Policies.UsesBeneficios, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Promociones, Screens.ClientesCrm, Screens.Pedidos], AccessLevel.Edit)));
 
         return services;
     }

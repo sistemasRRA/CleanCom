@@ -5,6 +5,9 @@ namespace CleanCom.Application.Chofer;
 
 public record ChoferRutaInfoDto(int Id, string Code, string Name, string Color);
 
+/// <summary>A beneficio the invitado applied to this service: the chofer tells planta, and the POS applies the discount.</summary>
+public record ChoferBeneficioDto(string Code, string Name, string Mechanic, string? Condition, bool Used);
+
 /// <param name="Order">1, 2, 3… in the order to visit. Provisional (by turno) until the ruta is optimized.</param>
 /// <param name="InvitadoName">The invitado, or the name of the parada fija or lugar.</param>
 /// <param name="Address">Street, number, interior and colonia in one line.</param>
@@ -42,7 +45,8 @@ public record ChoferParadaDto(
     bool ArrivedOutsideRadius,
     DateTimeOffset? ClosedAt = null,
     int Photos = 0,
-    bool Signed = false);
+    bool Signed = false,
+    IReadOnlyList<ChoferBeneficioDto>? Beneficios = null);
 
 /// <summary>
 /// Answer of <c>GET /chofer/ruta</c>: what the signed-in chofer does on a day.

@@ -10,12 +10,14 @@ type Availability = Schemas['AvailabilityDto'];
 /**
  * Pedir servicio (docs/pantallas/apps/invitado.md): address, service, day and turno, confirm. The day comes from the
  * same agenda engine as the office (POST /agenda/disponibilidad and /agenda/agendar), with the Invitado's rules.
- * Benefits arrive in week 6.
+ * Beneficios: the available sellos and cupones of the invitado (GET /yo/beneficios); the API checks línea, validity and
+ * combining when confirming, and reserves them for the pedido.
  */
 export default function Pedir() {
   const { colors } = useTheme();
   const me = useLoad(() => unwrap(api.GET('/yo')), []);
   const lineas = useLoad(() => unwrap(api.GET('/lineas-servicio')), []);
+  const beneficios = useLoad(() => unwrap(api.GET('/yo/beneficios')), []);
   // Back from adding an address: show it.
   useFocusEffect(
     useCallback(() => {
@@ -28,6 +30,7 @@ export default function Pedir() {
   const [garments, setGarments] = useState('');
   const [notes, setNotes] = useState('');
   const [turno, setTurno] = useState<Schemas['Turno']>('CualquierHora');
+  const [beneficioIds, setBeneficioIds] = useState<number[]>([]);
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [loadingDays, setLoadingDays] = useState(false);
@@ -79,6 +82,7 @@ export default function Pedir() {
             lineaServicioIds: selectedLineas,
             registeredAt: null,
             date,
+            beneficioIds,
           },
         }),
       );
@@ -118,6 +122,7 @@ export default function Pedir() {
     );
   }
 
+  const available = (beneficios.data ?? []).filter((b) => b.state === 'Disponible');
   const outOfCoverage = availability?.outOfCoverage ?? false;
   const otherDays = (availability?.days ?? []).filter((d) => d.available).slice(0, 8);
   const canConfirm = addressId != null && !!date && !outOfCoverage && !loadingDays;
@@ -196,7 +201,31 @@ export default function Pedir() {
       </Step>
 
       <Step n={4} title="Beneficios">
-        <Body muted>Tus sellos y cupones se podrán aplicar aquí muy pronto.</Body>
+        {available.length === 0 ? (
+          <Body muted>No tienes sellos ni cupones disponibles por ahora.</Body>
+        ) : (
+          <>
+            <Body muted>Elige los que quieras usar; los aplicamos en tu ticket.</Body>
+            {available.map((b) => {
+              const on = beneficioIds.includes(b.id);
+              // A cupón of a línea not chosen yet adds that línea to the service.
+              const missing = b.lineaServicioId != null && !selectedLineas.includes(b.lineaServicioId);
+              return (
+                <Row
+                  key={b.id}
+                  icon={on ? 'checkbox' : 'square-outline'}
+                  title={b.name}
+                  text={`${b.mechanic} · ${b.expiresOn ? `vence el ${day(b.expiresOn)}` : 'vale hasta la entrega de tu pedido'}${missing && b.lineaName ? ` · se agrega ${b.lineaName}` : ''}`}
+                  onPress={() => {
+                    setBeneficioIds((ids) => (on ? ids.filter((x) => x !== b.id) : [...ids, b.id]));
+                    if (!on && missing) setSelectedLineas((ls) => [...ls, b.lineaServicioId!]);
+                  }}
+                  right={<View />}
+                />
+              );
+            })}
+          </>
+        )}
       </Step>
 
       {error && <Alert>{error}</Alert>}

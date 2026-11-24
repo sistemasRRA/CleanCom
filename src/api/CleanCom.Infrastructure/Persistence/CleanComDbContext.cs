@@ -6,6 +6,7 @@ using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Promociones;
 using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +50,8 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<UnidadEvent> UnidadEvents => Set<UnidadEvent>();
     public DbSet<RecurringPayment> RecurringPayments => Set<RecurringPayment>();
     public DbSet<FleetAlertRule> FleetAlertRules => Set<FleetAlertRule>();
+    public DbSet<Promocion> Promociones => Set<Promocion>();
+    public DbSet<Beneficio> Beneficios => Set<Beneficio>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AccessCode> AccessCodes => Set<AccessCode>();
 
@@ -83,6 +86,9 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<FailureSeverity>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<PaymentFrequency>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<FleetAlertEvent>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<PromocionPrograma>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<DiscountType>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<BeneficioOrigin>().HaveConversion<string>().HaveMaxLength(30);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
