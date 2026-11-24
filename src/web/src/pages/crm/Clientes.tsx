@@ -8,6 +8,7 @@ import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, formatDate
 import { EditDireccionButton, InvitadoForm } from '../agenda/Agendar';
 import { PAGE_SIZE, Pagination } from '../../components/Pagination';
 import { ZonaPicker } from '../../components/ZonaPicker';
+import { BeneficiosInvitado } from '../../components/Beneficios';
 
 type Row = Schemas['CrmRowDto'];
 type Status = Schemas['CrmStatus'];
@@ -400,6 +401,7 @@ function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; on
                     ))}
                   </ul>
                   {f.pedidos.length > 20 && <span className="muted">y {f.pedidos.length - 20} más.</span>}
+                  <BeneficiosInvitado invitadoId={f.invitado.id} />
                 </section>
               </div>
             </>

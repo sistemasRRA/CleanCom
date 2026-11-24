@@ -46,6 +46,9 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Ruta.VelocidadPromedio` | 18 | km/h para estimar traslados mientras no se conecta Google |
 | `Ruta.FactorDistancia` | 1.4 | Distancia en calle respecto a la línea recta, mientras no se conecta Google |
 | `Parada.VentanaHoraEspecifica` | 30 | Minutos antes y después de una hora específica |
+| `Promociones.MetaCanjeSellos` | 40 | Meta de canje de los sellos, en % |
+| `Promociones.MetaCanjeCuponera` | 30 | Meta de canje de la cuponera, en % |
+| `Promociones.TopeSello` | 30 | % máximo de los sellos otorgados que puede tener un solo sello antes de avisar |
 
 Notas de implementación:
 
@@ -209,6 +212,19 @@ Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "C�
 - Campañas: no se envían a quien pidió no ser contactado ni a quien ya tiene el beneficio.
 - Cada beneficio tiene un código único. El chofer y oficina lo marcan como usado; el descuento se aplica en el POS.
 - Cuponera: líneas Tintorería, Lavandería, Planchaduría, Sastrería y Calzado, vigencia de 60 días; un cupón inactivo no se entrega.
+
+Cómo funciona (semana 6):
+
+1. **Promoción con reglas estructuradas:** programa, línea del descuento, tipo (porcentaje, monto o artículo gratis), valor, mínimo del ticket, forma de pago, acumulable, condición en texto y vigencia en días. El descuento lo aplica el POS; el sistema entrega, aparta y marca los beneficios.
+2. **Cuponera al primer servicio:** al cerrarse la recolección del primer servicio de un invitado (el chofer la cierra, o oficina pasa el pedido de Agendado a otra etapa), recibe un cupón de cada promoción de cuponera activa. Cada cupón es de una línea.
+3. **Sellos con condición:** del segundo servicio en adelante, al cerrarse la recolección recibe cada sello activo cuya línea "se da al cerrar un servicio de" esté en el pedido (o sin línea: cualquier servicio). No se repite mientras tenga uno de esa promoción sin usar y vigente. Oficina también puede dar un sello o cupón a mano desde la ficha del invitado.
+4. **Código único** del tipo `CC-7KQ4-M2XP` (sin letras que se confundan); nunca se reutiliza.
+5. **Vigencia:** se puede usar hasta el día de entrega más los días de la promoción. Ejemplo: entregado el 24 nov con 60 días → hasta el 23 ene. Un sello puede valer, en cambio, **hasta la entrega del pedido** que lo dio (los de la demo: "entregar un edredón al recibir este pedido"): vence el día de entrega de ese pedido y se mueve si oficina cambia la entrega; mientras la entrega no esté programada no tiene fecha. Dado a mano, va con el pedido en proceso del invitado (si no tiene uno, no se puede dar).
+6. **Apartar:** al pedir el servicio (app o Agendar) se eligen beneficios disponibles; deben vencer en o después del día de recolección, ser de una línea del pedido y, si son varios, todos acumulables. Quedan apartados para ese pedido.
+7. **Usar:** quedan usados al cerrarse la recolección del pedido. Oficina puede marcar uno como usado con su código; uno usado o vencido no se vuelve a usar.
+8. **Liberar:** si el pedido se cancela o se da de baja, sus beneficios apartados regresan al invitado.
+9. **Tiendas internas** no reciben beneficios.
+10. **Tope de un sello:** si un sello pasa de `Promociones.TopeSello` de los sellos otorgados, Promociones lo marca y al darlo a mano se avisa; se sigue pudiendo dar.
 
 ## Avisos al invitado
 

@@ -1,3 +1,4 @@
+using CleanCom.Application.Promociones;
 using CleanCom.Domain.Pedidos;
 
 namespace CleanCom.Application.Pedidos;
@@ -10,4 +11,5 @@ public record PedidoDetailDto(
     DateTimeOffset RegisteredAt,
     IReadOnlyList<PedidoEventoDto> History,
     IReadOnlyList<TicketDto> Tickets,
-    IReadOnlyList<PedidoParadaDto> Paradas);
+    IReadOnlyList<PedidoParadaDto> Paradas,
+    IReadOnlyList<BeneficioDto> Beneficios);

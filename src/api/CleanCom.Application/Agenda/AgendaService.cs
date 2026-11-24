@@ -2,6 +2,7 @@ using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Pedidos;
+using CleanCom.Application.Promociones;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
@@ -28,7 +29,8 @@ public class AgendaService(
     PedidoService pedidos,
     FijaCalendar fijas,
     IValidator<AvailabilityRequest> availabilityValidator,
-    IValidator<ScheduleRequest> scheduleValidator)
+    IValidator<ScheduleRequest> scheduleValidator,
+    BeneficioService beneficios)
 {
     /// <summary>Safety limit for the search; the answer explains when nothing is found.</summary>
     private const int SearchDays = 90;
@@ -115,6 +117,7 @@ public class AgendaService(
         {
             await EnsureDayCanBeChosenAsync(r.Date.Value, location.Zona!, availability, ct);
         }
+        var applied = await beneficios.CheckReserveAsync(r.InvitadoId, r.BeneficioIds, (r.LineaServicioIds ?? []).Distinct().ToList(), date, ct);
 
         var rutaId = availability.RutaId!.Value;
         var cupo = availability.Cupo!.Value;
@@ -178,12 +181,18 @@ public class AgendaService(
         db.Pedidos.Add(pedido);
         db.Paradas.Add(parada);
         await db.SaveChangesAsync(ct);
+        if (applied.Count > 0)
+        {
+            BeneficioService.Reserve(applied, pedido.Id);
+            await db.SaveChangesAsync(ct);
+        }
         await handle.CommitAsync(ct);
 
         // The "cita agendada" notice (push or WhatsApp) arrives with notifications in week 6.
         var place = occupied + 1;
         return new ScheduleResultDto(true, pedido.Id, parada.Id, date, place,
-            $"Recolección agendada el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.",
+            $"Recolección agendada el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}."
+                + (applied.Count > 0 ? $" Con {string.Join(", ", applied.Select(b => b.Promocion!.Name))}." : ""),
             availability);
     }
 
@@ -389,6 +398,7 @@ public class AgendaService(
         if (entrega)
         {
             pedido.EntregaDate = date;
+            await beneficios.OnEntregaProgramadaAsync(pedido.Id, date, ct);
         }
         else
         {

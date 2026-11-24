@@ -7,6 +7,7 @@ import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDateTime, optional, useSave } from '../../components/Common';
 import { Loader } from '../../components/Loader';
 import { useNotify } from '../../components/Toasts';
+import { BeneficioLine } from '../../components/Beneficios';
 
 type Card = Schemas['PedidoCardDto'];
 type Etapa = Schemas['PedidoEtapa'];
@@ -229,6 +230,16 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
                       {t.state === 'Listo' ? `listo ${formatDateTime(t.readyAt)}` : 'en proceso'}
                       {t.delayText && <span className={`badge ${t.delayLevel === 'Late' ? 'danger' : 'warning'}`}>{t.delayText}</span>}
                     </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {d.beneficios.length > 0 && (
+              <>
+                <h3 className="form-section">Beneficios</h3>
+                <ul className="plain-list">
+                  {d.beneficios.map((b) => (
+                    <BeneficioLine key={b.id} b={b} />
                   ))}
                 </ul>
               </>

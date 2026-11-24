@@ -29,6 +29,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Ficha: mejora
 
 - Pestañas: Resumen, Datos, Direcciones, Pedidos, Contactos, Beneficios y, para empresas, Facturación y Contactos de la empresa.
+- **Beneficios (hecho, semana 6):** sus sellos y cupones con estado, código y vencimiento; "Marcar como usado" y "Dar un sello o cupón" a mano (pide editar Promociones, Clientes o Pedidos; ver las promociones pide ver Promociones).
 - Varias direcciones por invitado, cada una con su zona.
 - Alerta "sin zona" o "sin ubicación en el mapa". En las direcciones de la ficha se elige o cambia la zona a mano, o se regresa a automática, igual que en Agendar, y "Editar" abre la dirección con su mapa para corregir datos o ubicación (pide editar Agendar).
 - Un esquema de guardado por sección con bitácora de quién cambió qué.

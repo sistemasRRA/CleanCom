@@ -1,6 +1,7 @@
 using CleanCom.Application.Access;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Application.Promociones;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Operations;
@@ -22,7 +23,8 @@ public class PedidoBoardService(
     ISettingService settings,
     IUserService users,
     IValidator<MoveEtapaRequest> moveValidator,
-    IValidator<PedidoCommentRequest> commentValidator)
+    IValidator<PedidoCommentRequest> commentValidator,
+    BeneficioService beneficios)
 {
     /// <summary>Entregado shows the last days only.</summary>
     private const int DeliveredDays = 7;
@@ -109,7 +111,8 @@ public class PedidoBoardService(
             paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active,
                 p.ClosedAt, p.GarmentsCollected,
                 string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
-                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence, p.Turno)).ToList());
+                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence, p.Turno)).ToList(),
+            await beneficios.ForPedidoAsync(id, ct));
     }
 
     /// <summary>
@@ -137,7 +140,18 @@ public class PedidoBoardService(
     /// </summary>
     public async Task ApplyMoveAsync(Pedido pedido, PedidoEtapa to, string? reason, CancellationToken ct)
     {
+        var from = pedido.Etapa;
         PedidoFlow.Move(pedido, to, reason, clock.UtcNow);
+        // Beneficios (docs/03-reglas-de-negocio.md, Promociones): a cancelled pedido frees what it reserved; moving it on
+        // from Agendado is its recolección, like the chofer closing it.
+        if (to == PedidoEtapa.Cancelado)
+        {
+            await beneficios.ReleaseAsync(pedido.Id, ct);
+        }
+        else if (from == PedidoEtapa.Agendado)
+        {
+            await beneficios.OnRecolectadoAsync(pedido, clock.UtcNow, ct);
+        }
         if (to is PedidoEtapa.Cancelado or PedidoEtapa.Entregado)
         {
             foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.State == ParadaState.Pendiente

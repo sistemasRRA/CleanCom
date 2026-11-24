@@ -57,6 +57,9 @@ public static class SettingCatalog
         new(AccessCodeAttempts, T.Integer, "5", "Intentos para escribir bien el código de acceso"),
         new(AccessCodeResendSeconds, T.Integer, "60", "Segundos de espera para pedir otro código de acceso"),
         new(AccessCodesPerHour, T.Integer, "5", "Códigos de acceso que se pueden pedir por hora para un mismo celular"),
+        new(PromocionesSellosGoal, T.Integer, "40", "Meta de canje de los sellos, en porcentaje"),
+        new(PromocionesCuponeraGoal, T.Integer, "30", "Meta de canje de la cuponera de bienvenida, en porcentaje"),
+        new(PromocionesSelloCap, T.Integer, "30", "Porcentaje máximo de los sellos otorgados que puede tener un solo sello antes de avisar"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Application.Promociones;
 using CleanCom.Application.Rutas;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
@@ -24,7 +25,8 @@ public class ChoferService(
     IBusinessClock clock,
     ISettingService settings,
     RutaDiaService plans,
-    IOperacionNotifier notifier)
+    IOperacionNotifier notifier,
+    BeneficioService beneficios)
 {
     /// <summary>The chofer's ruta on a day, or why there is none.</summary>
     private sealed record Resolved(Operador? Operador, Ruta? Ruta, RutaDia? RutaDia, bool Assigned, string? Problem);
@@ -113,15 +115,20 @@ public class ChoferService(
             })
             .ToDictionaryAsync(p => p.Id, ct);
 
+        var reserved = await beneficios.ForPedidosAsync(
+            plan.Paradas.Where(p => p.Kind == ParadaKind.Recoleccion && p.PedidoId is not null).Select(p => p.PedidoId!.Value).Distinct().ToList(), ct);
         var paradas = plan.Paradas.Select(p =>
         {
             var d = details[p.Id];
+            var applied = p.Kind == ParadaKind.Recoleccion && p.PedidoId is { } pedidoId
+                ? reserved[pedidoId].Select(b => new ChoferBeneficioDto(b.Code, b.Name, b.Mechanic, b.Condition, b.UsedAt is not null)).ToList()
+                : [];
             var address = p.Address is not null && d.Interior is not null ? InsertInterior(p.Address, d.Interior) : p.Address;
             return new ChoferParadaDto(
                 p.Id, p.Order, p.Kind, p.Category, p.State, p.Turno, p.SpecificTime, p.Before, p.Priority, p.PedidoId,
                 p.Name, d.Phone, address, d.References, p.ZonaCode, p.Lat, p.Lng, p.GarmentsApprox, d.Lineas, p.Notes,
                 p.Activity, p.Viaje, p.Arrival, d.EnCaminoAt, d.ArrivedAt, d.ArrivedDistanceMeters, d.ArrivedOutsideRadius,
-                d.ClosedAt, d.Photos, d.Signed);
+                d.ClosedAt, d.Photos, d.Signed, applied);
         }).ToList();
 
         var next = isToday ? ChoferFlow.Next(Flow(paradas)) : null;

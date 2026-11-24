@@ -20,7 +20,7 @@ export const SCREENS: MenuScreen[] = [
   { key: 'tickets-en-planta', name: 'Tickets en planta', path: '/tickets-en-planta', group: 'Operación diaria' },
   { key: 'vista-del-chofer', name: 'Vista del chofer', path: '/vista-del-chofer', group: 'Operación diaria' },
   { key: 'clientes-crm', name: 'Clientes (CRM)', path: '/clientes', group: 'Clientes' },
-  { key: 'promociones', name: 'Promociones', path: '/promociones', group: 'Clientes', week: 6 },
+  { key: 'promociones', name: 'Promociones', path: '/promociones', group: 'Clientes' },
   { key: 'whatsapp-y-metas', name: 'WhatsApp y metas', path: '/whatsapp-y-metas', group: 'Clientes', week: 6 },
   { key: 'clientes-y-fuentes', name: 'Clientes y fuentes', path: '/clientes-y-fuentes', group: 'Gerencia', week: 7 },
   { key: 'kpis', name: 'KPIs', path: '/kpis', group: 'Gerencia', week: 7 },
