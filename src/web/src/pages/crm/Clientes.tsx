@@ -7,6 +7,7 @@ import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, formatDateTime, optional, useSave } from '../../components/Common';
 import { InvitadoForm } from '../agenda/Agendar';
 import { PAGE_SIZE, Pagination } from '../../components/Pagination';
+import { ZonaPicker } from '../../components/ZonaPicker';
 
 type Row = Schemas['CrmRowDto'];
 type Status = Schemas['CrmStatus'];
@@ -352,7 +353,7 @@ function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; on
                         {dir.street} {dir.exteriorNumber}
                         {dir.neighborhood && `, ${dir.neighborhood}`} · CP {dir.postalCode}
                       </span>
-                      {dir.zonaCode ? <span className="badge brand">Zona {dir.zonaCode}</span> : <span className="badge warning">Sin zona</span>}
+                      <ZonaPicker invitadoId={f.invitado.id} address={dir} />
                     </div>
                   ))}
                   {canEdit && <Seguimiento ficha={f} />}

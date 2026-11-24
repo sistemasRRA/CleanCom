@@ -30,7 +30,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 
 - Pestañas: Resumen, Datos, Direcciones, Pedidos, Contactos, Beneficios y, para empresas, Facturación y Contactos de la empresa.
 - Varias direcciones por invitado, cada una con su zona.
-- Alerta "sin zona" o "sin ubicación en el mapa".
+- Alerta "sin zona" o "sin ubicación en el mapa". En las direcciones de la ficha se elige o cambia la zona a mano, o se regresa a automática, igual que en Agendar (pide editar Agendar).
 - Un esquema de guardado por sección con bitácora de quién cambió qué.
 - Historia legible y filtrable, con montos.
 - Indicadores de valor: gasto total, ticket promedio, último servicio.

@@ -7,6 +7,7 @@ import { useSession } from '../../session/Session';
 import { useConfirm, useNotify } from '../../components/Toasts';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, optional, optionalNumber, useSave } from '../../components/Common';
 import { AddressLocation, parsePoint } from '../../components/AddressLocation';
+import { ZonaPicker } from '../../components/ZonaPicker';
 import { AgendaBoard } from './AgendaBoard';
 
 type Invitado = Schemas['InvitadoDto'];
@@ -266,7 +267,7 @@ function InvitadoCard({
       <div className="card__body stack">
         {invitado.addresses.length === 0 && <div className="alert">No tiene direcciones. Agrega una para agendar.</div>}
         {invitado.addresses.map((d) => (
-          <DireccionOption key={d.id} invitadoId={invitado.id} direccion={d} selected={d.id === direccionId} onSelect={() => onDireccion(d.id)} canEdit={canEdit} />
+          <DireccionOption key={d.id} invitadoId={invitado.id} direccion={d} selected={d.id === direccionId} onSelect={() => onDireccion(d.id)} />
         ))}
         {canEdit && (
           <div>
@@ -287,26 +288,12 @@ function DireccionOption({
   direccion: d,
   selected,
   onSelect,
-  canEdit,
 }: {
   invitadoId: number;
   direccion: Direccion;
   selected: boolean;
   onSelect: () => void;
-  canEdit: boolean;
 }) {
-  const zonas = useQuery({ queryKey: keys.zonas, queryFn: () => unwrap(api.GET('/zonas')), enabled: !d.zonaId && canEdit });
-  const assign = useSave(
-    (zonaId: number) =>
-      unwrap(
-        api.PUT('/invitados/{id}/direcciones/{addressId}', {
-          params: { path: { id: invitadoId, addressId: d.id } },
-          body: { ...d, zonaId },
-        }),
-      ),
-    { refetch: [['invitados'], ['agenda']], message: 'Zona asignada.' },
-  );
-
   return (
     <div className={`address-option${selected ? ' selected' : ''}`}>
       <label>
@@ -316,27 +303,7 @@ function DireccionOption({
           {addressLine(d)}
         </span>
       </label>
-      {d.zonaCode ? (
-        <span className="badge brand">
-          Zona {d.zonaCode}
-          {d.zonaAssignedManually && ' (a mano)'}
-        </span>
-      ) : (
-        <div className="actions tight">
-          <span className="badge warning">Fuera de cobertura</span>
-          {canEdit && (
-            <select value="" onChange={(e) => e.target.value && assign.mutate(Number(e.target.value))} disabled={assign.isPending}>
-              <option value="">Elegir zona…</option>
-              {zonas.data?.map((z) => (
-                <option key={z.id} value={z.id}>
-                  {z.code} ({z.rutaCode})
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      )}
-      {assign.error && <div className="alert error">{assign.error.message}</div>}
+      <ZonaPicker invitadoId={invitadoId} address={d} />
     </div>
   );
 }
