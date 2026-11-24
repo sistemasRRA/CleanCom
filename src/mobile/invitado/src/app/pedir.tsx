@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, Body, Button, Card, Screen, TextField, Title, api, space, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
@@ -41,7 +41,8 @@ export default function Pedir() {
     if (addressId == null && addresses.length > 0) setAddressId(addresses[addresses.length - 1].id);
   }, [addresses, addressId]);
 
-  // Ask the engine for the first day with cupo whenever the address or the turno changes.
+  // Ask the engine for the first day with cupo whenever the address (or its data, after editing it) or the turno changes.
+  const addressKey = JSON.stringify(addresses.find((a) => a.id === addressId) ?? null);
   useEffect(() => {
     if (addressId == null) return;
     let cancelled = false;
@@ -58,7 +59,7 @@ export default function Pedir() {
     return () => {
       cancelled = true;
     };
-  }, [addressId, turno]);
+  }, [addressId, addressKey, turno]);
 
   async function confirm() {
     if (!me.data || addressId == null) return;
@@ -135,7 +136,16 @@ export default function Pedir() {
             title={a.label || addressLine(a)}
             text={a.label ? addressLine(a) : (a.borough ?? undefined)}
             onPress={() => setAddressId(a.id)}
-            right={<View />}
+            right={
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Editar dirección"
+                hitSlop={8}
+                onPress={() => router.push({ pathname: '/direccion', params: { id: String(a.id) } })}
+              >
+                <Ionicons name="create-outline" size={20} color={colors.brand} />
+              </Pressable>
+            }
           />
         ))}
         <Button title={addresses.length ? 'Otra dirección' : 'Agregar mi dirección'} variant="secondary" onPress={() => router.push('/direccion')} />

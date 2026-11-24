@@ -1,6 +1,10 @@
 using CleanCom.Application.Agenda;
 using CleanCom.Application.Common;
+using CleanCom.Application.Operations;
+using CleanCom.Application.Pedidos;
+using CleanCom.Application.Tracking;
 using CleanCom.Domain.Agenda;
+using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.Routing;
 using CleanCom.Domain.Time;
@@ -12,7 +16,14 @@ namespace CleanCom.Application.Invitados;
 /// The invitado app on the single agenda engine (AgendaService, the same endpoints as Agendar) with the Invitado
 /// role's rules (InvitadoScheduling), and the invitado's own pedidos.
 /// </summary>
-public class InvitadoAgendaService(ICleanComDbContext db, IBusinessClock clock, MeService me, AgendaService agenda)
+public class InvitadoAgendaService(
+    ICleanComDbContext db,
+    IBusinessClock clock,
+    MeService me,
+    AgendaService agenda,
+    LocationService locations,
+    ISettingService settings,
+    PedidoBoardService pedidos)
 {
     private static readonly PedidoEtapa[] Path =
     [
@@ -72,9 +83,99 @@ public class InvitadoAgendaService(ICleanComDbContext db, IBusinessClock clock, 
         var today = clock.Today;
         var visit = await db.Paradas.AsNoTracking()
             .Where(p => p.PedidoId == pedidoId && p.Active && p.RutaDia!.Date == today)
-            .OrderByDescending(p => p.Id).Select(p => (ParadaState?)p.State).FirstOrDefaultAsync(ct);
-        return new MySeguimientoDto(ToDto(row), steps, visit);
+            .OrderByDescending(p => p.Id)
+            .Select(p => new
+            {
+                p.State,
+                p.RutaDiaId,
+                p.RutaDia!.RutaId,
+                p.RutaDia.Ruta!.Code,
+                p.RutaDia.Ruta.Color,
+                // The chofer the office assigned that day, or the one whose usual ruta it is.
+                Operador = p.RutaDia.Operador != null ? p.RutaDia.Operador.Name
+                    : db.Operadores.Where(o => o.UsualRutaId == p.RutaDia.RutaId && o.Active).Select(o => o.Name).FirstOrDefault(),
+                Destination = p.Address != null && p.Address.Location != null ? p.Address.Location
+                    : p.Location != null ? p.Location
+                    : p.Lugar != null ? p.Lugar.Location : null,
+            })
+            .FirstOrDefaultAsync(ct);
+        // Change the day and cancel (docs/03-reglas-de-negocio.md, Cambios y cancelaciones desde la app del invitado).
+        var recoleccion = await RecoleccionStateAsync(pedidoId, ct);
+        var changeable = InvitadoScheduling.IsChangeable(row.Etapa, recoleccion);
+        var corteCancelacion = await settings.GetTimeAsync(SettingKeys.AgendaCorteCancellation, ct);
+        var canCancel = InvitadoScheduling.CanCancel(row.Etapa, recoleccion, clock.UtcNow, row.RecoleccionDate, corteCancelacion);
+        var result = new MySeguimientoDto(ToDto(row), steps, visit?.State, null, changeable, canCancel,
+            changeable ? AgendaCutoffs.CancellationDeadline(row.RecoleccionDate, corteCancelacion) : null);
+        if (visit is null || !InvitadoTracking.ShowsChofer(visit.State))
+        {
+            return result;
+        }
+
+        var live = (await locations.LiveAsync(today, ct)).FirstOrDefault(l => l.RutaDiaId == visit.RutaDiaId);
+        var destination = visit.Destination is { } d ? new GeoPoint(d.Y, d.X) : (GeoPoint?)null;
+        DateTimeOffset? arrival = null;
+        if (live is not null && destination is { } home)
+        {
+            arrival = InvitadoTracking.EstimatedArrival(new GeoPoint(live.Lat, live.Lng), live.At, home,
+                (double)await settings.GetDecimalAsync(SettingKeys.RutaAverageSpeed, ct),
+                (double)await settings.GetDecimalAsync(SettingKeys.RutaDistanceFactor, ct));
+        }
+        var chofer = new MyChoferDto(InvitadoTracking.FirstName(visit.Operador), visit.Code, visit.Color,
+            live?.Lat, live?.Lng, live?.At, live?.SignalLostAt, destination?.Lat, destination?.Lng, arrival);
+        return result with { Chofer = chofer };
     }
+
+    /// <summary>
+    /// Days the invitado can move the recolección to: from the next day before Agenda.CorteCambioDia, from two days
+    /// later after it, with the zona's visit days, days off and cupo. The current day is left out.
+    /// </summary>
+    public async Task<AvailabilityDto> DayChangeOptionsAsync(int pedidoId, CancellationToken ct)
+    {
+        var pedido = await OwnPedidoAsync(pedidoId, ct);
+        InvitadoScheduling.EnsureCanChangeDay(pedido.Etapa, await RecoleccionStateAsync(pedidoId, ct));
+        var options = await agenda.RecoleccionOptionsAsync(pedido, await DayChangeMinimumAsync(ct), ct);
+        return options with { Days = options.Days.Where(d => d.Date != pedido.RecoleccionDate).ToList() };
+    }
+
+    /// <summary>Moves the recolección to another day (same rules as <see cref="DayChangeOptionsAsync"/>).</summary>
+    public async Task<EntregaResultDto> ChangeDayAsync(int pedidoId, ChangeDayRequest r, CancellationToken ct)
+    {
+        var pedido = await OwnPedidoAsync(pedidoId, ct);
+        InvitadoScheduling.EnsureCanChangeDay(pedido.Etapa, await RecoleccionStateAsync(pedidoId, ct));
+        return await agenda.RescheduleRecoleccionAsync(pedido, await DayChangeMinimumAsync(ct), r.Date, ct);
+    }
+
+    /// <summary>
+    /// Cancels from the app up to Agenda.CorteCancelacion of the day before the recolección; afterwards only the office.
+    /// Like a cancellation in Pedidos: it stays in the history and its visit leaves the ruta.
+    /// </summary>
+    public async Task<MySeguimientoDto> CancelAsync(int pedidoId, CancelPedidoRequest r, CancellationToken ct)
+    {
+        var pedido = await OwnPedidoAsync(pedidoId, ct);
+        InvitadoScheduling.EnsureCanCancel(pedido.Etapa, await RecoleccionStateAsync(pedidoId, ct), clock.UtcNow, pedido.RecoleccionDate,
+            await settings.GetTimeAsync(SettingKeys.AgendaCorteCancellation, ct));
+        var reason = string.IsNullOrWhiteSpace(r.Note) ? "Cancelado por el invitado desde la app." : $"Cancelado por el invitado desde la app: {r.Note.Trim()}";
+        await pedidos.ApplyMoveAsync(pedido, PedidoEtapa.Cancelado, reason, ct);
+        await db.SaveChangesAsync(ct);
+        return await SeguimientoAsync(pedidoId, ct);
+    }
+
+    /// <summary>The invitado's own pedido, tracked; someone else's answers as if it did not exist.</summary>
+    private async Task<Pedido> OwnPedidoAsync(int pedidoId, CancellationToken ct)
+    {
+        var own = await me.OwnIdAsync(ct);
+        return await db.Pedidos.FirstOrDefaultAsync(p => p.Active && p.Id == pedidoId && p.InvitadoId == own, ct)
+            ?? throw new NotFoundException("El pedido no existe.");
+    }
+
+    /// <summary>State of the pedido's current recolección parada; null when it has none.</summary>
+    private Task<ParadaState?> RecoleccionStateAsync(int pedidoId, CancellationToken ct) =>
+        db.Paradas.AsNoTracking()
+            .Where(p => p.PedidoId == pedidoId && p.Active && p.Kind != ParadaKind.Entrega)
+            .OrderByDescending(p => p.Id).Select(p => (ParadaState?)p.State).FirstOrDefaultAsync(ct);
+
+    private async Task<DateOnly> DayChangeMinimumAsync(CancellationToken ct) =>
+        AgendaCutoffs.MinimumDateForDayChange(clock.UtcNow, await settings.GetTimeAsync(SettingKeys.AgendaCorteDayChange, ct));
 
     private async Task EnsureOwnAddressAsync(int invitadoId, int addressId, CancellationToken ct)
     {

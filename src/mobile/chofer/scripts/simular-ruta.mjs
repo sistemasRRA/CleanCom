@@ -193,10 +193,15 @@ if (reset) {
 }
 
 const ordered = [...ruta.paradas].sort((a, b) => a.order - b.order);
-const stops = ordered.filter((p) => p.lat != null && p.lng != null);
-const missing = ordered.length - stops.length;
-console.log(`${stops.length} paradas con coordenadas` + (missing ? ` (${missing} sin coordenadas, se omiten)` : '') + '.');
-if (stops.length < 2) {
+const located = (p) => p.lat != null && p.lng != null;
+const withCoordinates = ordered.filter(located);
+const missing = ordered.length - withCoordinates.length;
+// With --visitas every parada is visited, because the API asks for the assigned order: one without coordinates (an
+// address captured without a map) is marked where the car is. Without --visitas only the trip is drawn.
+const stops = visits ? ordered : withCoordinates;
+console.log(`${withCoordinates.length} paradas con coordenadas` +
+  (missing ? ` (${missing} sin coordenadas: ${visits ? 'se visitan donde esté el carro' : 'se omiten'})` : '') + '.');
+if (withCoordinates.length < 2) {
   console.error('Se necesitan al menos dos paradas con coordenadas para simular el recorrido.');
   process.exit(1);
 }
@@ -217,10 +222,14 @@ const step = (kmh / 3.6) * every * fast; // Meters per reading.
 console.log(`A ${kmh} km/h, ${fast}× más rápido: una lectura cada ${every} s avanza ${Math.round(step)} m.` +
   `${visits ? ' Marca En camino y Llegué.' : ''} Ctrl+C para detener.\n`);
 
-let here = stops[Math.max(0, start - 1)];
+// Start at the last place with coordinates before the first stop (or the first one of the ruta).
+let here = stops.slice(0, Math.max(1, start)).filter(located).pop() ?? withCoordinates[0];
 await send(here);
 for (let i = start; i < stops.length; i++) {
-  const to = stops[i];
+  const stop = stops[i];
+  // A parada without coordinates is reached where the car is.
+  const to = located(stop) ? stop : { ...stop, lat: here.lat, lng: here.lng };
+  if (!located(stop)) console.log(`  ${label(stop)} no tiene ubicación en el mapa: el carro se queda donde está.`);
   if (visits && to.state === 'Pendiente') {
     await call('POST', `/chofer/paradas/${to.id}/en-camino`, { lat: here.lat, lng: here.lng, localId: randomUUID() });
     console.log(`En camino a ${label(to)}`);

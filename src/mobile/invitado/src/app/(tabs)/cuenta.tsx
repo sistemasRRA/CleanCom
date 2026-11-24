@@ -50,9 +50,19 @@ export default function Cuenta() {
                 text={a.label ? addressLine(a) : (a.borough ?? undefined)}
                 onPress={() => router.push({ pathname: '/direccion', params: { id: String(a.id) } })}
                 right={
-                  <Pressable accessibilityRole="button" accessibilityLabel="Quitar dirección" hitSlop={8} onPress={() => remove(a.id, a.label || addressLine(a))}>
-                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
-                  </Pressable>
+                  <View style={{ flexDirection: 'row', gap: space.lg }}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Editar dirección"
+                      hitSlop={8}
+                      onPress={() => router.push({ pathname: '/direccion', params: { id: String(a.id) } })}
+                    >
+                      <Ionicons name="create-outline" size={20} color={colors.brand} />
+                    </Pressable>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Quitar dirección" hitSlop={8} onPress={() => remove(a.id, a.label || addressLine(a))}>
+                      <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                    </Pressable>
+                  </View>
                 }
               />
             ))}

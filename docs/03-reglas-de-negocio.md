@@ -94,6 +94,8 @@ Ejemplo (sistema actual): zona K3, registro a las 18:51 después del corte de la
 
 La nueva fecha respeta además días de zona, días inhábiles y cupo.
 
+Solo se cambia o cancela desde la app una **recolección que falta por hacer**: el pedido está en Agendado y el chofer no ha salido hacia ella (su parada sigue pendiente). Con el chofer en camino o en sitio, o con las prendas ya recogidas, la app pide comunicarse con oficina. Al cambiar de día, la parada anterior se da de baja y el historial del pedido guarda "Recolección reprogramada … Antes: …"; al cancelar, el pedido pasa a Cancelado con el motivo "Cancelado por el invitado desde la app" (más lo que escriba) y su parada sale de la ruta, igual que cuando cancela oficina.
+
 ## Rutas y optimización
 
 1. Cada ruta sale de la base a `SalidaBase` y regresa a la base; la comida es una parada de `Comida.Minutos`.
@@ -125,7 +127,7 @@ La nueva fecha respeta además días de zona, días inhábiles y cupo.
 | Agendado → Recolectado | El chofer cierra la recolección en la app |
 | Recolectado → EnPlanta | Llega el primer ticket del POS ligado al pedido |
 | EnPlanta → Listo | Todos los tickets del pedido marcados como listos |
-| Listo → EntregaConfirmada | Oficina programa la entrega con el invitado |
+| Listo → EntregaConfirmada | Oficina programa la entrega con el invitado: día con cupo y turno (mañana, tarde o cualquier hora; la entrega no lleva hora específica). Sin elegir turno se conserva el de la última entrega o, si no hay, el de la recolección. El invitado no elige la fecha de entrega: depende de la operación y la demanda |
 | EntregaConfirmada → EnCamino | El chofer marca "en camino" a esa entrega |
 | EnCamino → Entregado | El chofer cierra la entrega con evidencia |
 
@@ -268,6 +270,8 @@ Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se c
 4. **Recorrido (historial reducido):** se guarda la primera lectura del día y después una cada `Gps.HistorialSegundos`, o antes si el chofer se movió `Gps.HistorialMetros` o más. Un reenvío no se guarda dos veces.
 
 Ejemplo: con lecturas cada 30 s sin moverse, se guardan las de 10:02 y 10:04 después de la de 10:00. Si a las 10:01 ya avanzó 150 m, esa también se guarda.
+
+5. **El invitado ve a su chofer** solo mientras su parada está "en camino": antes (aunque el chofer ya esté en ruta) y después de "Llegué" no ve su ubicación. Ve su nombre de pila, la ruta, la última posición (gris pasados `Gps.SinSenalMinutos`) y la hora estimada de llegada: desde la hora de esa posición, la línea recta a su dirección por `Ruta.FactorDistancia` a `Ruta.VelocidadPromedio`, el mismo cálculo del plan de ruta mientras no se conecta Google. Ejemplo: a unos 3 km en línea recta, × 1.4 = 4.2 km a 18 km/h → 14 minutos después de la lectura.
 
 ## Flota
 

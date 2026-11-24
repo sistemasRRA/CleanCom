@@ -26,6 +26,8 @@
 - [ ] Permisos iniciales de Administración (todo menos Roles y permisos), Gerencia (ver todo menos Usuarios y Operación), Logística (rutas, paradas, pedidos, panel y unidades), Telemarketing (agendar, CRM, WhatsApp) y Planta (tickets en planta y ver pedidos). Son una propuesta; se ajustan en Usuarios › Roles y permisos.
 - [ ] Equipo de los choferes: tableta de la empresa, celular (propio o de la empresa) o ambos; Android, iPhone o ambos. La app es responsiva, pero cambia cómo se distribuye.
 - [ ] Distribución de la app del chofer (no se publica en búsquedas de las tiendas). Propuesta: Android con APK interno o prueba interna de Google Play; iOS con Ad Hoc mientras sean menos de 100 equipos y después como app no listada en el App Store. Cambios de JavaScript con EAS Update.
+- [ ] App del invitado, chofer en camino: el botón "llamar o escribir" ¿marca al celular del chofer (`Operador.Phone`, dato personal) o a oficina? Si es oficina, falta su número en Configuración. Pospuesto por CleanCom (24 nov 2026): por ahora el seguimiento no muestra teléfonos ni el botón.
+- [ ] Programar entrega: la demo tiene "La ropa está lista desde" para mover el primer día que se ofrece. Hoy se ofrecen días desde hoy y la entrega se programa cuando el pedido está Listo (o En planta, parcial). Confirmar si hace falta.
 - [ ] Capacidad de prendas por ruta: Operación la pide "por ruta", pero las reglas la marcan como general (`Unidad.CapacidadPrendas`) y la unidad ya tiene la suya. Por ahora no se sobrescribe por ruta.
 
 ## Decisiones de implementación por revisar
@@ -36,6 +38,7 @@
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
 - [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
+- [ ] App del invitado: al cambiar día o cancelar, oficina lo ve en el historial del pedido; el aviso a oficina (push, WhatsApp o campana) llega con las notificaciones (semana 6), como acordó CleanCom.
 - [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
 - [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
 - [ ] Viajes: la regla decía "en orden y seguidos"; con las vueltas reales (Operadora carga en Leones en la mañana y entrega en Cuautitlán en la tarde) quedó "en orden", cada paso con su turno y hora límite. Confirmar.
@@ -50,7 +53,7 @@
 - [ ] Flota: servicio cada 10,000 km o 6 meses (`Unidad.ServicioCadaKm`, `Unidad.ServicioCadaMeses`), aviso de servicio 15 días antes y recordatorio cada 7 días después de la fecha (los lunes si se venció por km). Son valores propuestos: confirmar con Administración.
 - [ ] Flota: los avisos ya se calculan (y cuáles tocan hoy), pero el envío por correo, la campana de la web y el resumen semanal llegan con las notificaciones (semana 6). La falla reportada desde la app y el kilometraje de inicio y fin de turno llegan con la app del chofer (semana 7).
 - [ ] App del invitado: acceso con código de 6 dígitos, 10 minutos, 5 intentos, reenvío al minuto y 5 por hora (`Acceso.*`). Son valores propuestos. El código llega por WhatsApp con las notificaciones (semana 6; plantilla de Meta categoría Autenticación) y SMS de Twilio de respaldo; mientras, solo funciona en desarrollo (código en el log).
-- [ ] App del invitado: sin llaves de Google, la dirección nueva se captura a mano (CP y colonia del catálogo) y puede tomar la ubicación del teléfono; el autocompletado de Google llega con las llaves.
+- [ ] App del invitado: sin llaves de Google, la dirección se captura a mano (CP y colonia del catálogo) y el pin sale de "Buscar mi dirección" (OpenStreetMap por el API, 20 búsquedas por minuto por usuario), de "Usar mi ubicación" o de tocar el mapa; el autocompletado de Google llega con las llaves. En Android, la app instalada (no Expo Go) necesita la llave de Maps SDK for Android para mostrar el mapa, igual que la del chofer.
 - [ ] App del invitado: un invitado que ya estaba en el CRM entra directo a la app; falta el paso de "confirmar sus datos y direcciones" de la primera vez. Confirmar si se quiere.
 - [ ] Panel del día: llegada a tiempo y atraso con ±15 min (`Parada.ToleranciaLlegadaMinutos`) y "sin GPS" a los 10 min (`Gps.SinSenalMinutos`). Son valores propuestos: confirmar con Logística. "3 días o más en planta" usa `Planta.DiasProceso` general, no los días de cada línea de servicio.
 - [ ] App del chofer: la ubicación en segundo plano pide permiso "Siempre". Apple y Google revisan ese permiso al publicar: hay que explicar en la ficha de la tienda que solo se usa durante el turno, y probarlo en las tabletas reales (algunos Android cierran apps en segundo plano para ahorrar batería y hay que excluir CleanCom Chofer de esa optimización).

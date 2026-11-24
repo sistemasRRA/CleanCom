@@ -94,7 +94,7 @@ public class PedidoBoardService(
             .OrderBy(p => p.RutaDia!.Date).ThenBy(p => p.Id)
             .Select(p => new
             {
-                p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes,
+                p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes, p.Turno,
                 Reason = p.NoRealizadaReasonId == null ? null : db.Reasons.Where(x => x.Id == p.NoRealizadaReasonId).Select(x => x.Text).FirstOrDefault(),
                 Cobro = db.ReferencePayments.Where(c => c.ParadaId == p.Id && c.Active).Select(c => new { c.Method, c.Amount }).FirstOrDefault(),
                 Evidence = p.Evidence.Where(e => e.Active).OrderBy(e => e.TakenAt)
@@ -109,7 +109,7 @@ public class PedidoBoardService(
             paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active,
                 p.ClosedAt, p.GarmentsCollected,
                 string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
-                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence)).ToList());
+                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence, p.Turno)).ToList());
     }
 
     /// <summary>
@@ -126,19 +126,26 @@ public class PedidoBoardService(
         {
             throw new DomainException("El pedido está cancelado; agenda uno nuevo.");
         }
-        PedidoFlow.Move(pedido, r.Etapa, r.Reason, clock.UtcNow);
+        await ApplyMoveAsync(pedido, r.Etapa, r.Reason, ct);
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(id, ct);
+    }
 
-        // Cancelled: its pending visits leave the rutas and free their cupo. Delivered by hand: the pending entrega too.
-        if (r.Etapa is PedidoEtapa.Cancelado or PedidoEtapa.Entregado)
+    /// <summary>
+    /// Moves a tracked pedido by hand and, when cancelled, takes its pending visits out of the rutas (they free their
+    /// cupo); delivered by hand, the pending entrega too. Does not save. Also used when the invitado cancels from the app.
+    /// </summary>
+    public async Task ApplyMoveAsync(Pedido pedido, PedidoEtapa to, string? reason, CancellationToken ct)
+    {
+        PedidoFlow.Move(pedido, to, reason, clock.UtcNow);
+        if (to is PedidoEtapa.Cancelado or PedidoEtapa.Entregado)
         {
-            foreach (var parada in await db.Paradas.Where(p => p.PedidoId == id && p.Active && p.State == ParadaState.Pendiente
-                         && (r.Etapa == PedidoEtapa.Cancelado || p.Kind == ParadaKind.Entrega)).ToListAsync(ct))
+            foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.State == ParadaState.Pendiente
+                         && (to == PedidoEtapa.Cancelado || p.Kind == ParadaKind.Entrega)).ToListAsync(ct))
             {
                 parada.Active = false;
             }
         }
-        await db.SaveChangesAsync(ct);
-        return await GetAsync(id, ct);
     }
 
     public async Task<PedidoDetailDto> CommentAsync(int id, PedidoCommentRequest r, CancellationToken ct)

@@ -5,8 +5,9 @@ import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
 import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDate, formatDateTime, optional, useSave } from '../../components/Common';
-import { InvitadoForm } from '../agenda/Agendar';
+import { EditDireccionButton, InvitadoForm } from '../agenda/Agendar';
 import { PAGE_SIZE, Pagination } from '../../components/Pagination';
+import { ZonaPicker } from '../../components/ZonaPicker';
 
 type Row = Schemas['CrmRowDto'];
 type Status = Schemas['CrmStatus'];
@@ -352,7 +353,10 @@ function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; on
                         {dir.street} {dir.exteriorNumber}
                         {dir.neighborhood && `, ${dir.neighborhood}`} · CP {dir.postalCode}
                       </span>
-                      {dir.zonaCode ? <span className="badge brand">Zona {dir.zonaCode}</span> : <span className="badge warning">Sin zona</span>}
+                      <div className="actions tight">
+                        <ZonaPicker invitadoId={f.invitado.id} address={dir} />
+                        <EditDireccionButton invitadoId={f.invitado.id} direccion={dir} />
+                      </div>
                     </div>
                   ))}
                   {canEdit && <Seguimiento ficha={f} />}

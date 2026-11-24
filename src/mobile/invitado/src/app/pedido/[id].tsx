@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, Body, Button, Card, Screen, Title, api, space, unwrap, useTheme, type Schemas } from '@cleancom/mobile-shared';
 import { ETAPA_ICON, TURNOS, day, stamp, useLoad } from '../../ui';
+import { MapaChofer } from '../../MapaChofer';
+import { CambiosPedido } from '../../CambiosPedido';
 
 const VISIT: Partial<Record<Schemas['ParadaState'], string>> = {
   Pendiente: 'Tu visita es hoy.',
@@ -10,9 +13,16 @@ const VISIT: Partial<Record<Schemas['ParadaState'], string>> = {
   EnSitio: 'Tu chofer llegó.',
 };
 
+/** Seconds between reloads: often while the chofer is on the way, less on the day of the visit, never otherwise. */
+const REFRESH: Partial<Record<Schemas['ParadaState'], number>> = { EnCamino: 10, Pendiente: 30, EnSitio: 30 };
+
+/** "11:24 a.m." in Mexico City. */
+const hour = (iso: string) => new Date(iso).toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Mexico_City' });
+
 /**
- * Seguimiento (GET /yo/pedidos/{id}/seguimiento): every etapa with its time and today's visit. The chofer on the
- * map, changing the day and cancelling arrive in week 6.
+ * Seguimiento (GET /yo/pedidos/{id}/seguimiento): every etapa with its time, today's visit and, while the chofer is
+ * on the way, the chofer on the map with the estimated arrival; "Cambiar día" and "Cancelar" while the recolección is
+ * still to be done.
  */
 export default function Pedido() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,6 +30,23 @@ export default function Pedido() {
   const s = useLoad(() => unwrap(api.GET('/yo/pedidos/{id}/seguimiento', { params: { path: { id: Number(id) } } })), [id]);
   const p = s.data?.pedido;
   const cancelled = p?.etapa === 'Cancelado';
+  const visit = s.data?.visitState ?? null;
+  const chofer = s.data?.chofer ?? null;
+
+  // Reload by itself on the day of the visit, so "en camino" and the chofer's position show up without touching anything.
+  const [now, setNow] = useState(() => Date.now());
+  const every = visit ? REFRESH[visit] : undefined;
+  const { reload } = s;
+  useEffect(() => {
+    if (!every) return;
+    const timer = setInterval(() => {
+      setNow(Date.now());
+      void reload();
+    }, every * 1000);
+    return () => clearInterval(timer);
+  }, [every, reload]);
+  const old = chofer?.signalLostAt != null && now >= Date.parse(chofer.signalLostAt);
+  const [notice, setNotice] = useState<string | null>(null);
 
   return (
     <Screen maxWidth={560}>
@@ -31,8 +58,20 @@ export default function Pedido() {
             <Title size="xxl">Pedido {p.id}</Title>
             <Body muted>{p.address}</Body>
           </View>
-          {s.data?.visitState && VISIT[s.data.visitState] && <Alert tone="info">{VISIT[s.data.visitState]}</Alert>}
-          {cancelled && <Alert tone="warning">Este pedido se canceló.</Alert>}
+          {visit && VISIT[visit] && !chofer && <Alert tone="info">{VISIT[visit]}</Alert>}
+          {chofer && (
+            <Card>
+              <View style={{ gap: space.xs }}>
+                <Title size="lg">{chofer.name ? `${chofer.name} va en camino` : 'Tu chofer va en camino'}</Title>
+                {chofer.estimatedArrival && !old && <Body>Llega aproximadamente a las {hour(chofer.estimatedArrival)}</Body>}
+                {chofer.at == null && <Body muted>En cuanto su teléfono mande su ubicación, la verás aquí.</Body>}
+                {old && chofer.at && <Body muted>Sin señal de su ubicación desde las {hour(chofer.at)}; aparece donde se vio por última vez.</Body>}
+              </View>
+              {(chofer.at != null || chofer.destinationLat != null) && <MapaChofer chofer={chofer} old={old} />}
+            </Card>
+          )}
+          {notice && <Alert tone="success">{notice}</Alert>}
+          {cancelled && !notice && <Alert tone="warning">Este pedido se canceló.</Alert>}
           <Card>
             <Body>
               Recolección: {day(p.recoleccionDate, true)} · {TURNOS.find((t) => t.key === p.turno)?.label ?? 'Cualquier hora'}
@@ -41,6 +80,13 @@ export default function Pedido() {
             {p.lineasServicio.length > 0 && <Body muted>{p.lineasServicio.join(', ')}</Body>}
             {p.garmentsApprox != null && <Body muted>{p.garmentsApprox} prendas aproximadas</Body>}
           </Card>
+          <CambiosPedido
+            s={s.data!}
+            onDone={(message) => {
+              setNotice(message);
+              void reload();
+            }}
+          />
           {!cancelled && (
             <Card>
               {s.data!.steps.map((step, i, all) => (

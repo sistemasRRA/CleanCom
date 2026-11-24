@@ -27,6 +27,12 @@
       "expo-router",
       "expo-secure-store",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CleanCom usa tu ubicación solo cuando tocas \"Usar mi ubicación\", para marcar tu casa en el mapa."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",

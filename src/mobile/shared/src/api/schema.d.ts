@@ -2135,6 +2135,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/yo/pedidos/{id}/cambiar-dia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvailabilityDto"];
+                        "application/json": components["schemas"]["AvailabilityDto"];
+                        "text/json": components["schemas"]["AvailabilityDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeDayRequest"];
+                    "text/json": components["schemas"]["ChangeDayRequest"];
+                    "application/*+json": components["schemas"]["ChangeDayRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["EntregaResultDto"];
+                        "application/json": components["schemas"]["EntregaResultDto"];
+                        "text/json": components["schemas"]["EntregaResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/pedidos/{id}/cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CancelPedidoRequest"];
+                    "text/json": components["schemas"]["CancelPedidoRequest"];
+                    "application/*+json": components["schemas"]["CancelPedidoRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MySeguimientoDto"];
+                        "application/json": components["schemas"]["MySeguimientoDto"];
+                        "text/json": components["schemas"]["MySeguimientoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dias-inhabiles": {
         parameters: {
             query?: never;
@@ -5424,6 +5537,9 @@ export interface components {
             name: string;
             color: string;
         };
+        CancelPedidoRequest: {
+            note: null | string;
+        };
         CaptureTicketRequest: {
             folio: string;
             /** Format: int32 */
@@ -5434,6 +5550,10 @@ export interface components {
             garments: number;
             /** Format: double */
             amount: null | number;
+        };
+        ChangeDayRequest: {
+            /** Format: date */
+            date: string;
         };
         ChangePasswordRequest: {
             currentPassword: string;
@@ -5905,6 +6025,25 @@ export interface components {
             etapa: components["schemas"]["PedidoEtapa"];
             reason: null | string;
         };
+        MyChoferDto: {
+            name: null | string;
+            rutaCode: string;
+            rutaColor: null | string;
+            /** Format: double */
+            lat: null | number;
+            /** Format: double */
+            lng: null | number;
+            /** Format: date-time */
+            at: null | string;
+            /** Format: date-time */
+            signalLostAt: null | string;
+            /** Format: double */
+            destinationLat: null | number;
+            /** Format: double */
+            destinationLng: null | number;
+            /** Format: date-time */
+            estimatedArrival: null | string;
+        };
         MyPedidoDto: {
             /** Format: int32 */
             id: number;
@@ -5935,6 +6074,13 @@ export interface components {
             pedido: components["schemas"]["MyPedidoDto"];
             steps: components["schemas"]["MyPedidoStepDto"][];
             visitState: null | components["schemas"]["ParadaState"];
+            chofer?: null | components["schemas"]["MyChoferDto"];
+            /** @default false */
+            canChangeDay: boolean;
+            /** @default false */
+            canCancel: boolean;
+            /** Format: date-time */
+            cancelUntil?: null | string;
         };
         NoEntregadoRequest: {
             /** Format: int32 */
@@ -6298,6 +6444,7 @@ export interface components {
             /** Format: double */
             paymentAmount?: null | number;
             evidence?: null | components["schemas"]["EvidenceRefDto"][];
+            turno?: null | components["schemas"]["Turno"];
         };
         PendingParadaDto: {
             /** Format: int32 */
@@ -6789,6 +6936,7 @@ export interface components {
         ScheduleEntregaRequest: {
             /** Format: date */
             date: null | string;
+            turno?: null | components["schemas"]["Turno"];
         };
         ScheduleRequest: {
             /** Format: int32 */

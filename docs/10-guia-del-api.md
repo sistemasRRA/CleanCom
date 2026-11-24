@@ -250,7 +250,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Agenda | `GET /agenda/tablero` (`?from=&days=`) | Agendar: View |
 | Agenda | `POST /agenda/disponibilidad`, `POST /agenda/agendar` | Agendar o App del invitado: View para consultar, Edit para agendar (políticas `UsesAgenda`, `SchedulesAgenda`). Con rol Invitado aplican sus reglas |
 | App del invitado | `POST /auth/codigo`, `POST /auth/verificar` (límite por IP) | Ninguno |
-| App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` | App del invitado: View para leer, Edit para cambiar |
+| App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento`, `GET|POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar` | App del invitado: View para leer, Edit para cambiar |
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{addressId}` | Agendar: View para leer, Edit para cambiar |
 | Invitados y pedidos | `DELETE /invitados/{id}` (con sus direcciones y pedidos), `DELETE /pedidos/{id}` | Solo SuperUser y Administración (política `Administrators`, fija en código). Son baja lógica; liberan el cupo |
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
@@ -259,6 +259,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Planta | `GET /planta/tickets?vista=` (`EnProceso` o `Listos`) | Tickets en planta: View |
 | Planta | `POST /planta/tickets` (captura manual mientras no está el POS), `POST /planta/tickets/{folio}/listo`, `POST /planta/tickets/{id}/baja`, `POST /planta/comentarios` | Tickets en planta: Edit |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
+| Direcciones | `GET /direcciones/ubicar?street=&exteriorNumber=&neighborhood=&borough=&postalCode=` (pin en el mapa con OpenStreetMap) | Editar Agendar, Paradas fijas, Rutas, Operación o App del invitado (política `CapturesAddresses`); 20 por minuto por usuario |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |
