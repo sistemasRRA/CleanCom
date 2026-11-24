@@ -303,7 +303,10 @@ function DireccionOption({
           {addressLine(d)}
         </span>
       </label>
-      <ZonaPicker invitadoId={invitadoId} address={d} />
+      <div className="actions tight">
+        <ZonaPicker invitadoId={invitadoId} address={d} />
+        <EditDireccionButton invitadoId={invitadoId} direccion={d} />
+      </div>
     </div>
   );
 }
@@ -443,16 +446,68 @@ function DireccionFieldsForm({ value, onChange }: { value: DireccionFields; onCh
   );
 }
 
-function DireccionForm({ invitadoId, onClose }: { invitadoId: number; onClose: () => void }) {
-  const [fields, setFields] = useState(emptyDireccion);
+/** The saved address in the form's fields; the point goes as "lat, lng" for the map. */
+function toDireccionFields(d: Direccion): DireccionFields {
+  return {
+    label: d.label ?? '',
+    street: d.street,
+    exteriorNumber: d.exteriorNumber ?? '',
+    interiorNumber: d.interiorNumber ?? '',
+    postalCode: d.postalCode,
+    neighborhood: d.neighborhood ?? '',
+    borough: d.borough ?? '',
+    references: d.references ?? '',
+    coordinates: d.lat != null && d.lng != null ? `${d.lat}, ${d.lng}` : '',
+  };
+}
+
+/**
+ * Add an address, or edit a saved one (`direccion`): data and point on the map. The API locates the zona again;
+ * a zona chosen by hand is kept (it is changed with "Cambiar").
+ */
+function DireccionForm({ invitadoId, direccion, onClose }: { invitadoId: number; direccion?: Direccion; onClose: () => void }) {
+  const [fields, setFields] = useState(() => (direccion ? toDireccionFields(direccion) : emptyDireccion));
   const save = useSave(
-    () => unwrap(api.POST('/invitados/{id}/direcciones', { params: { path: { id: invitadoId } }, body: toDireccionRequest(fields) })),
-    { refetch: [['invitados']], message: 'Dirección agregada.', onDone: onClose },
+    () =>
+      direccion
+        ? unwrap(
+            api.PUT('/invitados/{id}/direcciones/{addressId}', {
+              params: { path: { id: invitadoId, addressId: direccion.id } },
+              body: { ...toDireccionRequest(fields), zonaId: direccion.zonaAssignedManually ? direccion.zonaId : null },
+            }),
+          )
+        : unwrap(api.POST('/invitados/{id}/direcciones', { params: { path: { id: invitadoId } }, body: toDireccionRequest(fields) })),
+    {
+      refetch: [['invitados'], ['agenda'], keys.crm],
+      message: direccion ? 'Dirección actualizada.' : 'Dirección agregada.',
+      onDone: onClose,
+    },
   );
   return (
-    <Dialog title="Agregar dirección" onClose={onClose} onSubmit={() => save.mutate(undefined)} busy={save.isPending} error={save.error}>
+    <Dialog
+      title={direccion ? 'Editar dirección' : 'Agregar dirección'}
+      onClose={onClose}
+      onSubmit={() => save.mutate(undefined)}
+      busy={save.isPending}
+      error={save.error}
+    >
       <DireccionFieldsForm value={fields} onChange={setFields} />
     </Dialog>
+  );
+}
+
+/** "Editar" of a saved address, for whoever edits Agendar (also in the CRM ficha). */
+export function EditDireccionButton({ invitadoId, direccion }: { invitadoId: number; direccion: Direccion }) {
+  const canEdit = useSession().can('agendar', 'edit');
+  const [open, setOpen] = useState(false);
+  if (!canEdit) return null;
+  return (
+    <>
+      <button type="button" className="small" onClick={() => setOpen(true)}>
+        Editar
+      </button>
+      {open && <DireccionForm invitadoId={invitadoId} direccion={direccion} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 

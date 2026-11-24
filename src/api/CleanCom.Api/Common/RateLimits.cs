@@ -9,12 +9,21 @@ public static class RateLimits
     /// <summary>Sign-in codes of the invitado app: asking and checking, 10 a minute per IP.</summary>
     public const string AccessCodes = "AccessCodes";
 
+    /// <summary>
+    /// Locating a typed address on the map (OpenStreetMap's public service, meant for low volume): 20 a minute per
+    /// user, or per IP without a session. The invitado app uses it too.
+    /// </summary>
+    public const string Geocoding = "Geocoding";
+
     public static IServiceCollection AddRateLimits(this IServiceCollection services) =>
         services.AddRateLimiter(o =>
         {
             o.AddPolicy(AccessCodes, context => RateLimitPartition.GetFixedWindowLimiter(
                 context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+            o.AddPolicy(Geocoding, context => RateLimitPartition.GetFixedWindowLimiter(
+                context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 20, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
             o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             o.OnRejected = async (context, ct) => await context.HttpContext.Response.WriteAsJsonAsync(new ProblemDetails
             {

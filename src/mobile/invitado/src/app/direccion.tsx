@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, Body, Button, Card, Screen, TextField, Title, api, space, unwrap } from '@cleancom/mobile-shared';
+import * as Location from 'expo-location';
+import { Alert, Body, Button, Card, Screen, TextField, Title, api, space, unwrap, type Schemas } from '@cleancom/mobile-shared';
 import { Chip, useLoad } from '../ui';
+import { UbicacionMapa, type Punto } from '../UbicacionMapa';
+
+const PRECISION: Record<NonNullable<Schemas['GeocodePrecision']>, string> = {
+  Direccion: 'Encontramos tu dirección. Revisa que el pin esté en tu casa.',
+  Calle: 'Encontramos la calle, pero no el número. Mueve el pin a tu casa.',
+  Colonia: 'Solo encontramos la colonia. Mueve el pin a tu casa.',
+  CodigoPostal: 'Solo encontramos el código postal. Mueve el pin a tu casa.',
+};
 
 /**
  * Add or edit an address (POST|PUT /yo/direcciones). The postal code brings its colonias and alcaldía from the
- * official catalog; the API locates the zona when it is saved. Google autocomplete arrives with the keys.
+ * official catalog. The pin on the map comes from the typed address (GET /direcciones/ubicar, OpenStreetMap), from the
+ * phone's location or from a tap on the map; with it the API locates the zona and the chofer has where to go.
+ * Google autocomplete arrives with the keys.
  * `?id=` edits that address; `?volver=pedir` goes back to asking for a service.
  */
 export default function Direccion() {
@@ -21,6 +32,9 @@ export default function Direccion() {
   const [number, setNumber] = useState('');
   const [interior, setInterior] = useState('');
   const [references, setReferences] = useState('');
+  const [punto, setPunto] = useState<Punto | null>(null);
+  const [mapNote, setMapNote] = useState<string | null>(null);
+  const [locating, setLocating] = useState<'buscar' | 'gps' | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +49,7 @@ export default function Direccion() {
     setNumber(a.exteriorNumber ?? '');
     setInterior(a.interiorNumber ?? '');
     setReferences(a.references ?? '');
+    setPunto(a.lat != null && a.lng != null ? { lat: a.lat, lng: a.lng } : null);
   }, [me.data, editing]);
 
   const cp = postalCode.replace(/\D/g, '');
@@ -44,6 +59,49 @@ export default function Direccion() {
     if (options.length > 0 && !borough) setBorough(options[0].borough);
     if (options.length === 1 && !neighborhood) setNeighborhood(options[0].settlement);
   }, [options, borough, neighborhood]);
+
+  /** The typed address on the map (OpenStreetMap, through the API). */
+  async function search() {
+    setLocating('buscar');
+    setMapNote(null);
+    try {
+      const r = await unwrap(
+        api.GET('/direcciones/ubicar', {
+          params: { query: { street: street.trim(), exteriorNumber: number.trim() || undefined, neighborhood: neighborhood ?? undefined, borough: borough ?? undefined, postalCode: cp } },
+        }),
+      );
+      if (r.found && r.lat != null && r.lng != null) {
+        setPunto({ lat: r.lat, lng: r.lng });
+        setMapNote(r.precision ? PRECISION[r.precision] : PRECISION.Direccion);
+      } else {
+        setMapNote('No encontramos tu dirección en el mapa. Usa tu ubicación o toca el mapa donde está tu casa.');
+      }
+    } catch (e) {
+      setMapNote((e as Error).message);
+    } finally {
+      setLocating(null);
+    }
+  }
+
+  /** The phone's location, asking for permission only when the invitado taps the button. */
+  async function locateMe() {
+    setLocating('gps');
+    setMapNote(null);
+    try {
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) {
+        setMapNote('Sin permiso de ubicación. Puedes buscar tu dirección o tocar el mapa donde está tu casa.');
+        return;
+      }
+      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      setPunto({ lat: position.coords.latitude, lng: position.coords.longitude });
+      setMapNote('Usamos la ubicación de tu teléfono. Si no estás en esa dirección, mueve el pin a tu casa.');
+    } catch {
+      setMapNote('No pudimos obtener tu ubicación. Busca tu dirección o toca el mapa donde está tu casa.');
+    } finally {
+      setLocating(null);
+    }
+  }
 
   async function save() {
     setBusy(true);
@@ -57,8 +115,8 @@ export default function Direccion() {
       neighborhood,
       borough,
       references: references.trim() || null,
-      lat: null,
-      lng: null,
+      lat: punto?.lat ?? null,
+      lng: punto?.lng ?? null,
       zonaId: null,
     };
     try {
@@ -113,6 +171,32 @@ export default function Direccion() {
           </View>
         </View>
         <TextField label="Referencias (opcional)" placeholder="Portón negro, entre…" value={references} onChangeText={setReferences} maxLength={500} multiline />
+      </Card>
+      <Card>
+        <Title size="lg">¿Dónde está en el mapa?</Title>
+        <Body muted>Así el chofer llega directo y puedes ver cuánto le falta. Toca el mapa o arrastra el pin para ajustarlo.</Body>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+          <View style={{ flexGrow: 1, flexBasis: 160 }}>
+            <Button
+              title="Buscar mi dirección"
+              variant="secondary"
+              busy={locating === 'buscar'}
+              disabled={locating != null || cp.length !== 5 || street.trim().length < 2}
+              onPress={() => void search()}
+            />
+          </View>
+          <View style={{ flexGrow: 1, flexBasis: 160 }}>
+            <Button title="Usar mi ubicación" variant="secondary" busy={locating === 'gps'} disabled={locating != null} onPress={() => void locateMe()} />
+          </View>
+        </View>
+        {mapNote && <Body muted>{mapNote}</Body>}
+        <UbicacionMapa
+          punto={punto}
+          onChange={(p) => {
+            setPunto(p);
+            setMapNote('Listo: guardaremos tu casa donde dejaste el pin.');
+          }}
+        />
       </Card>
       {error && <Alert>{error}</Alert>}
       <Button title="Guardar dirección" busy={busy} disabled={cp.length !== 5 || !neighborhood || street.trim().length < 2} onPress={() => void save()} />

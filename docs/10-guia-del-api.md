@@ -259,6 +259,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Planta | `GET /planta/tickets?vista=` (`EnProceso` o `Listos`) | Tickets en planta: View |
 | Planta | `POST /planta/tickets` (captura manual mientras no está el POS), `POST /planta/tickets/{folio}/listo`, `POST /planta/tickets/{id}/baja`, `POST /planta/comentarios` | Tickets en planta: Edit |
 | Códigos postales | `GET /codigos-postales/{cp}`, `GET /codigos-postales?search=`, `GET /codigos-postales/resumen` | Sesión |
+| Direcciones | `GET /direcciones/ubicar?street=&exteriorNumber=&neighborhood=&borough=&postalCode=` (pin en el mapa con OpenStreetMap) | Editar Agendar, Paradas fijas, Rutas, Operación o App del invitado (política `CapturesAddresses`); 20 por minuto por usuario |
 | Códigos postales | `POST /codigos-postales/importar` (TXT oficial de Correos de México) | Solo SuperUser y Administración |
 | Clientes (CRM) | `GET /invitados` (`?estatus=&ruta=&q=`), `GET /invitados/llamar-hoy`, `GET /invitados/{id}/ficha` | Clientes (CRM): View |
 | Clientes (CRM) | `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` | Clientes (CRM): Edit |

@@ -2,6 +2,7 @@ using CleanCom.Api.Common;
 using CleanCom.Application.Geography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CleanCom.Api.Controllers;
 
@@ -15,10 +16,12 @@ public class AddressesController(IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
     /// Coordinates of a typed address, to place the pin on the map of the address form. The office moves the pin
-    /// to the house; the coordinates that decide the zona are the ones saved with the address.
+    /// to the house; the coordinates that decide the zona are the ones saved with the address. The invitado app uses it
+    /// for its own addresses.
     /// </summary>
     [HttpGet("ubicar")]
     [Authorize(Policies.CapturesAddresses)]
+    [EnableRateLimiting(RateLimits.Geocoding)]
     public async Task<UbicacionDto> Locate(
         [FromQuery] string? street,
         [FromQuery] string? exteriorNumber,

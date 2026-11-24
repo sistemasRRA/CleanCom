@@ -31,7 +31,7 @@ public static class Policies
     /// </summary>
     public const string SeesOperacion = "SeesOperacion";
 
-    /// <summary>Choosing the chofer and unidad of a ruta del día: editing Panel del día or Rutas.</summary>
+    /// <summary>Choosing the chofer and unidad of a ruta del dï¿½a: editing Panel del dï¿½a or Rutas.</summary>
     public const string AssignsRutaDia = "AssignsRutaDia";
 
     /// <summary>
@@ -187,7 +187,7 @@ public static class Security
                 .RequireRole(Roles.SuperUser, Roles.Administracion))
             .AddPolicy(Policies.CapturesAddresses, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement(
-                    [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion], AccessLevel.Edit)))
+                    [Screens.Agendar, Screens.ParadasFijas, Screens.Rutas, Screens.Operacion, Screens.AppInvitado], AccessLevel.Edit)))
             .AddPolicy(Policies.SeesOperacion, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.PanelDelDia, Screens.Rutas, Screens.VistaDelChofer], AccessLevel.View)))
             .AddPolicy(Policies.AssignsRutaDia, p => WithActiveSession(p)
