@@ -94,7 +94,7 @@ public class PedidoBoardService(
             .OrderBy(p => p.RutaDia!.Date).ThenBy(p => p.Id)
             .Select(p => new
             {
-                p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes,
+                p.Id, p.Kind, p.RutaDia!.Date, p.RutaDia.Ruta!.Code, p.State, p.ArrivedAt, p.Active, p.ClosedAt, p.GarmentsCollected, p.CloseNotes, p.Turno,
                 Reason = p.NoRealizadaReasonId == null ? null : db.Reasons.Where(x => x.Id == p.NoRealizadaReasonId).Select(x => x.Text).FirstOrDefault(),
                 Cobro = db.ReferencePayments.Where(c => c.ParadaId == p.Id && c.Active).Select(c => new { c.Method, c.Amount }).FirstOrDefault(),
                 Evidence = p.Evidence.Where(e => e.Active).OrderBy(e => e.TakenAt)
@@ -109,7 +109,7 @@ public class PedidoBoardService(
             paradas.Select(p => new PedidoParadaDto(p.Id, p.Kind, p.Date, AgendaCalculator.Format(p.Date), p.Code, p.State, p.ArrivedAt, p.Active,
                 p.ClosedAt, p.GarmentsCollected,
                 string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
-                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence)).ToList());
+                p.Cobro?.Method, p.Cobro?.Amount, p.Evidence, p.Turno)).ToList());
     }
 
     /// <summary>

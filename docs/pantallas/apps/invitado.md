@@ -30,7 +30,7 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - Cambiar día: antes de las 12:00 → desde el día siguiente; a partir de las 12:00 → desde dos días después.
 - Cancelar: hasta las 13:00 del día anterior a la recolección; después, el botón indica que debe contactar a oficina.
 - Siempre en hora de Ciudad de México, sin importar la zona horaria del teléfono.
-- La fecha de entrega no se modifica desde la app por ahora (decisión de CleanCom, 24 nov 2026); se cambia con oficina.
+- La fecha y el turno de la entrega no se eligen ni se cambian desde la app (decisión de CleanCom, 24 nov 2026): dependen de la operación y la demanda, y los programa oficina con "Programar entrega". El invitado ve la fecha en su seguimiento.
 
 ## Otras secciones
 

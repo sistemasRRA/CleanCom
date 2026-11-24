@@ -213,8 +213,10 @@ public class AgendaService(
         {
             throw new DomainException($"El pedido está en {PedidoFlow.Name(pedido.Etapa)}; la entrega se programa cuando está en planta o listo.");
         }
+        EntregaTurno.EnsureAllowed(r.Turno);
         var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
-        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, clock.UtcNow, r.Date, ct);
+        var turno = r.Turno ?? await EntregaTurnoAsync(pedido, ct);
+        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, clock.UtcNow, r.Date, ct, turno);
         if (result.Scheduled)
         {
             var partial = pedido.Etapa == PedidoEtapa.EnPlanta;
@@ -246,6 +248,7 @@ public class AgendaService(
             throw new DomainException("El motivo no existe o no es de entregas fallidas.");
         }
 
+        var turno = await EntregaTurnoAsync(pedido, ct);
         foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedidoId && p.Active && p.Kind == ParadaKind.Entrega
                      && p.State != ParadaState.Realizada && p.State != ParadaState.NoRealizada).ToListAsync(ct))
         {
@@ -268,7 +271,7 @@ public class AgendaService(
 
         // From tomorrow: registering at the start of tomorrow gives tomorrow as the minimum date.
         var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
-        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct);
+        var result = await PlaceVisitAsync(pedido, ParadaKind.Entrega, location, BusinessTime.ToUtc(clock.Today.AddDays(1), TimeOnly.MinValue), null, ct, turno);
         return result with { Message = $"Intento {pedido.FailedAttempts} sin entregar. {result.Message}" };
     }
 
@@ -331,7 +334,9 @@ public class AgendaService(
     /// Creates the entrega (or rescheduled recolección) parada on the chosen (or first available) day, inside the
     /// agenda lock. It replaces the pending one of the same kind.
     /// </summary>
-    private async Task<EntregaResultDto> PlaceVisitAsync(Pedido pedido, ParadaKind kind, ZonaLocation location, DateTimeOffset from, DateOnly? chosen, CancellationToken ct)
+    /// <param name="turno">Turno of the new visit; empty = the pedido's (the recolección's).</param>
+    private async Task<EntregaResultDto> PlaceVisitAsync(Pedido pedido, ParadaKind kind, ZonaLocation location, DateTimeOffset from, DateOnly? chosen,
+        CancellationToken ct, Turno? turno = null)
     {
         var availability = await CalculateAsync(location, from, ct);
         if (availability.OutOfCoverage)
@@ -376,7 +381,7 @@ public class AgendaService(
             Kind = kind,
             PedidoId = pedido.Id,
             AddressId = pedido.AddressId,
-            Turno = pedido.Turno,
+            Turno = turno ?? pedido.Turno,
             Notes = pedido.DriverNotes,
         });
         var entrega = kind == ParadaKind.Entrega;
@@ -402,6 +407,12 @@ public class AgendaService(
         return new EntregaResultDto(true, date, place,
             $"{(entrega ? "Entrega" : "Recolección")} el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}.", availability);
     }
+
+    /// <summary>Turno of the entrega when none is chosen (EntregaTurno.Default).</summary>
+    private async Task<Turno> EntregaTurnoAsync(Pedido pedido, CancellationToken ct) =>
+        EntregaTurno.Default(await db.Paradas.AsNoTracking()
+            .Where(p => p.PedidoId == pedido.Id && p.Kind == ParadaKind.Entrega)
+            .OrderByDescending(p => p.Id).Select(p => (Turno?)p.Turno).FirstOrDefaultAsync(ct), pedido.Turno);
 
     private async Task<ZonaLocation> LocateAsync(AvailabilityRequest r, CancellationToken ct)
     {

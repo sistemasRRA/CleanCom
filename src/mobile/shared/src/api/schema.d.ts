@@ -6444,6 +6444,7 @@ export interface components {
             /** Format: double */
             paymentAmount?: null | number;
             evidence?: null | components["schemas"]["EvidenceRefDto"][];
+            turno?: null | components["schemas"]["Turno"];
         };
         PendingParadaDto: {
             /** Format: int32 */
@@ -6935,6 +6936,7 @@ export interface components {
         ScheduleEntregaRequest: {
             /** Format: date */
             date: null | string;
+            turno?: null | components["schemas"]["Turno"];
         };
         ScheduleRequest: {
             /** Format: int32 */

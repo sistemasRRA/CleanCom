@@ -127,7 +127,7 @@ Solo se cambia o cancela desde la app una **recolección que falta por hacer**: 
 | Agendado → Recolectado | El chofer cierra la recolección en la app |
 | Recolectado → EnPlanta | Llega el primer ticket del POS ligado al pedido |
 | EnPlanta → Listo | Todos los tickets del pedido marcados como listos |
-| Listo → EntregaConfirmada | Oficina programa la entrega con el invitado |
+| Listo → EntregaConfirmada | Oficina programa la entrega con el invitado: día con cupo y turno (mañana, tarde o cualquier hora; la entrega no lleva hora específica). Sin elegir turno se conserva el de la última entrega o, si no hay, el de la recolección. El invitado no elige la fecha de entrega: depende de la operación y la demanda |
 | EntregaConfirmada → EnCamino | El chofer marca "en camino" a esa entrega |
 | EnCamino → Entregado | El chofer cierra la entrega con evidencia |
 

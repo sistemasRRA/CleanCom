@@ -24,6 +24,14 @@ const ETAPAS: { key: Etapa; name: string }[] = [
 ];
 const etapaName = (e: Etapa) => ETAPAS.find((x) => x.key === e)?.name ?? e;
 const KIND: Record<string, string> = { Recoleccion: 'Recolección', Entrega: 'Entrega' };
+type Turno = Schemas['Turno'];
+/** Turnos of an entrega: it has no specific time (the API rejects it). */
+const ENTREGA_TURNOS: { key: Turno; name: string }[] = [
+  { key: 'Manana', name: 'Mañana' },
+  { key: 'Tarde', name: 'Tarde' },
+  { key: 'CualquierHora', name: 'Cualquier hora' },
+];
+const TURNO_NAME: Record<Turno, string> = { Manana: 'mañana', Tarde: 'tarde', CualquierHora: 'cualquier hora', HoraEspecifica: 'hora específica' };
 const STATE: Record<Schemas['ParadaState'], string> = {
   Pendiente: 'Pendiente',
   EnCamino: 'En camino',
@@ -207,7 +215,7 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
               </div>
             )}
             {action === 'mover' && <MoveForm detail={d} onDone={() => setAction(null)} />}
-            {action === 'entrega' && <EntregaForm id={id} onDone={() => setAction(null)} />}
+            {action === 'entrega' && <EntregaForm id={id} turno={entregaTurno(d.paradas)} onDone={() => setAction(null)} />}
             {action === 'no-entregado' && <NoEntregadoForm id={id} onDone={() => setAction(null)} />}
             {action === 'comentar' && <CommentForm id={id} onDone={() => setAction(null)} />}
 
@@ -229,7 +237,8 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
             <ul className="plain-list">
               {d.paradas.map((p) => (
                 <li key={p.id} className={p.active ? '' : 'muted'}>
-                  <strong>{KIND[p.kind] ?? p.kind}</strong> {p.label} · Ruta {p.rutaCode} · {p.active ? STATE[p.state] : 'quitada'}
+                  <strong>{KIND[p.kind] ?? p.kind}</strong> {p.label}
+                  {p.turno && ` · ${TURNO_NAME[p.turno]}`} · Ruta {p.rutaCode} · {p.active ? STATE[p.state] : 'quitada'}
                   {p.arrivedAt && ` · llegó ${formatDateTime(p.arrivedAt)}`}
                   {p.closedAt && ` · cerró ${formatDateTime(p.closedAt)}`}
                   {p.garmentsCollected != null && ` · ${p.garmentsCollected} prendas`}
@@ -317,12 +326,20 @@ function MoveForm({ detail: d, onDone }: { detail: Detail; onDone: () => void })
   );
 }
 
-function EntregaForm({ id, onDone }: { id: number; onDone: () => void }) {
+/** The turno already agreed for the entrega, otherwise the recolección's (a specific time becomes cualquier hora). */
+function entregaTurno(paradas: Schemas['PedidoParadaDto'][]): Turno {
+  const last = [...paradas].reverse();
+  const turno = last.find((p) => p.kind === 'Entrega')?.turno ?? last.find((p) => p.kind === 'Recoleccion')?.turno;
+  return !turno || turno === 'HoraEspecifica' ? 'CualquierHora' : turno;
+}
+
+function EntregaForm({ id, turno: initialTurno, onDone }: { id: number; turno: Turno; onDone: () => void }) {
   const notify = useNotify();
   const days = useQuery({ queryKey: [...keys.pedidos, 'fechas-entrega', id], queryFn: () => unwrap(api.GET('/pedidos/{id}/fechas-entrega', { params: { path: { id } } })) });
   const [date, setDate] = useState<string | null>(null);
+  const [turno, setTurno] = useState<Turno>(initialTurno);
   const save = useSave(
-    () => unwrap(api.POST('/pedidos/{id}/programar-entrega', { params: { path: { id } }, body: { date } })),
+    () => unwrap(api.POST('/pedidos/{id}/programar-entrega', { params: { path: { id } }, body: { date, turno } })),
     { refetch, onDone: (r) => (r.scheduled ? (notify(r.message ?? 'Entrega programada.'), onDone()) : undefined) },
   );
   return (
@@ -331,8 +348,22 @@ function EntregaForm({ id, onDone }: { id: number; onDone: () => void }) {
         {days.data && (
           <>
             <p className="muted">
-              Zona {days.data.zonaCode} · Ruta {days.data.rutaCode}. Elige el día con cupo; la entrega ocupa un lugar como una recolección.
+              Zona {days.data.zonaCode} · Ruta {days.data.rutaCode}. Elige el turno y el día con cupo; la entrega ocupa un lugar como una recolección.
             </p>
+            <Field label="Turno">
+              <div className="segmented">
+                {ENTREGA_TURNOS.map((t) => (
+                  <button
+                    type="button"
+                    key={t.key}
+                    className={`segmented__option${turno === t.key ? ' selected' : ''}`}
+                    onClick={() => setTurno(t.key)}
+                  >
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </Field>
             <div className="entrega-days">
               {days.data.days.map((d) => (
                 <button

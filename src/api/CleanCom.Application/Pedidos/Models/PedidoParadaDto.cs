@@ -1,3 +1,4 @@
+using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.Routing;
 
 namespace CleanCom.Application.Pedidos;
@@ -6,6 +7,7 @@ namespace CleanCom.Application.Pedidos;
 /// <param name="ClosedAt">When the chofer closed it, done or not.</param>
 /// <param name="CloseNote">Chofer's notes, or the motivo when it was not done.</param>
 /// <param name="Evidence">Photos and signature; the file is at <c>GET /evidencias/{id}/archivo</c>.</param>
+/// <param name="Turno">Mañana, tarde, cualquier hora or hora específica of this visit.</param>
 public record PedidoParadaDto(
     int Id,
     ParadaKind Kind,
@@ -20,6 +22,7 @@ public record PedidoParadaDto(
     string? CloseNote = null,
     PaymentMethod? PaymentMethod = null,
     decimal? PaymentAmount = null,
-    IReadOnlyList<EvidenceRefDto>? Evidence = null);
+    IReadOnlyList<EvidenceRefDto>? Evidence = null,
+    Turno? Turno = null);
 
 public record EvidenceRefDto(int Id, EvidenceKind Kind, DateTimeOffset TakenAt, int? DistanceMeters);
