@@ -26,6 +26,8 @@
 - [ ] Permisos iniciales de Administración (todo menos Roles y permisos), Gerencia (ver todo menos Usuarios y Operación), Logística (rutas, paradas, pedidos, panel y unidades), Telemarketing (agendar, CRM, WhatsApp) y Planta (tickets en planta y ver pedidos). Son una propuesta; se ajustan en Usuarios › Roles y permisos.
 - [ ] Equipo de los choferes: tableta de la empresa, celular (propio o de la empresa) o ambos; Android, iPhone o ambos. La app es responsiva, pero cambia cómo se distribuye.
 - [ ] Distribución de la app del chofer (no se publica en búsquedas de las tiendas). Propuesta: Android con APK interno o prueba interna de Google Play; iOS con Ad Hoc mientras sean menos de 100 equipos y después como app no listada en el App Store. Cambios de JavaScript con EAS Update.
+- [ ] App del invitado, chofer en camino: el botón "llamar o escribir" ¿marca al celular del chofer (`Operador.Phone`, dato personal) o a oficina? Si es oficina, falta su número en Configuración. Pospuesto por CleanCom (24 nov 2026): por ahora el seguimiento no muestra teléfonos ni el botón.
+- [ ] App del invitado: CleanCom decidió (24 nov 2026) que el invitado elige la fecha de entrega al pedir el servicio, pero no la modifica desde la app por ahora. Falta construir esa elección en "Pedir servicio" y definir con qué regla se ofrecen los días de entrega (hoy la fecha la pone oficina con "Programar entrega").
 - [ ] Capacidad de prendas por ruta: Operación la pide "por ruta", pero las reglas la marcan como general (`Unidad.CapacidadPrendas`) y la unidad ya tiene la suya. Por ahora no se sobrescribe por ruta.
 
 ## Decisiones de implementación por revisar
@@ -36,6 +38,7 @@
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
 - [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
+- [ ] App del invitado: al cambiar día o cancelar, oficina lo ve en el historial del pedido; el aviso a oficina (push, WhatsApp o campana) llega con las notificaciones (semana 6), como acordó CleanCom.
 - [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
 - [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
 - [ ] Viajes: la regla decía "en orden y seguidos"; con las vueltas reales (Operadora carga en Leones en la mañana y entrega en Cuautitlán en la tarde) quedó "en orden", cada paso con su turno y hora límite. Confirmar.

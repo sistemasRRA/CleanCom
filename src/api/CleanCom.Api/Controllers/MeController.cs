@@ -1,4 +1,5 @@
 using CleanCom.Api.Common;
+using CleanCom.Application.Agenda;
 using CleanCom.Application.Invitados;
 using CleanCom.Domain.Access;
 using Microsoft.AspNetCore.Mvc;
@@ -51,4 +52,22 @@ public class MeController(MeService service, InvitadoAgendaService agenda) : Con
     [HttpGet("pedidos/{id:int}/seguimiento")]
     [RequireScreen(Screens.AppInvitado, AccessLevel.View)]
     public Task<MySeguimientoDto> Seguimiento(int id, CancellationToken ct) => agenda.SeguimientoAsync(id, ct);
+
+    /// <summary>
+    /// Days the recolección can move to: from tomorrow before Agenda.CorteCambioDia (12:00), from two days later after
+    /// it; visit days of the zona with cupo, without the current one.
+    /// </summary>
+    [HttpGet("pedidos/{id:int}/cambiar-dia")]
+    [RequireScreen(Screens.AppInvitado, AccessLevel.View)]
+    public Task<AvailabilityDto> DayChangeOptions(int id, CancellationToken ct) => agenda.DayChangeOptionsAsync(id, ct);
+
+    /// <summary>Moves the recolección; when the day filled up meanwhile, answers Scheduled false with the next one.</summary>
+    [HttpPost("pedidos/{id:int}/cambiar-dia")]
+    [RequireScreen(Screens.AppInvitado, AccessLevel.Edit)]
+    public Task<EntregaResultDto> ChangeDay(int id, ChangeDayRequest request, CancellationToken ct) => agenda.ChangeDayAsync(id, request, ct);
+
+    /// <summary>Cancels up to Agenda.CorteCancelacion (13:00) of the day before the recolección; afterwards only the office.</summary>
+    [HttpPost("pedidos/{id:int}/cancelar")]
+    [RequireScreen(Screens.AppInvitado, AccessLevel.Edit)]
+    public Task<MySeguimientoDto> Cancel(int id, CancelPedidoRequest request, CancellationToken ct) => agenda.CancelAsync(id, request, ct);
 }

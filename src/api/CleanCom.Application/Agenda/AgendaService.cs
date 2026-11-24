@@ -304,6 +304,30 @@ public class AgendaService(
     }
 
     /// <summary>
+    /// Days a recolección can move to from <paramref name="minimum"/> (the invitado's day change: Agenda.CorteCambioDia),
+    /// with the zona's visit days, days off and cupo of the same engine.
+    /// </summary>
+    public async Task<AvailabilityDto> RecoleccionOptionsAsync(Pedido pedido, DateOnly minimum, CancellationToken ct)
+    {
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
+        return await CalculateAsync(location, BusinessTime.ToUtc(minimum, TimeOnly.MinValue), ct);
+    }
+
+    /// <summary>
+    /// Moves a recolección (tracked <paramref name="pedido"/>) to <paramref name="date"/>, from <paramref name="minimum"/>:
+    /// inside the agenda lock, replacing its pending parada; when the day filled up meanwhile, it answers the next one.
+    /// </summary>
+    public async Task<EntregaResultDto> RescheduleRecoleccionAsync(Pedido pedido, DateOnly minimum, DateOnly date, CancellationToken ct)
+    {
+        if (date == pedido.RecoleccionDate)
+        {
+            throw new DomainException($"Tu recolección ya es el {AgendaCalculator.Format(date)}.");
+        }
+        var location = await LocateAsync(new AvailabilityRequest(pedido.AddressId, null, null, null, null, null), ct);
+        return await PlaceVisitAsync(pedido, ParadaKind.Recoleccion, location, BusinessTime.ToUtc(minimum, TimeOnly.MinValue), date, ct);
+    }
+
+    /// <summary>
     /// Creates the entrega (or rescheduled recolección) parada on the chosen (or first available) day, inside the
     /// agenda lock. It replaces the pending one of the same kind.
     /// </summary>

@@ -126,19 +126,26 @@ public class PedidoBoardService(
         {
             throw new DomainException("El pedido está cancelado; agenda uno nuevo.");
         }
-        PedidoFlow.Move(pedido, r.Etapa, r.Reason, clock.UtcNow);
+        await ApplyMoveAsync(pedido, r.Etapa, r.Reason, ct);
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(id, ct);
+    }
 
-        // Cancelled: its pending visits leave the rutas and free their cupo. Delivered by hand: the pending entrega too.
-        if (r.Etapa is PedidoEtapa.Cancelado or PedidoEtapa.Entregado)
+    /// <summary>
+    /// Moves a tracked pedido by hand and, when cancelled, takes its pending visits out of the rutas (they free their
+    /// cupo); delivered by hand, the pending entrega too. Does not save. Also used when the invitado cancels from the app.
+    /// </summary>
+    public async Task ApplyMoveAsync(Pedido pedido, PedidoEtapa to, string? reason, CancellationToken ct)
+    {
+        PedidoFlow.Move(pedido, to, reason, clock.UtcNow);
+        if (to is PedidoEtapa.Cancelado or PedidoEtapa.Entregado)
         {
-            foreach (var parada in await db.Paradas.Where(p => p.PedidoId == id && p.Active && p.State == ParadaState.Pendiente
-                         && (r.Etapa == PedidoEtapa.Cancelado || p.Kind == ParadaKind.Entrega)).ToListAsync(ct))
+            foreach (var parada in await db.Paradas.Where(p => p.PedidoId == pedido.Id && p.Active && p.State == ParadaState.Pendiente
+                         && (to == PedidoEtapa.Cancelado || p.Kind == ParadaKind.Entrega)).ToListAsync(ct))
             {
                 parada.Active = false;
             }
         }
-        await db.SaveChangesAsync(ct);
-        return await GetAsync(id, ct);
     }
 
     public async Task<PedidoDetailDto> CommentAsync(int id, PedidoCommentRequest r, CancellationToken ct)

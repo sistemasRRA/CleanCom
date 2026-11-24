@@ -30,6 +30,7 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - Cambiar día: antes de las 12:00 → desde el día siguiente; a partir de las 12:00 → desde dos días después.
 - Cancelar: hasta las 13:00 del día anterior a la recolección; después, el botón indica que debe contactar a oficina.
 - Siempre en hora de Ciudad de México, sin importar la zona horaria del teléfono.
+- La fecha de entrega no se modifica desde la app por ahora (decisión de CleanCom, 24 nov 2026); se cambia con oficina.
 
 ## Otras secciones
 
@@ -44,9 +45,10 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - `POST /auth/codigo`, `POST /auth/verificar` (hecho): código de 6 dígitos; solo se guarda su hash. Vale `Acceso.CodigoMinutos` (10), con `Acceso.CodigoIntentos` (5), uno nuevo tras `Acceso.CodigoReenvioSegundos` (60) y hasta `Acceso.CodigosPorHora` (5); además 10 peticiones por minuto por IP. Un celular que ya está en el CRM se liga a ese invitado; si no, se crea con fuente "App" (o la campaña del link) y `newInvitado: true` para pedir nombre y "¿cómo nos conociste?". La primera vez se le crea un usuario con rol Invitado. Mientras no esté WhatsApp (semana 6), en desarrollo el código se escribe en el log del API (`AccessCodes:LogToConsole`); en otro ambiente el API responde que el acceso con celular aún no está disponible.
 - `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones` (hecho): sin notas de oficina; el celular no se cambia; la zona sale de la dirección (una zona puesta a mano por oficina se conserva). `profileComplete` dice si ya dio su nombre y cómo nos conoció.
 - `POST /agenda/disponibilidad`, `POST /agenda/agendar` (hecho; mismos que oficina, con reglas de rol Invitado): solo para sí y sus direcciones; sin hora específica, prioridad, zona a mano ni hora de registro (siempre ahora); el pedido queda con origen App.
-- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` (hecho): etapas con su hora y el estado de la visita de hoy; solo los propios (otro responde 404). `POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar` (semana 6).
+- `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` (hecho): etapas con su hora y el estado de la visita de hoy; solo los propios (otro responde 404). Mientras la visita está en camino trae también `chofer`: nombre de pila, ruta y color, última posición con su hora y `signalLostAt`, la dirección en el mapa y `estimatedArrival` ([reglas · GPS del chofer](../../03-reglas-de-negocio.md#gps-del-chofer)); fuera de "en camino" es `null`. También `canChangeDay`, `canCancel` y `cancelUntil`, que deciden qué botones muestra la app.
+- `GET /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cambiar-dia` `{ date }`, `POST /yo/pedidos/{id}/cancelar` `{ note }` (hecho, semana 6): los días con lugar desde la fecha mínima del cambio (sin el día actual); el cambio usa el mismo motor y candado de la agenda y, si el día se llenó mientras tanto, responde `scheduled: false` con el siguiente; cancelar después del corte responde 400 con "comunícate con oficina". Reglas en [Cambios y cancelaciones](../../03-reglas-de-negocio.md#cambios-y-cancelaciones-desde-la-app-del-invitado).
 - `GET /yo/beneficios`, `POST /yo/encuestas/{id}`.
-- Hub SignalR `seguimiento` (ubicación del chofer de su pedido mientras está en camino).
+- Ubicación del chofer en vivo: la app vuelve a pedir el seguimiento cada 10 s mientras va en camino (y cada 30 s el día de la visita, para enterarse de que salió). No se usa un hub de SignalR: el chofer manda su ubicación cada 30 a 60 s, así que el retraso es el mismo y en el celular una consulta periódica es más robusta que una conexión abierta.
 
 ## Cómo quedó (semana 5)
 
@@ -56,7 +58,9 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - **Pedir servicio:** dirección guardada u "Otra dirección" (código postal → colonias y alcaldía del catálogo oficial; la zona la pone el API), líneas de servicio, prendas aproximadas y notas para el chofer, turno (mañana, tarde o cualquier hora), primer día disponible de su zona u otro con lugar, y Confirmar. Fuera de cobertura lo dice y no deja confirmar. Si el día se llenó mientras tanto, propone el siguiente.
 - **Mis pedidos y seguimiento:** etapas con su hora, "Tu visita es hoy" / "va en camino" / "llegó" el día de la visita.
 - **Mi cuenta:** mis datos, mis direcciones (agregar, editar, quitar), modo oscuro y cerrar sesión.
-- Falta (semana 6): beneficios, cambiar día y cancelar, chofer en el mapa, avisos push y por WhatsApp (el código hoy solo se ve en el log del API en desarrollo). Un invitado que ya estaba en el CRM entra directo sin el paso de "confirmar sus datos y direcciones".
+- **Chofer en el mapa (semana 6):** con la visita en camino, el seguimiento muestra "Luis va en camino", "Llega aproximadamente a las 11:24 a.m." y un mapa con el chofer (en el color de su ruta, gris sin señal) y la casa; se actualiza solo y al marcar Llegué cambia a "Tu chofer llegó". Apple Maps en iPhone y Google Maps en Android (`react-native-maps`); en Expo web, solo para desarrollo, el mapa de OpenStreetMap. Falta el botón para llamar o escribir (ver pendientes).
+- **Cambiar día y cancelar (semana 6):** en el seguimiento de una recolección que falta por hacer, "¿Necesitas cambiar algo?" con "Cambiar día" (los días con lugar desde la fecha mínima, como chips) y "Cancelar pedido" (confirmación en la misma pantalla con "¿Por qué? (opcional)"), y hasta cuándo se puede cancelar. Pasado el corte, en lugar del botón dice que hay que comunicarse con oficina.
+- Falta (semana 6): beneficios, avisos push y por WhatsApp (el código hoy solo se ve en el log del API en desarrollo). Un invitado que ya estaba en el CRM entra directo sin el paso de "confirmar sus datos y direcciones".
 
 ## Criterios de aceptación
 

@@ -250,7 +250,7 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Agenda | `GET /agenda/tablero` (`?from=&days=`) | Agendar: View |
 | Agenda | `POST /agenda/disponibilidad`, `POST /agenda/agendar` | Agendar o App del invitado: View para consultar, Edit para agendar (políticas `UsesAgenda`, `SchedulesAgenda`). Con rol Invitado aplican sus reglas |
 | App del invitado | `POST /auth/codigo`, `POST /auth/verificar` (límite por IP) | Ninguno |
-| App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento` | App del invitado: View para leer, Edit para cambiar |
+| App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento`, `GET|POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar` | App del invitado: View para leer, Edit para cambiar |
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{addressId}` | Agendar: View para leer, Edit para cambiar |
 | Invitados y pedidos | `DELETE /invitados/{id}` (con sus direcciones y pedidos), `DELETE /pedidos/{id}` | Solo SuperUser y Administración (política `Administrators`, fija en código). Son baja lógica; liberan el cupo |
 | Pedidos | `GET /pedidos` (`?from=&to=&invitadoId=`; sin filtros, de hoy en adelante) | Agendar: View |
