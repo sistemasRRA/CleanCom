@@ -28,10 +28,7 @@ export function Screen({ children, maxWidth = 640, center, scroll = true }: Scre
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {scroll ? (
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, justifyContent: center ? 'center' : 'flex-start' }}
-            keyboardShouldPersistTaps="handled"
-          >
+          <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: center ? 'center' : 'flex-start' }} keyboardShouldPersistTaps="handled">
             {body}
           </ScrollView>
         ) : (

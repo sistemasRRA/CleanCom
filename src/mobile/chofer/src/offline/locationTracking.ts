@@ -1,9 +1,10 @@
+import { ApiError, getSession, loadSession, type Schemas } from '@cleancom/mobile-shared';
+import { choferApi } from '../common/api/choferApi';
+import * as SQLite from 'expo-sqlite';
+import * as TaskManager from 'expo-task-manager';
+import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
-import * as Location from 'expo-location';
-import * as TaskManager from 'expo-task-manager';
-import * as SQLite from 'expo-sqlite';
-import { ApiError, api, getSession, loadSession, unwrap, type Schemas } from '@cleancom/mobile-shared';
 
 /**
  * The chofer's GPS during the shift (docs/03-reglas-de-negocio.md, GPS del chofer): the phone reads its position every
@@ -12,15 +13,19 @@ import { ApiError, api, getSession, loadSession, unwrap, type Schemas } from '@c
  */
 
 const TASK = 'cleancom-ubicacion';
+
 /** The API takes up to 2000 at once; smaller batches keep each request light. */
 const BATCH = 300;
+
 /** A day without signal at one reading every 30 s; older readings are dropped first. */
 const MAX_STORED = 3000;
 
 type Ruta = Schemas['ChoferRutaDto'];
+
 type Row = { id: number; lat: number; lng: number; at: string; accuracy: number | null };
 
 const db = SQLite.openDatabaseSync('cleancom-chofer.db');
+
 db.execSync(`
   CREATE TABLE IF NOT EXISTS locations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,11 +72,7 @@ export function sendStored(): Promise<void> {
         const rows = db.getAllSync<Row>('SELECT id, lat, lng, at, accuracy FROM locations WHERE user_id = ? ORDER BY id LIMIT ?', userId, BATCH);
         if (rows.length === 0) return;
         try {
-          await unwrap(
-            api.POST('/chofer/ubicacion', {
-              body: { readings: rows.map((r) => ({ lat: r.lat, lng: r.lng, at: r.at, accuracyMeters: r.accuracy })) },
-            }),
-          );
+          await choferApi.ubicacion({ readings: rows.map((r) => ({ lat: r.lat, lng: r.lng, at: r.at, accuracyMeters: r.accuracy })) });
         } catch (e) {
           // No signal (0), session to renew (401) or the server down: try again later. Anything else would fail
           // forever, so that batch is dropped.

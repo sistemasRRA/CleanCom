@@ -1,8 +1,9 @@
-import { AppState } from 'react-native';
-import { useEffect, useState } from 'react';
+import { ApiError, getSession, type Schemas } from '@cleancom/mobile-shared';
+import { choferApi } from '../common/api/choferApi';
 import * as SQLite from 'expo-sqlite';
+import { useEffect, useState } from 'react';
+import { AppState } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
-import { ApiError, api, getSession, unwrap, type Schemas } from '@cleancom/mobile-shared';
 
 /**
  * Sin señal (docs/pantallas/apps/chofer.md, Requisitos técnicos): every action of the chofer is saved in SQLite with
@@ -11,6 +12,7 @@ import { ApiError, api, getSession, unwrap, type Schemas } from '@cleancom/mobil
  */
 
 type Ruta = Schemas['ChoferRutaDto'];
+
 type Parada = Schemas['ChoferParadaDto'];
 
 export type Action =
@@ -24,6 +26,7 @@ export type Action =
 type Row = { id: number; user_id: number; kind: Action['kind']; parada_id: number; payload: string; file_uri: string | null; error: string | null };
 
 export type Failed = { id: number; kind: Action['kind']; paradaId: number; error: string };
+
 export type QueueState = { pending: number; failed: Failed[] };
 
 export const ACTION_NAME: Record<Action['kind'], string> = {
@@ -41,6 +44,7 @@ export type Submitted = { queued: true } | { queued: false; ruta: Ruta | null };
 export const newLocalId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 const db = SQLite.openDatabaseSync('cleancom-chofer.db');
+
 db.execSync(`
   CREATE TABLE IF NOT EXISTS queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,6 +65,7 @@ const userId = () => getSession()?.user.id ?? 0;
 // ---- Listeners ----
 
 const queueListeners = new Set<(s: QueueState) => void>();
+
 const rutaListeners = new Set<(r: Ruta) => void>();
 
 function queueState(): QueueState {
@@ -171,6 +176,7 @@ export function discard(id: number) {
 }
 
 const answers = new Map<number, Ruta | null>();
+
 let running: Promise<void> | null = null;
 
 /** Sends the queue in order. Stops at the first network failure; an error of the API marks that action and goes on. */
@@ -225,20 +231,19 @@ function timeout(ms: number) {
 
 async function send(row: Row): Promise<Ruta | null> {
   const body = JSON.parse(row.payload);
-  const path = { path: { id: row.parada_id } };
   const signal = timeout(row.kind === 'foto' ? 60_000 : 15_000);
   switch (row.kind) {
     case 'en-camino':
-      return unwrap(api.POST('/chofer/paradas/{id}/en-camino', { params: path, body, signal }));
+      return choferApi.enCamino(row.parada_id, body, signal);
     case 'llegue':
-      return unwrap(api.POST('/chofer/paradas/{id}/llegue', { params: path, body, signal }));
+      return choferApi.llegue(row.parada_id, body, signal);
     case 'firma':
-      await unwrap(api.POST('/chofer/evidencias/firma', { body, signal }));
+      await choferApi.firma(body, signal);
       return null;
     case 'cerrar':
-      return unwrap(api.POST('/chofer/paradas/{id}/cerrar', { params: path, body, signal }));
+      return choferApi.cerrar(row.parada_id, body, signal);
     case 'no-realizada':
-      return unwrap(api.POST('/chofer/paradas/{id}/no-realizada', { params: path, body, signal }));
+      return choferApi.noRealizada(row.parada_id, body, signal);
     case 'foto': {
       const form = new FormData();
       form.append('ParadaId', String(row.parada_id));
@@ -250,7 +255,7 @@ async function send(row: Row): Promise<Ruta | null> {
       }
       // React Native's FormData takes the file as { uri, name, type }.
       form.append('File', { uri: row.file_uri, name: 'foto.jpg', type: 'image/jpeg' } as unknown as Blob);
-      await unwrap(api.POST('/chofer/evidencias', { body: {} as never, bodySerializer: () => form, headers: { 'Content-Type': null }, signal }));
+      await choferApi.foto(form, signal);
       return null;
     }
   }

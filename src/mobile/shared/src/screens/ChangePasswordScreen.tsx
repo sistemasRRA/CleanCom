@@ -37,7 +37,14 @@ export function ChangePasswordScreen() {
       </View>
       <TextField label="Contraseña actual" secret value={current} onChangeText={setCurrent} textContentType="password" />
       <TextField label="Contraseña nueva" hint="Mínimo 8 caracteres." secret value={next} onChangeText={setNext} textContentType="newPassword" />
-      <TextField label="Repite la contraseña nueva" secret value={repeat} onChangeText={setRepeat} textContentType="newPassword" onSubmitEditing={submit} />
+      <TextField
+        label="Repite la contraseña nueva"
+        secret
+        value={repeat}
+        onChangeText={setRepeat}
+        textContentType="newPassword"
+        onSubmitEditing={submit}
+      />
       {error && <Alert>{error}</Alert>}
       <Button title="Guardar y entrar" onPress={submit} busy={busy} disabled={!current || !next || !repeat} />
       <Button title="Salir" variant="ghost" onPress={() => void logout()} />

@@ -34,6 +34,8 @@ El cliente del API para web y apps se genera desde el OpenAPI del backend; no es
 
 **Web por módulo (feature).** Cada pantalla vive en `src/web/src/features/<feature>/` con `pages/`, `components/`, `services/` (`<feature>Api.ts`: una función por endpoint; los componentes nunca llaman a `api` directo), `types/` (solo alias de `Schemas[...]` y constantes), su CSS e `index.ts`. Entre features solo se importa por `index.ts`; lo que usan varias va en `src/web/src/shared/`, que no importa de features. Ver `src/web/README.md#estructura`.
 
+**Apps por módulo (feature).** En cada app, `src/app/` solo tiene rutas de Expo Router (`export default` de la pantalla de su feature); las pantallas viven en `src/<app>/src/features/<feature>/` con `screens/`, `components/`, `services/` (los componentes nunca llaman a `api` directo), `types/` e `index.ts`. Ver `src/mobile/README.md#estructura`.
+
 ## Estructura esperada del API
 
 ```
