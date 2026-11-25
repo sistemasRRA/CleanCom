@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
-import { ApiError, api, getSession, loadSession, onSessionChange, saveSession, unwrap, type Schemas, type Session } from '../api/client';
+import { ApiError, getSession, loadSession, onSessionChange, saveSession, type Schemas, type Session } from '../api/client';
+import { authApi } from '../api/authApi';
 
 export type Level = 'view' | 'edit';
 export type SessionStatus = 'loading' | 'signedOut' | 'mustChangePassword' | 'signedIn';
@@ -48,7 +49,7 @@ export function SessionProvider({ appScreen, appName, children }: { appScreen: s
       const current = getSession();
       if (state !== 'active' || !current || current.user.mustChangePassword) return;
       try {
-        const user = await unwrap(api.GET('/auth/yo'));
+        const user = await authApi.me();
         if (!allows(user, appScreen)) await saveSession(null);
         else if (JSON.stringify(user) !== JSON.stringify(current.user)) await saveSession({ ...current, user });
       } catch {
@@ -61,7 +62,7 @@ export function SessionProvider({ appScreen, appName, children }: { appScreen: s
   const accept = useCallback(
     async (next: Session) => {
       if (!next.user.mustChangePassword && !allows(next.user, appScreen)) {
-        await api.POST('/auth/cerrar', { body: { refreshToken: next.refreshToken } }).catch(() => undefined);
+        await authApi.signOut({ refreshToken: next.refreshToken }).catch(() => undefined);
         throw new ApiError(403, `Tu usuario (${next.user.roleName}) no tiene acceso a ${appName}. Pide acceso a oficina.`);
       }
       await saveSession(next);
@@ -76,16 +77,16 @@ export function SessionProvider({ appScreen, appName, children }: { appScreen: s
       status,
       user,
       async login(userName, password) {
-        await accept(await unwrap(api.POST('/auth/login', { body: { userName, password } })));
+        await accept(await authApi.signIn({ userName, password }));
       },
       async changePassword(currentPassword, newPassword) {
-        await accept(await unwrap(api.POST('/auth/cambiar-contrasena', { body: { currentPassword, newPassword } })));
+        await accept(await authApi.changePassword({ currentPassword, newPassword }));
       },
       signIn: (next) => accept(next),
       async logout() {
         const refreshToken = session?.refreshToken;
         await saveSession(null);
-        if (refreshToken) await api.POST('/auth/cerrar', { body: { refreshToken } }).catch(() => undefined);
+        if (refreshToken) await authApi.signOut({ refreshToken }).catch(() => undefined);
       },
       can: (screen, level) => allows(user ?? undefined, screen, level),
     };

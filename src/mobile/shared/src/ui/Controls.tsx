@@ -100,12 +100,7 @@ export function TextField({ label, hint, error, secret, style, ...input }: Field
   return (
     <View style={{ gap: space.xs }}>
       <Text style={{ color: colors.textMuted, fontSize: font.size.sm, fontWeight: '600' }}>{label}</Text>
-      <View
-        style={[
-          styles.input,
-          { backgroundColor: colors.surface, borderColor: error ? colors.danger : focused ? colors.brand : colors.border },
-        ]}
-      >
+      <View style={[styles.input, { backgroundColor: colors.surface, borderColor: error ? colors.danger : focused ? colors.brand : colors.border }]}>
         <TextInput
           placeholderTextColor={colors.textMuted}
           secureTextEntry={secret && hidden}
@@ -145,7 +140,12 @@ export function Alert({ children, tone = 'danger' }: { children: ReactNode; tone
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { colors } = useTheme();
   return (
-    <View style={[{ backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: radius.md, padding: space.lg, gap: space.md }, style]}>
+    <View
+      style={[
+        { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: radius.md, padding: space.lg, gap: space.md },
+        style,
+      ]}
+    >
       {children}
     </View>
   );

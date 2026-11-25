@@ -44,10 +44,7 @@ export async function saveSession(session: Session | null) {
   try {
     if (session) {
       const { user, ...tokens } = session;
-      await Promise.all([
-        SecureStore.setItemAsync(TOKENS_KEY, JSON.stringify(tokens)),
-        SecureStore.setItemAsync(USER_KEY, JSON.stringify(user)),
-      ]);
+      await Promise.all([SecureStore.setItemAsync(TOKENS_KEY, JSON.stringify(tokens)), SecureStore.setItemAsync(USER_KEY, JSON.stringify(user))]);
     } else {
       await Promise.all([SecureStore.deleteItemAsync(TOKENS_KEY), SecureStore.deleteItemAsync(USER_KEY)]);
     }
@@ -164,7 +161,7 @@ export async function unwrap<T>(promise: Promise<{ data?: T; error?: unknown; re
   } catch (e) {
     // Shown in the Metro console so a client bug is not mistaken for a network failure.
     if (__DEV__) console.warn('[api] request failed before a response was read:', e);
-    throw new ApiError(0,`No hay conexión con el API (${apiUrl()}). Revisa tu señal o que el servidor esté encendido.`);
+    throw new ApiError(0, `No hay conexión con el API (${apiUrl()}). Revisa tu señal o que el servidor esté encendido.`);
   }
   const { data, error, response } = result;
   if (!response.ok) throw toError(error, response);

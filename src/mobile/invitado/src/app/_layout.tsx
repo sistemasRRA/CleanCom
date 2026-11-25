@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SessionProvider, ThemeProvider, useSession, useTheme } from '@cleancom/mobile-shared';
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
 
 // Signed out, the app opens on the welcome screen (otherwise the router picks the first route by name, "acceso").
 export const unstable_settings = { initialRouteName: 'bienvenida' };

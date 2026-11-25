@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SessionProvider, ThemeProvider, useSession, useTheme } from '@cleancom/mobile-shared';
-// Defines the background location task when the app starts, so the OS can run it with the app closed.
-import '../offline/locationTracking';
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
 
 // The splash stays until the saved session has been read, so the sign-in screen does not flash.
 void SplashScreen.preventAutoHideAsync();
