@@ -13,7 +13,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "api:types": "openapi-typescript http://localhost:5111/openapi/v1.json -o src/api/schema.d.ts"
+    "api:types": "openapi-typescript http://localhost:5111/openapi/v1.json -o src/shared/api/schema.d.ts"
   },
   "dependencies": {
     "@microsoft/signalr": "~10.0.11",

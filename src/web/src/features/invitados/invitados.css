@@ -1,0 +1,2 @@
+.pick-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pick-list button { width: 100%; display: flex; justify-content: space-between; gap: 12px; text-align: left; flex-wrap: wrap; }

@@ -32,6 +32,8 @@ Monorepo del sistema de CleanCom (tintorería a domicilio en CDMX): un API en C#
 
 El cliente del API para web y apps se genera desde el OpenAPI del backend; no escribas a mano los tipos de las respuestas.
 
+**Web por módulo (feature).** Cada pantalla vive en `src/web/src/features/<feature>/` con `pages/`, `components/`, `services/` (`<feature>Api.ts`: una función por endpoint; los componentes nunca llaman a `api` directo), `types/` (solo alias de `Schemas[...]` y constantes), su CSS e `index.ts`. Entre features solo se importa por `index.ts`; lo que usan varias va en `src/web/src/shared/`, que no importa de features. Ver `src/web/README.md#estructura`.
+
 ## Estructura esperada del API
 
 ```

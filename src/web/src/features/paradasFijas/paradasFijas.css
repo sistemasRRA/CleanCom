@@ -1,0 +1,15 @@
+.fija-pasos { max-width: 360px; }
+/* The week fits the screen: equal day columns that wrap their chips instead of a horizontal scroll. */
+.fijas-week { table-layout: fixed; }
+.fijas-week th, .fijas-week td { vertical-align: top; padding: 8px 6px; }
+.fijas-week thead th:first-child { width: 64px; }
+.fijas-week thead th { text-transform: capitalize; }
+.fijas-cell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+/* Chips are <button>s: undo the button's nowrap so long names wrap inside the day column. */
+.fija-chip { display: block; width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; border: none; border-radius: 6px; padding: 3px 7px; font-size: 12px; text-align: left; line-height: 1.3; }
+.fija-chip small { opacity: 0.75; }
+.fijas-cupo { font-size: 11.5px; }
+.weekday-picker { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.paso__number { width: 26px; height: 26px; border-radius: 999px; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 650; font-size: 13px; }
+[data-theme='dark'] .paso__number { color: #0f172a; }
+.paso__actions { display: flex; flex-direction: column; gap: 4px; }
