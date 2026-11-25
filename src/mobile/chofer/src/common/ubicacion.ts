@@ -31,20 +31,23 @@ export function meters(a: Point, b: Point) {
 
 /** Meters to `target` while it is set, updated as the chofer moves; null without permission. */
 export function useDistanceTo(target: Point | null) {
-  const [distance, setDistance] = useState<number | null>(null);
   const lat = target?.lat;
   const lng = target?.lng;
+  const key = lat == null || lng == null ? null : `${lat},${lng}`;
+  // The distance is kept with the target it was measured to: a new target shows none until the next reading.
+  const [measured, setMeasured] = useState<{ key: string; meters: number } | null>(null);
+  const distance = measured && measured.key === key ? measured.meters : null;
 
   useEffect(() => {
-    setDistance(null);
     if (lat == null || lng == null) return;
+    const target = `${lat},${lng}`;
     let subscription: Location.LocationSubscription | null = null;
     let cancelled = false;
     void (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted' || cancelled) return;
       subscription = await Location.watchPositionAsync({ accuracy: Location.Accuracy.Balanced, distanceInterval: 25, timeInterval: 15_000 }, (p) =>
-        setDistance(meters({ lat: p.coords.latitude, lng: p.coords.longitude }, { lat, lng })),
+        setMeasured({ key: target, meters: meters({ lat: p.coords.latitude, lng: p.coords.longitude }, { lat, lng }) }),
       );
       if (cancelled) subscription.remove();
     })();

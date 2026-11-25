@@ -14,11 +14,10 @@ export default function TabsLayout() {
   // Until the invitado gives their name and "¿cómo nos conociste?", that comes first.
   const me = useLoad(() => cuentaApi.me(), []);
   if (me.data && !me.data.profileComplete) return <Redirect href="/perfil" />;
-  const icon =
-    (name: Icon) =>
-    ({ color, size }: { color: ColorValue; size: number }) => (
-      <Ionicons name={name} size={size} color={typeof color === 'string' ? color : undefined} />
-    );
+  const icon = (name: Icon) =>
+    function TabIcon({ color, size }: { color: ColorValue; size: number }) {
+      return <Ionicons name={name} size={size} color={typeof color === 'string' ? color : undefined} />;
+    };
 
   return (
     <Tabs

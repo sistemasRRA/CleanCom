@@ -1,6 +1,5 @@
 import { Alert, Body, Button, Screen, space, Title, useSession, useTheme } from '@cleancom/mobile-shared';
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
+import { router } from 'expo-router';
 import { Alert as NativeAlert, Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLoad } from '../../../common/hooks/useLoad';
@@ -12,12 +11,7 @@ import { cuentaApi } from '../services/cuentaApi';
 export function Cuenta() {
   const { logout } = useSession();
   const { colors, scheme, toggleScheme } = useTheme();
-  const me = useLoad(() => cuentaApi.me(), []);
-  useFocusEffect(
-    useCallback(() => {
-      void me.reload();
-    }, [me.reload]),
-  );
+  const me = useLoad(() => cuentaApi.me(), [], { reloadOnFocus: true });
 
   function remove(addressId: number, name: string) {
     NativeAlert.alert('¿Quitar esta dirección?', name, [

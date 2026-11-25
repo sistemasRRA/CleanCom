@@ -1,6 +1,5 @@
 import { Alert, Body, Button, Card, Screen, space, Title, useLayout, useTheme } from '@cleancom/mobile-shared';
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
+import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLoad } from '../../../common/hooks/useLoad';
@@ -14,13 +13,8 @@ export function Inicio() {
   const { colors } = useTheme();
   const { isTablet } = useLayout();
   const me = useLoad(() => cuentaApi.me(), []);
-  const pedidos = useLoad(() => pedidosApi.mine(), []);
   // Back from asking for a service: show the new pedido.
-  useFocusEffect(
-    useCallback(() => {
-      void pedidos.reload();
-    }, [pedidos.reload]),
-  );
+  const pedidos = useLoad(() => pedidosApi.mine(), [], { reloadOnFocus: true });
   const current = (pedidos.data ?? []).filter((p) => p.etapa !== 'Entregado' && p.etapa !== 'Cancelado');
   const firstName = me.data?.name.split(' ')[0];
 
