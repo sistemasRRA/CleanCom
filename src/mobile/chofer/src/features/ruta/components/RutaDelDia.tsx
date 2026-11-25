@@ -46,34 +46,53 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
   // The map shows the same paradas, with the actions still waiting for signal.
   useEffect(() => onShown?.(ruta), [ruta, onShown]);
 
-  const load = useCallback(async (fecha: string | null) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 15_000);
-      const data = await choferApi.ruta(fecha ? { fecha } : {}, controller.signal).finally(() => clearTimeout(timer));
-      saveRuta(fecha, data);
-      setBase(data);
-      setSavedAt(null);
-      if (!fecha) setToday(data.date);
-    } catch (e) {
-      const saved = e instanceof ApiError && e.status === 0 ? savedRuta(fecha) : null;
-      if (saved) {
-        setBase(saved.ruta);
-        setSavedAt(saved.savedAt);
-        if (!fecha) setToday(saved.ruta.date);
-      } else {
-        setError((e as Error).message);
-      }
-    } finally {
-      setLoading(false);
-    }
+  // Asks the API (or, without signal, the saved copy) for a day. Sets state only once the answer is back.
+  const fetchRuta = useCallback((fecha: string | null) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    return choferApi
+      .ruta(fecha ? { fecha } : {}, controller.signal)
+      .finally(() => clearTimeout(timer))
+      .then(
+        (data) => {
+          saveRuta(fecha, data);
+          setBase(data);
+          setSavedAt(null);
+          if (!fecha) setToday(data.date);
+        },
+        (e) => {
+          const saved = e instanceof ApiError && e.status === 0 ? savedRuta(fecha) : null;
+          if (saved) {
+            setBase(saved.ruta);
+            setSavedAt(saved.savedAt);
+            if (!fecha) setToday(saved.ruta.date);
+          } else {
+            setError((e as Error).message);
+          }
+        },
+      )
+      .finally(() => setLoading(false));
   }, []);
 
+  /** Reloads a day from a button: shows it as loading right away. */
+  const load = useCallback(
+    (fecha: string | null) => {
+      setLoading(true);
+      setError(null);
+      return fetchRuta(fecha);
+    },
+    [fetchRuta],
+  );
+
+  function showDay(fecha: string | null) {
+    setDate(fecha);
+    void load(fecha);
+  }
+
+  // First load: the state already starts as loading.
   useEffect(() => {
-    void load(date);
-  }, [date, load]);
+    void fetchRuta(null);
+  }, [fetchRuta]);
 
   // Answers of actions sent in the background (signal is back).
   useEffect(
@@ -157,13 +176,13 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
             </Text>
           )}
         </View>
-        <DayButton icon="chevron-back" label="Día anterior" disabled={!current || loading} onPress={() => current && setDate(addDays(current, -1))} />
-        <DayButton icon="today-outline" label="Hoy" disabled={loading || current === today} onPress={() => setDate(today)} />
+        <DayButton icon="chevron-back" label="Día anterior" disabled={!current || loading} onPress={() => current && showDay(addDays(current, -1))} />
+        <DayButton icon="today-outline" label="Hoy" disabled={loading || current === today} onPress={() => showDay(today)} />
         <DayButton
           icon="chevron-forward"
           label="Día siguiente"
           disabled={!current || loading}
-          onPress={() => current && setDate(addDays(current, 1))}
+          onPress={() => current && showDay(addDays(current, 1))}
         />
         <DayButton icon="refresh" label="Actualizar" disabled={loading} onPress={() => void load(date)} />
       </View>
@@ -188,7 +207,7 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
       {queue.failed.map((f) => (
         <View key={f.id} style={{ gap: space.xs }}>
           <Alert>
-            No se guardó "{ACTION_NAME[f.kind]}" de la parada {ruta?.paradas.find((p) => p.id === f.paradaId)?.order ?? ''}: {f.error}
+            No se guardó “{ACTION_NAME[f.kind]}” de la parada {ruta?.paradas.find((p) => p.id === f.paradaId)?.order ?? ''}: {f.error}
           </Alert>
           <Button
             title="Entendido"
@@ -201,7 +220,7 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
         </View>
       ))}
       {ruta?.notice && <Alert tone="info">{ruta.notice}</Alert>}
-      {ruta?.ruta && ruta.paradas.length > 0 && !ruta.isToday && <Body muted>Solo consulta: "En camino" y "Llegué" son para la ruta de hoy.</Body>}
+      {ruta?.ruta && ruta.paradas.length > 0 && !ruta.isToday && <Body muted>Solo consulta: “En camino” y “Llegué” son para la ruta de hoy.</Body>}
       {enRoute && (
         <EnRouteBanner parada={enRoute} tolerance={ruta!.toleranceMeters} busy={busyId === enRoute.id} onArrive={() => void llegue(enRoute)} />
       )}

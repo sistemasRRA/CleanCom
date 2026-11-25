@@ -17,9 +17,10 @@ export function MapaRuta({ ruta }: { ruta: Ruta | null }) {
   const { colors, scheme } = useTheme();
   const map = useRef<MapView>(null);
   const [ready, setReady] = useState(false);
-  const [selected, setSelected] = useState<Parada | null>(null);
+  // Selected parada, with the set of paradas it was chosen in (a new day or ruta clears it).
+  const [selection, setSelection] = useState<{ id: number; fitKey: string } | null>(null);
 
-  const paradas = ruta?.paradas ?? [];
+  const paradas = useMemo(() => ruta?.paradas ?? [], [ruta]);
   const located = useMemo(() => paradas.filter((p) => pointOf(p)), [paradas]);
   const missing = paradas.length - located.length;
   const color = ruta?.ruta?.color || colors.brand;
@@ -39,12 +40,12 @@ export function MapaRuta({ ruta }: { ruta: Ruta | null }) {
 
   useEffect(() => {
     if (ready) fit();
-    setSelected(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, fitKey]);
 
   // The selected parada follows the latest data (its state may change while it is open).
-  const shown = selected ? (paradas.find((p) => p.id === selected.id) ?? null) : null;
+  const shown = selection && selection.fitKey === fitKey ? (paradas.find((p) => p.id === selection.id) ?? null) : null;
+  const setSelected = (p: Parada | null) => setSelection(p ? { id: p.id, fitKey } : null);
 
   if (Platform.OS === 'web') {
     return (

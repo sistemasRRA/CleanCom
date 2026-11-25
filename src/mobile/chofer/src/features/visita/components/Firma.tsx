@@ -1,6 +1,6 @@
 import { radius, space, useTheme } from '@cleancom/mobile-shared';
-import { useMemo, useRef, useState } from 'react';
-import { type LayoutChangeEvent, PanResponder, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { type LayoutChangeEvent, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 export type Signature = { width: number; height: number; strokes: number[][] };
@@ -13,44 +13,12 @@ export function Firma({ onChange }: { onChange: (s: Signature | null) => void })
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [strokes, setStrokes] = useState<number[][]>([]);
   const current = useRef<number[] | null>(null);
-  const sizeRef = useRef(size);
-  sizeRef.current = size;
 
   const publish = (next: number[][]) => {
     setStrokes(next);
-    const { width, height } = sizeRef.current;
+    const { width, height } = size;
     onChange(next.some((s) => s.length >= 4) ? { width, height, strokes: next } : null);
   };
-
-  const responder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: () => true,
-        // Keeps the scroll view from taking the gesture while signing.
-        onPanResponderTerminationRequest: () => false,
-        onPanResponderGrant: (e) => {
-          const { locationX, locationY } = e.nativeEvent;
-          current.current = [round(locationX), round(locationY)];
-          setStrokes((s) => [...s, current.current!]);
-        },
-        onPanResponderMove: (e) => {
-          const { locationX, locationY } = e.nativeEvent;
-          if (!current.current) return;
-          current.current.push(round(locationX), round(locationY));
-          setStrokes((s) => [...s.slice(0, -1), [...current.current!]]);
-        },
-        onPanResponderRelease: () => {
-          current.current = null;
-          setStrokes((s) => {
-            publishLater(s);
-            return s;
-          });
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
 
   // Publishing inside setState's updater would update the parent during render.
   const publishLater = (s: number[][]) => setTimeout(() => publish(s), 0);
@@ -60,7 +28,28 @@ export function Firma({ onChange }: { onChange: (s: Signature | null) => void })
       <View
         onLayout={(e: LayoutChangeEvent) => setSize({ width: round(e.nativeEvent.layout.width), height: round(e.nativeEvent.layout.height) })}
         style={{ height: 180, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: '#ffffff', overflow: 'hidden' }}
-        {...responder.panHandlers}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        // Keeps the scroll view from taking the gesture while signing.
+        onResponderTerminationRequest={() => false}
+        onResponderGrant={(e) => {
+          const { locationX, locationY } = e.nativeEvent;
+          current.current = [round(locationX), round(locationY)];
+          setStrokes((s) => [...s, current.current!]);
+        }}
+        onResponderMove={(e) => {
+          const { locationX, locationY } = e.nativeEvent;
+          if (!current.current) return;
+          current.current.push(round(locationX), round(locationY));
+          setStrokes((s) => [...s.slice(0, -1), [...current.current!]]);
+        }}
+        onResponderRelease={() => {
+          current.current = null;
+          setStrokes((s) => {
+            publishLater(s);
+            return s;
+          });
+        }}
       >
         <Svg width="100%" height="100%">
           {strokes.map((s, i) => (

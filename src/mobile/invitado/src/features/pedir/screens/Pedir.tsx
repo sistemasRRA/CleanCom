@@ -1,6 +1,6 @@
 import { Alert, Body, Button, type Schemas, Screen, space, TextField, Title, useTheme } from '@cleancom/mobile-shared';
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLoad } from '../../../common/hooks/useLoad';
@@ -22,15 +22,10 @@ type Availability = Schemas['AvailabilityDto'];
  */
 export function Pedir() {
   const { colors } = useTheme();
-  const me = useLoad(() => cuentaApi.me(), []);
+  // Back from adding an address: show it.
+  const me = useLoad(() => cuentaApi.me(), [], { reloadOnFocus: true });
   const lineas = useLoad(() => pedirApi.lineasServicio(), []);
   const beneficios = useLoad(() => beneficiosApi.mine(), []);
-  // Back from adding an address: show it.
-  useFocusEffect(
-    useCallback(() => {
-      void me.reload();
-    }, [me.reload]),
-  );
 
   const [addressId, setAddressId] = useState<number | null>(null);
   const [selectedLineas, setSelectedLineas] = useState<number[]>([]);
@@ -40,46 +35,45 @@ export function Pedir() {
   const [beneficioIds, setBeneficioIds] = useState<number[]>([]);
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [date, setDate] = useState<string | null>(null);
-  const [loadingDays, setLoadingDays] = useState(false);
+  // Address and turno of the last answer of the agenda engine: until the current ones answer, it is looking for a day.
+  const [answeredKey, setAnsweredKey] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ message: string; pedidoId: number | null } | null>(null);
 
   const addresses = me.data?.addresses ?? [];
   // The only (or newest) address is chosen for them.
-  useEffect(() => {
-    if (addressId == null && addresses.length > 0) setAddressId(addresses[addresses.length - 1].id);
-  }, [addresses, addressId]);
+  const chosenId = addressId ?? addresses[addresses.length - 1]?.id ?? null;
 
   // Ask the engine for the first day with cupo whenever the address (or its data, after editing it) or the turno changes.
-  const addressKey = JSON.stringify(addresses.find((a) => a.id === addressId) ?? null);
+  const daysKey = chosenId == null ? null : `${JSON.stringify(addresses.find((a) => a.id === chosenId))}|${turno}`;
+  const loadingDays = daysKey != null && answeredKey !== daysKey;
   useEffect(() => {
-    if (addressId == null) return;
+    if (chosenId == null || daysKey == null) return;
     let cancelled = false;
-    setLoadingDays(true);
-    setError(null);
     pedirApi
-      .availability({ addressId, lat: null, lng: null, postalCode: null, neighborhood: null, zonaId: null, turno })
+      .availability({ addressId: chosenId, lat: null, lng: null, postalCode: null, neighborhood: null, zonaId: null, turno })
       .then((a) => {
         if (cancelled) return;
         setAvailability(a);
         setDate(a.date);
+        setError(null);
       })
       .catch((e: Error) => !cancelled && setError(e.message))
-      .finally(() => !cancelled && setLoadingDays(false));
+      .finally(() => !cancelled && setAnsweredKey(daysKey));
     return () => {
       cancelled = true;
     };
-  }, [addressId, addressKey, turno]);
+  }, [chosenId, daysKey, turno]);
 
   async function confirm() {
-    if (!me.data || addressId == null) return;
+    if (!me.data || chosenId == null) return;
     setBusy(true);
     setError(null);
     try {
       const r = await pedirApi.schedule({
         invitadoId: me.data.id,
-        addressId,
+        addressId: chosenId,
         turno,
         specificTime: null,
         priority: false,
@@ -131,7 +125,7 @@ export function Pedir() {
   const available = (beneficios.data ?? []).filter((b) => b.state === 'Disponible');
   const outOfCoverage = availability?.outOfCoverage ?? false;
   const otherDays = (availability?.days ?? []).filter((d) => d.available).slice(0, 8);
-  const canConfirm = addressId != null && !!date && !outOfCoverage && !loadingDays;
+  const canConfirm = chosenId != null && !!date && !outOfCoverage && !loadingDays;
 
   return (
     <Screen maxWidth={640}>
@@ -143,7 +137,7 @@ export function Pedir() {
         {addresses.map((a) => (
           <Row
             key={a.id}
-            icon={addressId === a.id ? 'radio-button-on' : 'radio-button-off'}
+            icon={chosenId === a.id ? 'radio-button-on' : 'radio-button-off'}
             title={a.label || addressLine(a)}
             text={a.label ? addressLine(a) : (a.borough ?? undefined)}
             onPress={() => setAddressId(a.id)}
@@ -199,7 +193,7 @@ export function Pedir() {
             <Chip key={t.key} label={t.label} note={t.note} selected={turno === t.key} onPress={() => setTurno(t.key)} />
           ))}
         </View>
-        {addressId == null && <Body muted>Elige primero la dirección.</Body>}
+        {chosenId == null && <Body muted>Elige primero la dirección.</Body>}
         {loadingDays && <Body muted>Buscando el primer día disponible de tu zona…</Body>}
         {!loadingDays && outOfCoverage && (
           <Alert tone="warning">Tu dirección está fuera de nuestra zona de servicio por ahora. Escríbenos por WhatsApp y vemos cómo ayudarte.</Alert>

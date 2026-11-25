@@ -1,8 +1,8 @@
 import { Alert, Body, Button, Card, Screen, space, TextField, Title } from '@cleancom/mobile-shared';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { useLoad } from '../../../common/hooks/useLoad';
+import { type Loaded, useLoad } from '../../../common/hooks/useLoad';
 import { Chip } from '../../../common/components/Chip';
 import { cuentaApi } from '../services/cuentaApi';
 
@@ -13,20 +13,21 @@ import { cuentaApi } from '../services/cuentaApi';
 export function Perfil() {
   const me = useLoad(() => cuentaApi.me(), []);
   const options = useLoad(() => cuentaApi.motivos({ type: 'HowFoundUs' }), []);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [howFoundUs, setHowFoundUs] = useState<string | null>(null);
+  // The form starts again with the saved data once it arrives.
+  return <PerfilForm key={me.data ? 'loaded' : 'loading'} me={me} options={options} />;
+}
+
+type Me = Awaited<ReturnType<typeof cuentaApi.me>>;
+type Motivos = Awaited<ReturnType<typeof cuentaApi.motivos>>;
+
+function PerfilForm({ me, options }: { me: Loaded<Me>; options: Loaded<Motivos> }) {
+  // The name given at sign-up ("Invitado 5678") is not theirs: leave it empty to write it.
+  const [name, setName] = useState(() => (me.data && (me.data.profileComplete || !me.data.name.startsWith('Invitado ')) ? me.data.name : ''));
+  const [email, setEmail] = useState(me.data?.email ?? '');
+  const [howFoundUs, setHowFoundUs] = useState<string | null>(me.data?.howFoundUs ?? null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const first = me.data ? !me.data.profileComplete : false;
-
-  useEffect(() => {
-    if (!me.data) return;
-    // The name given at sign-up ("Invitado 5678") is not theirs: leave it empty to write it.
-    setName(me.data.profileComplete || !me.data.name.startsWith('Invitado ') ? me.data.name : '');
-    setEmail(me.data.email ?? '');
-    setHowFoundUs(me.data.howFoundUs);
-  }, [me.data]);
 
   async function save() {
     setBusy(true);

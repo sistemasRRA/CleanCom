@@ -1,6 +1,6 @@
 import { Alert, Body, Button, Card, type Schemas, Screen, space, TextField, Title } from '@cleancom/mobile-shared';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as Location from 'expo-location';
 import { View } from 'react-native';
 import { useLoad } from '../../../common/hooks/useLoad';
@@ -26,41 +26,36 @@ export function Direccion() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const editing = id ? Number(id) : null;
   const me = useLoad(() => cuentaApi.me(), []);
-  const [label, setLabel] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [neighborhood, setNeighborhood] = useState<string | null>(null);
-  const [borough, setBorough] = useState<string | null>(null);
-  const [street, setStreet] = useState('');
-  const [number, setNumber] = useState('');
-  const [interior, setInterior] = useState('');
-  const [references, setReferences] = useState('');
-  const [punto, setPunto] = useState<Punto | null>(null);
+  const address = editing ? (me.data?.addresses.find((x) => x.id === editing) ?? null) : null;
+  // The form starts again with the saved address once it arrives.
+  return <DireccionForm key={address ? `address-${address.id}` : 'new'} editing={editing} address={address} />;
+}
+
+type Address = NonNullable<Awaited<ReturnType<typeof cuentaApi.me>>>['addresses'][number];
+
+function DireccionForm({ editing, address }: { editing: number | null; address: Address | null }) {
+  const [label, setLabel] = useState(address?.label ?? '');
+  const [postalCode, setPostalCode] = useState(address?.postalCode ?? '');
+  const [neighborhood, setNeighborhood] = useState<string | null>(address?.neighborhood ?? null);
+  const [borough, setBorough] = useState<string | null>(address?.borough ?? null);
+  const [street, setStreet] = useState(address?.street ?? '');
+  const [number, setNumber] = useState(address?.exteriorNumber ?? '');
+  const [interior, setInterior] = useState(address?.interiorNumber ?? '');
+  const [references, setReferences] = useState(address?.references ?? '');
+  const [punto, setPunto] = useState<Punto | null>(
+    address && address.lat != null && address.lng != null ? { lat: address.lat, lng: address.lng } : null,
+  );
   const [mapNote, setMapNote] = useState<string | null>(null);
   const [locating, setLocating] = useState<'buscar' | 'gps' | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const a = editing ? me.data?.addresses.find((x) => x.id === editing) : null;
-    if (!a) return;
-    setLabel(a.label ?? '');
-    setPostalCode(a.postalCode);
-    setNeighborhood(a.neighborhood);
-    setBorough(a.borough);
-    setStreet(a.street);
-    setNumber(a.exteriorNumber ?? '');
-    setInterior(a.interiorNumber ?? '');
-    setReferences(a.references ?? '');
-    setPunto(a.lat != null && a.lng != null ? { lat: a.lat, lng: a.lng } : null);
-  }, [me.data, editing]);
-
   const cp = postalCode.replace(/\D/g, '');
   const colonias = useLoad(async () => (cp.length === 5 ? await cuentaApi.postalCode(cp) : []), [cp]);
   const options = colonias.data ?? [];
-  useEffect(() => {
-    if (options.length > 0 && !borough) setBorough(options[0].borough);
-    if (options.length === 1 && !neighborhood) setNeighborhood(options[0].settlement);
-  }, [options, borough, neighborhood]);
+  // Until the invitado picks a colonia: the borough of the postal code, and its colonia when there is only one.
+  const boroughShown = borough ?? options[0]?.borough ?? null;
+  const neighborhoodShown = neighborhood ?? (options.length === 1 ? options[0].settlement : null);
 
   /** The typed address on the map (OpenStreetMap, through the API). */
   async function search() {
@@ -70,8 +65,8 @@ export function Direccion() {
       const r = await cuentaApi.locate({
         street: street.trim(),
         exteriorNumber: number.trim() || undefined,
-        neighborhood: neighborhood ?? undefined,
-        borough: borough ?? undefined,
+        neighborhood: neighborhoodShown ?? undefined,
+        borough: boroughShown ?? undefined,
         postalCode: cp,
       });
       if (r.found && r.lat != null && r.lng != null) {
@@ -116,8 +111,8 @@ export function Direccion() {
       exteriorNumber: number.trim() || null,
       interiorNumber: interior.trim() || null,
       postalCode: cp,
-      neighborhood,
-      borough,
+      neighborhood: neighborhoodShown,
+      borough: boroughShown,
       references: references.trim() || null,
       lat: punto?.lat ?? null,
       lng: punto?.lng ?? null,
@@ -157,13 +152,13 @@ export function Direccion() {
         />
         {options.length > 0 && (
           <View style={{ gap: space.sm }}>
-            <Body>Colonia{borough ? ` · ${borough}` : ''}</Body>
+            <Body>Colonia{boroughShown ? ` · ${boroughShown}` : ''}</Body>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
               {options.map((o) => (
                 <Chip
                   key={`${o.settlement}-${o.settlementType}`}
                   label={o.settlement}
-                  selected={neighborhood === o.settlement}
+                  selected={neighborhoodShown === o.settlement}
                   onPress={() => (setNeighborhood(o.settlement), setBorough(o.borough))}
                 />
               ))}

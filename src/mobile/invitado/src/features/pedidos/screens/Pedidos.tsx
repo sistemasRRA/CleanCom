@@ -1,6 +1,5 @@
 import { Alert, Body, Button, Screen, space, Title } from '@cleancom/mobile-shared';
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
+import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useLoad } from '../../../common/hooks/useLoad';
 import { Row } from '../../../common/components/Row';
@@ -9,12 +8,7 @@ import { pedidosApi } from '../services/pedidosApi';
 
 /** Mis pedidos (GET /yo/pedidos): newest first; each opens its seguimiento. */
 export function Pedidos() {
-  const pedidos = useLoad(() => pedidosApi.mine(), []);
-  useFocusEffect(
-    useCallback(() => {
-      void pedidos.reload();
-    }, [pedidos.reload]),
-  );
+  const pedidos = useLoad(() => pedidosApi.mine(), [], { reloadOnFocus: true });
   const list = pedidos.data ?? [];
 
   return (

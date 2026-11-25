@@ -1,7 +1,7 @@
 import { ApiError, getSession, type Schemas } from '@cleancom/mobile-shared';
 import { choferApi } from '../common/api/choferApi';
 import * as SQLite from 'expo-sqlite';
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
 
@@ -64,7 +64,7 @@ const userId = () => getSession()?.user.id ?? 0;
 
 // ---- Listeners ----
 
-const queueListeners = new Set<(s: QueueState) => void>();
+const queueListeners = new Set<() => void>();
 
 const rutaListeners = new Set<(r: Ruta) => void>();
 
@@ -76,22 +76,32 @@ function queueState(): QueueState {
   };
 }
 
+// Last state read, per chofer: useSyncExternalStore needs the same object until something changes.
+let snapshot: { userId: number; state: QueueState } | null = null;
+
 function notify() {
-  const s = queueState();
-  queueListeners.forEach((l) => l(s));
+  snapshot = null;
+  queueListeners.forEach((l) => l());
+}
+
+function subscribeQueue(listener: () => void) {
+  queueListeners.add(listener);
+  return () => void queueListeners.delete(listener);
+}
+
+function queueSnapshot(): QueueState {
+  if (!snapshot || snapshot.userId !== userId()) snapshot = { userId: userId(), state: queueState() };
+  return snapshot.state;
 }
 
 /** Pending and failed actions of the signed-in chofer; sends them when the app comes back and every 20 s. */
 export function useQueue() {
-  const [state, setState] = useState<QueueState>(() => queueState());
+  const state = useSyncExternalStore(subscribeQueue, queueSnapshot);
   useEffect(() => {
-    queueListeners.add(setState);
-    setState(queueState());
     const appState = AppState.addEventListener('change', (s) => s === 'active' && void flush());
     const timer = setInterval(() => queueState().pending > 0 && void flush(), 20_000);
     void flush();
     return () => {
-      queueListeners.delete(setState);
       appState.remove();
       clearInterval(timer);
     };
