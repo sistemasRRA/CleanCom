@@ -30,8 +30,9 @@ src/api/
 ├── CleanCom.Application/      Servicios (casos de uso), modelos de entrada y salida, validadores
 ├── CleanCom.Domain/           Entidades (tablas) y reglas puras, sin base de datos ni HTTP
 ├── CleanCom.Infrastructure/   EF Core, SQL Server, Identity, JWT, reloj; después Google, WhatsApp, POS
-├── CleanCom.Jobs/             Procesos de Hangfire (vacío por ahora)
-└── CleanCom.Tests/            Pruebas xUnit
+├── CleanCom.Jobs/             Procesos en segundo plano (paradas fijas, avisos); pasan a Hangfire en la semana 7
+├── CleanCom.Tests/            Pruebas unitarias xUnit (reglas)
+└── CleanCom.IntegrationTests/ Pruebas de integración: el API completo sobre SQL Server real
 database/migrations/           Migraciones de EF Core (proyecto CleanCom.Migrations)
 ```
 
@@ -173,7 +174,7 @@ Ejemplo: un catálogo nuevo de "Colores de prenda". Los pasos son los mismos par
        }
    }
    ```
-9. **Pruebas** en `CleanCom.Tests/<Area>/` para cada regla nueva, con los ejemplos de `docs/03-reglas-de-negocio.md`.
+9. **Pruebas** en `CleanCom.Tests/<Area>/` para cada regla nueva, con los ejemplos de `docs/03-reglas-de-negocio.md`, y una prueba de integración en `CleanCom.IntegrationTests` para cada flujo nuevo de punta a punta (endpoint, permisos y base de datos). Ver [src/api/README.md](../src/api/README.md#pruebas-de-integración).
 10. **Cliente de la web**: con el API corriendo, `npm run api:types` y `npm run typecheck` en `src/web`. TypeScript marca cada pantalla afectada si un DTO cambió.
 11. **Documentación**: actualiza la ficha de la pantalla en `docs/pantallas/` y, si cambió una regla, `docs/03-reglas-de-negocio.md`.
 

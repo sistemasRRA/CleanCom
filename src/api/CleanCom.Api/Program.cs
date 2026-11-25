@@ -4,6 +4,7 @@ using CleanCom.Api.Realtime;
 using CleanCom.Application.Common;
 using CleanCom.Application;
 using CleanCom.Infrastructure;
+using CleanCom.Infrastructure.Persistence;
 using CleanCom.Jobs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
@@ -28,6 +29,8 @@ try
     builder.Services.AddSignalR().AddJsonProtocol(o =>
         o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     builder.Services.AddSingleton<IOperacionNotifier, SignalROperacionNotifier>();
+    // GET /health for the VPS proxy and monitoring: 200 "Healthy" when the API answers and reaches SQL Server, 503 if not.
+    builder.Services.AddHealthChecks().AddDbContextCheck<CleanComDbContext>("database");
     builder.Services.AddProblemDetails();
     builder.Services.AddExceptionHandler<ErrorHandler>();
 
@@ -105,6 +108,7 @@ try
     app.UseRateLimiter();
 
     app.MapControllers();
+    app.MapHealthChecks("/health").AllowAnonymous();
     app.MapHub<OperacionHub>(OperacionHub.Path);
 
     await app.Services.SeedAdministratorAsync(app.Configuration);

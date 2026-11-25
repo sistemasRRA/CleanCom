@@ -42,7 +42,7 @@ Reglas:
 1. **API en la red local.** Inícialo con el perfil `red-local` (escucha en `http://0.0.0.0:5111`):
    - Visual Studio: elige `red-local` junto a ▶ e inicia **sin depurar** (Ctrl+F5). Con el depurador, cada excepción (por ejemplo, una contraseña incorrecta) pausa el API y la app termina mostrando "No hay conexión".
    - Terminal: `dotnet run --project CleanCom.Api --launch-profile red-local` desde `src/api`.
-   - Comprueba desde el celular que abra `http://<IP de la PC>:5111/health` (un 401 también cuenta: hay conexión).
+   - Comprueba desde el celular que abra `http://<IP de la PC>:5111/health` (debe decir `Healthy`).
 2. **Metro**, una terminal por app:
    ```bash
    cd src/mobile/chofer   && npx expo start
