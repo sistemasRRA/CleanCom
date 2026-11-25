@@ -11,9 +11,10 @@ Cómo está organizado el código, el recorrido de una petición, la diferencia 
 | `CleanCom.Domain` | Entidades y reglas puras: configuración, catálogos, zonas, permisos, hora de negocio, geografía |
 | `CleanCom.Application` | Casos de uso, DTOs y validaciones (FluentValidation) |
 | `CleanCom.Infrastructure` | EF Core + SQL Server (`geography`, nombres en `snake_case`), Identity, JWT, auditoría, reloj |
-| `CleanCom.Jobs` | Procesos de Hangfire (vacío por ahora) |
+| `CleanCom.Jobs` | Procesos en segundo plano: paradas fijas (00:15) y envío de avisos (cada 10 s). Pasan a Hangfire con los procesos nocturnos de la semana 7 |
 | `CleanCom.Api` | Controladores (`Controllers/`), autorización por pantalla, errores, OpenAPI y Swagger UI |
-| `CleanCom.Tests` | xUnit |
+| `CleanCom.Tests` | Pruebas unitarias (xUnit) de las reglas de `docs/03-reglas-de-negocio.md` |
+| `CleanCom.IntegrationTests` | Pruebas de integración: el API completo (`WebApplicationFactory`) sobre SQL Server real, con flujos de punta a punta |
 | `database/migrations` (`CleanCom.Migrations`) | Migraciones de EF Core; no se editan a mano |
 
 ## Primera vez
@@ -41,13 +42,34 @@ dotnet ef database update --project database/migrations/CleanCom.Migrations.cspr
 # Nueva migración
 dotnet ef migrations add <Name> --project database/migrations/CleanCom.Migrations.csproj --startup-project src/api/CleanCom.Api
 
-# Compilar y probar
+# Compilar y probar (las pruebas de integración necesitan SQL Server; ver abajo)
 dotnet build src/api/CleanCom.slnx
 dotnet test src/api/CleanCom.slnx
 
 # Correr el API (http://localhost:5111; Swagger en /swagger, documento OpenAPI en /openapi/v1.json, solo en Development)
 dotnet run --project src/api/CleanCom.Api --launch-profile http
 ```
+
+## Pruebas de integración
+
+`CleanCom.IntegrationTests` levanta el API completo sobre una base SQL Server desechable con todas las migraciones, la usa y la borra al terminar. Solo se reemplazan dos cosas: el código de acceso se lee en lugar de enviarse y los procesos de fondo no corren (la prueba manda los avisos cuando le toca).
+
+- **En tu equipo:** con la variable `CLEANCOM_TEST_SQL` apuntando al servidor (sin base), se crea ahí una base `cleancom_it_…`. Con SQL Server Express:
+  ```powershell
+  setx CLEANCOM_TEST_SQL "Server=.\SQLEXPRESS;Trusted_Connection=True;TrustServerCertificate=True;"
+  ```
+  (Abre una terminal nueva después de `setx`.) Sin la variable, usan Docker.
+- **En CI:** un contenedor de SQL Server (Testcontainers).
+- **Qué cubren:** `/health`, entrar y cambiar la contraseña inicial, permisos por pantalla (ver contra editar, la app del invitado contra oficina), baja lógica, y el flujo de la app del invitado: código, perfil, dirección en zona, disponibilidad, agendar, aviso al invitado, campana de oficina e historial del pedido.
+- **Una prueba nueva** usa `ApiFactory` (`AdminAsync`, `InvitadoAsync`, `ScenarioAsync` con una ruta y zona listas) y llama al API como lo hacen la web y las apps.
+
+## Salud
+
+`GET /health` (sin sesión) responde 200 `Healthy` cuando el API está arriba y llega a SQL Server, y 503 `Unhealthy` si no. Lo usan el proxy y el monitoreo del VPS.
+
+## Reglas de compilación
+
+`Directory.Build.props` (raíz del repositorio) fija .NET 10, `nullable`, los analizadores de .NET y **advertencias como errores**: una advertencia rompe la compilación. `.editorconfig` define el estilo de C# (namespaces de archivo, `using` fuera del namespace, nombres en PascalCase). Las versiones de los paquetes NuGet están solo en `Directory.Packages.props`: en un `.csproj` se escribe `<PackageReference Include="…" />` sin versión.
 
 ## Convenciones
 

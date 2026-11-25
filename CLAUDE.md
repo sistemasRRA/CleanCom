@@ -45,7 +45,8 @@ src/api/
 ├── CleanCom.Application/    Casos de uso (ScheduleRecoleccion, OptimizeRuta, ...), modelos y validadores
 ├── CleanCom.Infrastructure/ EF Core, Google, WhatsApp, Twilio, POS, correo, archivos
 ├── CleanCom.Jobs/           Procesos de Hangfire (fijas a 7 días, estatus CRM, KPIs, flota)
-└── CleanCom.Tests/          xUnit
+├── CleanCom.Tests/          xUnit (reglas)
+└── CleanCom.IntegrationTests/ API completo sobre SQL Server real (CLEANCOM_TEST_SQL o Docker)
 database/migrations/         Migraciones de EF Core (proyecto CleanCom.Migrations)
 ```
 

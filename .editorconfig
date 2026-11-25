@@ -13,3 +13,33 @@ indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.cs]
+max_line_length = 150
+
+# Generated code (migrations): not checked.
+[**/Migrations/**.cs]
+generated_code = true
+
+# C# style of src/api and database/migrations, checked on build (EnforceCodeStyleInBuild in Directory.Build.props).
+[*.cs]
+# Namespaces, usings and `var` as the code already writes them.
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_using_directive_placement = outside_namespace:warning
+dotnet_sort_system_directives_first = true
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_prefer_primary_constructors = true:suggestion
+
+# Naming: PascalCase for types and members, _camelCase is not used (primary constructors instead).
+dotnet_naming_rule.types_pascal.symbols = types
+dotnet_naming_rule.types_pascal.style = pascal
+dotnet_naming_rule.types_pascal.severity = warning
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, delegate, method, property, event
+dotnet_naming_style.pascal.capitalization = pascal_case
+
+# Async methods take a CancellationToken and pass it on.
+dotnet_diagnostic.CA2016.severity = warning

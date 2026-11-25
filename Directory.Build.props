@@ -1,0 +1,14 @@
+<Project>
+  <!-- Common settings of every .NET project (src/api and database/migrations). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- A warning is a bug waiting: the build fails on any. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- .NET analyzers (correctness, security, performance) and the code style of .editorconfig, checked on build. -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Default</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

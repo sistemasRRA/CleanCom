@@ -4,6 +4,7 @@
   <Project Path="CleanCom.Application/CleanCom.Application.csproj" />
   <Project Path="CleanCom.Domain/CleanCom.Domain.csproj" />
   <Project Path="CleanCom.Infrastructure/CleanCom.Infrastructure.csproj" />
+  <Project Path="CleanCom.IntegrationTests/CleanCom.IntegrationTests.csproj" />
   <Project Path="CleanCom.Jobs/CleanCom.Jobs.csproj" />
   <Project Path="CleanCom.Tests/CleanCom.Tests.csproj" />
 </Solution>
