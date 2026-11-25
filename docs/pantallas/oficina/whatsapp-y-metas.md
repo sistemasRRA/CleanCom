@@ -28,7 +28,19 @@ Plantillas de mensajes por evento y metas de los KPIs.
 - Plantillas de marketing separadas para campañas.
 - Metas con vigencia, responsable elegido de la lista de usuarios y validación del orden rojo, verde, súper verde.
 
+## Cómo quedó (semana 6, modo de prueba)
+
+- **Aviso** de que WhatsApp no está conectado: cada aviso queda en "Por mandar" y se manda con un clic; el push se registra sin enviarse.
+- **Por mandar:** fecha, invitado y teléfono, aviso y pedido, texto, canal y estado; "Abrir WhatsApp" con el texto escrito y "Ya lo mandé".
+- **Historial:** los últimos 200 avisos con su estado (por enviar, enviado, simulado, por mandar a mano, mandado a mano, falló, no se avisó y por qué).
+- **Plantillas:** una por evento con sus variables documentadas, nombre en Meta, texto de WhatsApp, título y texto del push y activa; al editar, vista previa con datos de ejemplo. No deja usar una variable que el evento no tiene.
+- **Campana de oficina** (en el menú): lo que el invitado hace en la app (pedido nuevo, cambio de día, cancelación), con liga al pedido y "Atendido".
+- **Falta:** conexión con Meta (estado de plantillas, webhook, bandeja de respuestas y "BAJA"), plantillas de marketing y campañas, y las metas de los KPIs (semana 7).
+
 ## Endpoints
+
+- Hechos: `GET /avisos?estado=&pedidoId=` (ver WhatsApp y metas o Pedidos), `POST /avisos/{id}/mandado` (editar WhatsApp y metas o Pedidos), `GET /plantillas`, `PUT /plantillas/{id}`, `POST /plantillas/{id}/previsualizar` (WhatsApp y metas), `GET /avisos-oficina`, `POST /avisos-oficina/{id}/atendido` (ver Agendar, Pedidos o Clientes).
+- Por hacer:
 
 - `GET|PUT /plantillas`, `POST /plantillas/{id}/previsualizar`, `POST /plantillas/sincronizar-meta`.
 - `GET /bandeja`, `POST /bandeja/{id}/responder`.

@@ -174,6 +174,18 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 
 .menu__bottom { padding: 10px 12px 14px; border-top: 1px solid rgb(255 255 255 / 12%); }
 .menu .menu__theme { width: 100%; gap: 8px; font-size: 13px; }
+.menu .menu__bell { margin-bottom: 8px; }
+.menu__bell-count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+}
+.menu-collapsed .menu__bell-count { position: absolute; top: -6px; right: -6px; }
 
 .menu__body { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 10px; overflow-y: auto; min-height: 0; }
 .menu__group { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; padding: 14px 10px 4px; }

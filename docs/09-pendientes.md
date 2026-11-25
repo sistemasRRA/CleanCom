@@ -37,8 +37,13 @@
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
 - [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
 
-- [ ] Agenda: el aviso "cita agendada" al invitado llega con las notificaciones (semana 6); hoy `agendar` crea el pedido sin avisar.
-- [ ] App del invitado: al cambiar día o cancelar, oficina lo ve en el historial del pedido; el aviso a oficina (push, WhatsApp o campana) llega con las notificaciones (semana 6), como acordó CleanCom.
+- [x] Agenda: el aviso "cita agendada" al invitado (semana 6, modo de prueba: WhatsApp por mandar a mano, push simulado).
+- [x] App del invitado: al pedir, cambiar día o cancelar, oficina lo ve en la campana del menú (semana 6).
+- [ ] Avisos: crear la cuenta de Meta Business (número nuevo, verificación) y pedir la aprobación de las 9 plantillas de utilidad (`cleancom_*`, ver WhatsApp y metas › Plantillas) y la de autenticación del código; tardan días. Mientras, los WhatsApp se mandan a mano.
+- [ ] Avisos: crear el proyecto de EAS de la app del invitado para obtener el token de push (`expo-notifications`) y enviarlo a `POST /yo/dispositivos`; mientras, el push queda simulado y todo va por WhatsApp. Pasos: (1) CleanCom crea la cuenta de Expo, un proyecto de Firebase (solo FCM, para Android) y la cuenta de Apple Developer; (2) en la app: `eas init` (projectId), `google-services.json` en `app.json`, llave de cuenta de servicio FCM V1 subida a EAS (secreta, nunca al repositorio) y llave APNs de Apple subida a EAS; (3) remitente real de push en el API (Expo Push API) en lugar de `TestPushSender`; (4) probar con una compilación de desarrollo en un Android real (en Expo Go para Android no funciona el push).
+- [ ] Avisos: "chofer en camino" sin hora estimada ni liga de seguimiento: falta la página pública de seguimiento (o liga a la app) y decidir si la hora estimada va en el WhatsApp.
+- [ ] Avisos: los textos de las plantillas son una propuesta; CleanCom los revisa en WhatsApp y metas (deben coincidir con lo que apruebe Meta).
+- [ ] Avisos pendientes de canal: correo (restablecer contraseña, avisos de flota), SMS de respaldo del código (Twilio), campana de flota y campañas de Promociones.
 - [ ] Agenda: la propuesta de "ruta más factible" para direcciones fuera de cobertura llega con la optimización de Google (semana 3); mientras, oficina elige la zona a mano.
 - [ ] Folio del pedido: falta definir su formato; por ahora se usa el id.
 - [ ] Viajes: la regla decía "en orden y seguidos"; con las vueltas reales (Operadora carga en Leones en la mañana y entrega en Cuautitlán en la tarde) quedó "en orden", cada paso con su turno y hora límite. Confirmar.

@@ -7,6 +7,7 @@ using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
 using CleanCom.Domain.Promociones;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -52,6 +53,10 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<FleetAlertRule> FleetAlertRules => Set<FleetAlertRule>();
     public DbSet<Promocion> Promociones => Set<Promocion>();
     public DbSet<Beneficio> Beneficios => Set<Beneficio>();
+    public DbSet<Plantilla> Plantillas => Set<Plantilla>();
+    public DbSet<Aviso> Avisos => Set<Aviso>();
+    public DbSet<DispositivoPush> DispositivosPush => Set<DispositivoPush>();
+    public DbSet<AvisoOficina> AvisosOficina => Set<AvisoOficina>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AccessCode> AccessCodes => Set<AccessCode>();
 

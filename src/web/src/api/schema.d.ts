@@ -464,6 +464,288 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/avisos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    estado?: components["schemas"]["AvisoState"];
+                    pedidoId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvisosDto"];
+                        "application/json": components["schemas"]["AvisosDto"];
+                        "text/json": components["schemas"]["AvisosDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos/{id}/mandado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvisoDto"];
+                        "application/json": components["schemas"]["AvisoDto"];
+                        "text/json": components["schemas"]["AvisoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/plantillas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantillaDto"][];
+                        "application/json": components["schemas"]["PlantillaDto"][];
+                        "text/json": components["schemas"]["PlantillaDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/plantillas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavePlantillaRequest"];
+                    "text/json": components["schemas"]["SavePlantillaRequest"];
+                    "application/*+json": components["schemas"]["SavePlantillaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantillaDto"];
+                        "application/json": components["schemas"]["PlantillaDto"];
+                        "text/json": components["schemas"]["PlantillaDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/plantillas/{id}/previsualizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavePlantillaRequest"];
+                    "text/json": components["schemas"]["SavePlantillaRequest"];
+                    "application/*+json": components["schemas"]["SavePlantillaRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PlantillaPreviewDto"];
+                        "application/json": components["schemas"]["PlantillaPreviewDto"];
+                        "text/json": components["schemas"]["PlantillaPreviewDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos-oficina": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvisosOficinaDto"];
+                        "application/json": components["schemas"]["AvisosOficinaDto"];
+                        "text/json": components["schemas"]["AvisosOficinaDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos-oficina/{id}/atendido": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AvisosOficinaDto"];
+                        "application/json": components["schemas"]["AvisosOficinaDto"];
+                        "text/json": components["schemas"]["AvisosOficinaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chofer/vista": {
         parameters: {
             query?: never;
@@ -1926,6 +2208,45 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/yo/dispositivos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterDeviceRequest"];
+                    "text/json": components["schemas"]["RegisterDeviceRequest"];
+                    "application/*+json": components["schemas"]["RegisterDeviceRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -5768,6 +6089,63 @@ export interface components {
             /** Format: date-time */
             registeredAt?: null | string;
         };
+        /** @enum {unknown} */
+        AvisoCanal: "Push" | "WhatsApp" | null;
+        AvisoDto: {
+            /** Format: int32 */
+            id: number;
+            evento: components["schemas"]["AvisoEvento"];
+            eventoName: string;
+            canal: null | components["schemas"]["AvisoCanal"];
+            state: components["schemas"]["AvisoState"];
+            /** Format: int32 */
+            invitadoId: number;
+            invitadoName: string;
+            phone: null | string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            title: null | string;
+            text: string;
+            detail: null | string;
+            whatsAppLink: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            sentAt: null | string;
+        };
+        /** @enum {unknown} */
+        AvisoEvento: "RecoleccionAgendada" | "CambioDeDia" | "PedidoCancelado" | "ChoferEnCamino" | "RecoleccionRealizada" | "PrendasEnProceso" | "EntregaConfirmada" | "EntregaEnCamino" | "Entregado";
+        AvisoOficinaDto: {
+            /** Format: int32 */
+            id: number;
+            kind: components["schemas"]["AvisoOficinaKind"];
+            /** Format: int32 */
+            invitadoId: number;
+            invitadoName: string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            text: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            attendedAt: null | string;
+        };
+        /** @enum {unknown} */
+        AvisoOficinaKind: "NuevoPedido" | "CambioDeDia" | "Cancelacion";
+        AvisosDto: {
+            avisos: components["schemas"]["AvisoDto"][];
+            /** Format: int32 */
+            toSendByHand: number;
+            whatsAppConnected: boolean;
+            pushConnected: boolean;
+        };
+        AvisosOficinaDto: {
+            /** Format: int32 */
+            pending: number;
+            avisos: components["schemas"]["AvisoOficinaDto"][];
+        };
+        /** @enum {unknown} */
+        AvisoState: "Pendiente" | "Enviado" | "Simulado" | "ParaMandarAMano" | "MandadoAMano" | "Fallido" | "Omitido";
         BeneficioDto: {
             /** Format: int32 */
             id: number;
@@ -6674,6 +7052,7 @@ export interface components {
             tickets: components["schemas"]["TicketDto"][];
             paradas: components["schemas"]["PedidoParadaDto"][];
             beneficios: components["schemas"]["BeneficioDto"][];
+            avisos: components["schemas"]["AvisoDto"][];
         };
         PedidoDto: {
             /** Format: int32 */
@@ -6811,6 +7190,23 @@ export interface components {
         };
         /** @enum {unknown} */
         PlantaView: "EnProceso" | "Listos";
+        PlantillaDto: {
+            /** Format: int32 */
+            id: number;
+            evento: components["schemas"]["AvisoEvento"];
+            eventoName: string;
+            variables: string[];
+            metaName: string;
+            whatsAppText: string;
+            pushTitle: string;
+            pushText: string;
+            active: boolean;
+        };
+        PlantillaPreviewDto: {
+            whatsApp: string;
+            pushTitle: string;
+            pushText: string;
+        };
         PostalCodeDto: {
             code: string;
             settlement: string;
@@ -6924,6 +7320,10 @@ export interface components {
         };
         RefreshSessionRequest: {
             refreshToken: string;
+        };
+        RegisterDeviceRequest: {
+            token: string;
+            platform: string;
         };
         ResetPasswordRequest: {
             temporaryPassword: string;
@@ -7193,6 +7593,13 @@ export interface components {
             name: string;
             requiredFields: null | string;
             /** @default true */
+            active: boolean;
+        };
+        SavePlantillaRequest: {
+            metaName: string;
+            whatsAppText: string;
+            pushTitle: string;
+            pushText: string;
             active: boolean;
         };
         SavePromocionRequest: {

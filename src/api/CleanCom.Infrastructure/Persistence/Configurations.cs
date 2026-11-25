@@ -7,6 +7,7 @@ using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
 using CleanCom.Domain.Promociones;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Routing;
 using CleanCom.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -630,5 +631,63 @@ internal class BeneficioConfig : IEntityTypeConfiguration<Beneficio>
         e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.GrantedByPedidoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class PlantillaConfig : IEntityTypeConfiguration<Plantilla>
+{
+    public void Configure(EntityTypeBuilder<Plantilla> e)
+    {
+        e.ToTable("Plantillas");
+        e.Property(x => x.MetaName).HasMaxLength(100);
+        e.Property(x => x.WhatsAppText).HasMaxLength(1024);
+        e.Property(x => x.PushTitle).HasMaxLength(65);
+        e.Property(x => x.PushText).HasMaxLength(240);
+        e.HasIndex(x => x.Evento).IsUnique();
+    }
+}
+
+internal class AvisoConfig : IEntityTypeConfiguration<Aviso>
+{
+    public void Configure(EntityTypeBuilder<Aviso> e)
+    {
+        e.ToTable("Avisos");
+        e.Property(x => x.Phone).HasMaxLength(20);
+        e.Property(x => x.MetaName).HasMaxLength(100);
+        e.Property(x => x.Values).HasMaxLength(1000);
+        e.Property(x => x.Title).HasMaxLength(65);
+        e.Property(x => x.Text).HasMaxLength(1024);
+        e.Property(x => x.Detail).HasMaxLength(500);
+        // The sender reads the pending ones; the pedido history and the repeat check read by pedido.
+        e.HasIndex(x => x.State);
+        e.HasIndex(x => new { x.PedidoId, x.Evento });
+        e.HasOne(x => x.Pedido).WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class DispositivoPushConfig : IEntityTypeConfiguration<DispositivoPush>
+{
+    public void Configure(EntityTypeBuilder<DispositivoPush> e)
+    {
+        e.ToTable("DispositivosPush");
+        e.Property(x => x.Token).HasMaxLength(200);
+        e.Property(x => x.Platform).HasMaxLength(20);
+        e.Property(x => x.Active).HasDefaultValue(true);
+        e.HasIndex(x => x.Token).IsUnique();
+        e.HasIndex(x => x.InvitadoId);
+        e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class AvisoOficinaConfig : IEntityTypeConfiguration<AvisoOficina>
+{
+    public void Configure(EntityTypeBuilder<AvisoOficina> e)
+    {
+        e.ToTable("AvisosOficina");
+        e.Property(x => x.Text).HasMaxLength(500);
+        e.HasIndex(x => x.AttendedAt);
+        e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
     }
 }

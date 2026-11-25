@@ -89,6 +89,9 @@ public static class DependencyInjection
         {
             services.AddSingleton<IAccessCodeSender, Messaging.UnavailableAccessCodeSender>();
         }
+        // Avisos: test senders until Meta (WhatsApp) and the app's EAS project (push) exist (docs/04-integraciones.md).
+        services.AddSingleton<CleanCom.Application.Avisos.IAvisoSender, Messaging.TestWhatsAppSender>();
+        services.AddSingleton<CleanCom.Application.Avisos.IAvisoSender, Messaging.TestPushSender>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddSingleton<IPermissionStore, PermissionStore>();
@@ -96,8 +99,8 @@ public static class DependencyInjection
     }
 
     /// <summary>
-    /// Initial options of editable catalogs that start with content: "Cómo nos conoció" and the promotions of the demo
-    /// (sellos and cuponera). Inserted only when the catalog has no row of that type (active or not), so the office's
+    /// Initial options of editable catalogs that start with content: "Cómo nos conoció", the avisos templates and the
+    /// promotions of the demo (sellos and cuponera). Inserted only when the catalog has no row of that type (active or not), so the office's
     /// edits are never undone. Not done with HasData because Reasons already has rows captured by hand and fixed ids
     /// would clash with them.
     /// </summary>
@@ -112,6 +115,16 @@ public static class DependencyInjection
                 new Domain.Catalogs.Reason { Type = Domain.Catalogs.ReasonType.HowFoundUs, Text = text }));
             await db.SaveChangesAsync();
             log.LogInformation("Catalog \"Cómo nos conoció\" created with {Count} options", Domain.Catalogs.Reason.HowFoundUsDefaults.Length);
+        }
+
+        // Avisos: one template per event, created when its event has none (new events get theirs on the next start).
+        var withTemplate = await db.Plantillas.Select(p => p.Evento).ToListAsync();
+        var missing = Domain.Avisos.AvisoRules.Defaults().Where(p => !withTemplate.Contains(p.Evento)).ToList();
+        if (missing.Count > 0)
+        {
+            db.Plantillas.AddRange(missing);
+            await db.SaveChangesAsync();
+            log.LogInformation("Avisos: {Count} templates created", missing.Count);
         }
 
         // Promotions of the demo, per program, only while that program has none (active or not).

@@ -1,8 +1,10 @@
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.ParadasFijas;
 using CleanCom.Application.Pedidos;
 using CleanCom.Application.Promociones;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
@@ -30,7 +32,8 @@ public class AgendaService(
     FijaCalendar fijas,
     IValidator<AvailabilityRequest> availabilityValidator,
     IValidator<ScheduleRequest> scheduleValidator,
-    BeneficioService beneficios)
+    BeneficioService beneficios,
+    AvisoService avisos)
 {
     /// <summary>Safety limit for the search; the answer explains when nothing is found.</summary>
     private const int SearchDays = 90;
@@ -180,7 +183,13 @@ public class AgendaService(
         };
         db.Pedidos.Add(pedido);
         db.Paradas.Add(parada);
+        await avisos.PedidoAsync(pedido, AvisoEvento.RecoleccionAgendada, ct);
         await db.SaveChangesAsync(ct);
+        if (origin == PedidoOrigin.App)
+        {
+            avisos.Oficina(AvisoOficinaKind.NuevoPedido, pedido, $"Pidió una recolección desde la app para el {AgendaCalculator.Format(date)} (pedido {pedido.Id}).");
+            await db.SaveChangesAsync(ct);
+        }
         if (applied.Count > 0)
         {
             BeneficioService.Reserve(applied, pedido.Id);
@@ -188,7 +197,6 @@ public class AgendaService(
         }
         await handle.CommitAsync(ct);
 
-        // The "cita agendada" notice (push or WhatsApp) arrives with notifications in week 6.
         var place = occupied + 1;
         return new ScheduleResultDto(true, pedido.Id, parada.Id, date, place,
             $"Recolección agendada el {AgendaCalculator.Format(date)}, lugar {place} de {cupo}."
@@ -238,7 +246,7 @@ public class AgendaService(
     /// <summary>
     /// "No se entregó" (Pedidos › No se entregó): the attempt goes to the history, the entrega parada is marked as not
     /// done and the pedido is rescheduled to the next day with cupo of its zona, from tomorrow. There is no limit of
-    /// attempts. The notice to the office and the invitado arrives with notifications (week 6).
+    /// attempts. The invitado is told the new date (Avisos: entrega confirmada).
     /// </summary>
     public async Task<EntregaResultDto> NoEntregadoAsync(int pedidoId, NoEntregadoRequest r, CancellationToken ct)
     {
@@ -410,6 +418,7 @@ public class AgendaService(
             Date = date,
             Note = previous is { } p && p != date ? $"Antes: {AgendaCalculator.Format(p)}" : null,
         });
+        await avisos.PedidoAsync(pedido, entrega ? AvisoEvento.EntregaConfirmada : AvisoEvento.CambioDeDia, ct, date, turno ?? pedido.Turno);
         await db.SaveChangesAsync(ct);
         await handle.CommitAsync(ct);
 

@@ -1,5 +1,6 @@
 using CleanCom.Api.Common;
 using CleanCom.Application.Agenda;
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Invitados;
 using CleanCom.Application.Promociones;
 using CleanCom.Domain.Access;
@@ -16,6 +17,19 @@ namespace CleanCom.Api.Controllers;
 [Tags("App del invitado")]
 public class MeController(MeService service, InvitadoAgendaService agenda) : ControllerBase
 {
+    /// <summary>
+    /// Registers this device's Expo push token so the notices of my pedidos arrive by push instead of WhatsApp. Sent on
+    /// every start of the app; a token that was another invitado's moves to me.
+    /// </summary>
+    [HttpPost("dispositivos")]
+    [RequireScreen(Screens.AppInvitado, AccessLevel.View)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RegisterDevice(RegisterDeviceRequest request, CancellationToken ct)
+    {
+        await agenda.RegisterDeviceAsync(request, ct);
+        return NoContent();
+    }
+
     /// <summary>My sellos and cupones with their code and expiry (Mis beneficios), newest first.</summary>
     [HttpGet("beneficios")]
     [RequireScreen(Screens.AppInvitado, AccessLevel.View)]

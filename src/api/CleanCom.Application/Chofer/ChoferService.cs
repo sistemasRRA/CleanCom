@@ -1,7 +1,9 @@
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Promociones;
 using CleanCom.Application.Rutas;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
@@ -26,7 +28,8 @@ public class ChoferService(
     ISettingService settings,
     RutaDiaService plans,
     IOperacionNotifier notifier,
-    BeneficioService beneficios)
+    BeneficioService beneficios,
+    AvisoService avisos)
 {
     /// <summary>The chofer's ruta on a day, or why there is none.</summary>
     private sealed record Resolved(Operador? Operador, Ruta? Ruta, RutaDia? RutaDia, bool Assigned, string? Problem);
@@ -137,7 +140,7 @@ public class ChoferService(
             isToday, next?.Id, orderRequired, tolerance, photoRequired);
     }
 
-    /// <summary>"En camino": the chofer leaves for this parada (step 3). The notice to the invitado arrives in week 6.</summary>
+    /// <summary>"En camino": the chofer leaves for this parada (step 3); the invitado is told (chofer or entrega en camino).</summary>
     public async Task<ChoferRutaDto> EnCaminoAsync(int paradaId, ChoferLocationRequest r, CancellationToken ct)
     {
         var (parada, ordered, orderRequired) = await LoadForFlowAsync(paradaId, ct);
@@ -156,6 +159,12 @@ public class ChoferService(
             && await db.Pedidos.FirstOrDefaultAsync(p => p.Id == pedidoId && p.Active, ct) is { } pedido)
         {
             PedidoFlow.Advance(pedido, PedidoEtapa.EnCamino, at, "El chofer va en camino.");
+            await avisos.PedidoAsync(pedido, AvisoEvento.EntregaEnCamino, ct);
+        }
+        else if (parada.Kind == ParadaKind.Recoleccion && parada.PedidoId is { } recoleccionId
+                 && await db.Pedidos.FirstOrDefaultAsync(p => p.Id == recoleccionId && p.Active, ct) is { } recoleccion)
+        {
+            await avisos.PedidoAsync(recoleccion, AvisoEvento.ChoferEnCamino, ct);
         }
         await db.SaveChangesAsync(ct);
         await NotifyParadaAsync(parada.Id, parada.RutaDiaId, date, ct);

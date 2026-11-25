@@ -242,6 +242,16 @@ Cómo funciona (semana 6):
 
 El envío manual por WhatsApp Web se conserva como respaldo si el envío automático falla.
 
+Cómo funciona (semana 6, modo de prueba):
+
+1. **Eventos:** recolección agendada (oficina o app), cambio de día (el invitado, oficina, o el chofer no la hizo), pedido cancelado, chofer en camino (recolección), recolección realizada (el chofer la cierra, u oficina pasa el pedido de Agendado a otra etapa), prendas en proceso (llega a En planta; inactiva), entrega confirmada (al programar o mover la entrega, con fecha y turno), entrega en camino y entregado. La encuesta NPS llega con las encuestas.
+2. **Canal:** push si el invitado tiene la app registrada en algún dispositivo; si no, WhatsApp de utilidad solo si acepta avisos por WhatsApp. Sin ninguno, el aviso queda registrado como "No se avisó" con el motivo. Las tiendas internas no reciben avisos.
+3. **Plantilla por evento** (WhatsApp y metas): nombre en Meta, texto de WhatsApp con variables `{{1}}`, `{{2}}`… y título y texto del push. Una plantilla inactiva no avisa su evento. Variables: nombre (el primer nombre), fecha ("jueves 26 de noviembre"), turno ("en la mañana"), número de pedido o prendas, según el evento.
+4. **Bandeja de salida:** el aviso se registra con el texto ya armado en la misma operación que lo dispara y un proceso lo envía cada 10 segundos; un proveedor lento nunca frena al chofer ni a oficina.
+5. **Repetidos:** el mismo aviso del mismo pedido con los mismos datos dentro de 10 minutos no se repite (doble clic, reenvío). Una fecha distinta sí avisa.
+6. **Modo de prueba** (sin cuenta de Meta ni proyecto de Expo): el WhatsApp queda "Por mandar a mano" con el botón "Abrir WhatsApp" (texto escrito) y "Ya lo mandé"; el push queda "Simulado". Al conectar Meta o Expo cambia solo el remitente. Si un envío real de WhatsApp falla, también queda para mandar a mano.
+7. **Avisos a oficina (campana):** cuando el invitado pide un servicio, cambia el día o cancela desde la app, aparece en la campana del menú para quien ve Agendar, Pedidos o Clientes (CRM); cualquiera lo marca como atendido para todos.
+
 ## KPIs
 
 Cada indicador tiene periodo (diario, semanal o mensual), responsable, rojo, verde y súper verde, y si más o menos es mejor. Las metas tienen vigencia: un cambio no reescribe el semáforo de periodos pasados. Los valores se calculan por proceso programado y se guardan por periodo y ruta.

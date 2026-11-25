@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.Text;
 using CleanCom.Application.Agenda;
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Geography;
@@ -28,7 +30,8 @@ public class ChoferVisitService(
     IFileStore files,
     AgendaService agenda,
     ChoferService chofer,
-    BeneficioService beneficios)
+    BeneficioService beneficios,
+    AvisoService avisos)
 {
     public const long MaxPhotoBytes = 8 * 1024 * 1024;
     private const int MaxStrokes = 300;
@@ -116,6 +119,7 @@ public class ChoferVisitService(
                 : "Entrega cerrada por el chofer.";
             if (PedidoFlow.Advance(pedido, etapa, at, note) is not null)
             {
+                await avisos.EtapaAsync(pedido, etapa, ct);
                 message = $"Pedido {pedido.Id}: {PedidoFlow.Name(etapa)}.";
                 if (etapa == PedidoEtapa.Recolectado
                     && await beneficios.OnRecolectadoAsync(pedido, at, ct) is { Count: > 0 } granted)

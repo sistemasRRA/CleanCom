@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { api, unwrap, type Schemas } from '../../api/client';
 import { keys, useRutas } from '../../api/queries';
 import { useSession } from '../../session/Session';
@@ -8,6 +8,7 @@ import { Checkbox, Dialog, Field, PageHeader, QueryState, formatDateTime, option
 import { Loader } from '../../components/Loader';
 import { useNotify } from '../../components/Toasts';
 import { BeneficioLine } from '../../components/Beneficios';
+import { AVISO_STATE, CANAL, SendByHand, avisosKey } from '../avisos/WhatsAppYMetas';
 
 type Card = Schemas['PedidoCardDto'];
 type Etapa = Schemas['PedidoEtapa'];
@@ -54,7 +55,19 @@ export function Pedidos() {
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   const [onlyLate, setOnlyLate] = useState(false);
-  const [open, setOpen] = useState<number | null>(null);
+  // ?pedido=ID opens its ficha (from the office bell or WhatsApp y metas).
+  const [params, setParams] = useSearchParams();
+  const linked = Number(params.get('pedido')) || null;
+  const [open, setOpen] = useState<number | null>(linked);
+  const [lastLinked, setLastLinked] = useState(linked);
+  if (linked !== lastLinked) {
+    setLastLinked(linked);
+    if (linked) setOpen(linked);
+  }
+  function close() {
+    setOpen(null);
+    if (params.has('pedido')) setParams({}, { replace: true });
+  }
 
   useEffect(() => {
     const t = setTimeout(() => setQ(text.trim()), 300);
@@ -107,7 +120,7 @@ export function Pedidos() {
           ))}
         </div>
       </QueryState>
-      {open && <PedidoDialog id={open} onClose={() => setOpen(null)} />}
+      {open && <PedidoDialog id={open} onClose={close} />}
     </div>
   );
 }
@@ -244,6 +257,7 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
                 </ul>
               </>
             )}
+            {d.avisos.length > 0 && <AvisosPedido avisos={d.avisos} pedidoId={d.card.id} />}
             <h3 className="form-section">Visitas</h3>
             <ul className="plain-list">
               {d.paradas.map((p) => (
@@ -455,5 +469,38 @@ function CommentForm({ id, onDone }: { id: number; onDone: () => void }) {
         Guardar comentario
       </button>
     </div>
+  );
+}
+
+/** Avisos sent to the invitado about this pedido, with "Abrir WhatsApp" for the ones to send by hand. */
+function AvisosPedido({ avisos, pedidoId }: { avisos: Schemas['AvisoDto'][]; pedidoId: number }) {
+  const { can } = useSession();
+  const canSend = can('whatsapp-y-metas', 'edit') || can('pedidos', 'edit');
+  const sent = useSave((id: number) => unwrap(api.POST('/avisos/{id}/mandado', { params: { path: { id } } })), {
+    refetch: [avisosKey, [...keys.pedidos, 'detalle', pedidoId]],
+    message: 'Aviso marcado como mandado.',
+  });
+  return (
+    <>
+      <h3 className="form-section">Avisos al invitado</h3>
+      <ul className="plain-list">
+        {avisos.map((a) => (
+          <li key={a.id} style={{ display: 'grid', gap: 2 }}>
+            <span>
+              <strong>{a.eventoName}</strong> · {a.canal ? CANAL[a.canal] : 'sin canal'} ·{' '}
+              <span className={`badge ${AVISO_STATE[a.state].tone}`}>{AVISO_STATE[a.state].text}</span>{' '}
+              <span className="muted">{formatDateTime(a.createdAt)}</span>
+            </span>
+            <span className="muted">
+              {a.title && `${a.title} · `}
+              {a.text}
+              {a.detail && ` · ${a.detail}`}
+            </span>
+            <SendByHand aviso={a} canSend={canSend} busy={sent.isPending} onSent={(id) => sent.mutate(id)} />
+          </li>
+        ))}
+      </ul>
+      {sent.error && <div className="alert error">{sent.error.message}</div>}
+    </>
   );
 }

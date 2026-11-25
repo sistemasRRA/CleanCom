@@ -47,6 +47,15 @@ public static class Policies
     /// <summary>Granting a beneficio by hand or marking one as used by its code: editing Promociones, Clientes (CRM) or Pedidos.</summary>
     public const string UsesBeneficios = "UsesBeneficios";
 
+    /// <summary>The avisos sent to the invitados (log and "por mandar"): seeing WhatsApp y metas or Pedidos.</summary>
+    public const string SeesAvisos = "SeesAvisos";
+
+    /// <summary>Marking a WhatsApp aviso as sent by hand: editing WhatsApp y metas or Pedidos.</summary>
+    public const string SendsAvisos = "SendsAvisos";
+
+    /// <summary>The office bell (what the invitado did in the app): seeing Agendar, Pedidos or Clientes (CRM).</summary>
+    public const string SeesAvisosOficina = "SeesAvisosOficina";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -205,7 +214,13 @@ public static class Security
             .AddPolicy(Policies.SeesBeneficios, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.ClientesCrm, Screens.Pedidos, Screens.Promociones], AccessLevel.View)))
             .AddPolicy(Policies.UsesBeneficios, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.Promociones, Screens.ClientesCrm, Screens.Pedidos], AccessLevel.Edit)));
+                .AddRequirements(new AnyScreenRequirement([Screens.Promociones, Screens.ClientesCrm, Screens.Pedidos], AccessLevel.Edit)))
+            .AddPolicy(Policies.SeesAvisos, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Pedidos], AccessLevel.View)))
+            .AddPolicy(Policies.SendsAvisos, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Pedidos], AccessLevel.Edit)))
+            .AddPolicy(Policies.SeesAvisosOficina, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.Pedidos, Screens.ClientesCrm], AccessLevel.View)));
 
         return services;
     }

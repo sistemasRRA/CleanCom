@@ -21,7 +21,7 @@ export const SCREENS: MenuScreen[] = [
   { key: 'vista-del-chofer', name: 'Vista del chofer', path: '/vista-del-chofer', group: 'Operación diaria' },
   { key: 'clientes-crm', name: 'Clientes (CRM)', path: '/clientes', group: 'Clientes' },
   { key: 'promociones', name: 'Promociones', path: '/promociones', group: 'Clientes' },
-  { key: 'whatsapp-y-metas', name: 'WhatsApp y metas', path: '/whatsapp-y-metas', group: 'Clientes', week: 6 },
+  { key: 'whatsapp-y-metas', name: 'WhatsApp y metas', path: '/whatsapp-y-metas', group: 'Clientes' },
   { key: 'clientes-y-fuentes', name: 'Clientes y fuentes', path: '/clientes-y-fuentes', group: 'Gerencia', week: 7 },
   { key: 'kpis', name: 'KPIs', path: '/kpis', group: 'Gerencia', week: 7 },
   { key: 'evidencias-y-caja', name: 'Evidencias y caja', path: '/evidencias-y-caja', group: 'Gerencia', week: 7 },
