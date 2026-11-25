@@ -1,0 +1,35 @@
+/* Pedidos */
+.pedidos-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.pedidos-column { min-width: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+.pedidos-column header { display: flex; justify-content: space-between; align-items: center; }
+.pedidos-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-content: start; }
+.pedidos-hint { margin: 0; font-size: 12px; }
+/* The card is a <button>: undo the button's nowrap so long text wraps inside the column instead of overflowing it. */
+.pedido-card { display: grid; gap: 4px; width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: 13px; }
+.pedido-card:hover { border-color: var(--brand); }
+.pedido-card__top { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; justify-content: space-between; }
+.pedido-summary { display: flex; flex-wrap: wrap; gap: 6px; }
+.pedido-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13.5px; }
+.pedido-facts dt { color: var(--text-muted); }
+.pedido-facts dd { margin: 0; }
+.inline-form { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+.entrega-days { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Ficha del pedido: header and footer stay, the body scrolls with the actions on top. */
+dialog.pedido-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: hidden; }
+dialog.pedido-dialog > form { display: flex; flex-direction: column; max-height: calc(100vh - 32px); }
+.pedido-actions { position: sticky; top: -20px; z-index: 2; margin: -8px 0; padding: 8px 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+.visit-list { list-style: none; padding: 0; margin: 4px 0; display: grid; gap: 6px; }
+.visit__main { display: grid; grid-template-columns: 96px 92px 1fr auto auto; gap: 4px 12px; align-items: center; }
+.visit__details { font-size: 12.5px; color: var(--text-muted); }
+.visit__note { font-size: 12.5px; color: var(--text-muted); }
+.visit-list__toggle, .history__toggle { justify-self: start; font-size: 13px; font-weight: 600; }
+.history__date { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: none; }
+.history__item { position: relative; display: grid; grid-template-columns: 14px 1fr; gap: 10px; padding-bottom: 10px; font-size: 13.5px; }
+.history__item::before { content: ''; position: absolute; left: 6px; top: 14px; bottom: 0; width: 2px; background: var(--border); }
+.history__item:last-child::before { display: none; }
+.history__dot { width: 10px; height: 10px; margin-top: 5px; margin-left: 2px; border-radius: 50%; background: var(--text-muted); box-shadow: 0 0 0 3px var(--surface); }
+.history__content { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.history__meta { font-size: 12px; color: var(--text-muted); }
+.history__comment { margin: 2px 0 0; padding: 6px 10px; border-left: 3px solid var(--brand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--brand-soft); }
+.evidencia { display: grid; gap: 2px; width: 110px; font-size: 12px; color: var(--text-muted); text-decoration: none; }
+.evidencia img { width: 110px; height: 82px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; }

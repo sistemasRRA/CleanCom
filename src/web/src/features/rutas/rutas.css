@@ -1,0 +1,15 @@
+/* Rutas */
+.rutas-note { margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+/* Rutas side by side: two columns from about 1250px of content, compact so each table fits its half. */
+.rutas-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr)); align-items: start; }
+.rutas-grid .ruta-table th, .rutas-grid .ruta-table td { padding: 7px 6px; font-size: 13px; }
+.rutas-grid .ruta-table th { font-size: 11px; }
+.inline-field { display: inline-flex; gap: 6px; align-items: center; }
+.ruta-alerts { margin: 0 16px 12px; }
+.ruta-alerts ul { margin: 0; padding-left: 18px; }
+.ruta-table td { vertical-align: top; }
+.ruta-base td, .ruta-lunch td { background: var(--surface-2); color: var(--text-muted); font-size: 12.5px; }
+.ruta-order { display: inline-grid; place-items: center; min-width: 24px; height: 24px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-weight: 650; font-size: 12px; }
+.ruta-flag { margin-left: 6px; }
+div.ruta-flag { margin: 4px 0 0; display: inline-block; }
+.ruta-viaje { color: var(--brand); font-size: 12.5px; font-weight: 600; }

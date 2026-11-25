@@ -1,0 +1,15 @@
+/* Tickets en planta: large targets for a tablet in planta. */
+.planta-scan { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.planta-scan input { font-size: 20px; padding: 12px 14px; }
+.planta-scan button { font-size: 16px; padding: 0 20px; }
+.planta-stat__note { margin-top: auto; font-size: 14px; color: var(--text-muted); }
+.planta-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+.planta-card { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.planta-card header { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.planta-tickets { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.planta-tickets li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.planta-tickets li > div { display: grid; gap: 2px; }
+@media (max-width: 600px) {
+  .planta-scan { grid-template-columns: 1fr; }
+  .planta-cards { grid-template-columns: 1fr; }
+}
