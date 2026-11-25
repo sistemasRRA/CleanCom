@@ -39,6 +39,7 @@ Tablero del camino de cada pedido, de la recolección a la entrega, y bitácora 
 
 - **Avisos al invitado** en la ficha: cada aviso del pedido con canal, estado y texto; los de WhatsApp por mandar tienen "Abrir WhatsApp" y "Ya lo mandé" (la pestaña "Mensajes de WhatsApp" vive en WhatsApp y metas › Por mandar). Reglas en [Avisos al invitado](../../03-reglas-de-negocio.md#avisos-al-invitado).
 - `/pedidos?pedido=ID` abre la ficha de ese pedido (desde la campana o WhatsApp y metas).
+- **Ficha:** el título y "Cerrar" quedan fijos y las acciones se quedan arriba al bajar. **Visitas** por fecha, una fila por visita con tipo, fecha, turno, ruta y estado en color (y el motivo si no se realizó); las quitadas se pliegan en "Ver quitadas". **Historial** como línea de tiempo por día, con un punto de color por tipo de movimiento, hora y quién, comentarios resaltados y los últimos 8 movimientos con "Ver todo". Un cambio de fecha se lee "Entrega cambiada: sáb 21 nov → mié 25 nov".
 
 ## Endpoints
 

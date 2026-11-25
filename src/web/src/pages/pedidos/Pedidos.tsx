@@ -42,6 +42,29 @@ const STATE: Record<Schemas['ParadaState'], string> = {
   NoRealizada: 'No realizada',
 };
 
+const STATE_TONE: Record<Schemas['ParadaState'], string> = {
+  Pendiente: '',
+  EnCamino: 'brand',
+  EnSitio: 'brand',
+  Realizada: 'success',
+  NoRealizada: 'danger',
+};
+type HistoryKind = Schemas['PedidoEventoDto']['kind'];
+/** Color of the dot of each kind of movement in the history. */
+const HISTORY_TONE: Record<HistoryKind, string> = {
+  Etapa: 'brand',
+  EntregaProgramada: 'success',
+  RecoleccionProgramada: 'success',
+  NoEntregado: 'danger',
+  NoRecolectado: 'danger',
+  AtrasoPlanta: 'warning',
+  Comentario: 'comment',
+  Ticket: '',
+};
+const HISTORY_FIRST = 8;
+const historyDay = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' });
+const historyTime = new Intl.DateTimeFormat('es-MX', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Mexico_City' });
+
 const shortDate = new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 const short = (iso?: string | null) => (iso ? shortDate.format(new Date(`${iso}T00:00:00Z`)).replace('.', '') : '—');
 
@@ -169,7 +192,14 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
   const d = detail.data;
 
   return (
-    <Dialog title={d ? `Pedido #${d.card.folio} · ${d.card.invitadoName}` : 'Pedido'} onClose={onClose} onSubmit={onClose} submitText="Cerrar">
+    <Dialog
+      title={d ? `Pedido #${d.card.folio} · ${d.card.invitadoName}` : 'Pedido'}
+      onClose={onClose}
+      onSubmit={onClose}
+      submitText="Cerrar"
+      hideCancel
+      className="pedido-dialog"
+    >
       <QueryState loading={detail.isPending} error={detail.error}>
         {d && (
           <div className="stack">
@@ -209,7 +239,7 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
             </dl>
 
             {canEdit && d.card.etapa !== 'Cancelado' && (
-              <div className="actions tight">
+              <div className="actions tight pedido-actions">
                 <button type="button" className={`small${action === 'mover' ? ' selected' : ''}`} onClick={() => setAction('mover')}>
                   Cambiar etapa
                 </button>
@@ -258,40 +288,131 @@ function PedidoDialog({ id, onClose }: { id: number; onClose: () => void }) {
               </>
             )}
             {d.avisos.length > 0 && <AvisosPedido avisos={d.avisos} pedidoId={d.card.id} />}
-            <h3 className="form-section">Visitas</h3>
-            <ul className="plain-list">
-              {d.paradas.map((p) => (
-                <li key={p.id} className={p.active ? '' : 'muted'}>
-                  <strong>{KIND[p.kind] ?? p.kind}</strong> {p.label}
-                  {p.turno && ` · ${TURNO_NAME[p.turno]}`} · Ruta {p.rutaCode} · {p.active ? STATE[p.state] : 'quitada'}
-                  {p.arrivedAt && ` · llegó ${formatDateTime(p.arrivedAt)}`}
-                  {p.closedAt && ` · cerró ${formatDateTime(p.closedAt)}`}
-                  {p.garmentsCollected != null && ` · ${p.garmentsCollected} prendas`}
-                  {p.paymentMethod && ` · pagó ${p.paymentAmount?.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (${p.paymentMethod.toLowerCase()}, referencia)`}
-                  {p.closeNote && <div className="muted">{p.state === 'NoRealizada' ? 'Motivo' : 'Notas'}: {p.closeNote}</div>}
-                  {p.evidence && p.evidence.length > 0 && (
-                    <div className="evidencias">
-                      {p.evidence.map((e) => (
-                        <EvidenciaThumb key={e.id} id={e.id} kind={e.kind} distance={e.distanceMeters} />
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <h3 className="form-section">Historial</h3>
-            <ul className="plain-list pedido-history">
-              {d.history.map((h) => (
-                <li key={h.id}>
-                  <span className="muted">{formatDateTime(h.at)}</span> {h.text}
-                  {h.by && <span className="muted"> — {h.by}</span>}
-                </li>
-              ))}
-            </ul>
+            <Visitas paradas={d.paradas} />
+            <Historial history={d.history} />
           </div>
         )}
       </QueryState>
     </Dialog>
+  );
+}
+
+/** Visits of the pedido by date; the removed ones (quitadas) fold away so they do not read as active. */
+function Visitas({ paradas }: { paradas: Schemas['PedidoParadaDto'][] }) {
+  const [showRemoved, setShowRemoved] = useState(false);
+  const sorted = [...paradas].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+  const active = sorted.filter((p) => p.active);
+  const removed = sorted.filter((p) => !p.active);
+  return (
+    <>
+      <h3 className="form-section">Visitas</h3>
+      {active.length === 0 && <p className="muted">Sin visitas activas.</p>}
+      <ul className="visit-list">
+        {active.map((p) => (
+          <VisitRow key={p.id} p={p} />
+        ))}
+      </ul>
+      {removed.length > 0 && (
+        <>
+          <button type="button" className="link visit-list__toggle" onClick={() => setShowRemoved((x) => !x)} aria-expanded={showRemoved}>
+            {showRemoved ? 'Ocultar quitadas' : `Ver quitadas (${removed.length})`}
+          </button>
+          {showRemoved && (
+            <ul className="visit-list removed">
+              {removed.map((p) => (
+                <VisitRow key={p.id} p={p} />
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
+function VisitRow({ p }: { p: Schemas['PedidoParadaDto'] }) {
+  const details = [
+    p.arrivedAt && `Llegó ${formatDateTime(p.arrivedAt)}`,
+    p.closedAt && `Cerró ${formatDateTime(p.closedAt)}`,
+    p.garmentsCollected != null && `${p.garmentsCollected} prendas`,
+    p.paymentMethod &&
+      `Pagó ${p.paymentAmount?.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (${p.paymentMethod.toLowerCase()}, referencia)`,
+  ].filter(Boolean);
+  return (
+    <li className="visit">
+      <div className="visit__main">
+        <strong>{KIND[p.kind] ?? p.kind}</strong>
+        <span>{p.label}</span>
+        <span className="muted">{p.turno ? TURNO_NAME[p.turno] : '—'}</span>
+        <span className="muted">Ruta {p.rutaCode}</span>
+        <span className={`badge ${p.active ? STATE_TONE[p.state] : ''}`}>{p.active ? STATE[p.state] : 'Quitada'}</span>
+      </div>
+      {details.length > 0 && <div className="visit__details">{details.join(' · ')}</div>}
+      {p.closeNote && (
+        <div className={`visit__note${p.state === 'NoRealizada' ? ' danger' : ''}`}>
+          {p.state === 'NoRealizada' ? 'Motivo' : 'Notas'}: {p.closeNote}
+        </div>
+      )}
+      {p.evidence && p.evidence.length > 0 && (
+        <div className="evidencias">
+          {p.evidence.map((e) => (
+            <EvidenciaThumb key={e.id} id={e.id} kind={e.kind} distance={e.distanceMeters} />
+          ))}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** History as a timeline grouped by day (newest first), the latest movements first and the rest on demand. */
+function Historial({ history }: { history: Schemas['PedidoEventoDto'][] }) {
+  const [all, setAll] = useState(false);
+  const shown = all ? history : history.slice(0, HISTORY_FIRST);
+  const days: { day: string; items: Schemas['PedidoEventoDto'][] }[] = [];
+  for (const h of shown) {
+    const day = historyDay.format(new Date(h.at));
+    const last = days[days.length - 1];
+    if (last?.day === day) last.items.push(h);
+    else days.push({ day, items: [h] });
+  }
+  return (
+    <>
+      <h3 className="form-section">Historial</h3>
+      {history.length === 0 && <p className="muted">Sin movimientos.</p>}
+      <div className="history">
+        {days.map(({ day, items }) => (
+          <section key={day} className="history__day">
+            <h4 className="history__date">{day.charAt(0).toUpperCase() + day.slice(1)}</h4>
+            <ol>
+              {items.map((h) => (
+                <li key={h.id} className={`history__item ${HISTORY_TONE[h.kind]}`}>
+                  <span className="history__dot" aria-hidden="true" />
+                  <div className="history__content">
+                    {h.kind === 'Comentario' && (h.note || h.reason) ? (
+                      <>
+                        <span>Comentario</span>
+                        <blockquote className="history__comment">{h.note ?? h.reason}</blockquote>
+                      </>
+                    ) : (
+                      <span>{h.text}</span>
+                    )}
+                    <span className="history__meta">
+                      {historyTime.format(new Date(h.at))}
+                      {h.by && ` · ${h.by}`}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+      {history.length > HISTORY_FIRST && (
+        <button type="button" className="link history__toggle" onClick={() => setAll((x) => !x)} aria-expanded={all}>
+          {all ? 'Ver menos' : `Ver todo (${history.length} movimientos)`}
+        </button>
+      )}
+    </>
   );
 }
 
