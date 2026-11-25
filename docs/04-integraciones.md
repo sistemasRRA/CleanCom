@@ -33,6 +33,7 @@ Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, par
 - Respuestas libres solo dentro de la ventana de 24 horas que abre el invitado al escribir.
 - Plantillas de marketing separadas de las de utilidad.
 - Respaldo: si el envío falla o la cuenta no está conectada, el mensaje queda "para mandar a mano" con botón para abrir WhatsApp Web, como hoy.
+- **Hoy (modo de prueba):** los avisos se registran en la tabla `avisos` (bandeja de salida) y `AvisosJob` los procesa cada 10 segundos con un `IAvisoSender` por canal. Mientras no haya cuenta de Meta, `TestWhatsAppSender` deja cada WhatsApp "Por mandar a mano" (liga `https://wa.me/52…?text=…`). Al conectar la Cloud API se registra el remitente real en lugar del de prueba; plantillas, eventos y pantallas no cambian.
 
 ## Código de verificación (registro del invitado)
 
@@ -45,6 +46,7 @@ Cada integración vive en `CleanCom.Infrastructure` detrás de una interfaz, par
 
 - Expo Notifications (FCM para Android, APNs para iOS).
 - El API guarda el token de cada dispositivo por usuario.
+- **Hoy:** `POST /yo/dispositivos` guarda el token Expo de la app del invitado (tabla `dispositivos_push`); con un dispositivo, sus avisos van por push. Falta crear el proyecto de EAS para que la app obtenga el token; mientras, `TestPushSender` solo registra el aviso como "Simulado".
 - Oficina recibe avisos en la web con una campana (SignalR) y, opcionalmente, notificaciones del navegador.
 
 ## Correo

@@ -27,6 +27,7 @@ import { TicketsEnPlanta } from './pages/planta/TicketsEnPlanta';
 import { PanelDelDia } from './pages/panel/PanelDelDia';
 import { Unidades } from './pages/unidades/Unidades';
 import { Promociones } from './pages/promociones/Promociones';
+import { WhatsAppYMetas } from './pages/avisos/WhatsAppYMetas';
 import { VistaDelChofer } from './pages/chofer/VistaDelChofer';
 import './styles.css';
 
@@ -83,6 +84,7 @@ function App() {
         {can('panel-del-dia') && <Route path="panel-del-dia" element={<PanelDelDia />} />}
         {can('unidades') && <Route path="unidades" element={<Unidades />} />}
         {can('promociones') && <Route path="promociones" element={<Promociones />} />}
+        {can('whatsapp-y-metas') && <Route path="whatsapp-y-metas" element={<WhatsAppYMetas />} />}
         {can('vista-del-chofer') && <Route path="vista-del-chofer" element={<VistaDelChofer />} />}
         {can('rutas') && <Route path="rutas" element={<RutasDelDia />} />}
         {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}

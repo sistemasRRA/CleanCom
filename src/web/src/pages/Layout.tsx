@@ -4,6 +4,7 @@ import { useSession } from '../session/Session';
 import { SCREENS } from '../screens';
 import { Logo } from '../components/Brand';
 import { useTheme } from '../theme/Theme';
+import { AvisosOficinaBell } from '../components/AvisosOficina';
 
 const COLLAPSED_KEY = 'cleancom.menuCollapsed';
 
@@ -124,6 +125,7 @@ export function Layout() {
           </div>
         </div>
         <div className="menu__bottom">
+          <AvisosOficinaBell />
           <button
             type="button"
             className="menu__theme"

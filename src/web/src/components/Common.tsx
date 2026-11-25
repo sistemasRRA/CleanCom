@@ -40,6 +40,7 @@ export function Dialog({
   error,
   children,
   className,
+  hideCancel,
 }: {
   title: string;
   onClose: () => void;
@@ -50,6 +51,8 @@ export function Dialog({
   children: ReactNode;
   /** Extra class for the dialog, e.g. a wider one with a map. */
   className?: string;
+  /** A dialog that only shows information: just the submit button ("Cerrar"). */
+  hideCancel?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -76,9 +79,11 @@ export function Dialog({
           {error && <div className="alert error">{error.message}</div>}
         </div>
         <div className="dialog__footer">
-          <button type="button" onClick={onClose}>
-            Cancelar
-          </button>
+          {!hideCancel && (
+            <button type="button" onClick={onClose}>
+              Cancelar
+            </button>
+          )}
           <button type="submit" className="primary" disabled={busy}>
             {busy ? 'Guardando…' : submitText}
           </button>

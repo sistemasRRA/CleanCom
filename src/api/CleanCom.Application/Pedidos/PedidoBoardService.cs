@@ -1,7 +1,9 @@
 using CleanCom.Application.Access;
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Promociones;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Operations;
@@ -24,7 +26,8 @@ public class PedidoBoardService(
     IUserService users,
     IValidator<MoveEtapaRequest> moveValidator,
     IValidator<PedidoCommentRequest> commentValidator,
-    BeneficioService beneficios)
+    BeneficioService beneficios,
+    AvisoService avisos)
 {
     /// <summary>Entregado shows the last days only.</summary>
     private const int DeliveredDays = 7;
@@ -112,7 +115,8 @@ public class PedidoBoardService(
                 p.ClosedAt, p.GarmentsCollected,
                 string.Join(" · ", new[] { p.Reason, p.CloseNotes }.Where(x => !string.IsNullOrWhiteSpace(x))) is { Length: > 0 } note ? note : null,
                 p.Cobro?.Method, p.Cobro?.Amount, p.Evidence, p.Turno)).ToList(),
-            await beneficios.ForPedidoAsync(id, ct));
+            await beneficios.ForPedidoAsync(id, ct),
+            await avisos.ForPedidoAsync(id, ct));
     }
 
     /// <summary>
@@ -142,6 +146,12 @@ public class PedidoBoardService(
     {
         var from = pedido.Etapa;
         PedidoFlow.Move(pedido, to, reason, clock.UtcNow);
+        // Moved on from Agendado past Recolectado: it was collected too, so the invitado is told both.
+        if (from == PedidoEtapa.Agendado && to is not (PedidoEtapa.Recolectado or PedidoEtapa.Cancelado))
+        {
+            await avisos.PedidoAsync(pedido, AvisoEvento.RecoleccionRealizada, ct);
+        }
+        await avisos.EtapaAsync(pedido, to, ct);
         // Beneficios (docs/03-reglas-de-negocio.md, Promociones): a cancelled pedido frees what it reserved; moving it on
         // from Agendado is its recolección, like the chofer closing it.
         if (to == PedidoEtapa.Cancelado)

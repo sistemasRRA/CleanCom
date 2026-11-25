@@ -1,4 +1,5 @@
 using CleanCom.Domain.Access;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
 using CleanCom.Domain.Fleet;
@@ -50,6 +51,10 @@ public interface ICleanComDbContext
     DbSet<FleetAlertRule> FleetAlertRules { get; }
     DbSet<Promocion> Promociones { get; }
     DbSet<Beneficio> Beneficios { get; }
+    DbSet<Plantilla> Plantillas { get; }
+    DbSet<Aviso> Avisos { get; }
+    DbSet<DispositivoPush> DispositivosPush { get; }
+    DbSet<AvisoOficina> AvisosOficina { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

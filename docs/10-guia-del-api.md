@@ -252,6 +252,11 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | App del invitado | `POST /auth/codigo`, `POST /auth/verificar` (límite por IP) | Ninguno |
 | App del invitado | `GET|PUT /yo`, `GET|POST|PUT|DELETE /yo/direcciones`, `GET /yo/pedidos`, `GET /yo/pedidos/{id}/seguimiento`, `GET|POST /yo/pedidos/{id}/cambiar-dia`, `POST /yo/pedidos/{id}/cancelar`, `GET /yo/beneficios` | App del invitado: View para leer, Edit para cambiar |
 | Promociones | `GET /promociones`, `POST /promociones`, `PUT /promociones/{id}` | Promociones: View para leer, Edit para cambiar |
+| App del invitado | `POST /yo/dispositivos` | App del invitado: View |
+| Avisos | `GET /avisos?estado=&pedidoId=` | Ver WhatsApp y metas o Pedidos (política `SeesAvisos`) |
+| Avisos | `POST /avisos/{id}/mandado` | Editar WhatsApp y metas o Pedidos (política `SendsAvisos`) |
+| Plantillas | `GET /plantillas`, `PUT /plantillas/{id}`, `POST /plantillas/{id}/previsualizar` | WhatsApp y metas: View para leer y previsualizar, Edit para cambiar |
+| Campana de oficina | `GET /avisos-oficina`, `POST /avisos-oficina/{id}/atendido` | Ver Agendar, Pedidos o Clientes (CRM) (política `SeesAvisosOficina`) |
 | Beneficios | `GET /invitados/{id}/beneficios` | Ver Agendar, Clientes (CRM), Pedidos o Promociones (política `SeesBeneficios`) |
 | Beneficios | `POST /invitados/{id}/beneficios`, `POST /beneficios/{codigo}/usar` | Editar Promociones, Clientes (CRM) o Pedidos (política `UsesBeneficios`) |
 | Invitados | `GET /invitados/buscar?q=`, `GET/PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/direcciones`, `PUT/DELETE /invitados/{id}/direcciones/{addressId}` | Agendar: View para leer, Edit para cambiar |

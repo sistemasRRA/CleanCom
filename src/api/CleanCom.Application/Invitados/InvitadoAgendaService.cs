@@ -1,9 +1,11 @@
 using CleanCom.Application.Agenda;
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Pedidos;
 using CleanCom.Application.Promociones;
 using CleanCom.Application.Tracking;
+using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Agenda;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
@@ -25,7 +27,8 @@ public class InvitadoAgendaService(
     LocationService locations,
     ISettingService settings,
     PedidoBoardService pedidos,
-    BeneficioService beneficios)
+    BeneficioService beneficios,
+    AvisoService avisos)
 {
     private static readonly PedidoEtapa[] Path =
     [
@@ -54,6 +57,10 @@ public class InvitadoAgendaService(
         InvitadoScheduling.EnsureAllowed(r.Turno, r.SpecificTime, r.Priority, r.RegisteredAt, null);
         return await agenda.ScheduleAsync(r, PedidoOrigin.App, ct);
     }
+
+    /// <summary>The app registers this device for push notices (on every start, after signing in).</summary>
+    public async Task RegisterDeviceAsync(RegisterDeviceRequest r, CancellationToken ct) =>
+        await avisos.RegisterDeviceAsync(await me.OwnIdAsync(ct), r, ct);
 
     /// <summary>My sellos and cupones (Mis beneficios), newest first.</summary>
     public async Task<IReadOnlyList<BeneficioDto>> BeneficiosAsync(CancellationToken ct) =>
@@ -148,7 +155,15 @@ public class InvitadoAgendaService(
     {
         var pedido = await OwnPedidoAsync(pedidoId, ct);
         InvitadoScheduling.EnsureCanChangeDay(pedido.Etapa, await RecoleccionStateAsync(pedidoId, ct));
-        return await agenda.RescheduleRecoleccionAsync(pedido, await DayChangeMinimumAsync(ct), r.Date, ct);
+        var before = pedido.RecoleccionDate;
+        var result = await agenda.RescheduleRecoleccionAsync(pedido, await DayChangeMinimumAsync(ct), r.Date, ct);
+        if (result.Scheduled)
+        {
+            avisos.Oficina(AvisoOficinaKind.CambioDeDia, pedido,
+                $"Cambió su recolección del {AgendaCalculator.Format(before)} al {AgendaCalculator.Format(pedido.RecoleccionDate)} desde la app (pedido {pedido.Id}).");
+            await db.SaveChangesAsync(ct);
+        }
+        return result;
     }
 
     /// <summary>
@@ -162,6 +177,9 @@ public class InvitadoAgendaService(
             await settings.GetTimeAsync(SettingKeys.AgendaCorteCancellation, ct));
         var reason = string.IsNullOrWhiteSpace(r.Note) ? "Cancelado por el invitado desde la app." : $"Cancelado por el invitado desde la app: {r.Note.Trim()}";
         await pedidos.ApplyMoveAsync(pedido, PedidoEtapa.Cancelado, reason, ct);
+        avisos.Oficina(AvisoOficinaKind.Cancelacion, pedido,
+            $"Canceló desde la app su recolección del {AgendaCalculator.Format(pedido.RecoleccionDate)} (pedido {pedido.Id})."
+            + (string.IsNullOrWhiteSpace(r.Note) ? "" : $" Motivo: {r.Note.Trim()}"));
         await db.SaveChangesAsync(ct);
         return await SeguimientoAsync(pedidoId, ct);
     }

@@ -503,6 +503,304 @@ namespace CleanCom.Migrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Avisos.Aviso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int")
+                        .HasColumnName("attempts");
+
+                    b.Property<int?>("Canal")
+                        .HasColumnType("int")
+                        .HasColumnName("canal");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("detail");
+
+                    b.Property<int>("Evento")
+                        .HasColumnType("int")
+                        .HasColumnName("evento");
+
+                    b.Property<int>("InvitadoId")
+                        .HasColumnType("int")
+                        .HasColumnName("invitado_id");
+
+                    b.Property<string>("MetaName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("meta_name");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("pedido_id");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("sent_at");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int")
+                        .HasColumnName("state");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)")
+                        .HasColumnName("text");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(65)
+                        .HasColumnType("nvarchar(65)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Values")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("values");
+
+                    b.HasKey("Id")
+                        .HasName("pk_avisos");
+
+                    b.HasIndex("InvitadoId")
+                        .HasDatabaseName("ix_avisos_invitado_id");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("ix_avisos_state");
+
+                    b.HasIndex("PedidoId", "Evento")
+                        .HasDatabaseName("ix_avisos_pedido_id_evento");
+
+                    b.ToTable("avisos", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.AvisoOficina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset?>("AttendedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("attended_at");
+
+                    b.Property<int?>("AttendedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("attended_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("InvitadoId")
+                        .HasColumnType("int")
+                        .HasColumnName("invitado_id");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("int")
+                        .HasColumnName("pedido_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_avisos_oficina");
+
+                    b.HasIndex("AttendedAt")
+                        .HasDatabaseName("ix_avisos_oficina_attended_at");
+
+                    b.HasIndex("InvitadoId")
+                        .HasDatabaseName("ix_avisos_oficina_invitado_id");
+
+                    b.HasIndex("PedidoId")
+                        .HasDatabaseName("ix_avisos_oficina_pedido_id");
+
+                    b.ToTable("avisos_oficina", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.DispositivoPush", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("InvitadoId")
+                        .HasColumnType("int")
+                        .HasColumnName("invitado_id");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("last_seen_at");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dispositivos_push");
+
+                    b.HasIndex("InvitadoId")
+                        .HasDatabaseName("ix_dispositivos_push_invitado_id");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("ix_dispositivos_push_token");
+
+                    b.ToTable("dispositivos_push", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.Plantilla", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("Evento")
+                        .HasColumnType("int")
+                        .HasColumnName("evento");
+
+                    b.Property<string>("MetaName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("meta_name");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("PushText")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)")
+                        .HasColumnName("push_text");
+
+                    b.Property<string>("PushTitle")
+                        .IsRequired()
+                        .HasMaxLength(65)
+                        .HasColumnType("nvarchar(65)")
+                        .HasColumnName("push_title");
+
+                    b.Property<string>("WhatsAppText")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)")
+                        .HasColumnName("whats_app_text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plantillas");
+
+                    b.HasIndex("Evento")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plantillas_evento");
+
+                    b.ToTable("plantillas", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Catalogs.LineaServicio", b =>
                 {
                     b.Property<int>("Id")
@@ -4142,6 +4440,50 @@ namespace CleanCom.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_role_permissions_roles_role_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.Aviso", b =>
+                {
+                    b.HasOne("CleanCom.Domain.People.Invitado", null)
+                        .WithMany()
+                        .HasForeignKey("InvitadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_avisos_invitados_invitado_id");
+
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_avisos_pedidos_pedido_id");
+
+                    b.Navigation("Pedido");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.AvisoOficina", b =>
+                {
+                    b.HasOne("CleanCom.Domain.People.Invitado", null)
+                        .WithMany()
+                        .HasForeignKey("InvitadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_avisos_oficina_invitados_invitado_id");
+
+                    b.HasOne("CleanCom.Domain.Pedidos.Pedido", null)
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_avisos_oficina_pedidos_pedido_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Avisos.DispositivoPush", b =>
+                {
+                    b.HasOne("CleanCom.Domain.People.Invitado", null)
+                        .WithMany()
+                        .HasForeignKey("InvitadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispositivos_push_invitados_invitado_id");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Catalogs.PostalCodeCoverage", b =>

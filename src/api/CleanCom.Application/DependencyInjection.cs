@@ -1,5 +1,6 @@
 using CleanCom.Application.Access;
 using CleanCom.Application.Agenda;
+using CleanCom.Application.Avisos;
 using CleanCom.Application.Chofer;
 using CleanCom.Application.Invitados;
 using CleanCom.Application.Pedidos;
@@ -53,6 +54,9 @@ public static class DependencyInjection
         services.AddScoped<PanelService>();
         services.AddScoped<BeneficioService>();
         services.AddScoped<PromocionService>();
+        services.AddScoped<AvisoService>();
+        services.AddScoped<AvisoDispatcher>();
+        services.AddScoped<PlantillaService>();
         return services;
     }
 }
