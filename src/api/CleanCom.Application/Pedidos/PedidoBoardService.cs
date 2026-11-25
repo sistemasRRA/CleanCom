@@ -229,8 +229,18 @@ public class PedidoBoardService(
         }).ToList();
     }
 
+    private const string Before = "Antes: ";
+
     private static string Describe(PedidoEvento e, string? reason)
     {
+        // A moved date: "Entrega cambiada: sáb 21 nov → mié 25 nov" (the note keeps the previous date).
+        if (e.Kind is PedidoEventoKind.EntregaProgramada or PedidoEventoKind.RecoleccionProgramada
+            && e.Date is { } moved && e.Note is { } before && before.StartsWith(Before, StringComparison.Ordinal))
+        {
+            var what = e.Kind == PedidoEventoKind.EntregaProgramada ? "Entrega cambiada" : "Recolección cambiada";
+            var because = string.IsNullOrWhiteSpace(reason) ? "" : $": {reason}";
+            return $"{what}: {before[Before.Length..]} → {AgendaCalculator.Format(moved)}{because}";
+        }
         var why = string.Join(" · ", new[] { reason, e.Note }.Where(x => !string.IsNullOrWhiteSpace(x)));
         var tail = why.Length > 0 ? $": {why}" : "";
         return e.Kind switch
