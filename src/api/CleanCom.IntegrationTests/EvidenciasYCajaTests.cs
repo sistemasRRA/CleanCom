@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using CleanCom.Domain.Routing;
 using CleanCom.Domain.Time;
 using CleanCom.Infrastructure.Persistence;
@@ -20,7 +21,7 @@ public class EvidenciasYCajaTests(ApiFactory api)
     public async Task The_office_sees_the_visits_and_closes_the_corte_with_its_differences()
     {
         var admin = await api.AdminAsync();
-        var (chofer, rutaId, today) = await DayAsync();
+        var (chofer, rutaId, today) = await DayAsync("CAJA", "chofer.caja", "NY9003B");
         await chofer.PostOkAsync("/chofer/turno/iniciar", new { km = 20_000 });
         await chofer.PostOkAsync("/chofer/turno/cerrar", new
         {
@@ -70,25 +71,78 @@ public class EvidenciasYCajaTests(ApiFactory api)
         Assert.Equal(-20m, efectivo.GetProperty("vsPos").GetDecimal());
         var again = await admin.PostJsonAsync($"/cortes/{corteId}/cerrar", new { pos, notes = "otra vez" });
         await again.ReadProblemAsync(HttpStatusCode.BadRequest);
+
+        // Reopening needs the special permission (SuperUser has it) and a reason.
+        var noReason = await admin.PostJsonAsync($"/cortes/{corteId}/reabrir", new { reason = "" });
+        await noReason.ReadProblemAsync(HttpStatusCode.BadRequest);
+        await admin.PostOkAsync($"/cortes/{corteId}/reabrir", new { reason = "Se capturó mal el punto de venta." });
+        corte = await CorteAsync(admin, today);
+        Assert.Equal("PorRevisar", corte.GetProperty("state").GetString());
+        Assert.Equal(JsonValueKind.Null, corte.GetProperty("folio").ValueKind);
+        Assert.Equal("Se capturó mal el punto de venta.", corte.GetProperty("reopenReason").GetString());
+        Assert.False(string.IsNullOrEmpty(corte.GetProperty("reopenedBy").GetString()));
+        await admin.PostOkAsync($"/cortes/{corteId}/cerrar", new { pos, notes = "Se le descuentan $20." });
+        Assert.Equal("Cerrado", (await CorteAsync(admin, today)).GetProperty("state").GetString());
     }
 
-    private static async Task<System.Text.Json.JsonElement> CorteAsync(HttpClient admin, DateOnly day) =>
+    [Fact]
+    public async Task The_office_closes_a_shift_the_chofer_left_open_only_with_the_permission()
+    {
+        var admin = await api.AdminAsync();
+        var (chofer, _, today) = await DayAsync("CAJB", "chofer.cajb", "NY9004B");
+        await chofer.PostOkAsync("/chofer/turno/iniciar", new { km = 20_000 });
+        var rutaDiaId = (await CorteAsync(admin, today, "CAJB")).GetProperty("rutaDiaId").GetInt32();
+        var declared = new[] { new { method = "Efectivo", amount = 350m } };
+
+        // A role without the special permission (Gerencia sees Evidencias y caja) cannot.
+        await admin.PostOkAsync("/usuarios", new
+        {
+            fullName = "Gerente Pruebas",
+            userName = "gerencia.caja",
+            email = (string?)null,
+            phone = (string?)null,
+            role = "Gerencia",
+            initialPassword = "Gerencia.Inicial2026",
+            operadorId = (int?)null,
+            createOperador = false,
+            usualRutaId = (int?)null,
+        });
+        var gerencia = api.WithToken(await api.SignInOfficeAsync("gerencia.caja", "Gerencia.Inicial2026", "Gerencia.Pruebas2026"));
+        var forbidden = await gerencia.PostJsonAsync($"/rutas/dia/{rutaDiaId}/turno/cerrar", new { km = (int?)null, declared, notes = "x" });
+        Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+
+        var withoutNote = await admin.PostJsonAsync($"/rutas/dia/{rutaDiaId}/turno/cerrar", new { km = (int?)null, declared, notes = "" });
+        await withoutNote.ReadProblemAsync(HttpStatusCode.BadRequest);
+        await admin.PostOkAsync($"/rutas/dia/{rutaDiaId}/turno/cerrar", new { km = (int?)null, declared, notes = "El chofer olvidó cerrar su turno." });
+
+        var corte = await CorteAsync(admin, today, "CAJB");
+        Assert.Equal("PorRevisar", corte.GetProperty("state").GetString());
+        Assert.False(string.IsNullOrEmpty(corte.GetProperty("shiftClosedBy").GetString()));
+        Assert.Equal(JsonValueKind.Null, corte.GetProperty("endKm").ValueKind);
+        // The chofer's day is closed: the app shows it and no longer works the paradas.
+        var shift = (await chofer.GetOkAsync("/chofer/ruta")).GetProperty("shift");
+        Assert.NotEqual(JsonValueKind.Null, shift.GetProperty("endedAt").ValueKind);
+        var twice = await admin.PostJsonAsync($"/rutas/dia/{rutaDiaId}/turno/cerrar", new { km = (int?)null, declared, notes = "otra vez" });
+        await twice.ReadProblemAsync(HttpStatusCode.BadRequest);
+    }
+
+    private static async Task<System.Text.Json.JsonElement> CorteAsync(HttpClient admin, DateOnly day, string code = "CAJA") =>
         (await admin.GetOkAsync($"/cortes?fecha={day:yyyy-MM-dd}")).GetProperty("cortes").EnumerateArray()
-            .Single(c => c.GetProperty("rutaCode").GetString() == "CAJA");
+            .Single(c => c.GetProperty("rutaCode").GetString() == code);
 
     /// <summary>
     /// Ruta CAJA today with its chofer and unidad, and one visit already closed: paid $350 in cash with a photo taken
     /// 450 m from the parada. The visit is written straight to the database: the chofer app is not the subject.
     /// </summary>
-    private async Task<(HttpClient Chofer, int RutaId, DateOnly Today)> DayAsync()
+    private async Task<(HttpClient Chofer, int RutaId, DateOnly Today)> DayAsync(string code, string userName, string plate)
     {
         var admin = await api.AdminAsync();
-        var ruta = await admin.PostOkAsync("/rutas", new { code = "CAJA", name = "Ruta CAJA", color = "#8e24aa", cupoParadas = (int?)null, recoleccionGoal = (int?)null, maxReturnTime = (string?)null, maxReturnTimeSaturday = (string?)null, active = true });
+        var ruta = await admin.PostOkAsync("/rutas", new { code, name = $"Ruta {code}", color = "#8e24aa", cupoParadas = (int?)null, recoleccionGoal = (int?)null, maxReturnTime = (string?)null, maxReturnTimeSaturday = (string?)null, active = true });
         var rutaId = ruta.GetProperty("id").GetInt32();
         await admin.PostOkAsync("/usuarios", new
         {
-            fullName = "Chofer Caja",
-            userName = "chofer.caja",
+            fullName = $"Chofer {code}",
+            userName,
             email = (string?)null,
             phone = (string?)null,
             role = "Chofer",
@@ -99,7 +153,7 @@ public class EvidenciasYCajaTests(ApiFactory api)
         });
         var unidad = await admin.PostOkAsync("/unidades", new
         {
-            plate = "NY9003B", brand = "Nissan", model = "NV200", year = 2023, garmentCapacity = (int?)null, km = 20_000,
+            plate, brand = "Nissan", model = "NV200", year = 2023, garmentCapacity = (int?)null, km = 20_000,
             serviceEveryKm = (int?)null, serviceEveryMonths = (int?)null, state = "Activa", notes = (string?)null,
         });
 
@@ -125,7 +179,7 @@ public class EvidenciasYCajaTests(ApiFactory api)
         db.ReferencePayments.Add(new ReferencePayment { ParadaId = parada.Id, Method = PaymentMethod.Efectivo, Amount = 350 });
         await db.SaveChangesAsync();
 
-        var chofer = api.WithToken(await api.SignInOfficeAsync("chofer.caja", "Chofer.Inicial2026", "Chofer.Pruebas2026"));
+        var chofer = api.WithToken(await api.SignInOfficeAsync(userName, "Chofer.Inicial2026", "Chofer.Pruebas2026"));
         return (chofer, rutaId, today);
     }
 }

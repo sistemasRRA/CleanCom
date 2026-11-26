@@ -67,10 +67,7 @@
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
 - [ ] Turno del chofer: no hay "reabrir turno" ni corrección del kilometraje desde la app si se capturó mal; oficina corrige el de la unidad en Unidades. Confirmar si oficina necesita corregir también el del turno.
 - [ ] Turno del chofer: falta la foto del tablero (opcional en el flujo) y la pausa de comida de 1 hora con recálculo de horas.
-- [ ] Corte de caja: el folio es `CC-AAAAMMDD-RUTA` (uno por ruta y día). Confirmar si CleanCom usa otro formato o un consecutivo.
 - [ ] Corte de caja: mientras no se conecta el POS, oficina captura su monto a mano al cerrar. Con el POS conectado se llenará solo.
-- [ ] Corte de caja: un corte cerrado no se reabre ni se edita. Si se cerró con un error, hoy no hay forma de corregirlo desde la pantalla. Confirmar si se necesita "reabrir" (con permiso especial y bitácora).
-- [ ] Corte de caja: si el chofer no cerró su turno, no hay declaración y oficina no puede cerrar el corte de ese día. Confirmar si oficina debe poder cerrar el turno por él.
 - [ ] Evidencias y caja: "Exportar a Excel" baja hasta 20,000 visitas por archivo (aprox. 4 meses de operación con 2 rutas). Para periodos más largos se exporta por partes.
 
 ## Reglas propuestas que conviene validar

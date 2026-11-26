@@ -7,6 +7,8 @@ import { evidenciasApi } from '../services/evidenciasApi';
 import { cortesKey } from '../services/queryKeys';
 import { type Corte, CORTE_STATE, difference, METHOD_NAME, money } from '../types/evidencias';
 import { CerrarCorte } from './CerrarCorte';
+import { CerrarTurnoOficina } from './CerrarTurnoOficina';
+import { ReabrirCorte } from './ReabrirCorte';
 
 const km = (n?: number | null) => (n == null ? '—' : `${n.toLocaleString('es-MX')} km`);
 
@@ -15,9 +17,15 @@ const km = (n?: number | null) => (n == null ? '—' : `${n.toLocaleString('es-M
  * of the shift and the POS, with the differences the API calculates. A declared corte is reviewed and closed.
  */
 export function CortesTab() {
-  const canEdit = useSession().can('evidencias-y-caja', 'edit');
+  const { can } = useSession();
+  const canEdit = can('evidencias-y-caja', 'edit');
+  // Special permissions of the role (Usuarios › Roles y permisos).
+  const canReopen = can('reabrir-cortes', 'edit');
+  const canCloseShift = can('cerrar-turnos', 'edit');
   const [fecha, setFecha] = useState(todayInMexicoCity);
   const [closing, setClosing] = useState<Corte | null>(null);
+  const [reopening, setReopening] = useState<Corte | null>(null);
+  const [closingShift, setClosingShift] = useState<Corte | null>(null);
   const day = useQuery({ queryKey: [...cortesKey, fecha], queryFn: () => evidenciasApi.cortes({ fecha }) });
   const d = day.data;
 
@@ -119,9 +127,20 @@ export function CortesTab() {
 
               {c.state === 'TurnoAbierto' && <p className="muted">El chofer declara lo cobrado al cerrar su turno.</p>}
               {c.state === 'SinTurno' && <p className="muted">El chofer no inició turno este día.</p>}
+              {c.shiftClosedBy && (
+                <p className="muted">
+                  Turno cerrado desde oficina por {c.shiftClosedBy}
+                  {c.shiftEndedAt && ` a las ${clock(c.shiftEndedAt)}`}.
+                </p>
+              )}
               {c.choferNotes && (
                 <p>
-                  <strong>Nota del chofer:</strong> {c.choferNotes}
+                  <strong>{c.shiftClosedBy ? 'Nota de oficina al cerrar el turno:' : 'Nota del chofer:'}</strong> {c.choferNotes}
+                </p>
+              )}
+              {c.reopenedAt && (
+                <p className="muted">
+                  Reabierto por {c.reopenedBy ?? '—'} el {formatDateTime(c.reopenedAt)}: {c.reopenReason}
                 </p>
               )}
               {c.state === 'Cerrado' && (
@@ -135,11 +154,27 @@ export function CortesTab() {
                   )}
                 </p>
               )}
+              {c.state === 'TurnoAbierto' && canCloseShift && (
+                <div className="actions">
+                  <button type="button" onClick={() => setClosingShift(c)}>
+                    Cerrar turno por el chofer
+                  </button>
+                </div>
+              )}
+              {c.state === 'Cerrado' && canReopen && (
+                <div className="actions">
+                  <button type="button" className="small" onClick={() => setReopening(c)}>
+                    Reabrir corte
+                  </button>
+                </div>
+              )}
             </section>
           ))}
         </div>
       </QueryState>
       {closing && <CerrarCorte corte={closing} onClose={() => setClosing(null)} />}
+      {reopening && <ReabrirCorte corte={reopening} onClose={() => setReopening(null)} />}
+      {closingShift && <CerrarTurnoOficina corte={closingShift} onClose={() => setClosingShift(null)} />}
     </>
   );
 }

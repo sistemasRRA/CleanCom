@@ -355,6 +355,7 @@ internal class CorteCajaConfig : IEntityTypeConfiguration<CorteCaja>
         e.ToTable("CortesCaja");
         e.Property(x => x.ChoferNotes).HasMaxLength(500);
         e.Property(x => x.OfficeNotes).HasMaxLength(1000);
+        e.Property(x => x.ReopenReason).HasMaxLength(500);
         e.Property(x => x.Folio).HasMaxLength(30);
         e.HasIndex(x => x.Folio).IsUnique().HasFilter("[folio] IS NOT NULL");
         // One per shift.

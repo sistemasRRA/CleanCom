@@ -1934,6 +1934,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cortes/{id}/reabrir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReopenCorteRequest"];
+                    "text/json": components["schemas"]["ReopenCorteRequest"];
+                    "application/*+json": components["schemas"]["ReopenCorteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CortesDto"];
+                        "application/json": components["schemas"]["CortesDto"];
+                        "text/json": components["schemas"]["CortesDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rutas/dia/{id}/turno/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OfficeEndShiftRequest"];
+                    "text/json": components["schemas"]["OfficeEndShiftRequest"];
+                    "application/*+json": components["schemas"]["OfficeEndShiftRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CortesDto"];
+                        "application/json": components["schemas"]["CortesDto"];
+                        "text/json": components["schemas"]["CortesDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invitados/{id}/beneficios": {
         parameters: {
             query?: never;
@@ -7109,6 +7199,13 @@ export interface components {
             closedAt: null | string;
             closedBy: null | string;
             officeNotes: null | string;
+            shiftClosedBy: null | string;
+            /** Format: int32 */
+            openParadas: number;
+            /** Format: date-time */
+            reopenedAt: null | string;
+            reopenedBy: null | string;
+            reopenReason: null | string;
         };
         CorteLineDto: {
             method: components["schemas"]["PaymentMethod"];
@@ -7822,6 +7919,14 @@ export interface components {
             /** Format: date-time */
             at?: null | string;
         };
+        OfficeEndShiftRequest: {
+            /** Format: int32 */
+            km: null | number;
+            declared: components["schemas"]["DeclaredPaymentRequest"][];
+            notes: null | string;
+            /** @default false */
+            confirm: boolean;
+        };
         OperadorDto: {
             /** Format: int32 */
             id: number;
@@ -8394,6 +8499,9 @@ export interface components {
         RegisterDeviceRequest: {
             token: string;
             platform: string;
+        };
+        ReopenCorteRequest: {
+            reason: null | string;
         };
         ResetPasswordRequest: {
             temporaryPassword: string;

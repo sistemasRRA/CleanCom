@@ -28,6 +28,8 @@ public class RutaDia : Entity
     public DateTimeOffset? ShiftEndedAt { get; set; }
     public int? EndKm { get; set; }
     public string? ShiftEndLocalId { get; set; }
+    /// <summary>User of the office who closed the shift for the chofer (permiso cerrar-turnos); null when the chofer did.</summary>
+    public int? ShiftEndedBy { get; set; }
 
     public List<Parada> Paradas { get; set; } = [];
     public List<Viaje> Viajes { get; set; } = [];

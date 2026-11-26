@@ -55,6 +55,7 @@ Pantalla propia del menú, en Administración (`/roles-y-permisos`, permiso `rol
 - Vista previa de cómo queda el menú del rol.
 - Los cambios aplican en la siguiente petición de sus usuarios, sin volver a iniciar sesión. La web actualiza el menú al regresar a la pestaña y cada minuto.
 - **SuperUser** siempre ve y edita todas las pantallas de oficina, para que el sistema nunca se quede sin quien lo administre; sus permisos no se cambian. **Administración** arranca con todas menos Roles y permisos, y sí se puede ajustar.
+- **Permisos especiales** (semana 7): acciones que no son una pantalla y se dan por rol con **Sin acceso** o **Permitido**: "Reabrir un corte de caja cerrado" (`reabrir-cortes`) y "Cerrar el turno de un chofer desde oficina" (`cerrar-turnos`). Arrancan permitidas para Administración (y SuperUser siempre las tiene); no aparecen en el menú.
 - **Nuevo rol**: se escribe el nombre (por ejemplo "Atención a clientes") y arranca sin acceso. La clave guardada se deriva del nombre sin acentos ni espacios (`AtencionAClientes`).
 - Los roles creados por la oficina se renombran (solo cambia el nombre visible) y se borran si no tienen usuarios. Los roles del sistema no se renombran ni se borran.
 

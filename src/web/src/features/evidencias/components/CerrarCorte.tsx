@@ -12,8 +12,12 @@ import { type Corte, difference, type Method, METHOD_NAME, money } from '../type
  * connected) and writes what happened. The API compares, asks for a note when there are differences and gives the folio.
  */
 export function CerrarCorte({ corte, onClose }: { corte: Corte; onClose: () => void }) {
-  const [pos, setPos] = useState<Record<Method, string>>({ Efectivo: '', Tarjeta: '', Transferencia: '' });
-  const [notes, setNotes] = useState('');
+  // A reopened corte keeps the POS amounts and notes it had.
+  const [pos, setPos] = useState<Record<Method, string>>(() => {
+    const had = (m: Method) => corte.lines.find((l) => l.method === m)?.pos?.toString() ?? '';
+    return { Efectivo: had('Efectivo'), Tarjeta: had('Tarjeta'), Transferencia: had('Transferencia') };
+  });
+  const [notes, setNotes] = useState(corte.officeNotes ?? '');
   const [invalid, setInvalid] = useState<Error | null>(null);
   const amount = (m: Method) => optionalNumber(pos[m].replace(/[$\s]/g, '').replace(',', '.'));
   const save = useSave(

@@ -24,6 +24,11 @@ public class CorteCaja : Entity
     /// <summary>What the office wrote about the differences.</summary>
     public string? OfficeNotes { get; set; }
 
+    /// <summary>The last time it was reopened (permiso reabrir-cortes), by whom and why.</summary>
+    public DateTimeOffset? ReopenedAt { get; set; }
+    public int? ReopenedBy { get; set; }
+    public string? ReopenReason { get; set; }
+
     public List<CorteCajaLine> Lines { get; set; } = [];
 }
 

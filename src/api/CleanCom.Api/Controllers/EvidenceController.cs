@@ -78,4 +78,19 @@ public class EvidenceController(EvidenceService files, EvidenciasService visits,
     [RequireScreen(Screens.EvidenciasYCaja, AccessLevel.Edit)]
     public Task<CortesDto> CloseCorte(int id, CloseCorteRequest request, CancellationToken ct) =>
         cortes.CloseAsync(id, request, ct);
+
+    /// <summary>Reopens a closed corte with a reason (permiso especial "Reabrir un corte de caja cerrado").</summary>
+    [HttpPost("cortes/{id:int}/reabrir")]
+    [RequireScreen(Screens.ReabrirCortes, AccessLevel.Edit)]
+    public Task<CortesDto> ReopenCorte(int id, ReopenCorteRequest request, CancellationToken ct) =>
+        cortes.ReopenAsync(id, request, ct);
+
+    /// <summary>
+    /// Closes a chofer's open shift from the office (permiso especial "Cerrar el turno de un chofer desde oficina"):
+    /// what they handed in, the final km when known and why. A long shift or paradas still open answer 409 until confirmed.
+    /// </summary>
+    [HttpPost("rutas/dia/{id:int}/turno/cerrar")]
+    [RequireScreen(Screens.CerrarTurnos, AccessLevel.Edit)]
+    public Task<CortesDto> CloseShift(int id, OfficeEndShiftRequest request, CancellationToken ct) =>
+        cortes.CloseShiftAsync(id, request, ct);
 }

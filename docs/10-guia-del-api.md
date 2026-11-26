@@ -288,6 +288,8 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | App del chofer | `GET /chofer/motivos` | App del chofer: View |
 | Evidencias y caja | `GET /visitas?desde=&hasta=&ruta=&formaPago=&pagina=&porPagina=`, `GET /visitas/exportar` (Excel), `GET /cortes?fecha=` | Evidencias y caja: View |
 | Evidencias y caja | `POST /cortes/{id}/cerrar` (monto del POS y notas; folio) | Evidencias y caja: Edit |
+| Evidencias y caja | `POST /cortes/{id}/reabrir` (motivo) | Permiso especial `reabrir-cortes`: Edit |
+| Evidencias y caja | `POST /rutas/dia/{id}/turno/cerrar` (oficina cierra el turno del chofer) | Permiso especial `cerrar-turnos`: Edit |
 | Pedidos, Evidencias y caja | `GET /pedidos/{id}/evidencias` (galería), `GET /evidencias/{id}/archivo` | Pedidos o Evidencias y caja: View |
 | App del chofer | `POST /chofer/turno/iniciar`, `POST /chofer/turno/cerrar` (kilometraje y declaración del corte de caja; 409 pide confirmar), `POST /chofer/fallas` (multipart: falla de la unidad con foto opcional). Llevan `localId` y `at`; un reenvío no duplica | App del chofer: Edit |
 | App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId` y la hora del teléfono (`at`); un reenvío no duplica. `en-camino` y `llegue` también aceptan `localId` y `at` | App del chofer: Edit |

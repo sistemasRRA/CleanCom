@@ -48,4 +48,19 @@ public static class CorteCajaRules
             throw new DomainException("Hay diferencias: anota qué pasó antes de cerrar el corte.");
         }
     }
+
+    /// <summary>
+    /// Reopening a closed corte (only with the permiso reabrir-cortes) needs a reason, which is kept with who did it.
+    /// </summary>
+    public static void EnsureCanReopen(bool closed, string? reason)
+    {
+        if (!closed)
+        {
+            throw new DomainException("Este corte no está cerrado.");
+        }
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new DomainException("Escribe por qué se reabre el corte.");
+        }
+    }
 }

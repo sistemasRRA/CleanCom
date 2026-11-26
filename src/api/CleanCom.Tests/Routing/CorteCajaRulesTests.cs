@@ -43,6 +43,14 @@ public class CorteCajaRulesTests
     }
 
     [Fact]
+    public void Only_a_closed_corte_is_reopened_and_with_a_reason()
+    {
+        Assert.Contains("no está cerrado", Assert.Throws<DomainException>(() => CorteCajaRules.EnsureCanReopen(false, "x")).Message);
+        Assert.Contains("por qué se reabre", Assert.Throws<DomainException>(() => CorteCajaRules.EnsureCanReopen(true, " ")).Message);
+        CorteCajaRules.EnsureCanReopen(true, "Se capturó mal el punto de venta.");
+    }
+
+    [Fact]
     public void The_folio_is_the_date_and_the_ruta()
     {
         Assert.Equal("CC-20261126-F", CorteCajaRules.Folio(new DateOnly(2026, 11, 26), "F"));

@@ -14,4 +14,10 @@ export const evidenciasApi = {
   /** POST /cortes/{id}/cerrar */
   cerrarCorte: (id: number, body: Body<'/cortes/{id}/cerrar', 'post'>) =>
     unwrap(api.POST('/cortes/{id}/cerrar', { params: { path: { id } }, body })),
+  /** POST /cortes/{id}/reabrir */
+  reabrirCorte: (id: number, body: Body<'/cortes/{id}/reabrir', 'post'>) =>
+    unwrap(api.POST('/cortes/{id}/reabrir', { params: { path: { id } }, body })),
+  /** POST /rutas/dia/{id}/turno/cerrar */
+  cerrarTurno: (rutaDiaId: number, body: Body<'/rutas/dia/{id}/turno/cerrar', 'post'>) =>
+    unwrap(api.POST('/rutas/dia/{id}/turno/cerrar', { params: { path: { id: rutaDiaId } }, body })),
 };

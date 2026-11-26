@@ -91,7 +91,10 @@ public enum CorteState
 public record CorteLineDto(PaymentMethod Method, decimal Registered, int RegisteredCount, decimal? Declared, decimal? Pos, decimal? VsRegistered, decimal? VsPos);
 
 /// <summary>The corte de caja of one ruta on a day.</summary>
-/// <param name="CorteId">Null until the chofer closes the shift (nothing to close yet).</param>
+/// <param name="CorteId">Null until the shift is closed (nothing to close yet).</param>
+/// <param name="ShiftClosedBy">The office user who closed the shift for the chofer; null when the chofer did.</param>
+/// <param name="OpenParadas">Paradas not closed yet (to know before closing the shift from the office).</param>
+/// <param name="ReopenedAt">The last time the corte was reopened, by whom and why.</param>
 public record CorteDto(
     int RutaDiaId,
     int? CorteId,
@@ -112,7 +115,12 @@ public record CorteDto(
     string? Folio,
     DateTimeOffset? ClosedAt,
     string? ClosedBy,
-    string? OfficeNotes);
+    string? OfficeNotes,
+    string? ShiftClosedBy,
+    int OpenParadas,
+    DateTimeOffset? ReopenedAt,
+    string? ReopenedBy,
+    string? ReopenReason);
 
 /// <summary>Answer of <c>GET /cortes</c>.</summary>
 /// <param name="PorRevisar">Cortes declared by the chofer and not closed yet, that day.</param>
@@ -123,3 +131,16 @@ public record PosAmountRequest(PaymentMethod Method, decimal? Amount);
 
 /// <summary>The office closes a corte: POS amounts (until the POS is connected) and notes, required with differences.</summary>
 public record CloseCorteRequest(IReadOnlyList<PosAmountRequest>? Pos, string? Notes);
+
+/// <summary>Reopening a closed corte (permiso reabrir-cortes): why.</summary>
+public record ReopenCorteRequest(string? Reason);
+
+/// <summary>
+/// The office closes a chofer's shift (permiso cerrar-turnos): what the chofer handed in per forma de pago, the final
+/// km when known, and why. <c>Confirm</c> answers the API's question (long shift, paradas still open).
+/// </summary>
+public record OfficeEndShiftRequest(
+    int? Km,
+    IReadOnlyList<CleanCom.Application.Chofer.DeclaredPaymentRequest> Declared,
+    string? Notes,
+    bool Confirm = false);

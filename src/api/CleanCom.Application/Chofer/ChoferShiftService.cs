@@ -79,35 +79,19 @@ public class ChoferShiftService(
             }
             throw new DomainException($"Ya cerraste tu turno a las {Time(ended)}.");
         }
-        if (rutaDia.ShiftStartedAt is not { } startedAt || rutaDia.StartKm is not { } startKm)
+        if (rutaDia.ShiftStartedAt is null || rutaDia.StartKm is not { } startKm)
         {
             throw new DomainException("Primero inicia tu turno.");
         }
 
-        var open = await db.Paradas.CountAsync(p => p.RutaDiaId == rutaDia.Id && p.Active
-            && (p.State == ParadaState.Pendiente || p.State == ParadaState.EnCamino || p.State == ParadaState.EnSitio), ct);
+        var open = await ShiftClosing.OpenParadasAsync(db, rutaDia.Id, ct);
         var warnings = ShiftRules.CheckEnd(r.Km, startKm, await settings.GetIntegerAsync(SettingKeys.UnidadMaxKmPerShift, ct), open);
         if (warnings.Count > 0 && !r.Confirm)
         {
             throw new ConfirmationRequiredException($"{string.Join(" ", warnings)} ¿Cerrar el turno?");
         }
 
-        var at = chofer.ActionTime(r.At, day);
-        rutaDia.ShiftEndedAt = at < startedAt ? startedAt : at;
-        rutaDia.EndKm = r.Km;
-        rutaDia.ShiftEndLocalId = r.LocalId;
-        if (rutaDia.UnidadId is { } unidadId && await db.Unidades.FirstOrDefaultAsync(u => u.Id == unidadId, ct) is { } unidad)
-        {
-            UpdateKm(unidad, r.Km, at);
-        }
-        db.CortesCaja.Add(new CorteCaja
-        {
-            RutaDiaId = rutaDia.Id,
-            OperadorId = operador.Id,
-            Date = day,
-            ChoferNotes = string.IsNullOrWhiteSpace(r.Notes) ? null : r.Notes.Trim(),
-            Lines = r.Declared.Select(l => new CorteCajaLine { Method = l.Method, Declared = l.Amount }).ToList(),
-        });
+        await ShiftClosing.CloseAsync(db, rutaDia, operador.Id, r.Km, r.Declared, r.Notes, chofer.ActionTime(r.At, day), null, r.LocalId, ct);
         await db.SaveChangesAsync(ct);
         return await chofer.RutaAsync(day, ct) with { Message = $"Turno cerrado: {ShiftRules.Km(r.Km - startKm)} km recorridos." };
     }
@@ -187,15 +171,7 @@ public class ChoferShiftService(
             $"Oficina no te ha asignado unidad el {AgendaCalculator.Format(rutaDia.Date)}. Pide a Logística que te la asigne en Rutas.");
     }
 
-    /// <summary>The unidad's km only goes up (an older reading that syncs late does not lower it).</summary>
-    private static void UpdateKm(Unidad unidad, int km, DateTimeOffset at)
-    {
-        if (km > unidad.Km)
-        {
-            unidad.Km = km;
-            unidad.KmUpdatedAt = at;
-        }
-    }
+    private static void UpdateKm(Unidad unidad, int km, DateTimeOffset at) => ShiftClosing.UpdateKm(unidad, km, at);
 
     private static string Time(DateTimeOffset at) => BusinessTime.TimeOfDay(at).ToString("H:mm");
 }

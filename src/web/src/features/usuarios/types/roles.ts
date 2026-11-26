@@ -10,6 +10,14 @@ export type Level = Schemas['AccessLevel'];
 /** Level chosen for each screen; a missing screen means no access. */
 export type Draft = Record<string, Level>;
 
+/** Actions with their own permission (not screens): only "Permitido" (Edit) counts. */
+export const SPECIAL_GROUP = 'Permisos especiales';
+
+export const SPECIAL_OPTIONS: { value: Level | 'none'; label: string }[] = [
+  { value: 'none', label: 'Sin acceso' },
+  { value: 'Edit', label: 'Permitido' },
+];
+
 export const OPTIONS: { value: Level | 'none'; label: string }[] = [
   { value: 'none', label: 'Sin acceso' },
   { value: 'View', label: 'Ver' },

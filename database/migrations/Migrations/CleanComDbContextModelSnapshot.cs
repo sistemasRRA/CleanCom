@@ -500,6 +500,22 @@ namespace CleanCom.Migrations.Migrations
                             Level = "View",
                             RoleId = 7,
                             Screen = "pedidos"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 1,
+                            Screen = "reabrir-cortes"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Level = "Edit",
+                            RoleId = 1,
+                            Screen = "cerrar-turnos"
                         });
                 });
 
@@ -3553,6 +3569,19 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("int")
                         .HasColumnName("operador_id");
 
+                    b.Property<string>("ReopenReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("reopen_reason");
+
+                    b.Property<DateTimeOffset?>("ReopenedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("reopened_at");
+
+                    b.Property<int?>("ReopenedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("reopened_by");
+
                     b.Property<int>("RutaDiaId")
                         .HasColumnType("int")
                         .HasColumnName("ruta_dia_id");
@@ -4287,6 +4316,10 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<DateTimeOffset?>("ShiftEndedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("shift_ended_at");
+
+                    b.Property<int?>("ShiftEndedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("shift_ended_by");
 
                     b.Property<string>("ShiftStartLocalId")
                         .HasMaxLength(64)
