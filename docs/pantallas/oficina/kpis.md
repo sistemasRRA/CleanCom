@@ -25,6 +25,17 @@ Indicadores con metas de la hoja "KPI's 2026 CleanCom", por semana, mes o trimes
 
 Recolecciones por ruta al día marca entre 0.9 y 2.1 contra una meta de 10 porque faltan operaciones por registrar. Facturación y ticket promedio vienen del POS.
 
+## Cómo quedó (semana 7)
+
+- **Periodo:** semana, mes o trimestre con anterior, hoy y siguiente; el encabezado dice el periodo, contra cuál se compara y cuándo se calculó. "Recalcular" con permiso de editar.
+- **Contadores** de súper verde, verde, rojo y sin meta.
+- **Tarjeta por indicador** en Logística, Venta y Experiencia: valor con su color, periodo anterior con flecha (verde si mejora), desglose por ruta, meta (rojo, verde, súper verde; "proporcional al periodo" si se escaló) y responsable. Las que dependen del POS o de la encuesta lo dicen.
+- **Detalle** al hacer clic: cada visita, ticket, pedido o invitado que forma el valor, con lo que suma y lo que cuenta en el total, filtro por ruta y liga al pedido.
+- **Últimas 8 semanas** con el color de la meta que tenía cada semana.
+- Las metas se capturan en WhatsApp y metas › Metas. Reglas de cálculo en `03-reglas-de-negocio.md`, KPIs.
+- **Falta:** alerta al responsable cuando cae en rojo (llega con el correo), NPS (encuesta de la app del invitado) y datos del POS.
+
 ## Endpoints
 
-- `GET /kpis?periodo=&fecha=`, `GET /kpis/{clave}/detalle?periodo=&fecha=`, `GET /kpis/historico?semanas=8`.
+- `GET /kpis?periodo=&fecha=`, `GET /kpis/{clave}/detalle?periodo=&fecha=&rutaId=`, `GET /kpis/historico?semanas=8` (ver KPIs).
+- `POST /kpis/recalcular?periodo=&fecha=` (editar KPIs).

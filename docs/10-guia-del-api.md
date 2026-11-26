@@ -30,7 +30,7 @@ src/api/
 ├── CleanCom.Application/      Servicios (casos de uso), modelos de entrada y salida, validadores
 ├── CleanCom.Domain/           Entidades (tablas) y reglas puras, sin base de datos ni HTTP
 ├── CleanCom.Infrastructure/   EF Core, SQL Server, Identity, JWT, reloj; después Google, WhatsApp, POS
-├── CleanCom.Jobs/             Procesos en segundo plano (paradas fijas, avisos); pasan a Hangfire en la semana 7
+├── CleanCom.Jobs/             Procesos en segundo plano (paradas fijas, avisos, KPIs); pasan a Hangfire
 ├── CleanCom.Tests/            Pruebas unitarias xUnit (reglas)
 └── CleanCom.IntegrationTests/ Pruebas de integración: el API completo sobre SQL Server real
 database/migrations/           Migraciones de EF Core (proyecto CleanCom.Migrations)
@@ -257,6 +257,10 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Avisos | `GET /avisos?estado=&pedidoId=` | Ver WhatsApp y metas o Pedidos (política `SeesAvisos`) |
 | Avisos | `POST /avisos/{id}/mandado` | Editar WhatsApp y metas o Pedidos (política `SendsAvisos`) |
 | Plantillas | `GET /plantillas`, `PUT /plantillas/{id}`, `POST /plantillas/{id}/previsualizar` | WhatsApp y metas: View para leer y previsualizar, Edit para cambiar |
+| KPIs | `GET /kpis?periodo=&fecha=`, `GET /kpis/{clave}/detalle?periodo=&fecha=&rutaId=`, `GET /kpis/historico?semanas=` | KPIs: View |
+| KPIs | `POST /kpis/recalcular?periodo=&fecha=` | KPIs: Edit |
+| Metas | `GET /metas` | Ver WhatsApp y metas o KPIs (política `SeesMetas`) |
+| Metas | `PUT /metas/{clave}`, `DELETE /metas/{clave}/{id}` (solo una meta que todavía no empieza; baja lógica) | WhatsApp y metas: Edit |
 | Campana de oficina | `GET /avisos-oficina`, `POST /avisos-oficina/{id}/atendido` | Ver Agendar, Pedidos o Clientes (CRM) (política `SeesAvisosOficina`) |
 | Beneficios | `GET /invitados/{id}/beneficios` | Ver Agendar, Clientes (CRM), Pedidos o Promociones (política `SeesBeneficios`) |
 | Beneficios | `POST /invitados/{id}/beneficios`, `POST /beneficios/{codigo}/usar` | Editar Promociones, Clientes (CRM) o Pedidos (política `UsesBeneficios`) |

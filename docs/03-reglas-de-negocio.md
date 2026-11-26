@@ -277,6 +277,34 @@ Cada indicador tiene periodo (diario, semanal o mensual), responsable, rojo, ver
 
 Fuentes externas (HubSpot, pauta y nómina) no se calculan aquí; en fase 2 se cruzan en BigQuery.
 
+Cómo se calcula (semana 7, en el API):
+
+1. **Periodos.** La semana va de lunes a domingo; el mes y el trimestre son de calendario. Las visitas cuentan por el día de su ruta; tickets, avisos y contactos por cuándo se registraron (hora de Ciudad de México).
+2. **Cada indicador**, con lo que se muestra en su detalle:
+   - *Recolecciones por ruta al día:* recolecciones realizadas / días en que cada ruta cerró alguna visita. Ejemplo: F hizo 18 en 2 días y K 6 en 1 día → 24 / 3 = 8.
+   - *Prendas por ticket y facturación sin convenios:* tickets de clientes finales (sin convenio, empresa ni tienda interna). *Ticket promedio:* todos los tickets con importe. Mientras no está el POS, salen de los tickets capturados en Tickets en planta.
+   - *Cobro anticipado:* pedidos entregados en el periodo con un cobro de referencia registrado en su recolección / pedidos entregados.
+   - *Clientes nuevos:* invitados cuyo primer servicio (recolección de un pedido no cancelado, la misma fecha que usa el CRM) cayó en el periodo.
+   - *Clientes atendidos:* invitados distintos con una visita realizada. *Recurrencia:* servicios / invitados distintos que los tuvieron.
+   - *Tickets firmados:* entregas realizadas con firma / entregas realizadas. *Visitas con foto:* visitas realizadas con foto / visitas realizadas (sin contar salida, regreso ni comida).
+   - *Pedidos entregados fuera de tiempo:* entregados después de la primera fecha de entrega que se les programó (reprogramar no la mueve).
+   - *Llegadas a tiempo:* cada "Llegué" contra la hora estimada del plan de ese día, con ± `Parada.ToleranciaLlegadaMinutos` (igual que el Panel del día).
+   - *Toques por WhatsApp:* avisos de WhatsApp enviados o mandados a mano, más contactos del CRM por WhatsApp.
+   - *Servicios fuera de cobertura:* visitas realizadas a direcciones fuera de todo polígono de zona activo.
+   - *NPS y encuestas:* sin datos hasta que la app del invitado mande la encuesta.
+3. **Por ruta:** el mismo cálculo con las visitas, tickets o pedidos de cada ruta (la de la zona de la dirección del pedido). Un contacto del CRM no tiene ruta: cuenta solo en el total.
+4. **Semáforo:** súper verde si alcanza la súper verde, verde si alcanza la verde y rojo si no la alcanza ("alcanzar" es ≥ cuando más es mejor y ≤ cuando menos es mejor). Sin valor o sin meta: "sin meta". Verde es obligatorio; rojo y súper verde son opcionales (sin súper verde nunca se pinta súper verde). El valor rojo se guarda y se muestra como referencia (ver pendientes). Ejemplo: tickets firmados con solo verde 100 → 100 % es verde y 97 % es rojo.
+5. **Metas con vigencia:** una meta aplica desde la fecha que se indica (hoy o después). El semáforo de un periodo usa la meta vigente en su último día (o hoy, si sigue abierto). Ejemplo: verde 8 desde el 1 de noviembre y verde 10 desde el miércoles 25 → la semana del 16 al 22 se pinta con 8 y la del 23 al 29 con 10. Una meta que todavía no empieza se puede quitar; una vigente se reemplaza con otra.
+6. **Orden de la meta:** más es mejor → rojo < verde < súper verde; menos es mejor → rojo > verde > súper verde (solo entre los valores capturados).
+   **Metas por ruta:** una meta es de toda la empresa o de una ruta. Cada ruta del desglose se pinta con su meta; sin meta propia usa la de la empresa solo en promedios y porcentajes (la meta de un conteo es de toda la empresa). La empresa usa su meta; sin ella, si todas las rutas activas tienen meta, la suma de las de ruta en conteos y montos (clientes nuevos 6 en F y 6 en K → 12) o su promedio en promedios y porcentajes. Ejemplo: facturación F verde 16,963, K 12,650 y empresa 29,613 a la semana: cada una con la suya.
+7. **Meta y periodo.** La meta se escribe al día, a la semana o al mes:
+   - Promedios y porcentajes: valen igual para cualquier periodo.
+   - Conteos y montos que se suman (clientes nuevos, facturación, toques, fuera de tiempo, fuera de cobertura): se escalan por días; al mes cuenta 1 por mes completo (3 en un trimestre) y días / 30 en otro caso. Ejemplo: 20 clientes nuevos a la semana en un mes de 31 días → 88.57.
+   - Invitados distintos (clientes atendidos): no se suman de una semana a otra, así que la meta solo se compara en periodos de su tipo (semanal con semanas, mensual con meses); en otro periodo la tarjeta dice por qué no tiene semáforo.
+   - En el periodo abierto, los conteos se comparan con la parte transcurrida. Ejemplo: 35 clientes atendidos a la semana, el miércoles → 15.
+   - El desglose por ruta usa la meta solo en promedios y porcentajes: la meta de un conteo es de toda la empresa.
+8. **Cálculo guardado:** cada noche a la 1:00 se calculan y guardan la semana, el mes y el trimestre en curso y los anteriores. Un periodo que nadie ha calculado se calcula la primera vez que se ve; "Recalcular" (KPIs, Editar) lo hace al momento. Un periodo futuro no se guarda.
+
 ## Panel del día
 
 1. **Estado de cada ruta:** "sin salir" mientras ninguna parada empezó; "en ruta" con alguna en camino, en sitio o cerrada y otras por visitar; "de regreso" cuando todas están cerradas. Salida, regreso y comida no cuentan como visitas.

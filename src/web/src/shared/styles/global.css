@@ -85,11 +85,11 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 /* ---- Layout ---- */
 .app {
   display: grid;
-  grid-template-columns: var(--menu-width) 1fr;
+  grid-template-columns: var(--menu-width) minmax(0, 1fr);
   min-height: 100%;
   transition: grid-template-columns 0.2s ease;
 }
-.app.menu-collapsed { grid-template-columns: var(--menu-collapsed-width) 1fr; }
+.app.menu-collapsed { grid-template-columns: var(--menu-collapsed-width) minmax(0, 1fr); }
 .menu {
   background: var(--navy);
   color: #e8eef8;
@@ -203,7 +203,7 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 .mobile-bar { display: none; }
 .mobile-bar__logo { height: 24px; width: auto; display: block; }
 @media (max-width: 820px) {
-  .app, .app.menu-collapsed { grid-template-columns: 1fr; }
+  .app, .app.menu-collapsed { grid-template-columns: minmax(0, 1fr); }
   .menu { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 30; transform: translateX(-100%); transition: transform 0.2s; }
   .app.menu-open .menu { transform: none; }
   .menu__toggle { display: none; }

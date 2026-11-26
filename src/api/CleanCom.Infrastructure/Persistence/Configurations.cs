@@ -6,6 +6,7 @@ using CleanCom.Domain.Geography;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Kpis;
 using CleanCom.Domain.Promociones;
 using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Routing;
@@ -689,5 +690,33 @@ internal class AvisoOficinaConfig : IEntityTypeConfiguration<AvisoOficina>
         e.HasIndex(x => x.AttendedAt);
         e.HasOne<Invitado>().WithMany().HasForeignKey(x => x.InvitadoId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<Pedido>().WithMany().HasForeignKey(x => x.PedidoId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class KpiGoalConfig : IEntityTypeConfiguration<KpiGoal>
+{
+    public void Configure(EntityTypeBuilder<KpiGoal> e)
+    {
+        e.ToTable("KpiGoals");
+        e.Property(x => x.IndicadorKey).HasMaxLength(50);
+        e.Property(x => x.Red).HasPrecision(14, 2);
+        e.Property(x => x.Green).HasPrecision(14, 2);
+        e.Property(x => x.SuperGreen).HasPrecision(14, 2);
+        e.HasIndex(x => new { x.IndicadorKey, x.ValidFrom });
+        e.HasOne<User>().WithMany().HasForeignKey(x => x.ResponsableUserId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<Ruta>().WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class KpiValueConfig : IEntityTypeConfiguration<KpiValue>
+{
+    public void Configure(EntityTypeBuilder<KpiValue> e)
+    {
+        e.ToTable("KpiValues");
+        e.Property(x => x.IndicadorKey).HasMaxLength(50);
+        e.Property(x => x.Value).HasPrecision(14, 2);
+        // Read by period: every indicador and ruta of one period at once.
+        e.HasIndex(x => new { x.Period, x.PeriodStart, x.IndicadorKey });
+        e.HasOne<Ruta>().WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
     }
 }

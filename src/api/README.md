@@ -11,7 +11,7 @@ Cómo está organizado el código, el recorrido de una petición, la diferencia 
 | `CleanCom.Domain` | Entidades y reglas puras: configuración, catálogos, zonas, permisos, hora de negocio, geografía |
 | `CleanCom.Application` | Casos de uso, DTOs y validaciones (FluentValidation) |
 | `CleanCom.Infrastructure` | EF Core + SQL Server (`geography`, nombres en `snake_case`), Identity, JWT, auditoría, reloj |
-| `CleanCom.Jobs` | Procesos en segundo plano: paradas fijas (00:15) y envío de avisos (cada 10 s). Pasan a Hangfire con los procesos nocturnos de la semana 7 |
+| `CleanCom.Jobs` | Procesos en segundo plano: paradas fijas (00:15), KPIs (1:00) y envío de avisos (cada 10 s). Pasan a Hangfire con los demás procesos nocturnos |
 | `CleanCom.Api` | Controladores (`Controllers/`), autorización por pantalla, errores, OpenAPI y Swagger UI |
 | `CleanCom.Tests` | Pruebas unitarias (xUnit) de las reglas de `docs/03-reglas-de-negocio.md` |
 | `CleanCom.IntegrationTests` | Pruebas de integración: el API completo (`WebApplicationFactory`) sobre SQL Server real, con flujos de punta a punta |

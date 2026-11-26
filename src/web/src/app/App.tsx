@@ -14,6 +14,7 @@ import { PanelDelDia } from '../features/panel';
 import { Unidades } from '../features/unidades';
 import { Promociones } from '../features/promociones';
 import { WhatsAppYMetas } from '../features/avisos';
+import { Kpis } from '../features/kpis';
 import { VistaDelChofer } from '../features/chofer';
 import { Rutas as RutasDelDia } from '../features/rutas';
 import { Pedidos } from '../features/pedidos';
@@ -78,6 +79,7 @@ export function App() {
         {can('rutas') && <Route path="rutas" element={<RutasDelDia />} />}
         {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}
         {can('tickets-en-planta') && <Route path="tickets-en-planta" element={<TicketsEnPlanta />} />}
+        {can('kpis') && <Route path="kpis" element={<Kpis />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

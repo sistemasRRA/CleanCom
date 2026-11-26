@@ -2004,6 +2004,155 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("unidad_events", (string)null);
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Kpis.KpiGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit")
+                        .HasColumnName("active");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("Green")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("green");
+
+                    b.Property<string>("IndicadorKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("indicador_key");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("period");
+
+                    b.Property<decimal?>("Red")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("red");
+
+                    b.Property<int?>("ResponsableUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("responsable_user_id");
+
+                    b.Property<int?>("RutaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_id");
+
+                    b.Property<decimal?>("SuperGreen")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("super_green");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.HasKey("Id")
+                        .HasName("pk_kpi_goals");
+
+                    b.HasIndex("ResponsableUserId")
+                        .HasDatabaseName("ix_kpi_goals_responsable_user_id");
+
+                    b.HasIndex("RutaId")
+                        .HasDatabaseName("ix_kpi_goals_ruta_id");
+
+                    b.HasIndex("IndicadorKey", "ValidFrom")
+                        .HasDatabaseName("ix_kpi_goals_indicador_key_valid_from");
+
+                    b.ToTable("kpi_goals", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Kpis.KpiValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CalculatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("calculated_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("IndicadorKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("indicador_key");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("period");
+
+                    b.Property<DateOnly>("PeriodStart")
+                        .HasColumnType("date")
+                        .HasColumnName("period_start");
+
+                    b.Property<int?>("RutaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_id");
+
+                    b.Property<decimal?>("Value")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_kpi_values");
+
+                    b.HasIndex("RutaId")
+                        .HasDatabaseName("ix_kpi_values_ruta_id");
+
+                    b.HasIndex("Period", "PeriodStart", "IndicadorKey")
+                        .HasDatabaseName("ix_kpi_values_period_period_start_indicador_key");
+
+                    b.ToTable("kpi_values", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Operations.Setting", b =>
                 {
                     b.Property<int>("Id")
@@ -4580,6 +4729,30 @@ namespace CleanCom.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_unidad_events_unidades_unidad_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Kpis.KpiGoal", b =>
+                {
+                    b.HasOne("CleanCom.Infrastructure.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ResponsableUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_kpi_goals_users_responsable_user_id");
+
+                    b.HasOne("CleanCom.Domain.Catalogs.Ruta", null)
+                        .WithMany()
+                        .HasForeignKey("RutaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_kpi_goals_rutas_ruta_id");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Kpis.KpiValue", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Catalogs.Ruta", null)
+                        .WithMany()
+                        .HasForeignKey("RutaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_kpi_values_rutas_ruta_id");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Pedidos.Pedido", b =>

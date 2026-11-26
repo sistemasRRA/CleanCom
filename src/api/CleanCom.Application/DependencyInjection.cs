@@ -3,6 +3,7 @@ using CleanCom.Application.Agenda;
 using CleanCom.Application.Avisos;
 using CleanCom.Application.Chofer;
 using CleanCom.Application.Invitados;
+using CleanCom.Application.Kpis;
 using CleanCom.Application.Pedidos;
 using CleanCom.Application.PostalCodes;
 using CleanCom.Application.Catalogs;
@@ -57,6 +58,9 @@ public static class DependencyInjection
         services.AddScoped<AvisoService>();
         services.AddScoped<AvisoDispatcher>();
         services.AddScoped<PlantillaService>();
+        services.AddScoped<KpiCalculator>();
+        services.AddScoped<KpiService>();
+        services.AddScoped<KpiGoalService>();
         return services;
     }
 }
