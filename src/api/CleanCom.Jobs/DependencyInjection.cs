@@ -8,6 +8,7 @@ public static class DependencyInjection
     {
         services.AddHostedService<FijasNightlyJob>();
         services.AddHostedService<AvisosJob>();
+        services.AddHostedService<KpisNightlyJob>();
         return services;
     }
 }

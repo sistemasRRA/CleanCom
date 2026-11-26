@@ -74,6 +74,13 @@
 - [ ] Promociones: metas de canje 40% y 30% y tope de 30% por sello (`Promociones.*`). Ya están capturados los cinco sellos de la demo; falta que CleanCom dé el beneficio impreso de cada cupón de la cuponera para activarlos.
 
 - [ ] Orden de prioridad entre estatus del CRM cuando aplican varios: Inactivo, En riesgo, Le toca, Nuevo y Activo (Prospecto si no hay servicios). Así un invitado nuevo con fecha "le toca" aparece como Le toca.
+- [x] KPIs: metas de la hoja "KPI's 2026 CleanCom" (1Q 2026) cargadas desde el 1 de enero de 2026, con metas por ruta para facturación, clientes nuevos y clientes atendidos.
+- [ ] KPIs: asignar responsables a las metas (la hoja dice Dirección, Daniela y Gustavo; hay que darlos de alta como usuarios de oficina). Pedidos fuera de tiempo, toques por WhatsApp y servicios fuera de cobertura no tienen meta en la hoja.
+- [ ] KPIs: la hoja trae "Recolecciones por ruta al día" verde 10 sin rojo ni súper verde, y tickets firmados y visitas con foto con verde 100 %: con eso, cualquier entrega sin firma o visita sin foto pinta rojo. Confirmar.
+- [ ] KPIs: qué significa el valor "rojo" de la meta. Hoy es rojo todo lo que no alcanza verde y el número rojo solo se muestra. Confirmar si entre rojo y verde debe haber un color intermedio (amarillo) o si "rojo" es el umbral de la alerta al responsable.
+- [ ] KPIs: "fuera de tiempo" se mide contra la primera fecha de entrega programada; confirmar si debe ser contra los días de proceso de la línea de servicio. "Cobro anticipado" cuenta el cobro de referencia del chofer en la recolección; confirmar si también cuenta lo pagado en tienda o en línea.
+- [ ] KPIs: alerta al responsable cuando su indicador cae en rojo; llega con el correo (avisos pendientes de canal).
+- [ ] KPIs: NPS y encuestas respondidas quedan sin datos hasta la encuesta de la app del invitado (cuándo se manda, por qué canal y la pregunta).
 - [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
 
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:

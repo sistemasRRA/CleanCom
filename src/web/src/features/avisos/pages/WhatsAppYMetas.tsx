@@ -5,13 +5,14 @@ import '../../../shared/api/client';
 import { PageHeader, QueryState } from '../../../shared/components/Page';
 import { AvisosTable } from '../components/AvisosTable';
 import { Plantillas } from '../components/Plantillas';
+import { Metas } from '../../kpis';
 import { avisosApi } from '../services/avisosApi';
 
 type Tab = 'por-mandar' | 'historial' | 'plantillas' | 'metas';
 
 /**
  * WhatsApp y metas (docs/pantallas/oficina/whatsapp-y-metas.md): the avisos to send by hand while WhatsApp is not
- * connected, the log and the templates per event. Which aviso goes and by which channel is decided by the API.
+ * connected, the log, the templates per event and the goals of the KPIs. Which aviso goes and by which channel is decided by the API.
  */
 export function WhatsAppYMetas() {
   const [tab, setTab] = useState<Tab>('por-mandar');
@@ -27,7 +28,7 @@ export function WhatsAppYMetas() {
     <>
       <PageHeader
         title="WhatsApp y metas"
-        description="Avisos al invitado por evento: push si tiene la app; si no, WhatsApp si lo acepta. Las metas de los KPIs llegan con KPIs."
+        description="Avisos al invitado por evento: push si tiene la app; si no, WhatsApp si lo acepta. Metas de los KPIs por indicador."
       />
       {avisos.data && !avisos.data.whatsAppConnected && (
         <div className="alert" style={{ marginBottom: 16 }}>
@@ -55,9 +56,7 @@ export function WhatsAppYMetas() {
         </QueryState>
       )}
       {tab === 'plantillas' && <Plantillas />}
-      {tab === 'metas' && (
-        <div className="alert">Las metas de los KPIs (rojo, verde y súper verde por indicador) llegan con la pantalla KPIs en la semana 7.</div>
-      )}
+      {tab === 'metas' && <Metas />}
     </>
   );
 }

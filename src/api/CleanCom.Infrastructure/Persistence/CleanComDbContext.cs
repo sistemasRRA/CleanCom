@@ -6,6 +6,7 @@ using CleanCom.Domain.Fleet;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
+using CleanCom.Domain.Kpis;
 using CleanCom.Domain.Promociones;
 using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Routing;
@@ -57,6 +58,8 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Aviso> Avisos => Set<Aviso>();
     public DbSet<DispositivoPush> DispositivosPush => Set<DispositivoPush>();
     public DbSet<AvisoOficina> AvisosOficina => Set<AvisoOficina>();
+    public DbSet<KpiGoal> KpiGoals => Set<KpiGoal>();
+    public DbSet<KpiValue> KpiValues => Set<KpiValue>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AccessCode> AccessCodes => Set<AccessCode>();
 
@@ -94,6 +97,8 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
         builder.Properties<PromocionPrograma>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<DiscountType>().HaveConversion<string>().HaveMaxLength(30);
         builder.Properties<BeneficioOrigin>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<KpiPeriod>().HaveConversion<string>().HaveMaxLength(30);
+        builder.Properties<KpiGoalPeriod>().HaveConversion<string>().HaveMaxLength(30);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

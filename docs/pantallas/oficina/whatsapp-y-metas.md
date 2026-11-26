@@ -35,7 +35,8 @@ Plantillas de mensajes por evento y metas de los KPIs.
 - **Historial:** los últimos 200 avisos con su estado (por enviar, enviado, simulado, por mandar a mano, mandado a mano, falló, no se avisó y por qué).
 - **Plantillas:** una por evento con sus variables documentadas, nombre en Meta, texto de WhatsApp, título y texto del push y activa; al editar, vista previa con datos de ejemplo. No deja usar una variable que el evento no tiene.
 - **Campana de oficina** (en el menú): lo que el invitado hace en la app (pedido nuevo, cambio de día, cancelación), con liga al pedido y "Atendido".
-- **Falta:** conexión con Meta (estado de plantillas, webhook, bandeja de respuestas y "BAJA"), plantillas de marketing y campañas, y las metas de los KPIs (semana 7).
+- **Metas (semana 7):** tabla que se captura en el renglón (rojo, verde, súper verde, periodo y responsable; "Guardar" aplica desde hoy) con "▸ Por ruta" para las metas de F y K, la **semana pasada** de cada una con su color (el mismo cálculo de KPIs) y filtros por área, "Sin meta" y "Sin responsable". "Más" abre el formulario completo para una fecha de inicio futura, el historial y quitar una meta programada. La columna "Semana pasada" trae la barra rojo → verde → súper verde con la marca del valor. Al editar (en el renglón o en "Más") aparece la **vista previa**: qué color habría tenido la semana pasada con esos valores, la barra, cuánto faltaba y, en conteos y montos, a cuánto equivale el verde al día, a la semana, al mes (30 días) y al trimestre (13 semanas o 3 meses); si el orden está mal, lo dice antes de guardar. Por indicador, área, si más o menos es mejor, a qué aplica (toda la empresa o una ruta), periodo de la meta, rojo (opcional), verde, súper verde (opcional), responsable (usuario activo de oficina; ni choferes ni invitados) y desde cuándo aplica; aviso de la próxima meta programada. Carga inicial: las metas de la hoja "KPI's 2026 CleanCom" (columnas 1Q 2026), vigentes desde el 1 de enero de 2026. Al cambiar: valida el orden, la fecha no puede ser anterior a hoy y muestra el historial de la meta (quién la capturó); una meta programada se puede quitar.
+- **Falta:** conexión con Meta (estado de plantillas, webhook, bandeja de respuestas y "BAJA"), plantillas de marketing y campañas.
 
 ## Endpoints
 
@@ -45,4 +46,4 @@ Plantillas de mensajes por evento y metas de los KPIs.
 - `GET|PUT /plantillas`, `POST /plantillas/{id}/previsualizar`, `POST /plantillas/sincronizar-meta`.
 - `GET /bandeja`, `POST /bandeja/{id}/responder`.
 - `POST /webhooks/whatsapp` (estados y mensajes entrantes).
-- `GET|PUT /metas`.
+- Metas (hecho): `GET /metas` (ver WhatsApp y metas o KPIs), `POST /metas/{clave}/previsualizar` (ver WhatsApp y metas o KPIs; no guarda), `PUT /metas/{clave}`, `DELETE /metas/{clave}/{id}` (editar WhatsApp y metas).

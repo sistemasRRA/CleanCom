@@ -1896,6 +1896,338 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/kpis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    periodo?: components["schemas"]["KpiPeriod"];
+                    fecha?: string;
+                    rutaId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiBoardDto"];
+                        "application/json": components["schemas"]["KpiBoardDto"];
+                        "text/json": components["schemas"]["KpiBoardDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/kpis/{clave}/detalle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    periodo?: components["schemas"]["KpiPeriod"];
+                    fecha?: string;
+                    rutaId?: number;
+                };
+                header?: never;
+                path: {
+                    clave: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiDetailDto"];
+                        "application/json": components["schemas"]["KpiDetailDto"];
+                        "text/json": components["schemas"]["KpiDetailDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/kpis/historico": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    semanas?: number;
+                    rutaId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiHistoryDto"];
+                        "application/json": components["schemas"]["KpiHistoryDto"];
+                        "text/json": components["schemas"]["KpiHistoryDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/kpis/recalcular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    periodo?: components["schemas"]["KpiPeriod"];
+                    fecha?: string;
+                    rutaId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiBoardDto"];
+                        "application/json": components["schemas"]["KpiBoardDto"];
+                        "text/json": components["schemas"]["KpiBoardDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiGoalsDto"];
+                        "application/json": components["schemas"]["KpiGoalsDto"];
+                        "text/json": components["schemas"]["KpiGoalsDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metas/{clave}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    clave: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "text/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "application/*+json": components["schemas"]["SaveKpiGoalRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiGoalsDto"];
+                        "application/json": components["schemas"]["KpiGoalsDto"];
+                        "text/json": components["schemas"]["KpiGoalsDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metas/{clave}/previsualizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    clave: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "text/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "application/*+json": components["schemas"]["SaveKpiGoalRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiGoalPreviewDto"];
+                        "application/json": components["schemas"]["KpiGoalPreviewDto"];
+                        "text/json": components["schemas"]["KpiGoalPreviewDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metas/{clave}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    clave: string;
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiGoalsDto"];
+                        "application/json": components["schemas"]["KpiGoalsDto"];
+                        "text/json": components["schemas"]["KpiGoalsDto"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/lineas-servicio": {
         parameters: {
             query?: never;
@@ -6623,6 +6955,249 @@ export interface components {
         };
         /** @enum {unknown} */
         InvitadoType: "ClienteFinal" | "Convenio" | "Empresa" | "TiendaInterna";
+        KpiAppliedGoalDto: {
+            period: null | components["schemas"]["KpiGoalPeriod"];
+            /** Format: double */
+            red: null | number;
+            /** Format: double */
+            green: number;
+            /** Format: double */
+            superGreen: null | number;
+            scaled: boolean;
+            fromRutas: boolean;
+            /** Format: int32 */
+            responsableUserId: null | number;
+            responsable: null | string;
+            /** Format: date */
+            validFrom: null | string;
+        };
+        /** @enum {unknown} */
+        KpiArea: "Logistica" | "Venta" | "Experiencia";
+        KpiBoardDto: {
+            period: components["schemas"]["KpiPeriod"];
+            /** Format: int32 */
+            rutaId: null | number;
+            /** Format: date */
+            start: string;
+            /** Format: date */
+            end: string;
+            label: string;
+            isCurrent: boolean;
+            previousLabel: string;
+            /** Format: date-time */
+            calculatedAt: null | string;
+            counts: components["schemas"]["KpiLightCountsDto"];
+            rutas: components["schemas"]["KpiRutaDto"][];
+            indicadores: components["schemas"]["KpiCardDto"][];
+            weeks: components["schemas"]["KpiHistoryWeekDto"][];
+            externalSources: string;
+        };
+        KpiCardDto: {
+            key: string;
+            name: string;
+            area: components["schemas"]["KpiArea"];
+            unit: components["schemas"]["KpiUnit"];
+            higherIsBetter: boolean;
+            calculation: string;
+            source: null | string;
+            /** Format: double */
+            value: null | number;
+            /** Format: double */
+            previous: null | number;
+            trend: components["schemas"]["KpiTrend"];
+            byRuta: components["schemas"]["KpiRutaValueDto"][];
+            goal: null | components["schemas"]["KpiAppliedGoalDto"];
+            goalNote: null | string;
+            light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
+            weeks: components["schemas"]["KpiHistoryCellDto"][];
+        };
+        KpiDetailDto: {
+            key: string;
+            name: string;
+            unit: components["schemas"]["KpiUnit"];
+            calculation: string;
+            label: string;
+            /** Format: int32 */
+            rutaId: null | number;
+            /** Format: double */
+            value: null | number;
+            rows: components["schemas"]["KpiDetailRowDto"][];
+        };
+        KpiDetailRowDto: {
+            /** Format: date */
+            date: null | string;
+            rutaCode: null | string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            /** Format: int32 */
+            invitadoId: null | number;
+            name: null | string;
+            text: string;
+            /** Format: double */
+            numerator: number;
+            /** Format: double */
+            denominator: number;
+        };
+        KpiEquivalenceDto: {
+            label: string;
+            /** Format: double */
+            green: number;
+        };
+        KpiGoalCheckDto: {
+            /** Format: double */
+            value: null | number;
+            light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
+        };
+        KpiGoalDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: int32 */
+            rutaId: null | number;
+            rutaCode: null | string;
+            period: components["schemas"]["KpiGoalPeriod"];
+            /** Format: int32 */
+            responsableUserId: null | number;
+            responsable: null | string;
+            /** Format: double */
+            red: null | number;
+            /** Format: double */
+            green: number;
+            /** Format: double */
+            superGreen: null | number;
+            /** Format: date */
+            validFrom: string;
+            /** Format: date-time */
+            createdAt: string;
+            createdBy: null | string;
+        };
+        /** @enum {unknown} */
+        KpiGoalPeriod: "Dia" | "Semana" | "Mes" | null;
+        KpiGoalPreviewDto: {
+            lastWeekLabel: string;
+            /** Format: double */
+            value: null | number;
+            thresholds: null | components["schemas"]["KpiThresholds"];
+            light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
+            equivalences: components["schemas"]["KpiEquivalenceDto"][];
+            error: null | string;
+            note: null | string;
+        };
+        KpiGoalRowDto: {
+            key: string;
+            name: string;
+            area: components["schemas"]["KpiArea"];
+            unit: components["schemas"]["KpiUnit"];
+            higherIsBetter: boolean;
+            scaling: components["schemas"]["KpiGoalScaling"];
+            calculation: string;
+            current: null | components["schemas"]["KpiGoalDto"];
+            next: null | components["schemas"]["KpiGoalDto"];
+            rutas: components["schemas"]["KpiRutaGoalDto"][];
+            history: components["schemas"]["KpiGoalDto"][];
+            lastWeek: components["schemas"]["KpiGoalCheckDto"];
+        };
+        /** @enum {unknown} */
+        KpiGoalScaling: "None" | "ByDays" | "SamePeriod";
+        KpiGoalsDto: {
+            indicadores: components["schemas"]["KpiGoalRowDto"][];
+            responsables: components["schemas"]["KpiResponsableDto"][];
+            lastWeekLabel: string;
+        };
+        KpiHistoryCellDto: {
+            /** Format: double */
+            value: null | number;
+            light: components["schemas"]["KpiLight"];
+        };
+        KpiHistoryDto: {
+            weeks: components["schemas"]["KpiHistoryWeekDto"][];
+            indicadores: components["schemas"]["KpiHistoryRowDto"][];
+        };
+        KpiHistoryRowDto: {
+            key: string;
+            name: string;
+            area: components["schemas"]["KpiArea"];
+            unit: components["schemas"]["KpiUnit"];
+            cells: components["schemas"]["KpiHistoryCellDto"][];
+        };
+        KpiHistoryWeekDto: {
+            /** Format: date */
+            start: string;
+            /** Format: date */
+            end: string;
+            label: string;
+        };
+        /** @enum {unknown} */
+        KpiLight: "SinMeta" | "Rojo" | "Verde" | "SuperVerde";
+        KpiLightCountsDto: {
+            /** Format: int32 */
+            superVerde: number;
+            /** Format: int32 */
+            verde: number;
+            /** Format: int32 */
+            rojo: number;
+            /** Format: int32 */
+            sinMeta: number;
+        };
+        /** @enum {unknown} */
+        KpiPeriod: "Semana" | "Mes" | "Trimestre";
+        KpiProgress: {
+            /** Format: double */
+            valuePosition: number;
+            /** Format: double */
+            redPosition: null | number;
+            /** Format: double */
+            greenPosition: number;
+            /** Format: double */
+            superGreenPosition: null | number;
+            next: null | components["schemas"]["KpiLight"];
+            /** Format: double */
+            gap: null | number;
+        };
+        KpiResponsableDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            roleName: string;
+        };
+        KpiRutaDto: {
+            /** Format: int32 */
+            id: number;
+            code: string;
+            color: null | string;
+        };
+        KpiRutaGoalDto: {
+            /** Format: int32 */
+            rutaId: number;
+            code: string;
+            current: null | components["schemas"]["KpiGoalDto"];
+            next: null | components["schemas"]["KpiGoalDto"];
+            lastWeek: components["schemas"]["KpiGoalCheckDto"];
+        };
+        KpiRutaValueDto: {
+            /** Format: int32 */
+            rutaId: number;
+            code: string;
+            /** Format: double */
+            value: null | number;
+            light: components["schemas"]["KpiLight"];
+            /** Format: double */
+            green: null | number;
+        };
+        KpiThresholds: {
+            /** Format: double */
+            red?: null | number;
+            /** Format: double */
+            green?: number;
+            /** Format: double */
+            superGreen?: null | number;
+        };
+        /** @enum {unknown} */
+        KpiTrend: "SinDatos" | "Sube" | "Baja" | "Igual";
+        /** @enum {unknown} */
+        KpiUnit: "Numero" | "Porcentaje" | "Pesos" | "Puntos";
         LineaServicioDto: {
             /** Format: int32 */
             id: number;
@@ -7512,6 +8087,21 @@ export interface components {
             address?: null | components["schemas"]["SaveAddressRequest"];
             /** @default true */
             receivesWhatsApp: boolean;
+        };
+        SaveKpiGoalRequest: {
+            period: components["schemas"]["KpiGoalPeriod"];
+            /** Format: int32 */
+            responsableUserId: null | number;
+            /** Format: double */
+            red: null | number;
+            /** Format: double */
+            green: number;
+            /** Format: double */
+            superGreen: null | number;
+            /** Format: date */
+            validFrom: null | string;
+            /** Format: int32 */
+            rutaId?: null | number;
         };
         SaveLineaServicioRequest: {
             name: string;

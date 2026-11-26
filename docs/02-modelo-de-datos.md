@@ -76,7 +76,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
-| `Indicador` | Clave, Nombre, Area, Periodo, Unidad, MasEsMejor | |
-| `MetaIndicador` | IndicadorId, Responsable (UsuarioId), Rojo, Verde, SuperVerde, VigenteDesde | Las metas no reescriben el pasado |
-| `ValorIndicador` | IndicadorId, Periodo, RutaId?, Valor, Calculado | Guardado por proceso programado |
+| `Indicador` | Clave, Nombre, Area, Unidad, MasEsMejor | En código (`KpiCatalog`), no en tabla: la fórmula es código. La clave (`recolecciones-por-ruta-dia`) se guarda en metas y valores |
+| `MetaIndicador` | IndicadorClave, RutaId? (null = toda la empresa), Periodo (Dia, Semana, Mes), Responsable (UsuarioId), Rojo?, Verde, SuperVerde?, VigenteDesde, Activo | Las metas no reescriben el pasado: un cambio es un renglón nuevo. En código: `KpiGoal` (tabla `kpi_goals`) |
+| `ValorIndicador` | IndicadorClave, Periodo (Semana, Mes, Trimestre), InicioPeriodo, RutaId? (null = total), Valor, CalculadoEn | Guardado por el proceso nocturno; recalcular actualiza el renglón. En código: `KpiValue` (tabla `kpi_values`) |
 | `Encuesta` | PedidoId, Enviada, Respondida, Calificacion (0 a 10), Comentario | NPS |

@@ -1,0 +1,182 @@
+using CleanCom.Domain.Kpis;
+
+namespace CleanCom.Application.Kpis;
+
+public enum KpiTrend
+{
+    SinDatos,
+    Sube,
+    Baja,
+    Igual,
+}
+
+/// <summary>The KPIs screen for one period (docs/pantallas/oficina/kpis.md).</summary>
+/// <param name="RutaId">The ruta shown (values, goals and lights of that ruta); null for the whole company.</param>
+/// <param name="CalculatedAt">When the saved values were calculated (the nightly job or "Recalcular").</param>
+/// <param name="Weeks">The weeks of each card's <see cref="KpiCardDto.Weeks"/>: the 8 up to the period shown.</param>
+/// <param name="ExternalSources">Indicators that are not calculated here.</param>
+public record KpiBoardDto(
+    KpiPeriod Period,
+    int? RutaId,
+    DateOnly Start,
+    DateOnly End,
+    string Label,
+    bool IsCurrent,
+    string PreviousLabel,
+    DateTimeOffset? CalculatedAt,
+    KpiLightCountsDto Counts,
+    IReadOnlyList<KpiRutaDto> Rutas,
+    IReadOnlyList<KpiCardDto> Indicadores,
+    IReadOnlyList<KpiHistoryWeekDto> Weeks,
+    string ExternalSources);
+
+public record KpiLightCountsDto(int SuperVerde, int Verde, int Rojo, int SinMeta);
+
+public record KpiRutaDto(int Id, string Code, string? Color);
+
+/// <param name="Previous">The value of the period before.</param>
+/// <param name="ByRuta">Desglose by ruta, each with the light of its own goal (or the company's, for averages and shares); empty when one ruta is shown.</param>
+/// <param name="Progress">Where the value stands against its goal (a bar and how much is missing); null without value or goal.</param>
+/// <param name="Weeks">The last 8 weeks with the light each had, oldest first.</param>
+/// <param name="GoalNote">Why the goal does not apply to this period (a weekly goal of different invitados seen by month).</param>
+public record KpiCardDto(
+    string Key,
+    string Name,
+    KpiArea Area,
+    KpiUnit Unit,
+    bool HigherIsBetter,
+    string Calculation,
+    string? Source,
+    decimal? Value,
+    decimal? Previous,
+    KpiTrend Trend,
+    IReadOnlyList<KpiRutaValueDto> ByRuta,
+    KpiAppliedGoalDto? Goal,
+    string? GoalNote,
+    KpiLight Light,
+    KpiProgress? Progress,
+    IReadOnlyList<KpiHistoryCellDto> Weeks);
+
+/// <param name="Green">The verde that applies to this ruta in the period, if any.</param>
+public record KpiRutaValueDto(int RutaId, string Code, decimal? Value, KpiLight Light, decimal? Green);
+
+/// <param name="Period">Null when the goal is the combination of the rutas' goals.</param>
+/// <param name="Scaled">The thresholds were scaled from the goal's own period to the days shown.</param>
+/// <param name="FromRutas">There is no goal for the company: these are the goals of the rutas added up (or averaged).</param>
+public record KpiAppliedGoalDto(
+    KpiGoalPeriod? Period,
+    decimal? Red,
+    decimal Green,
+    decimal? SuperGreen,
+    bool Scaled,
+    bool FromRutas,
+    int? ResponsableUserId,
+    string? Responsable,
+    DateOnly? ValidFrom);
+
+/// <summary>What forms an indicator in a period: the visits, tickets, pedidos or invitados counted.</summary>
+public record KpiDetailDto(
+    string Key,
+    string Name,
+    KpiUnit Unit,
+    string Calculation,
+    string Label,
+    int? RutaId,
+    decimal? Value,
+    IReadOnlyList<KpiDetailRowDto> Rows);
+
+/// <param name="Numerator">What the row adds to the value (1 when it counts, the prendas, the amount…).</param>
+/// <param name="Denominator">What it adds to the total it is divided by (0 when it is only a count).</param>
+public record KpiDetailRowDto(
+    DateOnly? Date,
+    string? RutaCode,
+    int? PedidoId,
+    int? InvitadoId,
+    string? Name,
+    string Text,
+    decimal Numerator,
+    decimal Denominator);
+
+/// <summary>The last weeks of each indicator with its light.</summary>
+public record KpiHistoryDto(IReadOnlyList<KpiHistoryWeekDto> Weeks, IReadOnlyList<KpiHistoryRowDto> Indicadores);
+
+public record KpiHistoryWeekDto(DateOnly Start, DateOnly End, string Label);
+
+public record KpiHistoryRowDto(string Key, string Name, KpiArea Area, KpiUnit Unit, IReadOnlyList<KpiHistoryCellDto> Cells);
+
+public record KpiHistoryCellDto(decimal? Value, KpiLight Light);
+
+/// <summary>Metas de los KPIs (WhatsApp y metas › Metas).</summary>
+/// <param name="LastWeekLabel">The week each row's <see cref="KpiGoalRowDto.LastWeek"/> is from ("Semana del 16 al 22 nov 2026").</param>
+public record KpiGoalsDto(IReadOnlyList<KpiGoalRowDto> Indicadores, IReadOnlyList<KpiResponsableDto> Responsables, string LastWeekLabel);
+
+/// <summary>How an indicator did last week against the goal it had (the same light and bar as the KPIs screen).</summary>
+public record KpiGoalCheckDto(decimal? Value, KpiLight Light, KpiProgress? Progress);
+
+/// <summary>
+/// A goal being edited, tried on last week (WhatsApp y metas › Metas): the light and bar it would have given, and what
+/// it equals per day, week, month and quarter for counts and amounts.
+/// </summary>
+/// <param name="Error">Why it cannot be saved as it is (order of the thresholds, period); null when it can.</param>
+/// <param name="Note">Why it gives no light for a week (a monthly goal of different invitados).</param>
+public record KpiGoalPreviewDto(
+    string LastWeekLabel,
+    decimal? Value,
+    KpiThresholds? Thresholds,
+    KpiLight Light,
+    KpiProgress? Progress,
+    IReadOnlyList<KpiEquivalenceDto> Equivalences,
+    string? Error,
+    string? Note);
+
+public record KpiEquivalenceDto(string Label, decimal Green);
+
+/// <param name="Current">The goal of the whole company in force today.</param>
+/// <param name="Next">A goal of the company that starts later, if any.</param>
+/// <param name="Rutas">The goals of each active ruta.</param>
+/// <param name="History">Every goal it had (company and rutas), newest first.</param>
+public record KpiGoalRowDto(
+    string Key,
+    string Name,
+    KpiArea Area,
+    KpiUnit Unit,
+    bool HigherIsBetter,
+    KpiGoalScaling Scaling,
+    string Calculation,
+    KpiGoalDto? Current,
+    KpiGoalDto? Next,
+    IReadOnlyList<KpiRutaGoalDto> Rutas,
+    IReadOnlyList<KpiGoalDto> History,
+    KpiGoalCheckDto LastWeek);
+
+public record KpiRutaGoalDto(int RutaId, string Code, KpiGoalDto? Current, KpiGoalDto? Next, KpiGoalCheckDto LastWeek);
+
+/// <param name="RutaId">Null for the whole company.</param>
+public record KpiGoalDto(
+    int Id,
+    int? RutaId,
+    string? RutaCode,
+    KpiGoalPeriod Period,
+    int? ResponsableUserId,
+    string? Responsable,
+    decimal? Red,
+    decimal Green,
+    decimal? SuperGreen,
+    DateOnly ValidFrom,
+    DateTimeOffset CreatedAt,
+    string? CreatedBy);
+
+public record KpiResponsableDto(int Id, string Name, string RoleName);
+
+/// <param name="RutaId">The ruta it is for; null for the whole company.</param>
+/// <param name="Red">Optional.</param>
+/// <param name="SuperGreen">Optional: without it the indicator is never súper verde.</param>
+/// <param name="ValidFrom">From when it applies; today when empty. It cannot be earlier than today.</param>
+public record SaveKpiGoalRequest(
+    KpiGoalPeriod Period,
+    int? ResponsableUserId,
+    decimal? Red,
+    decimal Green,
+    decimal? SuperGreen,
+    DateOnly? ValidFrom,
+    int? RutaId = null);

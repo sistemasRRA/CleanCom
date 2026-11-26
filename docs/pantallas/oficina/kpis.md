@@ -25,6 +25,18 @@ Indicadores con metas de la hoja "KPI's 2026 CleanCom", por semana, mes o trimes
 
 Recolecciones por ruta al día marca entre 0.9 y 2.1 contra una meta de 10 porque faltan operaciones por registrar. Facturación y ticket promedio vienen del POS.
 
+## Cómo quedó (semana 7)
+
+- **Periodo:** semana, mes o trimestre con anterior, hoy y siguiente; el encabezado dice el periodo, contra cuál se compara y cuándo se calculó. "Recalcular" con permiso de editar.
+- **Contadores** de súper verde, verde, rojo y sin meta.
+- **Tarjeta por indicador** en Logística, Venta y Experiencia: valor con su color, periodo anterior con flecha (verde si mejora), desglose por ruta, meta (rojo, verde, súper verde; "proporcional al periodo" si se escaló) y responsable. Las que dependen del POS o de la encuesta lo dicen.
+- **Detalle** al hacer clic: cada visita, ticket, pedido o invitado que forma el valor, con lo que suma y lo que cuenta en el total, filtro por ruta y liga al pedido.
+- **Últimas 8 semanas** con el color de la meta que tenía cada semana.
+- Las metas se capturan en WhatsApp y metas › Metas. Reglas de cálculo en `03-reglas-de-negocio.md`, KPIs.
+- **Mejoras (semana 7):** los contadores filtran (clic en "Rojo" deja solo los rojos; otro clic, todos); selector de ruta (Todas, F, K) que cambia toda la pantalla a esa ruta con sus metas, y el detalle abre filtrado por ella; barra de avance en cada tarjeta con cuánto falta para verde o súper verde; mini-gráfica de las últimas 8 semanas con el color de cada semana; la tabla de 8 semanas queda plegada abajo. Dentro de cada área van primero los rojos, después verde, súper verde y sin meta; los indicadores que nunca han tenido datos (NPS y encuestas, mientras no esté la encuesta) van en una sola línea "Sin datos todavía" con el motivo. "Imprimir" da la versión para la junta (papel o PDF): periodo, contadores y tarjetas en tres columnas, sin menú ni botones.
+- **Falta:** alerta al responsable cuando cae en rojo (llega con el correo), NPS (encuesta de la app del invitado) y datos del POS.
+
 ## Endpoints
 
-- `GET /kpis?periodo=&fecha=`, `GET /kpis/{clave}/detalle?periodo=&fecha=`, `GET /kpis/historico?semanas=8`.
+- `GET /kpis?periodo=&fecha=&rutaId=` (con avance y últimas 8 semanas por tarjeta), `GET /kpis/{clave}/detalle?periodo=&fecha=&rutaId=`, `GET /kpis/historico?semanas=8&rutaId=` (ver KPIs).
+- `POST /kpis/recalcular?periodo=&fecha=&rutaId=` (editar KPIs).

@@ -3,6 +3,7 @@ using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
 using CleanCom.Domain.Fleet;
+using CleanCom.Domain.Kpis;
 using CleanCom.Domain.Operations;
 using CleanCom.Domain.Pedidos;
 using CleanCom.Domain.People;
@@ -55,6 +56,8 @@ public interface ICleanComDbContext
     DbSet<Aviso> Avisos { get; }
     DbSet<DispositivoPush> DispositivosPush { get; }
     DbSet<AvisoOficina> AvisosOficina { get; }
+    DbSet<KpiGoal> KpiGoals { get; }
+    DbSet<KpiValue> KpiValues { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

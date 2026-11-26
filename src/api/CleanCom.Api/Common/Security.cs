@@ -56,6 +56,9 @@ public static class Policies
     /// <summary>The office bell (what the invitado did in the app): seeing Agendar, Pedidos or Clientes (CRM).</summary>
     public const string SeesAvisosOficina = "SeesAvisosOficina";
 
+    /// <summary>The goals of the KPIs: seeing WhatsApp y metas (where they are edited) or KPIs.</summary>
+    public const string SeesMetas = "SeesMetas";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -220,7 +223,9 @@ public static class Security
             .AddPolicy(Policies.SendsAvisos, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Pedidos], AccessLevel.Edit)))
             .AddPolicy(Policies.SeesAvisosOficina, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.Pedidos, Screens.ClientesCrm], AccessLevel.View)));
+                .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.Pedidos, Screens.ClientesCrm], AccessLevel.View)))
+            .AddPolicy(Policies.SeesMetas, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Kpis], AccessLevel.View)));
 
         return services;
     }
