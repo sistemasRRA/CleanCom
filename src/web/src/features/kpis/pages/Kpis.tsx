@@ -14,7 +14,9 @@ import '../kpis.css';
 
 /**
  * KPIs (docs/pantallas/oficina/kpis.md): every indicator of the week, month or quarter, of the whole company or of one
- * ruta, with its goal, light, progress and last 8 weeks. Clicking a counter leaves only the indicators of that color.
+ * ruta, with its goal, light, progress and last 8 weeks. Clicking a counter leaves only the indicators of that color;
+ * within each area the red ones go first, and those that never had data go in one line. "Imprimir" gives a version for
+ * the meeting (paper or PDF).
  * Values, goals, lights and progress come calculated from the API.
  */
 export function Kpis() {
@@ -35,6 +37,9 @@ export function Kpis() {
   const b = board.data;
   const ruta = b?.rutas.find((r) => r.id === rutaId);
   const cards = b?.indicadores.filter((c) => !onlyLight || c.light === onlyLight) ?? [];
+  // Indicators that never had a value (they wait for the survey or the POS) go in one line, not in empty cards.
+  const withoutData = cards.filter(hasNoData);
+  const withData = cards.filter((c) => !hasNoData(c));
   const rutaOptions = b
     ? [{ id: undefined as number | undefined, name: 'Todas' }, ...b.rutas.map((r) => ({ id: r.id as number | undefined, name: r.code }))]
     : [];
@@ -86,6 +91,9 @@ export function Kpis() {
             ›
           </button>
         </div>
+        <button type="button" className="small" disabled={!b} onClick={() => window.print()} title="Imprimir o guardar en PDF para la junta">
+          Imprimir
+        </button>
         {canEdit && (
           <button type="button" className="small" disabled={recalculate.isPending} onClick={() => recalculate.mutate(undefined)}>
             {recalculate.isPending ? 'Recalculando…' : 'Recalcular'}
@@ -120,7 +128,7 @@ export function Kpis() {
               </div>
             )}
             {AREAS.map((area) => {
-              const ofArea = cards.filter((c) => c.area === area.key);
+              const ofArea = withData.filter((c) => c.area === area.key).sort((x, y) => ATTENTION[x.light] - ATTENTION[y.light]);
               if (ofArea.length === 0) return null;
               return (
                 <section key={area.key} className="kpi-area">
@@ -133,6 +141,20 @@ export function Kpis() {
                 </section>
               );
             })}
+            {withoutData.length > 0 && (
+              <div className="kpi-no-data">
+                <strong>Sin datos todavía:</strong>{' '}
+                {withoutData.map((c, i) => (
+                  <span key={c.key}>
+                    {i > 0 && ' · '}
+                    <button type="button" className="link" onClick={() => setOpen(c)} title={c.source ?? c.calculation}>
+                      {c.name}
+                    </button>
+                    {c.source && <span className="muted"> ({c.source.replace(/.$/, '')})</span>}
+                  </span>
+                ))}
+              </div>
+            )}
             {cards.length === 0 && onlyLight && <div className="empty">Ningún indicador en {lightName(onlyLight).toLowerCase()}.</div>}
             <section className="card">
               <button type="button" className="card__header kpi-table-toggle" aria-expanded={showTable} onClick={() => setShowTable((x) => !x)}>
@@ -157,6 +179,11 @@ export function Kpis() {
     </>
   );
 }
+
+/** Within each area: first what needs attention. */
+const ATTENTION: Record<KpiCard['light'], number> = { Rojo: 0, Verde: 1, SuperVerde: 2, SinMeta: 3 };
+
+const hasNoData = (c: KpiCard) => c.value == null && c.previous == null && c.weeks.every((w) => w.value == null);
 
 const countKey = (light: KpiCard['light']) =>
   ({ SuperVerde: 'superVerde', Verde: 'verde', Rojo: 'rojo', SinMeta: 'sinMeta' })[light] as 'superVerde' | 'verde' | 'rojo' | 'sinMeta';

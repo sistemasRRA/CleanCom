@@ -114,3 +114,22 @@ dialog { --kpi-red: var(--danger-soft); --kpi-green: var(--success-soft); --kpi-
 .kpi-preview { display: flex; flex-direction: column; gap: 6px; max-width: 640px; font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--brand-soft); }
 .kpi-preview.error { color: var(--danger); background: var(--danger-soft); }
 .kpi-preview .kpi-progress { max-width: 360px; }
+
+/* Indicators without data, in one line. */
+.kpi-no-data { font-size: 13px; padding: 10px 14px; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--surface); }
+.kpi-no-data button.link { font-size: 13px; }
+
+/* Printing for the meeting (paper or PDF): only the period, counters, cards and the table if open. */
+@media print {
+  .menu, .mobile-bar, .toasts, .page-header .segmented, .page-header .actions, .page-header > .actions > button, .page-header button, .kpi-filter { display: none !important; }
+  .kpi-no-data button.link { display: inline !important; color: inherit; }
+  .app, .app.menu-collapsed { display: block; }
+  .content { padding: 0; }
+  body { background: #fff; }
+  .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kpi-card, .kpi-count { break-inside: avoid; box-shadow: none; }
+  .kpi-area h2 { break-after: avoid; }
+  .card:has(.kpi-table-toggle[aria-expanded="false"]) { display: none; }
+  .kpi-card__source { display: none; }
+  .kpi-page, .kpi-goals { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

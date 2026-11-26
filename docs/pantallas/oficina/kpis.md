@@ -33,7 +33,7 @@ Recolecciones por ruta al día marca entre 0.9 y 2.1 contra una meta de 10 porqu
 - **Detalle** al hacer clic: cada visita, ticket, pedido o invitado que forma el valor, con lo que suma y lo que cuenta en el total, filtro por ruta y liga al pedido.
 - **Últimas 8 semanas** con el color de la meta que tenía cada semana.
 - Las metas se capturan en WhatsApp y metas › Metas. Reglas de cálculo en `03-reglas-de-negocio.md`, KPIs.
-- **Mejoras (semana 7):** los contadores filtran (clic en "Rojo" deja solo los rojos; otro clic, todos); selector de ruta (Todas, F, K) que cambia toda la pantalla a esa ruta con sus metas, y el detalle abre filtrado por ella; barra de avance en cada tarjeta con cuánto falta para verde o súper verde; mini-gráfica de las últimas 8 semanas con el color de cada semana; la tabla de 8 semanas queda plegada abajo.
+- **Mejoras (semana 7):** los contadores filtran (clic en "Rojo" deja solo los rojos; otro clic, todos); selector de ruta (Todas, F, K) que cambia toda la pantalla a esa ruta con sus metas, y el detalle abre filtrado por ella; barra de avance en cada tarjeta con cuánto falta para verde o súper verde; mini-gráfica de las últimas 8 semanas con el color de cada semana; la tabla de 8 semanas queda plegada abajo. Dentro de cada área van primero los rojos, después verde, súper verde y sin meta; los indicadores que nunca han tenido datos (NPS y encuestas, mientras no esté la encuesta) van en una sola línea "Sin datos todavía" con el motivo. "Imprimir" da la versión para la junta (papel o PDF): periodo, contadores y tarjetas en tres columnas, sin menú ni botones.
 - **Falta:** alerta al responsable cuando cae en rojo (llega con el correo), NPS (encuesta de la app del invitado) y datos del POS.
 
 ## Endpoints
