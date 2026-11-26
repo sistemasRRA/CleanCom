@@ -1,5 +1,6 @@
 using CleanCom.Application.Avisos;
 using CleanCom.Application.Common;
+using CleanCom.Application.Fleet;
 using CleanCom.Application.Operations;
 using CleanCom.Application.Promociones;
 using CleanCom.Application.Rutas;
@@ -29,7 +30,8 @@ public class ChoferService(
     RutaDiaService plans,
     IOperacionNotifier notifier,
     BeneficioService beneficios,
-    AvisoService avisos)
+    AvisoService avisos,
+    UnidadService unidades)
 {
     /// <summary>The chofer's ruta on a day, or why there is none.</summary>
     private sealed record Resolved(Operador? Operador, Ruta? Ruta, RutaDia? RutaDia, bool Assigned, string? Problem);
@@ -94,7 +96,7 @@ public class ChoferService(
         {
             return new ChoferRutaDto(day, label, resolved.Operador?.Name, rutaInfo, false,
                 nonWorking is null ? $"La ruta {ruta.Code} no tiene paradas el {label}." : $"Día inhábil: {nonWorking}.", [],
-                isToday, null, orderRequired, tolerance, photoRequired);
+                isToday, null, orderRequired, tolerance, photoRequired, Shift: await ShiftAsync(null, day, 0, ct));
         }
 
         // Same order and estimated times as the Rutas screen.
@@ -136,8 +138,79 @@ public class ChoferService(
 
         var next = isToday ? ChoferFlow.Next(Flow(paradas)) : null;
         var notice = nonWorking is not null ? $"Día inhábil: {nonWorking}." : paradas.Count == 0 ? $"La ruta {ruta.Code} no tiene paradas el {label}." : null;
+        var open = paradas.Count(p => p.State is ParadaState.Pendiente or ParadaState.EnCamino or ParadaState.EnSitio);
         return new ChoferRutaDto(day, label, resolved.Operador?.Name, rutaInfo, resolved.Assigned, notice, paradas,
-            isToday, next?.Id, orderRequired, tolerance, photoRequired);
+            isToday, next?.Id, orderRequired, tolerance, photoRequired, Shift: await ShiftAsync(rutaDia, day, open, ct));
+    }
+
+    /// <summary>
+    /// The shift on the day shown: start and end, the unidad (or the ones to choose from) and the payments recorded and
+    /// declared for the corte de caja.
+    /// </summary>
+    private async Task<ChoferShiftDto> ShiftAsync(RutaDia? rutaDia, DateOnly day, int openParadas, CancellationToken ct)
+    {
+        var maxKm = await settings.GetIntegerAsync(SettingKeys.UnidadMaxKmPerShift, ct);
+        // Always the one the office assigned in Rutas; the chofer does not choose.
+        var unidad = rutaDia?.UnidadId is { } unidadId ? await UnidadAsync(unidadId, ct) : null;
+
+        IReadOnlyList<PaymentTotalDto> recorded = [], declared = [];
+        if (rutaDia is not null)
+        {
+            recorded = (await db.ReferencePayments.AsNoTracking()
+                    .Where(r => r.Active && db.Paradas.Any(p => p.Id == r.ParadaId && p.RutaDiaId == rutaDia.Id && p.Active))
+                    .GroupBy(r => r.Method)
+                    .Select(g => new { Method = g.Key, Amount = g.Sum(r => r.Amount), Count = g.Count() })
+                    .ToListAsync(ct))
+                .OrderBy(t => t.Method).Select(t => new PaymentTotalDto(t.Method, t.Amount, t.Count)).ToList();
+            declared = (await db.CortesCaja.AsNoTracking().Where(c => c.RutaDiaId == rutaDia.Id)
+                    .SelectMany(c => c.Lines).ToListAsync(ct))
+                .OrderBy(l => l.Method).Select(l => new PaymentTotalDto(l.Method, l.Declared, 0)).ToList();
+        }
+        return new ChoferShiftDto(rutaDia?.ShiftStartedAt, rutaDia?.StartKm, rutaDia?.ShiftEndedAt, rutaDia?.EndKm,
+            unidad, recorded, declared, openParadas, maxKm);
+    }
+
+    private async Task<ChoferUnidadDto?> UnidadAsync(int unidadId, CancellationToken ct)
+    {
+        var unidad = await db.Unidades.AsNoTracking().FirstOrDefaultAsync(u => u.Id == unidadId, ct);
+        if (unidad is null)
+        {
+            return null;
+        }
+        var issues = unidad.Active ? await unidades.IssuesAsync(unidadId, ct) : ["La unidad está dada de baja."];
+        return new ChoferUnidadDto(unidad.Id, unidad.Plate, $"{unidad.Brand} {unidad.Model}".Trim(), unidad.Km, issues);
+    }
+
+    /// <summary>
+    /// The day of a shift action: the day it happened on the phone (it may sync later, sin señal), today when empty.
+    /// </summary>
+    internal DateOnly ShiftDay(DateTimeOffset? at) =>
+        at is { } t ? BusinessTime.Date(t <= clock.UtcNow ? t : clock.UtcNow) : clock.Today;
+
+    /// <summary>
+    /// The chofer's RutaDia (tracked) on a day for a shift action, and their operador. The office creates it when it
+    /// assigns the unidad (or schedules something); without it there is no unidad to start the shift with.
+    /// </summary>
+    internal async Task<(RutaDia RutaDia, Operador Operador)> ShiftRutaDiaAsync(DateOnly day, CancellationToken ct)
+    {
+        var resolved = await ResolveAsync(day, ct);
+        if (resolved.Problem is not null || resolved.Ruta is null || resolved.Operador is null)
+        {
+            throw new DomainException(resolved.Problem ?? "No tienes ruta este día.");
+        }
+        if (resolved.RutaDia is not { } found)
+        {
+            throw new DomainException(
+                $"Oficina no te ha asignado unidad el {AgendaCalculator.Format(day)}. Pide a Logística que te la asigne en Rutas.");
+        }
+        return (await db.RutaDias.FirstAsync(d => d.Id == found.Id, ct), resolved.Operador);
+    }
+
+    /// <summary>The chofer's RutaDia on a day without creating it, and their operador's name; null when there is none.</summary>
+    internal async Task<(RutaDia? RutaDia, string? OperadorName)> DayAsync(DateOnly day, CancellationToken ct)
+    {
+        var resolved = await ResolveAsync(day, ct);
+        return (resolved.RutaDia, resolved.Operador?.Name);
     }
 
     /// <summary>"En camino": the chofer leaves for this parada (step 3); the invitado is told (chofer or entrega en camino).</summary>
@@ -247,6 +320,7 @@ public class ChoferService(
         {
             throw new DomainException("Esta parada no es de tu ruta.");
         }
+        ShiftRules.EnsureOpen(parada.RutaDia.ShiftStartedAt, parada.RutaDia.ShiftEndedAt, date == clock.Today);
         var plan = await plans.PlanAsync(parada.RutaDiaId, ct);
         return (parada, plan.Paradas.Select(p => new FlowParada(p.Id, p.Order, p.Name ?? "", p.State)).ToList());
     }

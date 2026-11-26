@@ -49,6 +49,7 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Promociones.MetaCanjeSellos` | 40 | Meta de canje de los sellos, en % |
 | `Promociones.MetaCanjeCuponera` | 30 | Meta de canje de la cuponera, en % |
 | `Promociones.TopeSello` | 30 | % máximo de los sellos otorgados que puede tener un solo sello antes de avisar |
+| `Unidad.KmMaximoPorTurno` | 400 | Km en un turno a partir de los cuales la app del chofer pide confirmar el kilometraje (evita errores de captura) |
 
 Notas de implementación:
 
@@ -155,6 +156,19 @@ Solo se cambia o cancela desde la app una **recolección que falta por hacer**: 
 
 - El cobro oficial se registra en el POS. En la app el chofer anota forma y monto como referencia.
 - El corte de caja compara lo declarado por el chofer contra lo registrado en las visitas y contra el POS, y marca diferencias.
+- Al cerrar el turno el chofer declara cuánto trae por forma de pago (efectivo, tarjeta, transferencia) y una nota opcional. La app le muestra lo que anotó en sus visitas por forma de pago, para que cuadre. La forma que deja vacía cuenta como $0. Queda un corte de caja por turno (`CorteCaja`); oficina lo revisa y cierra en Evidencias y caja.
+
+## Turno del chofer
+
+1. **Inicio de turno:** el chofer anota el kilometraje del tablero de su unidad. La unidad siempre la asigna oficina a la ruta ese día (Rutas); el chofer no la elige y sin ella no puede iniciar turno. La app muestra como aviso, sin bloquear, si la unidad está fuera de servicio o tiene falla abierta o documentos vencidos.
+2. **El turno es obligatorio:** las acciones sobre las paradas de hoy (en camino, llegué, fotos, firma, cerrar visita, no realizada) solo se aceptan entre "Iniciar turno" y "Cerrar turno". Una acción de otro día que llega tarde (sin señal) no se revisa.
+3. **El kilometraje nunca baja.** El inicial no puede ser menor que el último de la unidad. Ejemplo: la unidad va en 45,200 km; 45,150 se rechaza y 45,210 se acepta.
+4. **Posible error de captura:** si el inicial supera en más de `Unidad.KmMaximoPorTurno` al último de la unidad, la app pide confirmar. Ejemplo: de 45,200 a 452,100 (un dígito de más) pide confirmar; de 45,200 a 45,600 no. Una unidad sin kilometraje registrado (0) acepta cualquier valor.
+5. **Fin de turno:** el kilometraje final no puede ser menor que el inicial. Pide confirmar, en un solo mensaje, si el turno pasó de `Unidad.KmMaximoPorTurno` (ejemplo: de 45,200 a 46,000 son 800 km) o si quedan paradas sin cerrar. Ejemplo normal: de 45,200 a 45,268, sin paradas abiertas, cierra sin preguntar.
+6. El kilometraje de la unidad se actualiza con el inicial y el final, y solo sube: una lectura vieja que llega tarde (sin señal) no lo baja.
+7. Un turno se inicia y se cierra una sola vez. El reenvío de la misma acción (sin señal) responde sin error y no duplica.
+8. **Ubicación:** la app la manda solo desde que inicia el turno hasta que lo cierra.
+9. **Falla de la unidad:** el chofer la reporta con gravedad (baja, media o alta), descripción y foto opcional, sobre la unidad de su ruta ese día. Queda abierta en la bitácora de la unidad (Unidades) hasta que oficina la marca resuelta, y cuenta en los avisos al asignar la unidad.
 
 ## CRM
 

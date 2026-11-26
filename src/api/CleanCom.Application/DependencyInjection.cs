@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<PedidoBoardService>();
         services.AddScoped<PlantaService>();
         services.AddScoped<ChoferVisitService>();
+        services.AddScoped<ChoferShiftService>();
         services.AddScoped<EvidenceService>();
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();

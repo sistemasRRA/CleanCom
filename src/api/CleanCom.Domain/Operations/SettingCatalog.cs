@@ -60,6 +60,7 @@ public static class SettingCatalog
         new(PromocionesSellosGoal, T.Integer, "40", "Meta de canje de los sellos, en porcentaje"),
         new(PromocionesCuponeraGoal, T.Integer, "30", "Meta de canje de la cuponera de bienvenida, en porcentaje"),
         new(PromocionesSelloCap, T.Integer, "30", "Porcentaje máximo de los sellos otorgados que puede tener un solo sello antes de avisar"),
+        new(UnidadMaxKmPerShift, T.Integer, "400", "Kilómetros en un turno a partir de los cuales la app del chofer pide confirmar el kilometraje"),
     ];
 
     private static readonly Dictionary<string, SettingDefinition> ByKey =

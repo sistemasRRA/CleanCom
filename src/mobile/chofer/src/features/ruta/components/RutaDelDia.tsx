@@ -162,6 +162,8 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
   const current = ruta?.date ?? date;
   const pending = ruta?.paradas.filter((p) => p.state !== 'Realizada' && p.state !== 'NoRealizada').length ?? 0;
   const enRoute = ruta?.isToday ? ruta.paradas.find((p) => p.state === 'EnCamino') : undefined;
+  // The shift is required: today's paradas are worked only between "iniciar turno" and "cerrar turno".
+  const shiftOpen = !!ruta?.shift?.startedAt && !ruta.shift.endedAt;
 
   return (
     <Card>
@@ -207,7 +209,8 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
       {queue.failed.map((f) => (
         <View key={f.id} style={{ gap: space.xs }}>
           <Alert>
-            No se guardó “{ACTION_NAME[f.kind]}” de la parada {ruta?.paradas.find((p) => p.id === f.paradaId)?.order ?? ''}: {f.error}
+            No se guardó “{ACTION_NAME[f.kind]}”
+            {f.paradaId > 0 && ` de la parada ${ruta?.paradas.find((p) => p.id === f.paradaId)?.order ?? ''}`}: {f.error}
           </Alert>
           <Button
             title="Entendido"
@@ -221,7 +224,10 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
       ))}
       {ruta?.notice && <Alert tone="info">{ruta.notice}</Alert>}
       {ruta?.ruta && ruta.paradas.length > 0 && !ruta.isToday && <Body muted>Solo consulta: “En camino” y “Llegué” son para la ruta de hoy.</Body>}
-      {enRoute && (
+      {ruta?.isToday && ruta.paradas.length > 0 && !ruta.shift?.startedAt && (
+        <Alert tone="info">Inicia tu turno para salir a tus paradas.</Alert>
+      )}
+      {enRoute && shiftOpen && (
         <EnRouteBanner parada={enRoute} tolerance={ruta!.toleranceMeters} busy={busyId === enRoute.id} onArrive={() => void llegue(enRoute)} />
       )}
 
@@ -232,11 +238,11 @@ export function RutaDelDia({ onShown }: { onShown?: (ruta: Ruta | null) => void 
             parada={p}
             color={ruta.ruta?.color}
             isNext={ruta.isToday && p.id === ruta.nextParadaId}
-            canStart={ruta.isToday && !enRoute && p.state === 'Pendiente' && (!ruta.orderRequired || p.id === ruta.nextParadaId)}
+            canStart={ruta.isToday && shiftOpen && !enRoute && p.state === 'Pendiente' && (!ruta.orderRequired || p.id === ruta.nextParadaId)}
             busy={busyId === p.id}
             onEnCamino={() => void enCamino(p)}
             onLlegue={() => void llegue(p)}
-            canClose={!!ruta.isToday && (p.state === 'EnCamino' || p.state === 'EnSitio')}
+            canClose={!!ruta.isToday && shiftOpen && (p.state === 'EnCamino' || p.state === 'EnSitio')}
             onClose={() => setClosing(p)}
           />
         ))}

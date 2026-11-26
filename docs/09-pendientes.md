@@ -56,7 +56,7 @@
 - [ ] Flota: el calendario de verificación por último dígito de la placa es el de la CDMX (engomados). Las trimotos (7J5BR, 7J6BR) quedaron "exentas de verificación". Confirmar si alguna otra unidad tiene holograma 0/00 o placa de otro estado, que verifican distinto.
 - [ ] Flota: las 8 unidades se cargaron del sistema anterior (capturas de pantalla, 20 nov 2026) en la base de desarrollo; falta pasarlas a producción con la migración de datos. NY2221B y NY2222B tenían en el año su número económico (2221, 2222): se dejaron como modelo "Tornado 2221/2222", año 2023; confirmar el año real. Ninguna trae fecha de última verificación ni servicio registrado.
 - [ ] Flota: servicio cada 10,000 km o 6 meses (`Unidad.ServicioCadaKm`, `Unidad.ServicioCadaMeses`), aviso de servicio 15 días antes y recordatorio cada 7 días después de la fecha (los lunes si se venció por km). Son valores propuestos: confirmar con Administración.
-- [ ] Flota: los avisos ya se calculan (y cuáles tocan hoy), pero el envío por correo, la campana de la web y el resumen semanal llegan con las notificaciones (semana 6). La falla reportada desde la app y el kilometraje de inicio y fin de turno llegan con la app del chofer (semana 7).
+- [ ] Flota: los avisos ya se calculan (y cuáles tocan hoy), pero el envío por correo, la campana de la web y el resumen semanal llegan con las notificaciones (semana 6). La falla reportada desde la app y el kilometraje de inicio y fin de turno ya llegan (semana 7); la falla se ve en Unidades, pero todavía no avisa por correo ni en la campana.
 - [ ] App del invitado: acceso con código de 6 dígitos, 10 minutos, 5 intentos, reenvío al minuto y 5 por hora (`Acceso.*`). Son valores propuestos. El código llega por WhatsApp con las notificaciones (semana 6; plantilla de Meta categoría Autenticación) y SMS de Twilio de respaldo; mientras, solo funciona en desarrollo (código en el log).
 - [ ] App del invitado: sin llaves de Google, la dirección se captura a mano (CP y colonia del catálogo) y el pin sale de "Buscar mi dirección" (OpenStreetMap por el API, 20 búsquedas por minuto por usuario), de "Usar mi ubicación" o de tocar el mapa; el autocompletado de Google llega con las llaves. En Android, la app instalada (no Expo Go) necesita la llave de Maps SDK for Android para mostrar el mapa, igual que la del chofer.
 - [ ] App del invitado: un invitado que ya estaba en el CRM entra directo a la app; falta el paso de "confirmar sus datos y direcciones" de la primera vez. Confirmar si se quiere.
@@ -65,6 +65,8 @@
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
 - [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
+- [ ] Turno del chofer: no hay "reabrir turno" ni corrección del kilometraje desde la app si se capturó mal; oficina corrige el de la unidad en Unidades. Confirmar si oficina necesita corregir también el del turno.
+- [ ] Turno del chofer: falta la foto del tablero (opcional en el flujo) y la pausa de comida de 1 hora con recálculo de horas.
 
 ## Reglas propuestas que conviene validar
 

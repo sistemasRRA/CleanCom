@@ -44,6 +44,7 @@ public interface ICleanComDbContext
     DbSet<Ticket> Tickets { get; }
     DbSet<Evidence> Evidence { get; }
     DbSet<ReferencePayment> ReferencePayments { get; }
+    DbSet<CorteCaja> CortesCaja { get; }
     DbSet<ChoferLocation> ChoferLocations { get; }
     DbSet<Unidad> Unidades { get; }
     DbSet<UnidadDocument> UnidadDocuments { get; }

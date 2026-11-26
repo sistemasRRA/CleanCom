@@ -59,6 +59,7 @@ public record ChoferParadaDto(
 /// <param name="OrderRequired">Visita.OrdenObligatorio: only the next parada can be started.</param>
 /// <param name="PhotoRequired">Visita.FotoObligatoria: a visit is closed (done or not) only with a photo.</param>
 /// <param name="ToleranceMeters">Gps.ToleranciaMetros: Llegué is suggested inside this radius.</param>
+/// <param name="Shift">Inicio and fin de turno of that day; null when the chofer has no ruta.</param>
 public record ChoferRutaDto(
     DateOnly Date,
     string Label,
@@ -72,4 +73,5 @@ public record ChoferRutaDto(
     bool OrderRequired = true,
     int ToleranceMeters = 300,
     bool PhotoRequired = true,
-    string? Message = null);
+    string? Message = null,
+    ChoferShiftDto? Shift = null);

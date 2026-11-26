@@ -46,6 +46,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Evidence> Evidence => Set<Evidence>();
     public DbSet<ReferencePayment> ReferencePayments => Set<ReferencePayment>();
+    public DbSet<CorteCaja> CortesCaja => Set<CorteCaja>();
     public DbSet<ChoferLocation> ChoferLocations => Set<ChoferLocation>();
     public DbSet<Unidad> Unidades => Set<Unidad>();
     public DbSet<UnidadDocument> UnidadDocuments => Set<UnidadDocument>();

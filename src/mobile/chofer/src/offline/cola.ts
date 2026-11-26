@@ -21,7 +21,13 @@ export type Action =
   | { kind: 'foto'; paradaId: number; body: { localId: string; at: string; lat: number | null; lng: number | null }; fileUri: string }
   | { kind: 'firma'; paradaId: number; body: Schemas['SignatureRequest'] }
   | { kind: 'cerrar'; paradaId: number; body: Schemas['CloseVisitRequest'] }
-  | { kind: 'no-realizada'; paradaId: number; body: Schemas['NotDoneRequest'] };
+  | { kind: 'no-realizada'; paradaId: number; body: Schemas['NotDoneRequest'] }
+  // Shift actions are not of a parada: paradaId 0.
+  | { kind: 'turno-iniciar'; paradaId: 0; body: Schemas['StartShiftRequest'] }
+  | { kind: 'turno-cerrar'; paradaId: 0; body: Schemas['EndShiftRequest'] }
+  | { kind: 'falla'; paradaId: 0; body: FallaBody; fileUri: string | null };
+
+export type FallaBody = { localId: string; at: string; description: string; severity: Schemas['FailureSeverity'] };
 
 type Row = { id: number; user_id: number; kind: Action['kind']; parada_id: number; payload: string; file_uri: string | null; error: string | null };
 
@@ -36,6 +42,9 @@ export const ACTION_NAME: Record<Action['kind'], string> = {
   firma: 'Firma',
   cerrar: 'Cerrar visita',
   'no-realizada': 'No realizada',
+  'turno-iniciar': 'Iniciar turno',
+  'turno-cerrar': 'Cerrar turno',
+  falla: 'Reportar falla',
 };
 
 /** An action that waits for signal ("queued") or that the API already answered. */
@@ -142,7 +151,7 @@ export function savedRuta(fecha: string | null): { ruta: Ruta; savedAt: string }
  */
 export async function submit(action: Action): Promise<Submitted> {
   let fileUri: string | null = null;
-  if (action.kind === 'foto') {
+  if ((action.kind === 'foto' || action.kind === 'falla') && action.fileUri) {
     // The camera's copy may be cleaned by the system; the pending photo is kept in the app's documents.
     const dir = new Directory(Paths.document, 'pendientes');
     if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
@@ -241,7 +250,7 @@ function timeout(ms: number) {
 
 async function send(row: Row): Promise<Ruta | null> {
   const body = JSON.parse(row.payload);
-  const signal = timeout(row.kind === 'foto' ? 60_000 : 15_000);
+  const signal = timeout(row.file_uri ? 60_000 : 15_000);
   switch (row.kind) {
     case 'en-camino':
       return choferApi.enCamino(row.parada_id, body, signal);
@@ -268,6 +277,19 @@ async function send(row: Row): Promise<Ruta | null> {
       await choferApi.foto(form, signal);
       return null;
     }
+    case 'turno-iniciar':
+      return choferApi.iniciarTurno(body, signal);
+    case 'turno-cerrar':
+      return choferApi.cerrarTurno(body, signal);
+    case 'falla': {
+      const form = new FormData();
+      form.append('Description', body.description);
+      form.append('Severity', body.severity);
+      form.append('LocalId', body.localId);
+      form.append('At', body.at);
+      if (row.file_uri) form.append('File', { uri: row.file_uri, name: 'falla.jpg', type: 'image/jpeg' } as unknown as Blob);
+      return choferApi.falla(form, signal);
+    }
   }
 }
 
@@ -281,8 +303,9 @@ export function withPending(ruta: Ruta): Ruta {
 
 /** Display only: the API decides; this mirrors what it will answer so the chofer can keep working without signal. */
 export function apply(ruta: Ruta, kind: Action['kind'], paradaId: number, body: { at?: string | null }): Ruta {
-  if (!ruta.paradas.some((p) => p.id === paradaId)) return ruta;
   const at = body.at ?? new Date().toISOString();
+  if (kind === 'turno-iniciar' || kind === 'turno-cerrar' || kind === 'falla') return applyShift(ruta, kind, body, at);
+  if (!ruta.paradas.some((p) => p.id === paradaId)) return ruta;
   const paradas = ruta.paradas.map((p): Parada => {
     if (p.id !== paradaId) return p;
     switch (kind) {
@@ -302,4 +325,21 @@ export function apply(ruta: Ruta, kind: Action['kind'], paradaId: number, body: 
   });
   const next = ruta.isToday ? (paradas.find((p) => p.state === 'Pendiente')?.id ?? null) : null;
   return { ...ruta, paradas, nextParadaId: next, message: null };
+}
+
+/** Shift actions waiting for signal, as the API will answer them (only today's ruta has a shift to start or end). */
+function applyShift(ruta: Ruta, kind: 'turno-iniciar' | 'turno-cerrar' | 'falla', body: unknown, at: string): Ruta {
+  const shift = ruta.shift;
+  if (!shift || !ruta.isToday) return ruta;
+  if (kind === 'turno-iniciar') {
+    const b = body as Schemas['StartShiftRequest'];
+    return { ...ruta, message: null, shift: { ...shift, startedAt: at, startKm: b.km } };
+  }
+  if (kind === 'turno-cerrar') {
+    const b = body as Schemas['EndShiftRequest'];
+    const declared = b.declared.map((d) => ({ method: d.method, amount: d.amount, count: 0 }));
+    return { ...ruta, message: null, shift: { ...shift, endedAt: at, endKm: b.km, declared } };
+  }
+  // A falla does not change what the screen shows until the API answers.
+  return ruta;
 }

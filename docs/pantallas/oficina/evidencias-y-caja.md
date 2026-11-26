@@ -13,7 +13,7 @@ Cada visita con su foto, ticket, monto y forma de pago, y el corte de caja por c
 ## Mejora
 
 - Evidencia con hora, ubicación GPS y marca si se tomó a más de 300 m de la parada; firma del invitado cuando aplique.
-- Corte de caja formal: el chofer declara al cerrar turno; oficina compara contra lo registrado y contra el POS, anota diferencias y cierra con folio y responsable.
+- Corte de caja formal: el chofer declara al cerrar turno (hecho, semana 7: `CorteCaja` con lo declarado por forma de pago y una nota, desde `POST /chofer/turno/cerrar`); oficina compara contra lo registrado y contra el POS, anota diferencias y cierra con folio y responsable (pendiente).
 - Galería por pedido con fotos de recolección y entrega.
 - Exportación a Excel.
 - Fase 2: cobro anticipado con link de pago.

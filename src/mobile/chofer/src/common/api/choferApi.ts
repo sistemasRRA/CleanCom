@@ -29,6 +29,14 @@ export const choferApi = {
    */
   foto: (form: FormData, signal?: AbortSignal) =>
     unwrap(api.POST('/chofer/evidencias', { body: {} as never, bodySerializer: () => form, headers: { 'Content-Type': null }, signal })),
+  /** POST /chofer/turno/iniciar */
+  iniciarTurno: (body: ApiBody<'/chofer/turno/iniciar', 'post'>, signal?: AbortSignal) =>
+    unwrap(api.POST('/chofer/turno/iniciar', { body, signal })),
+  /** POST /chofer/turno/cerrar */
+  cerrarTurno: (body: ApiBody<'/chofer/turno/cerrar', 'post'>, signal?: AbortSignal) => unwrap(api.POST('/chofer/turno/cerrar', { body, signal })),
+  /** POST /chofer/fallas (multipart, like a photo: the caller builds the form data). */
+  falla: (form: FormData, signal?: AbortSignal) =>
+    unwrap(api.POST('/chofer/fallas', { body: {} as never, bodySerializer: () => form, headers: { 'Content-Type': null }, signal })),
   /** POST /chofer/ubicacion */
   ubicacion: (body: ApiBody<'/chofer/ubicacion', 'post'>) => unwrap(api.POST('/chofer/ubicacion', { body })),
 };

@@ -87,9 +87,9 @@ export function sendStored(): Promise<void> {
   return sending;
 }
 
-/** Whether the shift should be followed: today's ruta with paradas still to visit. */
+/** Whether the shift should be followed: only from "iniciar turno" until "cerrar turno" of today's ruta. */
 export function shouldTrack(ruta: Ruta): boolean {
-  return ruta.isToday && ruta.ruta != null && ruta.paradas.some((p) => p.state !== 'Realizada' && p.state !== 'NoRealizada');
+  return ruta.isToday && ruta.ruta != null && ruta.shift?.startedAt != null && ruta.shift.endedAt == null;
 }
 
 export type TrackingState = 'off' | 'on' | 'onlyOpen' | 'denied';
@@ -130,8 +130,8 @@ export async function stopTracking() {
 }
 
 /**
- * Follows the shift while today's ruta has paradas to visit, and stops when they are all closed. A ruta of another
- * day on screen does not change anything. Also sends what is stored when the app comes back.
+ * Follows the shift (see shouldTrack) and stops when it is closed. A ruta of another day on screen does not change
+ * anything. Also sends what is stored when the app comes back.
  */
 export function useShiftTracking(ruta: Ruta | null): TrackingState {
   const [state, setState] = useState<TrackingState>('off');

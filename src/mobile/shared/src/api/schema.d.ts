@@ -746,6 +746,140 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chofer/turno/iniciar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartShiftRequest"];
+                    "text/json": components["schemas"]["StartShiftRequest"];
+                    "application/*+json": components["schemas"]["StartShiftRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/turno/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["EndShiftRequest"];
+                    "text/json": components["schemas"]["EndShiftRequest"];
+                    "application/*+json": components["schemas"]["EndShiftRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chofer/fallas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        Description?: string;
+                        Severity?: components["schemas"]["FailureSeverity"];
+                        File?: components["schemas"]["IFormFile"];
+                        LocalId?: string;
+                        /** Format: date-time */
+                        At?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChoferRutaDto"];
+                        "application/json": components["schemas"]["ChoferRutaDto"];
+                        "text/json": components["schemas"]["ChoferRutaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chofer/vista": {
         parameters: {
             query?: never;
@@ -6660,6 +6794,7 @@ export interface components {
             /** @default true */
             photoRequired: boolean;
             message?: null | string;
+            shift?: null | components["schemas"]["ChoferShiftDto"];
         };
         ChoferRutaInfoDto: {
             /** Format: int32 */
@@ -6667,6 +6802,32 @@ export interface components {
             code: string;
             name: string;
             color: string;
+        };
+        ChoferShiftDto: {
+            /** Format: date-time */
+            startedAt: null | string;
+            /** Format: int32 */
+            startKm: null | number;
+            /** Format: date-time */
+            endedAt: null | string;
+            /** Format: int32 */
+            endKm: null | number;
+            unidad: null | components["schemas"]["ChoferUnidadDto"];
+            recorded: components["schemas"]["PaymentTotalDto"][];
+            declared: components["schemas"]["PaymentTotalDto"][];
+            /** Format: int32 */
+            openParadas: number;
+            /** Format: int32 */
+            maxKmPerShift: number;
+        };
+        ChoferUnidadDto: {
+            /** Format: int32 */
+            id: number;
+            plate: string;
+            name: string;
+            /** Format: int32 */
+            km: number;
+            issues: string[];
         };
         CloseVisitRequest: {
             localId: null | string;
@@ -6793,10 +6954,26 @@ export interface components {
         DeactivateTicketRequest: {
             reason: string;
         };
+        DeclaredPaymentRequest: {
+            method: components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            amount: number;
+        };
         /** @enum {unknown} */
         DelayLevel: "None" | "Warning" | "Late";
         /** @enum {unknown} */
         DiscountType: "Porcentaje" | "Monto" | "ArticuloGratis" | "PrecioEspecial";
+        EndShiftRequest: {
+            /** Format: int32 */
+            km: number;
+            declared: components["schemas"]["DeclaredPaymentRequest"][];
+            notes?: null | string;
+            /** @default false */
+            confirm: boolean;
+            localId?: null | string;
+            /** Format: date-time */
+            at?: null | string;
+        };
         EntityTagHeaderValue: {
             tag?: components["schemas"]["StringSegment"];
             isWeak?: boolean;
@@ -6833,7 +7010,7 @@ export interface components {
             distanceMeters: null | number;
         };
         /** @enum {unknown} */
-        FailureSeverity: "Baja" | "Media" | "Alta" | null;
+        FailureSeverity: "Baja" | "Media" | "Alta";
         FijasWeekCellDto: {
             /** Format: int32 */
             rutaId: number;
@@ -7563,7 +7740,14 @@ export interface components {
         /** @enum {unknown} */
         PaymentFrequency: "Mensual" | "Bimestral" | "Trimestral" | "Semestral" | "Anual";
         /** @enum {unknown} */
-        PaymentMethod: "Efectivo" | "Tarjeta" | "Transferencia" | null;
+        PaymentMethod: "Efectivo" | "Tarjeta" | "Transferencia";
+        PaymentTotalDto: {
+            method: components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
+        };
         PedidoBoardDto: {
             /** Format: date */
             today: string;
@@ -8409,6 +8593,15 @@ export interface components {
             /** Format: date-time */
             takenAt: null | string;
         };
+        StartShiftRequest: {
+            /** Format: int32 */
+            km: number;
+            /** @default false */
+            confirm: boolean;
+            localId?: null | string;
+            /** Format: date-time */
+            at?: null | string;
+        };
         /** Format: binary */
         Stream: string;
         StringSegment: {
@@ -8546,7 +8739,7 @@ export interface components {
             createdAt: string;
         };
         /** @enum {unknown} */
-        UnidadDocumentKind: "Seguro" | "TarjetaCirculacion" | "Verificacion" | "Comprobante" | "Otro" | "Foto";
+        UnidadDocumentKind: "Seguro" | "TarjetaCirculacion" | "Verificacion" | "Comprobante" | "Otro" | "Foto" | "FotoFalla";
         UnidadesDto: {
             unidades: components["schemas"]["UnidadCardDto"][];
             /** Format: int32 */

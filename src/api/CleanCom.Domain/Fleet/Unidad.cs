@@ -54,6 +54,8 @@ public enum UnidadDocumentKind
     Otro,
     /// <summary>Photo of the unidad, shown on its card (the newest one).</summary>
     Foto,
+    /// <summary>Photo of a falla the chofer reported from the app, linked to the falla by EventId.</summary>
+    FotoFalla,
 }
 
 /// <summary>
@@ -106,6 +108,8 @@ public class UnidadEvent : Entity, IActivatable
     public DateOnly? ResolvedOn { get; set; }
     /// <summary>The recurring payment this pago covers; its next date moves forward.</summary>
     public int? RecurringPaymentId { get; set; }
+    /// <summary>Local id of a falla reported from the chofer app; a resend after losing signal is not saved twice.</summary>
+    public string? LocalId { get; set; }
     public bool Active { get; set; } = true;
 }
 

@@ -343,6 +343,33 @@ internal class RutaDiaConfig : IEntityTypeConfiguration<RutaDia>
         e.HasOne(x => x.Operador).WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Paradas).WithOne(p => p.RutaDia).HasForeignKey(p => p.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Viajes).WithOne(v => v.RutaDia).HasForeignKey(v => v.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        e.Property(x => x.ShiftStartLocalId).HasMaxLength(64);
+        e.Property(x => x.ShiftEndLocalId).HasMaxLength(64);
+    }
+}
+
+internal class CorteCajaConfig : IEntityTypeConfiguration<CorteCaja>
+{
+    public void Configure(EntityTypeBuilder<CorteCaja> e)
+    {
+        e.ToTable("CortesCaja");
+        e.Property(x => x.ChoferNotes).HasMaxLength(500);
+        // One per shift.
+        e.HasIndex(x => x.RutaDiaId).IsUnique();
+        e.HasIndex(x => x.Date);
+        e.HasOne(x => x.RutaDia).WithMany().HasForeignKey(x => x.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<CleanCom.Domain.People.Operador>().WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Lines).WithOne().HasForeignKey(l => l.CorteCajaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class CorteCajaLineConfig : IEntityTypeConfiguration<CorteCajaLine>
+{
+    public void Configure(EntityTypeBuilder<CorteCajaLine> e)
+    {
+        e.ToTable("CorteCajaLines");
+        e.Property(x => x.Declared).HasPrecision(12, 2);
+        e.HasIndex(x => new { x.CorteCajaId, x.Method }).IsUnique();
     }
 }
 
@@ -545,6 +572,8 @@ internal class UnidadEventConfig : IEntityTypeConfiguration<UnidadEvent>
         e.Property(x => x.Amount).HasPrecision(12, 2);
         e.HasOne<RecurringPayment>().WithMany().HasForeignKey(x => x.RecurringPaymentId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.UnidadId, x.Date });
+        e.Property(x => x.LocalId).HasMaxLength(64);
+        e.HasIndex(x => x.LocalId).IsUnique().HasFilter("[local_id] IS NOT NULL");
     }
 }
 

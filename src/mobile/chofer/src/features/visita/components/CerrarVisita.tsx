@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { type Method, METHODS, type Parada, type Ruta } from '../types/visita';
+import { type Parada, type Ruta } from '../types/visita';
+import { type Method, METHODS } from '../../../common/pagos';
 import { Firma, type Signature } from './Firma';
 import { newLocalId, submit as submitAction } from '../../../offline/cola';
 import { currentPosition } from '../../../common/ubicacion';
-import { Choice, Input, Section, Stepper } from './FormParts';
+import { Choice, Input, Section, Stepper } from '../../../common/FormParts';
 
 /**
  * Cerrar la visita (docs/pantallas/apps/chofer.md, step 5): done or not done, with what each kind needs. The API

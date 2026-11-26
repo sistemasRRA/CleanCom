@@ -1967,6 +1967,11 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("int")
                         .HasColumnName("km");
 
+                    b.Property<string>("LocalId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("local_id");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("modified_at");
@@ -1994,6 +1999,11 @@ namespace CleanCom.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_unidad_events");
+
+                    b.HasIndex("LocalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_unidad_events_local_id")
+                        .HasFilter("[local_id] IS NOT NULL");
 
                     b.HasIndex("RecurringPaymentId")
                         .HasDatabaseName("ix_unidad_events_recurring_payment_id");
@@ -2663,6 +2673,16 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "30"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "Unidad.KmMaximoPorTurno",
+                            Note = "Valor inicial",
+                            Type = "Integer",
+                            Value = "400"
                         });
                 });
 
@@ -3477,6 +3497,114 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("chofer_locations", (string)null);
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Routing.CorteCaja", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChoferNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("chofer_notes");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int?>("OperadorId")
+                        .HasColumnType("int")
+                        .HasColumnName("operador_id");
+
+                    b.Property<int>("RutaDiaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ruta_dia_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_cortes_caja");
+
+                    b.HasIndex("Date")
+                        .HasDatabaseName("ix_cortes_caja_date");
+
+                    b.HasIndex("OperadorId")
+                        .HasDatabaseName("ix_cortes_caja_operador_id");
+
+                    b.HasIndex("RutaDiaId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_cortes_caja_ruta_dia_id");
+
+                    b.ToTable("cortes_caja", (string)null);
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.CorteCajaLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CorteCajaId")
+                        .HasColumnType("int")
+                        .HasColumnName("corte_caja_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("Declared")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("declared");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("method");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_corte_caja_lines");
+
+                    b.HasIndex("CorteCajaId", "Method")
+                        .IsUnique()
+                        .HasDatabaseName("ix_corte_caja_lines_corte_caja_id_method");
+
+                    b.ToTable("corte_caja_lines", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>
                 {
                     b.Property<int>("Id")
@@ -4098,6 +4226,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date");
 
+                    b.Property<int?>("EndKm")
+                        .HasColumnType("int")
+                        .HasColumnName("end_km");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("modified_at");
@@ -4113,6 +4245,28 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int>("RutaId")
                         .HasColumnType("int")
                         .HasColumnName("ruta_id");
+
+                    b.Property<string>("ShiftEndLocalId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("shift_end_local_id");
+
+                    b.Property<DateTimeOffset?>("ShiftEndedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("shift_ended_at");
+
+                    b.Property<string>("ShiftStartLocalId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("shift_start_local_id");
+
+                    b.Property<DateTimeOffset?>("ShiftStartedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("shift_started_at");
+
+                    b.Property<int?>("StartKm")
+                        .HasColumnType("int")
+                        .HasColumnName("start_km");
 
                     b.Property<int?>("UnidadId")
                         .HasColumnType("int")
@@ -4936,6 +5090,34 @@ namespace CleanCom.Migrations.Migrations
                     b.Navigation("RutaDia");
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Routing.CorteCaja", b =>
+                {
+                    b.HasOne("CleanCom.Domain.People.Operador", null)
+                        .WithMany()
+                        .HasForeignKey("OperadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_cortes_caja_operadores_operador_id");
+
+                    b.HasOne("CleanCom.Domain.Routing.RutaDia", "RutaDia")
+                        .WithMany()
+                        .HasForeignKey("RutaDiaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cortes_caja_ruta_dias_ruta_dia_id");
+
+                    b.Navigation("RutaDia");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.CorteCajaLine", b =>
+                {
+                    b.HasOne("CleanCom.Domain.Routing.CorteCaja", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("CorteCajaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_corte_caja_lines_cortes_caja_corte_caja_id");
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Routing.Evidence", b =>
                 {
                     b.HasOne("CleanCom.Domain.Routing.Parada", "Parada")
@@ -5198,6 +5380,11 @@ namespace CleanCom.Migrations.Migrations
             modelBuilder.Entity("CleanCom.Domain.People.Invitado", b =>
                 {
                     b.Navigation("Addresses");
+                });
+
+            modelBuilder.Entity("CleanCom.Domain.Routing.CorteCaja", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("CleanCom.Domain.Routing.Parada", b =>
