@@ -165,6 +165,7 @@ export function Clientes() {
                     <td>
                       <StatusBadge status={r.status} manual={r.statusIsManual} />
                       {r.doNotContact && <div className="badge danger crm-flag">No contactar</div>}
+                      {r.reactivation && <div className="badge brand crm-flag" title="Enviado desde Clientes y fuentes (perdidos)">Reactivación</div>}
                     </td>
                     <td className="crm-why">
                       {r.why}

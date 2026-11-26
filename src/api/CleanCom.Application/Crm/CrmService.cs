@@ -37,10 +37,12 @@ public class CrmService(
         var today = clock.Today;
         var all = await EvaluateAsync(null, ct);
         var nonWorkingTomorrow = await db.NonWorkingDays.AnyAsync(d => d.Active && d.Date == today.AddDays(1), ct);
+        // Le toca or en riesgo whose ruta comes tomorrow, or sent to reactivation from Clientes y fuentes.
         bool InCallToday(Row r) =>
-            CallStatuses.Contains(r.Dto.Status) && !r.Dto.DoNotContact && r.Dto.Type != InvitadoType.TiendaInterna
+            !r.Dto.DoNotContact && r.Dto.Type != InvitadoType.TiendaInterna
             && (r.Dto.NextContactOn is null || r.Dto.NextContactOn <= today)
-            && !nonWorkingTomorrow && r.VisitDays.Contains(today.AddDays(1).DayOfWeek);
+            && ((CallStatuses.Contains(r.Dto.Status) && !nonWorkingTomorrow && r.VisitDays.Contains(today.AddDays(1).DayOfWeek))
+                || (r.CallRequestedOn is { } requested && requested <= today));
 
         var counted = all.Where(r => r.Dto.Type != InvitadoType.TiendaInterna).ToList();
         var counts = Enum.GetValues<CrmStatus>().Select(s => new CrmStatusCountDto(s, counted.Count(r => r.Dto.Status == s))).ToList();
@@ -122,6 +124,8 @@ public class CrmService(
             ContactedAt = clock.UtcNow,
         });
         invitado.NextContactOn = next;
+        // The reactivation call was made.
+        invitado.CallRequestedOn = null;
         if (r.Result == ContactResult.NoContactar)
         {
             invitado.DoNotContact = true;
@@ -149,7 +153,7 @@ public class CrmService(
     private static readonly CrmStatus[] Priority =
         [CrmStatus.LeToca, CrmStatus.EnRiesgo, CrmStatus.Nuevo, CrmStatus.Activo, CrmStatus.Prospecto, CrmStatus.Inactivo];
 
-    private sealed record Row(CrmRowDto Dto, int? RutaId, IReadOnlyCollection<DayOfWeek> VisitDays);
+    private sealed record Row(CrmRowDto Dto, int? RutaId, IReadOnlyCollection<DayOfWeek> VisitDays, DateOnly? CallRequestedOn);
 
     /// <summary>Evaluates every active invitado, or one.</summary>
     private async Task<IReadOnlyList<Row>> EvaluateAsync(int? onlyId, CancellationToken ct)
@@ -170,6 +174,7 @@ public class CrmService(
                 i.Type,
                 i.NextContactOn,
                 i.DoNotContact,
+                i.CallRequestedOn,
                 i.ManualStatus,
                 i.FixedFrequencyDays,
                 // First active address with a zona: the one the CRM uses for the visit days.
@@ -206,9 +211,10 @@ public class CrmService(
             return new Row(
                 new CrmRowDto(p.Id, p.Name, p.WhatsAppPhone, p.Type, p.Address?.Neighborhood, p.Address?.ZonaCode, zona?.Ruta?.Code,
                     status, p.ManualStatus is not null, why, e.ServiceCount, e.FrequencyDays, e.LastService, e.LeTocaDate,
-                    suggested, nextRecoleccion, p.NextContactOn, p.DoNotContact),
+                    suggested, nextRecoleccion, p.NextContactOn, p.DoNotContact, p.CallRequestedOn is { } requested && requested <= today),
                 zona?.RutaId,
-                visitDays);
+                visitDays,
+                p.CallRequestedOn);
         }).ToList();
     }
 

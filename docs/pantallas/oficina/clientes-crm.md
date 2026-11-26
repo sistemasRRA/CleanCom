@@ -13,6 +13,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Lista: mejora
 
 - Registrar el resultado de la llamada desde la misma lista, sin abrir la ficha; el invitado sale de "Llamar hoy" hasta su fecha de volver a contactar.
+- **Reactivación (semana 7, hecho):** los perdidos que se mandan desde Clientes y fuentes aparecen en "Llamar hoy" con la etiqueta "Reactivación", sin importar su estatus ni su zona, hasta que se registra un contacto (`reactivation` en la fila).
 - Estatus calculado cada noche en el API con umbrales configurables.
 - Reactivación automática: push o WhatsApp de marketing a Le toca y En riesgo (con aceptación previa).
 - Filtro por tipo (cliente final, empresa, tienda interna) y por estado de cuenta de app.

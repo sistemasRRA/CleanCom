@@ -286,6 +286,8 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer` y `/unidad` (la unidad responde 409 hasta confirmar si tiene pendientes) | Panel del día o Rutas: Edit (política `AssignsRutaDia`) |
 | App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
 | App del chofer | `GET /chofer/motivos` | App del chofer: View |
+| Clientes y fuentes | `GET /gerencia/clientes?periodo=&fecha=&tipo=`, `GET /gerencia/clientes/retencion`, `GET /gerencia/clientes/perdidos` | Clientes y fuentes: View |
+| Clientes y fuentes | `POST /gerencia/clientes/perdidos/llamar` (a "Llamar hoy" del CRM) | Clientes y fuentes: Edit |
 | Evidencias y caja | `GET /visitas?desde=&hasta=&ruta=&formaPago=&pagina=&porPagina=`, `GET /visitas/exportar` (Excel), `GET /cortes?fecha=` | Evidencias y caja: View |
 | Evidencias y caja | `POST /cortes/{id}/cerrar` (monto del POS y notas; folio) | Evidencias y caja: Edit |
 | Evidencias y caja | `POST /cortes/{id}/reabrir` (motivo) | Permiso especial `reabrir-cortes`: Edit |

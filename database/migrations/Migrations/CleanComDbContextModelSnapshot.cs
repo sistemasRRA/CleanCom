@@ -3102,6 +3102,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("active");
 
+                    b.Property<DateOnly?>("CallRequestedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("call_requested_on");
+
                     b.Property<string>("Campaign")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")

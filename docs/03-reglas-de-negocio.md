@@ -198,6 +198,8 @@ El estatus se recalcula cada noche y guarda el "por qué" en texto ("pide cada 7
 
 Invitados Le toca o En riesgo cuya ruta pasa mañana por su zona, excluyendo a quien tenga `ProximoContacto` futuro o haya pedido no ser contactado.
 
+**Reactivación:** los perdidos que oficina manda desde Clientes y fuentes entran a "Llamar hoy" sin importar su estatus ni su zona (con la etiqueta "Reactivación"), hasta que se registra un contacto con ellos. También respetan `ProximoContacto` futuro y "no contactar".
+
 ### Registro de contacto
 
 Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 días si pidió que le llamaran, en 3 semanas si dijo que no por ahora (días configurables: `Crm.DiasNoContesto`, `Crm.DiasLlamarDespues`, `Crm.DiasNoPorAhora`). "No contactar" marca al invitado: sale de "Llamar hoy" y de campañas. "Agendó" no programa seguimiento.
@@ -207,12 +209,25 @@ Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 dí
 | Término | Definición |
 | --- | --- |
 | Nuevo | Su primer pedido cae en el periodo |
-| Recurrente | Su pedido anterior fue hace menos de 120 días |
+| Recurrente | Su pedido anterior fue hace 120 días o menos |
 | Recuperado | Vuelve tras más de 120 días sin pedir |
-| Perdido | Cumple 120 días sin pedir dentro del periodo |
+| Perdido | Cumple más de 120 días sin pedir dentro del periodo |
 | Activo al cierre | Pidió en los 120 días previos al cierre del periodo |
 
 El periodo en curso se marca como parcial y se compara contra los mismos días del periodo anterior.
+
+Cómo se calcula (semana 7, en el API):
+
+1. **Los 120 días son `Crm.DiasInactivo`**, los mismos del estatus Inactivo del CRM: más de 120 días sin pedir es perdido.
+2. **Pedido (servicio):** un pedido no cancelado, en su fecha de recolección, hasta hoy; el mismo que usa el CRM. Sin tiendas internas. El tipo "convenios" junta convenio y empresa.
+3. **Cada invitado atendido cuenta una sola vez:** nuevo si su primer pedido cae en el periodo; si no, se mira el pedido anterior al primero del periodo: 120 días o menos → recurrente, más → recuperado. Ejemplo: pidió el 13 de julio y el 10 de noviembre (120 días) → recurrente; si el primero fue el 12 de julio (121 días) → recuperado.
+4. **Perdido:** el día que cumple más de 120 días sin pedir (último pedido + 121 días) cae en el periodo y no ha llegado después. Ejemplo: último pedido el 1 de julio → perdido el 30 de octubre. Un invitado puede ser perdido y recuperado en el mismo periodo (perdido el 12 de noviembre, vuelve el 20).
+5. **Activo al cierre:** un pedido en los 120 días hasta el cierre (hoy, si el periodo sigue abierto). Ejemplo al 26 de noviembre: pidió el 29 de julio → activo; el 28 de julio → no.
+6. **Comparación:** el periodo en curso (hasta hoy) contra los mismos días desde el inicio del anterior; un periodo cerrado contra el anterior completo. Ejemplo: 1 al 26 de noviembre contra 1 al 26 de octubre.
+7. **Venta:** importe de los tickets (POS; mientras tanto los de Tickets en planta) capturados en el periodo, de pedidos no cancelados. Venta de nuevos: la de los nuevos del periodo. Ticket promedio: venta entre tickets con importe. % de la venta: venta de la fuente entre la del periodo.
+8. **Fuente:** "Cómo nos conoció" del invitado; "Sin capturar" si no tiene.
+9. **Retención por generación:** los nuevos de cada mes (primer pedido en ese mes) y cuántos volvieron a pedir dentro de 30, 60 y 90 días de su primer pedido. Solo cuentan en la base quienes ya cumplieron esos días o ya volvieron. Ejemplo: primer pedido el 3 de septiembre y el segundo el 28 → repite a 30, 60 y 90 días.
+10. **Mandar perdidos a "Llamar hoy":** ver Reactivación en la lista "Llamar hoy".
 
 ### Tipos de invitado
 

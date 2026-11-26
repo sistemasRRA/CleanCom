@@ -1,0 +1,12 @@
+/* Clientes y fuentes */
+.cyf-indicators { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.cyf-indicator { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: left; font: inherit; color: inherit; }
+.cyf-indicator strong { font-size: 26px; line-height: 1.1; }
+.cyf-indicator__name { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.cyf-indicator .muted { font-size: 12px; }
+button.cyf-indicator.clickable { cursor: pointer; }
+button.cyf-indicator.clickable:hover { border-color: var(--brand); }
+.cyf-definitions ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+dialog.cyf-dialog { width: min(980px, calc(100vw - 32px)); }
+dialog.cyf-dialog .dialog__body { max-height: 70vh; overflow-y: auto; }
+td.end, th.end { text-align: right; }

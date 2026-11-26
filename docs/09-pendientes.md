@@ -86,6 +86,11 @@
 - [ ] KPIs: alerta al responsable cuando su indicador cae en rojo; llega con el correo (avisos pendientes de canal).
 - [ ] KPIs: NPS y encuestas respondidas quedan sin datos hasta la encuesta de la app del invitado (cuándo se manda, por qué canal y la pregunta).
 - [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
+- [ ] Clientes y fuentes: "nuevos de marketing digital" necesita saber qué opciones de "Cómo nos conoció" son marketing digital (Facebook, Instagram, Google…). Confirmar la lista; se puede marcar en el catálogo.
+- [ ] Clientes y fuentes: el tipo "Convenios" junta convenio y empresa (ver la duda de Convenio frente a Empresa). Confirmar.
+- [ ] Clientes y fuentes: "recurrente" es 120 días o menos desde su pedido anterior y "recuperado" más de 120; el documento decía "menos de 120", que dejaba fuera el día 120 exacto. Confirmar.
+- [ ] Clientes y fuentes: mandar perdidos a una campaña llega con las campañas de WhatsApp (plantillas de marketing de Meta). La fuente capturada sola desde un link o código de campaña de la app también está pendiente.
+- [ ] Clientes y fuentes: la venta es la de los tickets capturados en el periodo (fecha de captura), no la del pedido. Con el POS conectado se usará la fecha de venta del POS.
 
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:
 

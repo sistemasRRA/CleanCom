@@ -47,6 +47,11 @@ public class Invitado : Entity, IActivatable
     public CrmStatus? ManualStatus { get; set; }
     /// <summary>Frequency fixed by the office, in days; wins over the calculated one.</summary>
     public int? FixedFrequencyDays { get; set; }
+    /// <summary>
+    /// Reactivation: sent to "Llamar hoy" from Clientes y fuentes (perdidos). From this date the invitado appears there
+    /// whatever their zona and status, until a contact is registered.
+    /// </summary>
+    public DateOnly? CallRequestedOn { get; set; }
 
     public List<Address> Addresses { get; set; } = [];
 }

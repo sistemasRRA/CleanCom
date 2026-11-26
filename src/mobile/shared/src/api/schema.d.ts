@@ -1314,6 +1314,173 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gerencia/clientes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    periodo?: components["schemas"]["ClientesPeriod"];
+                    fecha?: string;
+                    tipo?: components["schemas"]["ClientesTipo"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ClientesFuentesDto"];
+                        "application/json": components["schemas"]["ClientesFuentesDto"];
+                        "text/json": components["schemas"]["ClientesFuentesDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gerencia/clientes/retencion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                    tipo?: components["schemas"]["ClientesTipo"];
+                    fuente?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RetencionDto"];
+                        "application/json": components["schemas"]["RetencionDto"];
+                        "text/json": components["schemas"]["RetencionDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gerencia/clientes/perdidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    periodo?: components["schemas"]["ClientesPeriod"];
+                    fecha?: string;
+                    tipo?: components["schemas"]["ClientesTipo"];
+                    fuente?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PerdidosDto"];
+                        "application/json": components["schemas"]["PerdidosDto"];
+                        "text/json": components["schemas"]["PerdidosDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gerencia/clientes/perdidos/llamar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LlamarPerdidosRequest"];
+                    "text/json": components["schemas"]["LlamarPerdidosRequest"];
+                    "application/*+json": components["schemas"]["LlamarPerdidosRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["LlamarPerdidosResultDto"];
+                        "application/json": components["schemas"]["LlamarPerdidosResultDto"];
+                        "text/json": components["schemas"]["LlamarPerdidosResultDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cobertura": {
         parameters: {
             query?: never;
@@ -7128,6 +7295,58 @@ export interface components {
             km: number;
             issues: string[];
         };
+        ClientesFuentesDto: {
+            periodo: components["schemas"]["ClientesPeriod"];
+            tipo: components["schemas"]["ClientesTipo"];
+            label: string;
+            /** Format: date */
+            start: string;
+            /** Format: date */
+            end: string;
+            isPartial: boolean;
+            comparedLabel: string;
+            totals: components["schemas"]["ClientesTotalsDto"];
+            previous: components["schemas"]["ClientesTotalsDto"];
+            fuentes: components["schemas"]["FuenteRowDto"][];
+            trend: components["schemas"]["ClientesTrendDto"][];
+            /** Format: int32 */
+            inactiveDays: number;
+        };
+        /** @enum {unknown} */
+        ClientesPeriod: "Semana" | "Mes" | "Trimestre" | "Anio";
+        /** @enum {unknown} */
+        ClientesTipo: "Todos" | "ClientesFinales" | "Convenios";
+        ClientesTotalsDto: {
+            /** Format: int32 */
+            nuevos: number;
+            /** Format: int32 */
+            recurrentes: number;
+            /** Format: int32 */
+            recuperados: number;
+            /** Format: int32 */
+            perdidos: number;
+            /** Format: int32 */
+            atendidos: number;
+            /** Format: int32 */
+            activosAlCierre: number;
+            /** Format: int32 */
+            pedidos: number;
+            /** Format: double */
+            venta: number;
+            /** Format: double */
+            ventaNuevos: number;
+            /** Format: double */
+            ticketPromedio: null | number;
+        };
+        ClientesTrendDto: {
+            label: string;
+            /** Format: date */
+            start: string;
+            /** Format: date */
+            end: string;
+            isPartial: boolean;
+            totals: components["schemas"]["ClientesTotalsDto"];
+        };
         CloseCorteRequest: {
             pos: null | components["schemas"]["PosAmountRequest"][];
             notes: null | string;
@@ -7153,6 +7372,31 @@ export interface components {
             expiresInMinutes: number;
             /** Format: int32 */
             resendInSeconds: number;
+        };
+        CohortDto: {
+            /** Format: date */
+            month: string;
+            label: string;
+            /** Format: int32 */
+            nuevos: number;
+            /** Format: int32 */
+            base30: number;
+            /** Format: int32 */
+            repitieron30: number;
+            /** Format: int32 */
+            base60: number;
+            /** Format: int32 */
+            repitieron60: number;
+            /** Format: int32 */
+            base90: number;
+            /** Format: int32 */
+            repitieron90: number;
+            /** Format: double */
+            pct30: null | number;
+            /** Format: double */
+            pct60: null | number;
+            /** Format: double */
+            pct90: null | number;
         };
         /** @enum {unknown} */
         ContactChannel: "Llamada" | "WhatsApp";
@@ -7307,6 +7551,8 @@ export interface components {
             /** Format: date */
             nextContactOn: null | string;
             doNotContact: boolean;
+            /** @default false */
+            reactivation: boolean;
         };
         /** @enum {unknown} */
         CrmStatus: "Prospecto" | "Nuevo" | "Activo" | "LeToca" | "EnRiesgo" | "Inactivo";
@@ -7461,6 +7707,25 @@ export interface components {
             daysBefore: string;
             recipients: string;
             channels: string;
+        };
+        FuenteRowDto: {
+            fuente: string;
+            /** Format: int32 */
+            nuevos: number;
+            /** Format: double */
+            ventaNuevos: number;
+            /** Format: int32 */
+            atendidos: number;
+            /** Format: int32 */
+            pedidos: number;
+            /** Format: double */
+            venta: number;
+            /** Format: double */
+            ticketPromedio: null | number;
+            /** Format: double */
+            porcentajeVenta: null | number;
+            /** Format: int32 */
+            perdidos: number;
         };
         GenerateFijasResultDto: {
             /** Format: date */
@@ -7781,6 +8046,16 @@ export interface components {
             live: boolean;
             /** Format: date-time */
             signalLostAt?: null | string;
+        };
+        LlamarPerdidosRequest: {
+            invitadoIds: number[];
+        };
+        LlamarPerdidosResultDto: {
+            /** Format: int32 */
+            sent: number;
+            /** Format: int32 */
+            skipped: number;
+            message: string;
         };
         LocationReadingRequest: {
             /** Format: double */
@@ -8318,6 +8593,28 @@ export interface components {
             /** Format: int32 */
             days: number;
         };
+        PerdidoDto: {
+            /** Format: int32 */
+            invitadoId: number;
+            name: string;
+            whatsAppPhone: string;
+            fuente: string;
+            /** Format: date */
+            lastService: string;
+            /** Format: date */
+            lostOn: string;
+            /** Format: int32 */
+            services: number;
+            /** Format: double */
+            venta: number;
+            doNotContact: boolean;
+            reactivation: boolean;
+            cameBack: boolean;
+        };
+        PerdidosDto: {
+            label: string;
+            rows: components["schemas"]["PerdidoDto"][];
+        };
         PlantaBoardDto: {
             /** Format: date */
             today: string;
@@ -8505,6 +8802,12 @@ export interface components {
         };
         ResetPasswordRequest: {
             temporaryPassword: string;
+        };
+        RetencionDto: {
+            tipo: components["schemas"]["ClientesTipo"];
+            fuente: null | string;
+            cohorts: components["schemas"]["CohortDto"][];
+            fuentes: string[];
         };
         RoleDto: {
             /** Format: int32 */

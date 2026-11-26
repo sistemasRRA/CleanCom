@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<ChoferShiftService>();
         services.AddScoped<CleanCom.Application.Evidencias.EvidenciasService>();
         services.AddScoped<CleanCom.Application.Evidencias.CorteCajaService>();
+        services.AddScoped<ClientesFuentesService>();
         services.AddScoped<EvidenceService>();
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();
