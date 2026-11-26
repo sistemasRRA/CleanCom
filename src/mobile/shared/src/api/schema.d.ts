@@ -1908,6 +1908,7 @@ export interface paths {
                 query?: {
                     periodo?: components["schemas"]["KpiPeriod"];
                     fecha?: string;
+                    rutaId?: number;
                 };
                 header?: never;
                 path?: never;
@@ -1990,6 +1991,7 @@ export interface paths {
             parameters: {
                 query?: {
                     semanas?: number;
+                    rutaId?: number;
                 };
                 header?: never;
                 path?: never;
@@ -2032,6 +2034,7 @@ export interface paths {
                 query?: {
                     periodo?: components["schemas"]["KpiPeriod"];
                     fecha?: string;
+                    rutaId?: number;
                 };
                 header?: never;
                 path?: never;
@@ -6927,6 +6930,8 @@ export interface components {
         KpiArea: "Logistica" | "Venta" | "Experiencia";
         KpiBoardDto: {
             period: components["schemas"]["KpiPeriod"];
+            /** Format: int32 */
+            rutaId: null | number;
             /** Format: date */
             start: string;
             /** Format: date */
@@ -6939,6 +6944,7 @@ export interface components {
             counts: components["schemas"]["KpiLightCountsDto"];
             rutas: components["schemas"]["KpiRutaDto"][];
             indicadores: components["schemas"]["KpiCardDto"][];
+            weeks: components["schemas"]["KpiHistoryWeekDto"][];
             externalSources: string;
         };
         KpiCardDto: {
@@ -6958,6 +6964,8 @@ export interface components {
             goal: null | components["schemas"]["KpiAppliedGoalDto"];
             goalNote: null | string;
             light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
+            weeks: components["schemas"]["KpiHistoryCellDto"][];
         };
         KpiDetailDto: {
             key: string;
@@ -7073,6 +7081,19 @@ export interface components {
         };
         /** @enum {unknown} */
         KpiPeriod: "Semana" | "Mes" | "Trimestre";
+        KpiProgress: {
+            /** Format: double */
+            valuePosition: number;
+            /** Format: double */
+            redPosition: null | number;
+            /** Format: double */
+            greenPosition: number;
+            /** Format: double */
+            superGreenPosition: null | number;
+            next: null | components["schemas"]["KpiLight"];
+            /** Format: double */
+            gap: null | number;
+        };
         KpiResponsableDto: {
             /** Format: int32 */
             id: number;

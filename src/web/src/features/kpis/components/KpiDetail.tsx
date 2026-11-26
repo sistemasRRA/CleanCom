@@ -16,6 +16,7 @@ export function KpiDetailDialog({
   fecha,
   label,
   rutas,
+  rutaId: initialRuta,
   onClose,
 }: {
   card: KpiCard;
@@ -23,10 +24,12 @@ export function KpiDetailDialog({
   fecha: string;
   label: string;
   rutas: KpiBoard['rutas'];
+  /** The ruta shown on the screen; the detail opens filtered by it. */
+  rutaId?: number;
   onClose: () => void;
 }) {
   const canSeePedidos = useSession().can('pedidos');
-  const [rutaId, setRutaId] = useState<number | undefined>();
+  const [rutaId, setRutaId] = useState<number | undefined>(initialRuta);
   const detail = useQuery({
     queryKey: [...kpisKey, 'detalle', card.key, periodo, fecha, rutaId],
     queryFn: () => kpisApi.detail(card.key, { periodo, fecha, rutaId }),

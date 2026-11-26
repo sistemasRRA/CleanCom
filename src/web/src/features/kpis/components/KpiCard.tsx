@@ -1,7 +1,20 @@
-import { formatValue, goalPeriodName, type KpiCard, lightName } from '../types/kpis';
+import { formatValue, goalPeriodName, type KpiBoard, type KpiCard, lightName } from '../types/kpis';
 
-/** One indicator: value with its light, the period before, the desglose by ruta, the goal and who answers for it. */
-export function KpiCardView({ card: c, previousLabel, onOpen }: { card: KpiCard; previousLabel: string; onOpen: () => void }) {
+/**
+ * One indicator: value with its light, the bar against its goal and how much is missing, the period before, the last 8
+ * weeks, the desglose by ruta, the goal and who answers for it.
+ */
+export function KpiCardView({
+  card: c,
+  weeks,
+  previousLabel,
+  onOpen,
+}: {
+  card: KpiCard;
+  weeks: KpiBoard['weeks'];
+  previousLabel: string;
+  onOpen: () => void;
+}) {
   const better = c.trend === 'Sube' ? c.higherIsBetter : c.trend === 'Baja' ? !c.higherIsBetter : null;
   const g = c.goal;
   const thresholds = g
@@ -26,7 +39,10 @@ export function KpiCardView({ card: c, previousLabel, onOpen }: { card: KpiCard;
         <span className="kpi-card__name">{c.name}</span>
         <span className={`kpi-light light-${c.light}`}>{lightName(c.light)}</span>
       </div>
-      <strong className="kpi-card__value">{formatValue(c.unit, c.value)}</strong>
+      <div className="kpi-card__main">
+        <strong className="kpi-card__value">{formatValue(c.unit, c.value)}</strong>
+        <Sparkline card={c} weeks={weeks} />
+      </div>
       <div className="kpi-card__previous">
         {c.trend !== 'SinDatos' && c.trend !== 'Igual' && (
           <span className={better ? 'kpi-up' : 'kpi-down'} aria-hidden>
@@ -35,6 +51,7 @@ export function KpiCardView({ card: c, previousLabel, onOpen }: { card: KpiCard;
         )}{' '}
         <span title={previousLabel}>Anterior: {formatValue(c.unit, c.previous)}</span>
       </div>
+      {c.progress && <ProgressBar card={c} />}
       {c.byRuta.length > 1 && (
         <div className="kpi-card__rutas">
           {c.byRuta.map((r) => (
@@ -63,5 +80,63 @@ export function KpiCardView({ card: c, previousLabel, onOpen }: { card: KpiCard;
       </div>
       {c.source && <div className="kpi-card__source">{c.source}</div>}
     </button>
+  );
+}
+
+/** The value against rojo, verde and súper verde; the good side is always on the right. */
+function ProgressBar({ card: c }: { card: KpiCard }) {
+  const p = c.progress!;
+  const green = p.greenPosition;
+  const superGreen = p.superGreenPosition ?? 100;
+  const color = p.next === 'SuperVerde' ? 'súper verde' : 'verde';
+  const gap = formatValue(c.unit, p.gap);
+  const text = !p.next
+    ? c.light === 'SuperVerde'
+      ? 'Súper verde alcanzado'
+      : 'Meta alcanzada'
+    : c.higherIsBetter
+      ? `Faltan ${gap} para ${color}`
+      : `Hay que bajar ${gap} para ${color}`;
+  return (
+    <div className="kpi-progress">
+      <div
+        className="kpi-progress__bar"
+        style={{
+          background: `linear-gradient(to right, var(--kpi-red) 0 ${green}%, var(--kpi-green) ${green}% ${superGreen}%, var(--kpi-super) ${superGreen}% 100%)`,
+        }}
+        role="img"
+        aria-label={text}
+      >
+        <span className="kpi-progress__marker" style={{ left: `${Math.min(100, Math.max(0, p.valuePosition))}%` }} />
+      </div>
+      <span className={`kpi-progress__text ${p.next ? '' : 'done'}`}>{text}</span>
+    </div>
+  );
+}
+
+/** The last 8 weeks as bars, each with the color of the goal it had; hovering shows the week and the value. */
+function Sparkline({ card: c, weeks }: { card: KpiCard; weeks: KpiBoard['weeks'] }) {
+  const values = c.weeks.map((w) => w.value);
+  const known = values.filter((v): v is number => v != null);
+  if (known.length === 0) return null;
+  const min = Math.min(0, ...known);
+  const max = Math.max(...known);
+  const height = (v: number) => (max === min ? 12 : 3 + ((v - min) / (max - min)) * 21);
+  return (
+    <svg className="kpi-spark" viewBox="0 0 80 24" width="80" height="24" role="img" aria-label="Últimas 8 semanas">
+      {c.weeks.map((w, i) => (
+        <rect
+          key={i}
+          className={`kpi-spark__bar light-${w.light}`}
+          x={i * 10 + 1}
+          width="8"
+          y={w.value == null ? 22 : 24 - height(w.value)}
+          height={w.value == null ? 2 : height(w.value)}
+          rx="1.5"
+        >
+          <title>{`Semana del ${weeks[i]?.label ?? ''}: ${formatValue(c.unit, w.value)} · ${lightName(w.light)}`}</title>
+        </rect>
+      ))}
+    </svg>
   );
 }

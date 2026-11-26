@@ -19,40 +19,65 @@ public class KpiService(ICleanComDbContext db, IBusinessClock clock, KpiCalculat
     public const string ExternalSources =
         "HubSpot, pauta y nómina no se calculan aquí; en la fase 2 se cruzan en BigQuery. Ticket promedio y facturación vienen del POS.";
 
-    public async Task<KpiBoardDto> BoardAsync(KpiPeriod period, DateOnly? date, CancellationToken ct)
+    /// <summary>
+    /// Every indicator of the period that contains <paramref name="date"/>, for the whole company or, with
+    /// <paramref name="rutaId"/>, for one ruta with its own goals; each card with its progress and its last 8 weeks.
+    /// </summary>
+    public async Task<KpiBoardDto> BoardAsync(KpiPeriod period, DateOnly? date, CancellationToken ct, int? rutaId = null)
     {
         var today = clock.Today;
         var range = KpiRules.Range(period, date ?? today);
         var previous = KpiRules.Previous(period, range.Start);
+        var rutas = await RutasAsync(ct);
+        if (rutaId is { } only && rutas.All(r => r.Id != only))
+        {
+            throw new NotFoundException($"La ruta {only} no existe o está inactiva.");
+        }
         var current = await ValuesAsync(period, range, false, ct);
         var before = await ValuesAsync(period, previous, false, ct);
-        var rutas = await RutasAsync(ct);
         var goals = await db.KpiGoals.AsNoTracking().Where(g => g.Active).ToListAsync(ct);
         var names = await users.NamesAsync(goals.Where(g => g.ResponsableUserId is not null).Select(g => g.ResponsableUserId!.Value).Distinct().ToList(), ct);
         var rutaIds = rutas.Select(r => r.Id).ToList();
 
+        // The 8 weeks up to the period shown (up to this week while it is open).
+        var lastWeek = KpiRules.Range(KpiPeriod.Semana, range.End < today ? range.End : today);
+        var weeks = Enumerable.Range(0, DefaultHistoryWeeks).Reverse().Select(i => KpiRules.Range(KpiPeriod.Semana, lastWeek.Start.AddDays(-7 * i))).ToList();
+        var weekValues = new List<PeriodValues>();
+        foreach (var week in weeks)
+        {
+            weekValues.Add(await ValuesAsync(KpiPeriod.Semana, week, false, ct));
+        }
+
         var cards = KpiCatalog.All.Select(kpi =>
         {
-            var value = current.Total(kpi.Key);
-            var goal = KpiGoalResolver.Resolve(kpi, goals, rutaIds, period, range, today);
-            var byRuta = rutas.Select(r =>
+            var resolution = KpiGoalResolver.Resolve(kpi, goals, rutaIds, period, range, today);
+            var (value, thresholds) = Pick(kpi, current, resolution, rutaId);
+            var goal = rutaId is { } r ? resolution.RutaGoals[r] : resolution.Goal;
+            var applied = thresholds is not { } t ? null : new KpiAppliedGoalDto(
+                goal?.Period, t.Red, t.Green, t.SuperGreen,
+                goal is not null && t != new KpiThresholds(goal.Red, goal.Green, goal.SuperGreen),
+                rutaId is null && resolution.FromRutas,
+                goal?.ResponsableUserId, goal?.ResponsableUserId is { } id ? names.GetValueOrDefault(id) : null, goal?.ValidFrom);
+            var note = rutaId is null ? resolution.Note : KpiGoalResolver.Note(goal, thresholds);
+            var byRuta = rutaId is not null ? [] : rutas.Select(x =>
             {
-                var v = current.ForRuta(kpi.Key, r.Id);
-                var t = goal.ByRuta[r.Id];
-                return new KpiRutaValueDto(r.Id, r.Code, v, KpiRules.Light(v, t, kpi.HigherIsBetter), t?.Green);
+                var v = current.ForRuta(kpi.Key, x.Id);
+                var rt = resolution.ByRuta[x.Id];
+                return new KpiRutaValueDto(x.Id, x.Code, v, KpiRules.Light(v, rt, kpi.HigherIsBetter), rt?.Green);
             }).ToList();
-            var g = goal.Goal;
-            var applied = goal.Total is not { } total ? null : new KpiAppliedGoalDto(
-                g?.Period, total.Red, total.Green, total.SuperGreen,
-                g is not null && total != new KpiThresholds(g.Red, g.Green, g.SuperGreen), goal.FromRutas,
-                g?.ResponsableUserId, g?.ResponsableUserId is { } id ? names.GetValueOrDefault(id) : null, g?.ValidFrom);
-            var prev = before.Total(kpi.Key);
+            var prev = Pick(kpi, before, KpiGoalResolver.Resolve(kpi, goals, rutaIds, period, previous, today), rutaId).Value;
+            var history = weeks.Select((week, i) =>
+            {
+                var (v, wt) = Pick(kpi, weekValues[i], KpiGoalResolver.Resolve(kpi, goals, rutaIds, KpiPeriod.Semana, week, today), rutaId);
+                return new KpiHistoryCellDto(v, KpiRules.Light(v, wt, kpi.HigherIsBetter));
+            }).ToList();
             return new KpiCardDto(kpi.Key, kpi.Name, kpi.Area, kpi.Unit, kpi.HigherIsBetter, kpi.Calculation, kpi.Source,
-                value, prev, Trend(value, prev), byRuta, applied, goal.Note, KpiRules.Light(value, goal.Total, kpi.HigherIsBetter));
+                value, prev, Trend(value, prev), byRuta, applied, note, KpiRules.Light(value, thresholds, kpi.HigherIsBetter),
+                KpiProgressRules.Of(value, thresholds, kpi.HigherIsBetter), history);
         }).ToList();
 
         return new KpiBoardDto(
-            period, range.Start, range.End, KpiRules.Label(period, range), range.Contains(today), KpiRules.Label(period, previous),
+            period, rutaId, range.Start, range.End, KpiRules.Label(period, range), range.Contains(today), KpiRules.Label(period, previous),
             current.CalculatedAt,
             new KpiLightCountsDto(
                 cards.Count(c => c.Light == KpiLight.SuperVerde),
@@ -61,14 +86,19 @@ public class KpiService(ICleanComDbContext db, IBusinessClock clock, KpiCalculat
                 cards.Count(c => c.Light == KpiLight.SinMeta)),
             rutas.Select(r => new KpiRutaDto(r.Id, r.Code, r.Color)).ToList(),
             cards,
+            weeks.Select(w => new KpiHistoryWeekDto(w.Start, w.End, $"{w.Start:dd/MM}")).ToList(),
             ExternalSources);
     }
 
+    /// <summary>The value and the thresholds of the company, or of one ruta.</summary>
+    private static (decimal? Value, KpiThresholds? Thresholds) Pick(KpiDefinition kpi, PeriodValues values, KpiGoalResolution goal, int? rutaId) =>
+        rutaId is { } id ? (values.ForRuta(kpi.Key, id), goal.ByRuta[id]) : (values.Total(kpi.Key), goal.Total);
+
     /// <summary>Calculates the period again now (data corrected after the night, or today's operations).</summary>
-    public async Task<KpiBoardDto> RecalculateAsync(KpiPeriod period, DateOnly? date, CancellationToken ct)
+    public async Task<KpiBoardDto> RecalculateAsync(KpiPeriod period, DateOnly? date, int? rutaId, CancellationToken ct)
     {
         await ValuesAsync(period, KpiRules.Range(period, date ?? clock.Today), true, ct);
-        return await BoardAsync(period, date, ct);
+        return await BoardAsync(period, date, ct, rutaId);
     }
 
     /// <summary>
@@ -100,8 +130,8 @@ public class KpiService(ICleanComDbContext db, IBusinessClock clock, KpiCalculat
                 r.Name, r.Text, r.Numerator, r.Denominator)).ToList());
     }
 
-    /// <summary>The last <paramref name="weeks"/> weeks up to the current one, oldest first.</summary>
-    public async Task<KpiHistoryDto> HistoryAsync(int weeks, CancellationToken ct)
+    /// <summary>The last <paramref name="weeks"/> weeks up to the current one, oldest first, of the company or of one ruta.</summary>
+    public async Task<KpiHistoryDto> HistoryAsync(int weeks, int? rutaId, CancellationToken ct)
     {
         weeks = Math.Clamp(weeks, 1, MaxHistoryWeeks);
         var today = clock.Today;
@@ -119,9 +149,8 @@ public class KpiService(ICleanComDbContext db, IBusinessClock clock, KpiCalculat
         var rows = KpiCatalog.All.Select(kpi => new KpiHistoryRowDto(kpi.Key, kpi.Name, kpi.Area, kpi.Unit,
             ranges.Select((range, i) =>
             {
-                var value = values[i].Total(kpi.Key);
-                var goal = KpiGoalResolver.Resolve(kpi, goals, rutaIds, KpiPeriod.Semana, range, today);
-                return new KpiHistoryCellDto(value, KpiRules.Light(value, goal.Total, kpi.HigherIsBetter));
+                var (value, thresholds) = Pick(kpi, values[i], KpiGoalResolver.Resolve(kpi, goals, rutaIds, KpiPeriod.Semana, range, today), rutaId);
+                return new KpiHistoryCellDto(value, KpiRules.Light(value, thresholds, kpi.HigherIsBetter));
             }).ToList())).ToList();
         return new KpiHistoryDto(
             ranges.Select(r => new KpiHistoryWeekDto(r.Start, r.End, $"{r.Start:dd/MM}")).ToList(),

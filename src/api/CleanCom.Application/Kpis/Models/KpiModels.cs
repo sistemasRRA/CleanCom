@@ -11,10 +11,13 @@ public enum KpiTrend
 }
 
 /// <summary>The KPIs screen for one period (docs/pantallas/oficina/kpis.md).</summary>
+/// <param name="RutaId">The ruta shown (values, goals and lights of that ruta); null for the whole company.</param>
 /// <param name="CalculatedAt">When the saved values were calculated (the nightly job or "Recalcular").</param>
+/// <param name="Weeks">The weeks of each card's <see cref="KpiCardDto.Weeks"/>: the 8 up to the period shown.</param>
 /// <param name="ExternalSources">Indicators that are not calculated here.</param>
 public record KpiBoardDto(
     KpiPeriod Period,
+    int? RutaId,
     DateOnly Start,
     DateOnly End,
     string Label,
@@ -24,6 +27,7 @@ public record KpiBoardDto(
     KpiLightCountsDto Counts,
     IReadOnlyList<KpiRutaDto> Rutas,
     IReadOnlyList<KpiCardDto> Indicadores,
+    IReadOnlyList<KpiHistoryWeekDto> Weeks,
     string ExternalSources);
 
 public record KpiLightCountsDto(int SuperVerde, int Verde, int Rojo, int SinMeta);
@@ -31,7 +35,9 @@ public record KpiLightCountsDto(int SuperVerde, int Verde, int Rojo, int SinMeta
 public record KpiRutaDto(int Id, string Code, string? Color);
 
 /// <param name="Previous">The value of the period before.</param>
-/// <param name="ByRuta">Desglose by ruta, each with the light of its own goal (or the company's, for averages and shares).</param>
+/// <param name="ByRuta">Desglose by ruta, each with the light of its own goal (or the company's, for averages and shares); empty when one ruta is shown.</param>
+/// <param name="Progress">Where the value stands against its goal (a bar and how much is missing); null without value or goal.</param>
+/// <param name="Weeks">The last 8 weeks with the light each had, oldest first.</param>
 /// <param name="GoalNote">Why the goal does not apply to this period (a weekly goal of different invitados seen by month).</param>
 public record KpiCardDto(
     string Key,
@@ -47,7 +53,9 @@ public record KpiCardDto(
     IReadOnlyList<KpiRutaValueDto> ByRuta,
     KpiAppliedGoalDto? Goal,
     string? GoalNote,
-    KpiLight Light);
+    KpiLight Light,
+    KpiProgress? Progress,
+    IReadOnlyList<KpiHistoryCellDto> Weeks);
 
 /// <param name="Green">The verde that applies to this ruta in the period, if any.</param>
 public record KpiRutaValueDto(int RutaId, string Code, decimal? Value, KpiLight Light, decimal? Green);

@@ -2,6 +2,7 @@ import type { Schemas } from '../../../shared/api/client';
 
 export type KpiBoard = Schemas['KpiBoardDto'];
 export type KpiCard = Schemas['KpiCardDto'];
+export type KpiProgress = Schemas['KpiProgress'];
 export type KpiDetail = Schemas['KpiDetailDto'];
 export type KpiHistory = Schemas['KpiHistoryDto'];
 export type KpiGoals = Schemas['KpiGoalsDto'];

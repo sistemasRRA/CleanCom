@@ -16,11 +16,15 @@ namespace CleanCom.Api.Controllers;
 [Tags("KPIs")]
 public class KpisController(KpiService service) : ControllerBase
 {
-    /// <summary>Every indicator of the period that contains <paramref name="fecha"/> (today when empty).</summary>
+    /// <summary>
+    /// Every indicator of the period that contains <paramref name="fecha"/> (today when empty), of the whole company or,
+    /// with <paramref name="rutaId"/>, of one ruta with its goals.
+    /// </summary>
     [HttpGet]
     [RequireScreen(Screens.Kpis, AccessLevel.View)]
-    public Task<KpiBoardDto> Board([FromQuery] KpiPeriod periodo = KpiPeriod.Semana, [FromQuery] DateOnly? fecha = null, CancellationToken ct = default) =>
-        service.BoardAsync(periodo, fecha, ct);
+    public Task<KpiBoardDto> Board([FromQuery] KpiPeriod periodo = KpiPeriod.Semana, [FromQuery] DateOnly? fecha = null, [FromQuery] int? rutaId = null,
+        CancellationToken ct = default) =>
+        service.BoardAsync(periodo, fecha, ct, rutaId);
 
     /// <summary>The visits, tickets, pedidos or invitados that form an indicator, optionally of one ruta.</summary>
     [HttpGet("{clave}/detalle")]
@@ -32,14 +36,15 @@ public class KpisController(KpiService service) : ControllerBase
     /// <summary>The last weeks (8 by default) of every indicator with its light.</summary>
     [HttpGet("historico")]
     [RequireScreen(Screens.Kpis, AccessLevel.View)]
-    public Task<KpiHistoryDto> History([FromQuery] int semanas = KpiService.DefaultHistoryWeeks, CancellationToken ct = default) =>
-        service.HistoryAsync(semanas, ct);
+    public Task<KpiHistoryDto> History([FromQuery] int semanas = KpiService.DefaultHistoryWeeks, [FromQuery] int? rutaId = null, CancellationToken ct = default) =>
+        service.HistoryAsync(semanas, rutaId, ct);
 
     /// <summary>Calculates the period again now, with today's operations or corrected data.</summary>
     [HttpPost("recalcular")]
     [RequireScreen(Screens.Kpis, AccessLevel.Edit)]
-    public Task<KpiBoardDto> Recalculate([FromQuery] KpiPeriod periodo = KpiPeriod.Semana, [FromQuery] DateOnly? fecha = null, CancellationToken ct = default) =>
-        service.RecalculateAsync(periodo, fecha, ct);
+    public Task<KpiBoardDto> Recalculate([FromQuery] KpiPeriod periodo = KpiPeriod.Semana, [FromQuery] DateOnly? fecha = null, [FromQuery] int? rutaId = null,
+        CancellationToken ct = default) =>
+        service.RecalculateAsync(periodo, fecha, rutaId, ct);
 }
 
 /// <summary>Metas de los KPIs, edited in WhatsApp y metas (docs/pantallas/oficina/whatsapp-y-metas.md).</summary>

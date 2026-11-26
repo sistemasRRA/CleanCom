@@ -154,6 +154,19 @@ public class KpisTests(ApiFactory api)
         Assert.NotEqual("SinMeta", byRuta.GetProperty("light").GetString());
         // The scenario's ruta is the only active one, so the company's goal is its goal (prorated to the days gone by).
         Assert.True(card.GetProperty("goal").GetProperty("fromRutas").GetBoolean());
+
+        // The board of that ruta alone: its value, its goal, its bar and its last 8 weeks.
+        var rutaBoard = await admin.GetOkAsync($"/kpis?periodo=Semana&rutaId={scenario.RutaId}");
+        var rutaCard = rutaBoard.GetProperty("indicadores").EnumerateArray().Single(c => c.GetProperty("key").GetString() == KpiCatalog.ClientesNuevos);
+        Assert.Equal(scenario.RutaId, rutaBoard.GetProperty("rutaId").GetInt32());
+        Assert.Equal(0, rutaCard.GetProperty("byRuta").GetArrayLength());
+        Assert.False(rutaCard.GetProperty("goal").GetProperty("fromRutas").GetBoolean());
+        Assert.Equal(JsonValueKind.Object, rutaCard.GetProperty("progress").ValueKind);
+        Assert.Equal(8, rutaCard.GetProperty("weeks").GetArrayLength());
+        Assert.Equal(8, rutaBoard.GetProperty("weeks").GetArrayLength());
+
+        var unknown = await admin.GetAsync("/kpis?rutaId=999999");
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
     }
 
     [Fact]
