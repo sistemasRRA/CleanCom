@@ -110,8 +110,26 @@ public record KpiHistoryCellDto(decimal? Value, KpiLight Light);
 /// <param name="LastWeekLabel">The week each row's <see cref="KpiGoalRowDto.LastWeek"/> is from ("Semana del 16 al 22 nov 2026").</param>
 public record KpiGoalsDto(IReadOnlyList<KpiGoalRowDto> Indicadores, IReadOnlyList<KpiResponsableDto> Responsables, string LastWeekLabel);
 
-/// <summary>How an indicator did last week against the goal it had (the same light as the KPIs screen).</summary>
-public record KpiGoalCheckDto(decimal? Value, KpiLight Light);
+/// <summary>How an indicator did last week against the goal it had (the same light and bar as the KPIs screen).</summary>
+public record KpiGoalCheckDto(decimal? Value, KpiLight Light, KpiProgress? Progress);
+
+/// <summary>
+/// A goal being edited, tried on last week (WhatsApp y metas › Metas): the light and bar it would have given, and what
+/// it equals per day, week, month and quarter for counts and amounts.
+/// </summary>
+/// <param name="Error">Why it cannot be saved as it is (order of the thresholds, period); null when it can.</param>
+/// <param name="Note">Why it gives no light for a week (a monthly goal of different invitados).</param>
+public record KpiGoalPreviewDto(
+    string LastWeekLabel,
+    decimal? Value,
+    KpiThresholds? Thresholds,
+    KpiLight Light,
+    KpiProgress? Progress,
+    IReadOnlyList<KpiEquivalenceDto> Equivalences,
+    string? Error,
+    string? Note);
+
+public record KpiEquivalenceDto(string Label, decimal Green);
 
 /// <param name="Current">The goal of the whole company in force today.</param>
 /// <param name="Next">A goal of the company that starts later, if any.</param>

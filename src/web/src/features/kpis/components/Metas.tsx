@@ -20,6 +20,8 @@ import {
   type KpiGoals,
   lightName,
 } from '../types/kpis';
+import { GoalPreview } from './GoalPreview';
+import { KpiProgressBar } from './KpiProgressBar';
 import { MetaForm } from './MetaForm';
 
 /** What is open in the full form: an indicator, for the whole company (rutaId null) or for one ruta. */
@@ -219,94 +221,106 @@ function GoalLine({
     );
 
   return (
-    <tr className={rutaId == null ? 'kpi-goals__company' : 'kpi-goals__ruta'}>
-      <td>
-        {rutaId == null ? (
-          <>
-            <strong>{r.name}</strong>{' '}
-            <span className="kpi-goals__info" title={r.calculation} aria-label={r.calculation}>
-              ⓘ
-            </span>
+    <>
+      <tr className={rutaId == null ? 'kpi-goals__company' : 'kpi-goals__ruta'}>
+        <td>
+          {rutaId == null ? (
+            <>
+              <strong>{r.name}</strong>{' '}
+              <span className="kpi-goals__info" title={r.calculation} aria-label={r.calculation}>
+                ⓘ
+              </span>
+              <div className="muted">
+                {AREAS.find((a) => a.key === r.area)?.name} · {r.higherIsBetter ? 'más es mejor' : 'menos es mejor'}
+              </div>
+            </>
+          ) : (
+            <span className="kpi-goals__ruta-name">{label}</span>
+          )}
+          {next && (
             <div className="muted">
-              {AREAS.find((a) => a.key === r.area)?.name} · {r.higherIsBetter ? 'más es mejor' : 'menos es mejor'}
+              Cambia el {shortDay(next.validFrom)} (verde {formatValue(r.unit, next.green)}).
             </div>
-          </>
-        ) : (
-          <span className="kpi-goals__ruta-name">{label}</span>
-        )}
-        {next && (
-          <div className="muted">
-            Cambia el {shortDay(next.validFrom)} (verde {formatValue(r.unit, next.green)}).
-          </div>
-        )}
-        {toggle}
-      </td>
-      <td>
-        {r.scaling === 'None' ? (
-          <span className="muted" title="Es un promedio o un porcentaje: la meta vale igual por semana, mes o trimestre.">
-            Cualquiera
-          </span>
-        ) : canEdit ? (
-          <select
-            className="kpi-goals__input"
-            value={v.period}
-            aria-label={`Periodo · ${r.name}`}
-            onChange={(e) => setV({ ...v, period: e.target.value as KpiGoalPeriod })}
-          >
-            {periods.map((p) => (
-              <option key={p.key} value={p.key}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        ) : (
-          goalPeriodName(v.period)
-        )}
-      </td>
-      <td className="end">{number('red', 'Rojo')}</td>
-      <td className="end">{number('green', 'Verde')}</td>
-      <td className="end">{number('superGreen', 'Súper verde')}</td>
-      <td>
-        {canEdit ? (
-          <select
-            className="kpi-goals__input"
-            value={v.responsable}
-            aria-label={`Responsable · ${r.name}`}
-            onChange={(e) => setV({ ...v, responsable: e.target.value })}
-          >
-            <option value="">Sin responsable</option>
-            {responsables.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        ) : (
-          (g?.responsable ?? '—')
-        )}
-      </td>
-      <td className="end">
-        <span className="kpi-goals__last">{formatValue(r.unit, lastWeek.value)}</span>{' '}
-        <span className={`kpi-light light-${lastWeek.light}`}>{lightName(lastWeek.light)}</span>
-      </td>
-      <td className="end kpi-goals__actions">
-        {canEdit && (
-          <>
-            <button
-              type="button"
-              className="small primary"
-              disabled={!dirty || v.green.trim() === '' || save.isPending}
-              onClick={() => save.mutate(undefined)}
+          )}
+          {toggle}
+        </td>
+        <td>
+          {r.scaling === 'None' ? (
+            <span className="muted" title="Es un promedio o un porcentaje: la meta vale igual por semana, mes o trimestre.">
+              Cualquiera
+            </span>
+          ) : canEdit ? (
+            <select
+              className="kpi-goals__input"
+              value={v.period}
+              aria-label={`Periodo · ${r.name}`}
+              onChange={(e) => setV({ ...v, period: e.target.value as KpiGoalPeriod })}
             >
-              {save.isPending ? 'Guardando…' : 'Guardar'}
-            </button>
-            <button type="button" className="small" onClick={onMore} title="Fecha de inicio futura e historial">
-              Más
-            </button>
-          </>
-        )}
-        {save.error && <div className="kpi-goals__error">{save.error.message}</div>}
-      </td>
-    </tr>
+              {periods.map((p) => (
+                <option key={p.key} value={p.key}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            goalPeriodName(v.period)
+          )}
+        </td>
+        <td className="end">{number('red', 'Rojo')}</td>
+        <td className="end">{number('green', 'Verde')}</td>
+        <td className="end">{number('superGreen', 'Súper verde')}</td>
+        <td>
+          {canEdit ? (
+            <select
+              className="kpi-goals__input"
+              value={v.responsable}
+              aria-label={`Responsable · ${r.name}`}
+              onChange={(e) => setV({ ...v, responsable: e.target.value })}
+            >
+              <option value="">Sin responsable</option>
+              {responsables.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            (g?.responsable ?? '—')
+          )}
+        </td>
+        <td className="end">
+          <span className="kpi-goals__last">{formatValue(r.unit, lastWeek.value)}</span>{' '}
+          <span className={`kpi-light light-${lastWeek.light}`}>{lightName(lastWeek.light)}</span>
+          {lastWeek.progress && (
+            <KpiProgressBar progress={lastWeek.progress} unit={r.unit} higherIsBetter={r.higherIsBetter} light={lastWeek.light} compact />
+          )}
+        </td>
+        <td className="end kpi-goals__actions">
+          {canEdit && (
+            <>
+              <button
+                type="button"
+                className="small primary"
+                disabled={!dirty || v.green.trim() === '' || save.isPending}
+                onClick={() => save.mutate(undefined)}
+              >
+                {save.isPending ? 'Guardando…' : 'Guardar'}
+              </button>
+              <button type="button" className="small" onClick={onMore} title="Fecha de inicio futura e historial">
+                Más
+              </button>
+            </>
+          )}
+          {save.error && <div className="kpi-goals__error">{save.error.message}</div>}
+        </td>
+      </tr>
+      {dirty && (
+        <tr className={`kpi-goals__preview ${rutaId == null ? '' : 'kpi-goals__ruta'}`}>
+          <td colSpan={8}>
+            <GoalPreview row={r} rutaId={rutaId} draft={v} />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }

@@ -134,6 +134,29 @@ public static class KpiRules
     }
 
     /// <summary>
+    /// What the verde of a count or an amount equals in each kind of period, with the same scaling as the screen (a
+    /// month of 30 days, a quarter of 3 months or 13 weeks). Example: 6 a la semana → 0.86 al día, 25.71 al mes y 78 al
+    /// trimestre. Empty for averages and shares (they do not change) and for different invitados (they only compare with
+    /// their own kind of period).
+    /// </summary>
+    public static IReadOnlyList<(string Label, decimal Green)> Equivalences(KpiDefinition kpi, KpiGoal goal)
+    {
+        if (kpi.Scaling != KpiGoalScaling.ByDays)
+        {
+            return [];
+        }
+        var g = goal.Green;
+        var (day, week, month, quarter) = goal.Period switch
+        {
+            KpiGoalPeriod.Dia => (g, g * 7, g * 30, g * 91),
+            KpiGoalPeriod.Semana => (g / 7, g, g * 30 / 7, g * 13),
+            _ => (g / 30, g * 7 / 30, g, g * 3),
+        };
+        decimal Round(decimal v) => Math.Round(v, 2, MidpointRounding.AwayFromZero);
+        return [("al día", Round(day)), ("a la semana", Round(week)), ("al mes", Round(month)), ("al trimestre", Round(quarter))];
+    }
+
+    /// <summary>
     /// The goal of the whole company from the goals of each ruta, when there is no goal for the company and every active
     /// ruta has one: counts and amounts add up (clientes nuevos 6 en F y 6 en K → 12), averages and shares are averaged.
     /// A threshold that some ruta lacks is left out. Null when some ruta has no goal.

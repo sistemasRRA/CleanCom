@@ -304,6 +304,7 @@ Cómo se calcula (semana 7, en el API):
    - En el periodo abierto, los conteos se comparan con la parte transcurrida. Ejemplo: 35 clientes atendidos a la semana, el miércoles → 15.
    - El desglose por ruta usa la meta solo en promedios y porcentajes: la meta de un conteo es de toda la empresa.
 8. **Avance contra la meta:** la barra va del menor al mayor de rojo, verde, súper verde y el valor, con un margen de 10 % de ese rango a cada lado; cuando menos es mejor se voltea para que el lado bueno quede siempre a la derecha. Debajo, cuánto falta para el siguiente color: "Faltan 1 para verde" (más es mejor) o "Hay que bajar 2 para verde" (menos es mejor); "Meta alcanzada" o "Súper verde alcanzado" cuando ya no hay siguiente. Ejemplo: rojo 8, verde 10, súper verde 11 y valor 9 → faltan 1 para verde.
+   **Equivalencias de una meta:** en conteos y montos, el verde equivale al día, a la semana, al mes (30 días) y al trimestre (3 meses o 13 semanas). Ejemplo: clientes nuevos 6 a la semana → 0.86 al día, 25.71 al mes y 78 al trimestre.
 9. **Vista por ruta:** con una ruta elegida, cada indicador muestra el valor de esa ruta, su meta (la propia, o la de la empresa en promedios y porcentajes), su semáforo, su avance y sus últimas 8 semanas; los contadores cuentan esa ruta.
 10. **Cálculo guardado:** cada noche a la 1:00 se calculan y guardan la semana, el mes y el trimestre en curso y los anteriores. Un periodo que nadie ha calculado se calcula la primera vez que se ve; "Recalcular" (KPIs, Editar) lo hace al momento. Un periodo futuro no se guarda.
 

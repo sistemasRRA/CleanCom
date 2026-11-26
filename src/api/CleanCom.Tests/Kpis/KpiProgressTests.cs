@@ -59,3 +59,31 @@ public class KpiProgressTests
         Assert.Null(KpiProgressRules.Of(5, null, true));
     }
 }
+
+public class KpiEquivalenceTests
+{
+    [Fact]
+    public void A_weekly_count_equals_per_day_month_and_quarter()
+    {
+        // Clientes nuevos 6 a la semana → 0.86 al día, 25.71 al mes (30 días) y 78 al trimestre (13 semanas).
+        var kpi = KpiCatalog.Find(KpiCatalog.ClientesNuevos)!;
+        var e = KpiRules.Equivalences(kpi, new KpiGoal { IndicadorKey = kpi.Key, Period = KpiGoalPeriod.Semana, Green = 6 });
+        Assert.Equal([("al día", 0.86m), ("a la semana", 6m), ("al mes", 25.71m), ("al trimestre", 78m)], e);
+    }
+
+    [Fact]
+    public void A_monthly_amount_is_three_times_in_a_quarter()
+    {
+        var kpi = KpiCatalog.Find(KpiCatalog.FacturacionSinConvenios)!;
+        var e = KpiRules.Equivalences(kpi, new KpiGoal { IndicadorKey = kpi.Key, Period = KpiGoalPeriod.Mes, Green = 120_000 });
+        Assert.Equal(360_000m, e.Single(x => x.Label == "al trimestre").Green);
+        Assert.Equal(28_000m, e.Single(x => x.Label == "a la semana").Green);
+    }
+
+    [Fact]
+    public void Averages_and_different_invitados_have_no_equivalences()
+    {
+        Assert.Empty(KpiRules.Equivalences(KpiCatalog.Find(KpiCatalog.TicketPromedio)!, new KpiGoal { Green = 800 }));
+        Assert.Empty(KpiRules.Equivalences(KpiCatalog.Find(KpiCatalog.ClientesAtendidos)!, new KpiGoal { Green = 87, Period = KpiGoalPeriod.Mes }));
+    }
+}

@@ -16,6 +16,9 @@ export const kpisApi = {
   goals: () => unwrap(api.GET('/metas')),
   /** PUT /metas/{clave} */
   saveGoal: (clave: string, body: Body<'/metas/{clave}', 'put'>) => unwrap(api.PUT('/metas/{clave}', { params: { path: { clave } }, body })),
+  /** POST /metas/{clave}/previsualizar */
+  previewGoal: (clave: string, body: Body<'/metas/{clave}/previsualizar', 'post'>) =>
+    unwrap(api.POST('/metas/{clave}/previsualizar', { params: { path: { clave } }, body })),
   /** DELETE /metas/{clave}/{id} */
   removeGoal: (clave: string, id: number) => unwrap(api.DELETE('/metas/{clave}/{id}', { params: { path: { clave, id } } })),
 };

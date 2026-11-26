@@ -63,6 +63,14 @@ public class MetasController(KpiGoalService service) : ControllerBase
     [RequireScreen(Screens.WhatsAppYMetas, AccessLevel.Edit)]
     public Task<KpiGoalsDto> Save(string clave, SaveKpiGoalRequest request, CancellationToken ct) => service.SaveAsync(clave, request, ct);
 
+    /// <summary>
+    /// Tries a goal being edited on last week without saving it: the light and bar it would have given and what it equals
+    /// per day, week, month and quarter.
+    /// </summary>
+    [HttpPost("{clave}/previsualizar")]
+    [Authorize(Policy = Policies.SeesMetas)]
+    public Task<KpiGoalPreviewDto> Preview(string clave, SaveKpiGoalRequest request, CancellationToken ct) => service.PreviewAsync(clave, request, ct);
+
     /// <summary>Removes a goal that has not started yet.</summary>
     [HttpDelete("{clave}/{id:int}")]
     [RequireScreen(Screens.WhatsAppYMetas, AccessLevel.Edit)]

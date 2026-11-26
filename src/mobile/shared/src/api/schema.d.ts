@@ -2143,6 +2143,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/metas/{clave}/previsualizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    clave: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "text/json": components["schemas"]["SaveKpiGoalRequest"];
+                    "application/*+json": components["schemas"]["SaveKpiGoalRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KpiGoalPreviewDto"];
+                        "application/json": components["schemas"]["KpiGoalPreviewDto"];
+                        "text/json": components["schemas"]["KpiGoalPreviewDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/metas/{clave}/{id}": {
         parameters: {
             query?: never;
@@ -6994,10 +7039,16 @@ export interface components {
             /** Format: double */
             denominator: number;
         };
+        KpiEquivalenceDto: {
+            label: string;
+            /** Format: double */
+            green: number;
+        };
         KpiGoalCheckDto: {
             /** Format: double */
             value: null | number;
             light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
         };
         KpiGoalDto: {
             /** Format: int32 */
@@ -7023,6 +7074,17 @@ export interface components {
         };
         /** @enum {unknown} */
         KpiGoalPeriod: "Dia" | "Semana" | "Mes" | null;
+        KpiGoalPreviewDto: {
+            lastWeekLabel: string;
+            /** Format: double */
+            value: null | number;
+            thresholds: null | components["schemas"]["KpiThresholds"];
+            light: components["schemas"]["KpiLight"];
+            progress: null | components["schemas"]["KpiProgress"];
+            equivalences: components["schemas"]["KpiEquivalenceDto"][];
+            error: null | string;
+            note: null | string;
+        };
         KpiGoalRowDto: {
             key: string;
             name: string;
@@ -7123,6 +7185,14 @@ export interface components {
             light: components["schemas"]["KpiLight"];
             /** Format: double */
             green: null | number;
+        };
+        KpiThresholds: {
+            /** Format: double */
+            red?: null | number;
+            /** Format: double */
+            green?: number;
+            /** Format: double */
+            superGreen?: null | number;
         };
         /** @enum {unknown} */
         KpiTrend: "SinDatos" | "Sube" | "Baja" | "Igual";

@@ -4,6 +4,7 @@ import { Field } from '../../../shared/components/Form';
 import { useAction, useSave } from '../../../shared/hooks/useSave';
 import { shortDay, todayInMexicoCity } from '../../../shared/utils/dates';
 import { kpisApi } from '../services/kpisApi';
+import { GoalPreview } from './GoalPreview';
 import { kpisKey, metasKey } from '../services/queryKeys';
 import { formatValue, GOAL_PERIODS, goalPeriodName, type KpiGoal, type KpiGoalPeriod, type KpiGoalRow, type KpiGoals } from '../types/kpis';
 
@@ -114,6 +115,10 @@ export function MetaForm({
         <Field label="Aplica desde" hint="Hoy o después; lo anterior conserva su meta.">
           <input type="date" min={today} value={validFrom} onChange={(e) => setValidFrom(e.target.value)} required />
         </Field>
+      </div>
+      <div className="field wide" style={{ marginTop: 16 }}>
+        <span>Cómo habría quedado</span>
+        <GoalPreview row={r} rutaId={rutaId} draft={{ period, red, green, superGreen }} />
       </div>
       {history.length > 0 && (
         <div className="field wide" style={{ marginTop: 16 }}>

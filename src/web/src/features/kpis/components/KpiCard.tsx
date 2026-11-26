@@ -1,3 +1,4 @@
+import { KpiProgressBar } from './KpiProgressBar';
 import { formatValue, goalPeriodName, type KpiBoard, type KpiCard, lightName } from '../types/kpis';
 
 /**
@@ -51,7 +52,7 @@ export function KpiCardView({
         )}{' '}
         <span title={previousLabel}>Anterior: {formatValue(c.unit, c.previous)}</span>
       </div>
-      {c.progress && <ProgressBar card={c} />}
+      {c.progress && <KpiProgressBar progress={c.progress} unit={c.unit} higherIsBetter={c.higherIsBetter} light={c.light} />}
       {c.byRuta.length > 1 && (
         <div className="kpi-card__rutas">
           {c.byRuta.map((r) => (
@@ -80,37 +81,6 @@ export function KpiCardView({
       </div>
       {c.source && <div className="kpi-card__source">{c.source}</div>}
     </button>
-  );
-}
-
-/** The value against rojo, verde and súper verde; the good side is always on the right. */
-function ProgressBar({ card: c }: { card: KpiCard }) {
-  const p = c.progress!;
-  const green = p.greenPosition;
-  const superGreen = p.superGreenPosition ?? 100;
-  const color = p.next === 'SuperVerde' ? 'súper verde' : 'verde';
-  const gap = formatValue(c.unit, p.gap);
-  const text = !p.next
-    ? c.light === 'SuperVerde'
-      ? 'Súper verde alcanzado'
-      : 'Meta alcanzada'
-    : c.higherIsBetter
-      ? `Faltan ${gap} para ${color}`
-      : `Hay que bajar ${gap} para ${color}`;
-  return (
-    <div className="kpi-progress">
-      <div
-        className="kpi-progress__bar"
-        style={{
-          background: `linear-gradient(to right, var(--kpi-red) 0 ${green}%, var(--kpi-green) ${green}% ${superGreen}%, var(--kpi-super) ${superGreen}% 100%)`,
-        }}
-        role="img"
-        aria-label={text}
-      >
-        <span className="kpi-progress__marker" style={{ left: `${Math.min(100, Math.max(0, p.valuePosition))}%` }} />
-      </div>
-      <span className={`kpi-progress__text ${p.next ? '' : 'done'}`}>{text}</span>
-    </div>
   );
 }
 

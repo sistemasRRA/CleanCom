@@ -33,9 +33,19 @@ public class KpiGoalService(
         // Last week as the KPIs screen shows it, so whoever sets a goal sees whether it is realistic.
         var lastWeek = await kpis.BoardAsync(KpiPeriod.Semana, today.AddDays(-7), ct);
         var cards = lastWeek.Indicadores.ToDictionary(c => c.Key);
-        KpiGoalCheckDto Check(string key) => new(cards[key].Value, cards[key].Light);
-        KpiGoalCheckDto CheckRuta(string key, int rutaId) =>
-            cards[key].ByRuta.FirstOrDefault(r => r.RutaId == rutaId) is { } r ? new(r.Value, r.Light) : new(null, KpiLight.SinMeta);
+        var weekRange = KpiRules.Range(KpiPeriod.Semana, today.AddDays(-7));
+        var activeRutaIds = rutas.Where(r => r.Active).Select(r => r.Id).ToList();
+        KpiGoalCheckDto Check(string key) => new(cards[key].Value, cards[key].Light, cards[key].Progress);
+        KpiGoalCheckDto CheckRuta(string key, int rutaId)
+        {
+            if (cards[key].ByRuta.FirstOrDefault(r => r.RutaId == rutaId) is not { } r)
+            {
+                return new(null, KpiLight.SinMeta, null);
+            }
+            var kpi = KpiCatalog.Find(key)!;
+            var thresholds = KpiGoalResolver.Resolve(kpi, goals, activeRutaIds, KpiPeriod.Semana, weekRange, today).ByRuta[rutaId];
+            return new(r.Value, r.Light, KpiProgressRules.Of(r.Value, thresholds, kpi.HigherIsBetter));
+        }
 
         KpiGoalDto? Dto(KpiGoal? g) => g is null ? null : new(g.Id, g.RutaId, g.RutaId is { } ruta ? codes.GetValueOrDefault(ruta) : null, g.Period,
             g.ResponsableUserId, g.ResponsableUserId is { } r ? names.GetValueOrDefault(r) : null, g.Red, g.Green, g.SuperGreen, g.ValidFrom,
@@ -55,6 +65,29 @@ public class KpiGoalService(
                 .Select(g => Dto(g)!).ToList(),
             Check(kpi.Key))).ToList();
         return new KpiGoalsDto(rows, await ResponsablesAsync(ct), lastWeek.Label);
+    }
+
+    /// <summary>
+    /// Tries a goal being edited on last week, without saving it: the light and bar it would have given to the company
+    /// (or the ruta) and what it equals per day, week, month and quarter. Mistakes come back as <see cref="KpiGoalPreviewDto.Error"/>.
+    /// </summary>
+    public async Task<KpiGoalPreviewDto> PreviewAsync(string key, SaveKpiGoalRequest r, CancellationToken ct)
+    {
+        var kpi = KpiCatalog.Find(key) ?? throw new NotFoundException($"El indicador {key} no existe.");
+        var today = clock.Today;
+        var week = KpiRules.Range(KpiPeriod.Semana, today.AddDays(-7));
+        var board = await kpis.BoardAsync(KpiPeriod.Semana, week.Start, ct, r.RutaId);
+        var value = board.Indicadores.Single(c => c.Key == key).Value;
+        var goal = new KpiGoal { IndicadorKey = key, RutaId = r.RutaId, Period = r.Period, Red = r.Red, Green = r.Green, SuperGreen = r.SuperGreen, ValidFrom = week.Start };
+        var error = KpiRules.OrderError(kpi.HigherIsBetter, r.Red, r.Green, r.SuperGreen)
+            ?? (kpi.Scaling == KpiGoalScaling.SamePeriod && r.Period == KpiGoalPeriod.Dia ? $"{kpi.Name} cuenta invitados distintos: la meta es por semana o por mes." : null);
+        var thresholds = error is null ? KpiRules.Scale(kpi, goal, KpiPeriod.Semana, week, week) : null;
+        return new KpiGoalPreviewDto(
+            board.Label, value, thresholds, KpiRules.Light(value, thresholds, kpi.HigherIsBetter),
+            KpiProgressRules.Of(value, thresholds, kpi.HigherIsBetter),
+            error is null ? KpiRules.Equivalences(kpi, goal).Select(e => new KpiEquivalenceDto(e.Label, e.Green)).ToList() : [],
+            error,
+            error is null ? KpiGoalResolver.Note(goal, thresholds) : null);
     }
 
     /// <summary>

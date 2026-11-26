@@ -170,6 +170,32 @@ public class KpisTests(ApiFactory api)
     }
 
     [Fact]
+    public async Task A_goal_being_edited_is_tried_on_last_week_without_saving_it()
+    {
+        var admin = await api.AdminAsync();
+        var before = (await admin.GetOkAsync("/metas")).GetProperty("indicadores").EnumerateArray()
+            .Single(r => r.GetProperty("key").GetString() == KpiCatalog.FueraDeCobertura).GetProperty("history").GetArrayLength();
+
+        var preview = await admin.PostOkAsync($"/metas/{KpiCatalog.FueraDeCobertura}/previsualizar", new
+        {
+            period = "Semana", responsableUserId = (int?)null, red = 6, green = 3, superGreen = 0, validFrom = (DateOnly?)null, rutaId = (int?)null,
+        });
+        var wrong = await admin.PostOkAsync($"/metas/{KpiCatalog.FueraDeCobertura}/previsualizar", new
+        {
+            period = "Semana", responsableUserId = (int?)null, red = 0, green = 3, superGreen = 6, validFrom = (DateOnly?)null, rutaId = (int?)null,
+        });
+        var after = (await admin.GetOkAsync("/metas")).GetProperty("indicadores").EnumerateArray()
+            .Single(r => r.GetProperty("key").GetString() == KpiCatalog.FueraDeCobertura).GetProperty("history").GetArrayLength();
+
+        Assert.StartsWith("Semana del", preview.GetProperty("lastWeekLabel").GetString(), StringComparison.Ordinal);
+        Assert.NotEqual("SinMeta", preview.GetProperty("light").GetString());
+        Assert.Equal(4, preview.GetProperty("equivalences").GetArrayLength());
+        Assert.Equal(JsonValueKind.Null, preview.GetProperty("error").ValueKind);
+        Assert.Contains("menos es mejor", wrong.GetProperty("error").GetString(), StringComparison.Ordinal);
+        Assert.Equal(before, after);
+    }
+
+    [Fact]
     public async Task A_goal_cannot_start_in_the_past_nor_have_its_thresholds_out_of_order()
     {
         var admin = await api.AdminAsync();
