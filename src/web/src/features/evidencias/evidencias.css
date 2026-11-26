@@ -1,0 +1,24 @@
+/* Evidencias y caja */
+.caja-field { display: inline-flex; gap: 6px; align-items: center; color: var(--text-muted); font-size: 13px; }
+.caja-field input { width: auto; }
+.caja-totals { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 14px; }
+.caja-totals > div { display: grid; gap: 2px; min-width: 120px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+.caja-totals > div strong { font-size: 20px; }
+.caja-totals > div.warn { border-color: var(--danger); }
+.caja-totals > div.warn strong { color: var(--danger); }
+.caja-notes { max-width: 260px; overflow-wrap: anywhere; }
+.caja-diff { color: var(--danger); font-weight: 700; }
+.caja-hint { margin: 8px 0 0; }
+.caja-label { text-transform: capitalize; color: var(--text); }
+.caja-cortes { display: grid; gap: 16px; margin-top: 16px; }
+.caja-corte h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.caja-corte p { margin: 4px 0; }
+.caja-corte tfoot th { border-top: 1px solid var(--border); }
+.caja-closed { padding: 8px 12px; border-left: 3px solid var(--success); background: var(--success-soft); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+tr.muted-row td { background: color-mix(in srgb, var(--danger-soft) 40%, transparent); }
+.ruta-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; }
+td.end, th.end { text-align: right; }
+dialog.galeria-dialog { width: min(900px, calc(100vw - 32px)); }
+dialog.galeria-dialog .dialog__body { max-height: 70vh; overflow-y: auto; }
+.galeria { display: grid; gap: 16px; }
+.galeria__visita h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 15px; }

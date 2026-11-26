@@ -157,6 +157,10 @@ Solo se cambia o cancela desde la app una **recolección que falta por hacer**: 
 - El cobro oficial se registra en el POS. En la app el chofer anota forma y monto como referencia.
 - El corte de caja compara lo declarado por el chofer contra lo registrado en las visitas y contra el POS, y marca diferencias.
 - Al cerrar el turno el chofer declara cuánto trae por forma de pago (efectivo, tarjeta, transferencia) y una nota opcional. La app le muestra lo que anotó en sus visitas por forma de pago, para que cuadre. La forma que deja vacía cuenta como $0. Queda un corte de caja por turno (`CorteCaja`); oficina lo revisa y cierra en Evidencias y caja.
+- **Diferencias:** por forma de pago, declarado menos lo anotado en las visitas, y declarado menos el POS. Negativa = falta dinero. Ejemplo: anotó $350 en efectivo, declaró $330 y el POS dice $350 → −$20 contra las visitas y −$20 contra el POS. Una forma sin monto del POS no se compara contra el POS.
+- **Monto del POS:** mientras no se conecta el POS, oficina lo captura al cerrar el corte (opcional por forma de pago).
+- **Cierre:** solo se cierra un corte que el chofer ya declaró (cerró su turno). Con cualquier diferencia, oficina debe anotar qué pasó. Al cerrar queda el folio `CC-AAAAMMDD-RUTA` (ejemplo: `CC-20261126-F`), quién lo cerró y cuándo, y lo anotado en las visitas en ese momento. Un corte cerrado ya no cambia.
+- **Visitas fuera de radio:** una foto tomada a más de `Gps.ToleranciaMetros` de la parada, o una llegada confirmada fuera de radio, se marca en Evidencias y caja.
 
 ## Turno del chofer
 

@@ -24,7 +24,7 @@ export const SCREENS: MenuScreen[] = [
   { key: 'whatsapp-y-metas', name: 'WhatsApp y metas', path: '/whatsapp-y-metas', group: 'Clientes' },
   { key: 'clientes-y-fuentes', name: 'Clientes y fuentes', path: '/clientes-y-fuentes', group: 'Gerencia', week: 7 },
   { key: 'kpis', name: 'KPIs', path: '/kpis', group: 'Gerencia' },
-  { key: 'evidencias-y-caja', name: 'Evidencias y caja', path: '/evidencias-y-caja', group: 'Gerencia', week: 7 },
+  { key: 'evidencias-y-caja', name: 'Evidencias y caja', path: '/evidencias-y-caja', group: 'Gerencia' },
   { key: 'unidades', name: 'Unidades', path: '/unidades', group: 'Administración' },
   { key: 'operacion', name: 'Operación', path: '/operacion', group: 'Administración' },
   { key: 'usuarios', name: 'Usuarios', path: '/usuarios', group: 'Administración' },

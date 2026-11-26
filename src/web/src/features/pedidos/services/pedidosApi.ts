@@ -3,8 +3,6 @@ import type { Body, Query } from '../../../shared/api/types';
 
 /** Calls to the API of pedidos: the screens never call `api` directly. */
 export const pedidosApi = {
-  /** GET /evidencias/{id}/archivo */
-  evidenciaFile: (id: number) => unwrap(api.GET('/evidencias/{id}/archivo', { params: { path: { id } }, parseAs: 'blob' })),
   /** GET /pedidos */
   list: (query: Query<'/pedidos', 'get'>) => unwrap(api.GET('/pedidos', { params: { query } })),
   /** DELETE /pedidos/{id} */

@@ -3511,6 +3511,14 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("chofer_notes");
 
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("closed_at");
+
+                    b.Property<int?>("ClosedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("closed_by");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -3523,6 +3531,11 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date");
 
+                    b.Property<string>("Folio")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("folio");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("modified_at");
@@ -3530,6 +3543,11 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int")
                         .HasColumnName("modified_by");
+
+                    b.Property<string>("OfficeNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("office_notes");
 
                     b.Property<int?>("OperadorId")
                         .HasColumnType("int")
@@ -3544,6 +3562,11 @@ namespace CleanCom.Migrations.Migrations
 
                     b.HasIndex("Date")
                         .HasDatabaseName("ix_cortes_caja_date");
+
+                    b.HasIndex("Folio")
+                        .IsUnique()
+                        .HasDatabaseName("ix_cortes_caja_folio")
+                        .HasFilter("[folio] IS NOT NULL");
 
                     b.HasIndex("OperadorId")
                         .HasDatabaseName("ix_cortes_caja_operador_id");
@@ -3594,6 +3617,16 @@ namespace CleanCom.Migrations.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int")
                         .HasColumnName("modified_by");
+
+                    b.Property<decimal?>("Pos")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("pos");
+
+                    b.Property<decimal?>("Registered")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("registered");
 
                     b.HasKey("Id")
                         .HasName("pk_corte_caja_lines");

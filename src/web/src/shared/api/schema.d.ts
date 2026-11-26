@@ -1725,6 +1725,215 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/visitas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    desde?: string;
+                    hasta?: string;
+                    ruta?: number;
+                    formaPago?: components["schemas"]["PaymentMethod"];
+                    pagina?: number;
+                    porPagina?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["VisitasDto"];
+                        "application/json": components["schemas"]["VisitasDto"];
+                        "text/json": components["schemas"]["VisitasDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/visitas/exportar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    desde?: string;
+                    hasta?: string;
+                    ruta?: number;
+                    formaPago?: components["schemas"]["PaymentMethod"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["FileContentResult"];
+                        "application/json": components["schemas"]["FileContentResult"];
+                        "text/json": components["schemas"]["FileContentResult"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pedidos/{id}/evidencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PedidoEvidenceDto"];
+                        "application/json": components["schemas"]["PedidoEvidenceDto"];
+                        "text/json": components["schemas"]["PedidoEvidenceDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cortes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fecha?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CortesDto"];
+                        "application/json": components["schemas"]["CortesDto"];
+                        "text/json": components["schemas"]["CortesDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cortes/{id}/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CloseCorteRequest"];
+                    "text/json": components["schemas"]["CloseCorteRequest"];
+                    "application/*+json": components["schemas"]["CloseCorteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CortesDto"];
+                        "application/json": components["schemas"]["CortesDto"];
+                        "text/json": components["schemas"]["CortesDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invitados/{id}/beneficios": {
         parameters: {
             query?: never;
@@ -6829,6 +7038,10 @@ export interface components {
             km: number;
             issues: string[];
         };
+        CloseCorteRequest: {
+            pos: null | components["schemas"]["PosAmountRequest"][];
+            notes: null | string;
+        };
         CloseVisitRequest: {
             localId: null | string;
             /** Format: int32 */
@@ -6866,6 +7079,62 @@ export interface components {
         };
         /** @enum {unknown} */
         ContactResult: "NoContesto" | "LlamarDespues" | "NoPorAhora" | "Agendo" | "NoContactar";
+        CorteDto: {
+            /** Format: int32 */
+            rutaDiaId: number;
+            /** Format: int32 */
+            corteId: null | number;
+            rutaCode: string;
+            rutaColor: string;
+            chofer: null | string;
+            unidad: null | string;
+            /** Format: date-time */
+            shiftStartedAt: null | string;
+            /** Format: date-time */
+            shiftEndedAt: null | string;
+            /** Format: int32 */
+            startKm: null | number;
+            /** Format: int32 */
+            endKm: null | number;
+            state: components["schemas"]["CorteState"];
+            lines: components["schemas"]["CorteLineDto"][];
+            /** Format: double */
+            registered: number;
+            /** Format: double */
+            declared: null | number;
+            hasDifference: boolean;
+            choferNotes: null | string;
+            folio: null | string;
+            /** Format: date-time */
+            closedAt: null | string;
+            closedBy: null | string;
+            officeNotes: null | string;
+        };
+        CorteLineDto: {
+            method: components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            registered: number;
+            /** Format: int32 */
+            registeredCount: number;
+            /** Format: double */
+            declared: null | number;
+            /** Format: double */
+            pos: null | number;
+            /** Format: double */
+            vsRegistered: null | number;
+            /** Format: double */
+            vsPos: null | number;
+        };
+        CortesDto: {
+            /** Format: date */
+            date: string;
+            label: string;
+            cortes: components["schemas"]["CorteDto"][];
+            /** Format: int32 */
+            porRevisar: number;
+        };
+        /** @enum {unknown} */
+        CorteState: "SinTurno" | "TurnoAbierto" | "PorRevisar" | "Cerrado";
         CoverageDto: {
             /** Format: int32 */
             id: number;
@@ -7059,6 +7328,16 @@ export interface components {
             code: string;
             name: string;
             color: string;
+        };
+        FileContentResult: {
+            /** Format: byte */
+            fileContents?: string;
+            contentType?: null | string;
+            fileDownloadName?: null | string;
+            /** Format: date-time */
+            lastModified?: null | string;
+            entityTag?: null | components["schemas"]["EntityTagHeaderValue"];
+            enableRangeProcessing?: boolean;
         };
         FileStreamResult: {
             fileStream?: components["schemas"]["Stream"];
@@ -7450,6 +7729,13 @@ export interface components {
             receivesWhatsApp: boolean;
             profileComplete: boolean;
             addresses: components["schemas"]["AddressDto"][];
+        };
+        MethodTotalDto: {
+            method: components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
         };
         MoveEtapaRequest: {
             etapa: components["schemas"]["PedidoEtapa"];
@@ -7860,6 +8146,12 @@ export interface components {
         };
         /** @enum {unknown} */
         PedidoEventoKind: "Etapa" | "EntregaProgramada" | "NoEntregado" | "Comentario" | "Ticket" | "AtrasoPlanta" | "NoRecolectado" | "RecoleccionProgramada";
+        PedidoEvidenceDto: {
+            /** Format: int32 */
+            pedidoId: number;
+            invitado: string;
+            visits: components["schemas"]["PedidoVisitaEvidenceDto"][];
+        };
         /** @enum {unknown} */
         PedidoOrigin: "Oficina" | "App";
         PedidoParadaDto: {
@@ -7884,6 +8176,20 @@ export interface components {
             paymentAmount?: null | number;
             evidence?: null | components["schemas"]["EvidenceRefDto"][];
             turno?: null | components["schemas"]["Turno"];
+        };
+        PedidoVisitaEvidenceDto: {
+            /** Format: int32 */
+            paradaId: number;
+            /** Format: date */
+            date: string;
+            kind: components["schemas"]["ParadaKind"];
+            state: components["schemas"]["ParadaState"];
+            rutaCode: string;
+            /** Format: date-time */
+            closedAt: null | string;
+            photos: components["schemas"]["VisitaPhotoDto"][];
+            /** Format: int32 */
+            signatureId: null | number;
         };
         PendingParadaDto: {
             /** Format: int32 */
@@ -7965,6 +8271,11 @@ export interface components {
             whatsApp: string;
             pushTitle: string;
             pushText: string;
+        };
+        PosAmountRequest: {
+            method: components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            amount: null | number;
         };
         PostalCodeDto: {
             code: string;
@@ -8812,6 +9123,70 @@ export interface components {
             lat?: number;
             /** Format: double */
             lng?: number;
+        };
+        VisitaDto: {
+            /** Format: int32 */
+            paradaId: number;
+            /** Format: date */
+            date: string;
+            rutaCode: string;
+            rutaColor: string;
+            chofer: null | string;
+            kind: components["schemas"]["ParadaKind"];
+            state: components["schemas"]["ParadaState"];
+            name: string;
+            /** Format: int32 */
+            pedidoId: null | number;
+            tickets: string[];
+            /** Format: date-time */
+            closedAt: null | string;
+            /** Format: int32 */
+            garments: null | number;
+            paymentMethod: null | components["schemas"]["PaymentMethod"];
+            /** Format: double */
+            paymentAmount: null | number;
+            photos: components["schemas"]["VisitaPhotoDto"][];
+            /** Format: int32 */
+            signatureId: null | number;
+            notes: null | string;
+            reason: null | string;
+            arrivedOutsideRadius: boolean;
+        };
+        VisitaPhotoDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: date-time */
+            takenAt: string;
+            /** Format: int32 */
+            distanceMeters: null | number;
+            outsideRadius: boolean;
+        };
+        VisitasDto: {
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            rows: components["schemas"]["VisitaDto"][];
+            /** Format: int32 */
+            rowCount: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            totals: components["schemas"]["VisitasTotalsDto"];
+            /** Format: int32 */
+            toleranceMeters: number;
+        };
+        VisitasTotalsDto: {
+            /** Format: int32 */
+            done: number;
+            /** Format: int32 */
+            notDone: number;
+            /** Format: double */
+            collected: number;
+            byMethod: components["schemas"]["MethodTotalDto"][];
+            /** Format: int32 */
+            outsideRadius: number;
         };
         VisitDaysRequest: {
             days: components["schemas"]["DayOfWeek"][];

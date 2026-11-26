@@ -48,7 +48,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Viaje` | RutaDiaId, Nombre, Carga, ParadaFijaId?, Activo | Pasos que se visitan seguidos y en orden; lo genera una vuelta fija o un "viaje de un día" |
 | `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API. En código: `Evidence` (tabla `evidence`) |
 | `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS. En código: `ReferencePayment` (tabla `reference_payments`) |
-| `CorteCaja` | RutaDiaId (único), OperadorId, Fecha, NotasChofer, Lineas (FormaPago, Declarado); falta lo de oficina: Registrado, Diferencias, Folio, CerradoPor | Uno por turno; lo crea el chofer al cerrar el turno (semana 7). Tablas `cortes_caja` y `corte_caja_lines` |
+| `CorteCaja` | RutaDiaId (único), OperadorId, Fecha, NotasChofer, Folio? (único), CerradoEn?, CerradoPor?, NotasOficina?, Lineas (FormaPago, Declarado, Registrado?, Pos?) | Uno por turno; lo crea el chofer al cerrar el turno y lo cierra oficina en Evidencias y caja. Las diferencias se calculan, no se guardan. Tablas `cortes_caja` y `corte_caja_lines` |
 | `UbicacionChofer` | RutaDiaId, Ubicacion, TomadaEn, PrecisionMetros? | Historial reducido (reglas en GPS del chofer); la última posición también en memoria |
 
 ## Flota

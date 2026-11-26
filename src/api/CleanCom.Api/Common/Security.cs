@@ -59,6 +59,9 @@ public static class Policies
     /// <summary>The goals of the KPIs: seeing WhatsApp y metas (where they are edited) or KPIs.</summary>
     public const string SeesMetas = "SeesMetas";
 
+    /// <summary>The photos and signatures of the visits and a pedido's gallery: seeing Pedidos or Evidencias y caja.</summary>
+    public const string SeesEvidencias = "SeesEvidencias";
+
     public const string ScreenPrefix = "Screen:";
 
     public static string Screen(string screen, AccessLevel level) => $"{ScreenPrefix}{screen}:{level}";
@@ -225,7 +228,9 @@ public static class Security
             .AddPolicy(Policies.SeesAvisosOficina, p => WithActiveSession(p)
                 .AddRequirements(new AnyScreenRequirement([Screens.Agendar, Screens.Pedidos, Screens.ClientesCrm], AccessLevel.View)))
             .AddPolicy(Policies.SeesMetas, p => WithActiveSession(p)
-                .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Kpis], AccessLevel.View)));
+                .AddRequirements(new AnyScreenRequirement([Screens.WhatsAppYMetas, Screens.Kpis], AccessLevel.View)))
+            .AddPolicy(Policies.SeesEvidencias, p => WithActiveSession(p)
+                .AddRequirements(new AnyScreenRequirement([Screens.Pedidos, Screens.EvidenciasYCaja], AccessLevel.View)));
 
         return services;
     }
