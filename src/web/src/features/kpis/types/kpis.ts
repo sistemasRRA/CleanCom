@@ -7,6 +7,7 @@ export type KpiHistory = Schemas['KpiHistoryDto'];
 export type KpiGoals = Schemas['KpiGoalsDto'];
 export type KpiGoalRow = Schemas['KpiGoalRowDto'];
 export type KpiGoal = Schemas['KpiGoalDto'];
+export type KpiGoalCheck = Schemas['KpiGoalCheckDto'];
 export type KpiPeriod = Schemas['KpiPeriod'];
 export type KpiLight = Schemas['KpiLight'];
 export type KpiUnit = Schemas['KpiUnit'];

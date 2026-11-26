@@ -99,7 +99,11 @@ public record KpiHistoryRowDto(string Key, string Name, KpiArea Area, KpiUnit Un
 public record KpiHistoryCellDto(decimal? Value, KpiLight Light);
 
 /// <summary>Metas de los KPIs (WhatsApp y metas › Metas).</summary>
-public record KpiGoalsDto(IReadOnlyList<KpiGoalRowDto> Indicadores, IReadOnlyList<KpiResponsableDto> Responsables);
+/// <param name="LastWeekLabel">The week each row's <see cref="KpiGoalRowDto.LastWeek"/> is from ("Semana del 16 al 22 nov 2026").</param>
+public record KpiGoalsDto(IReadOnlyList<KpiGoalRowDto> Indicadores, IReadOnlyList<KpiResponsableDto> Responsables, string LastWeekLabel);
+
+/// <summary>How an indicator did last week against the goal it had (the same light as the KPIs screen).</summary>
+public record KpiGoalCheckDto(decimal? Value, KpiLight Light);
 
 /// <param name="Current">The goal of the whole company in force today.</param>
 /// <param name="Next">A goal of the company that starts later, if any.</param>
@@ -116,9 +120,10 @@ public record KpiGoalRowDto(
     KpiGoalDto? Current,
     KpiGoalDto? Next,
     IReadOnlyList<KpiRutaGoalDto> Rutas,
-    IReadOnlyList<KpiGoalDto> History);
+    IReadOnlyList<KpiGoalDto> History,
+    KpiGoalCheckDto LastWeek);
 
-public record KpiRutaGoalDto(int RutaId, string Code, KpiGoalDto? Current, KpiGoalDto? Next);
+public record KpiRutaGoalDto(int RutaId, string Code, KpiGoalDto? Current, KpiGoalDto? Next, KpiGoalCheckDto LastWeek);
 
 /// <param name="RutaId">Null for the whole company.</param>
 public record KpiGoalDto(

@@ -142,6 +142,11 @@ public class KpisTests(ApiFactory api)
         var ruta = row.GetProperty("rutas").EnumerateArray().Single(r => r.GetProperty("rutaId").GetInt32() == scenario.RutaId);
         Assert.Equal(6m, ruta.GetProperty("current").GetProperty("green").GetDecimal());
         Assert.Equal(JsonValueKind.Null, ruta.GetProperty("current").GetProperty("red").ValueKind);
+        // Last week as the KPIs screen shows it, next to each goal.
+        Assert.StartsWith("Semana del", metas.GetProperty("lastWeekLabel").GetString(), StringComparison.Ordinal);
+        // The goal starts today, so last week keeps having none (vigencia).
+        Assert.Equal("SinMeta", ruta.GetProperty("lastWeek").GetProperty("light").GetString());
+        Assert.Equal(JsonValueKind.Number, ruta.GetProperty("lastWeek").GetProperty("value").ValueKind);
 
         var board = await admin.GetOkAsync("/kpis?periodo=Semana");
         var card = board.GetProperty("indicadores").EnumerateArray().Single(c => c.GetProperty("key").GetString() == KpiCatalog.ClientesNuevos);

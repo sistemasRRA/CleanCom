@@ -6986,6 +6986,11 @@ export interface components {
             /** Format: double */
             denominator: number;
         };
+        KpiGoalCheckDto: {
+            /** Format: double */
+            value: null | number;
+            light: components["schemas"]["KpiLight"];
+        };
         KpiGoalDto: {
             /** Format: int32 */
             id: number;
@@ -7022,12 +7027,14 @@ export interface components {
             next: null | components["schemas"]["KpiGoalDto"];
             rutas: components["schemas"]["KpiRutaGoalDto"][];
             history: components["schemas"]["KpiGoalDto"][];
+            lastWeek: components["schemas"]["KpiGoalCheckDto"];
         };
         /** @enum {unknown} */
         KpiGoalScaling: "None" | "ByDays" | "SamePeriod";
         KpiGoalsDto: {
             indicadores: components["schemas"]["KpiGoalRowDto"][];
             responsables: components["schemas"]["KpiResponsableDto"][];
+            lastWeekLabel: string;
         };
         KpiHistoryCellDto: {
             /** Format: double */
@@ -7084,6 +7091,7 @@ export interface components {
             code: string;
             current: null | components["schemas"]["KpiGoalDto"];
             next: null | components["schemas"]["KpiGoalDto"];
+            lastWeek: components["schemas"]["KpiGoalCheckDto"];
         };
         KpiRutaValueDto: {
             /** Format: int32 */

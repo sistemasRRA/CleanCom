@@ -14,7 +14,12 @@ namespace CleanCom.Application.Kpis;
 /// whole company or for one ruta, with vigencia. Changing a goal adds a new one from a date on; the past keeps the goal
 /// it had.
 /// </summary>
-public class KpiGoalService(ICleanComDbContext db, IBusinessClock clock, IUserService users, IValidator<SaveKpiGoalRequest> validator)
+public class KpiGoalService(
+    ICleanComDbContext db,
+    IBusinessClock clock,
+    IUserService users,
+    KpiService kpis,
+    IValidator<SaveKpiGoalRequest> validator)
 {
     public async Task<KpiGoalsDto> ListAsync(CancellationToken ct)
     {
@@ -25,6 +30,12 @@ public class KpiGoalService(ICleanComDbContext db, IBusinessClock clock, IUserSe
         var ids = goals.SelectMany(g => new[] { g.ResponsableUserId, g.CreatedBy }).OfType<int>().Distinct().ToList();
         var names = await users.NamesAsync(ids, ct);
         var todayRange = new DateRange(today, today);
+        // Last week as the KPIs screen shows it, so whoever sets a goal sees whether it is realistic.
+        var lastWeek = await kpis.BoardAsync(KpiPeriod.Semana, today.AddDays(-7), ct);
+        var cards = lastWeek.Indicadores.ToDictionary(c => c.Key);
+        KpiGoalCheckDto Check(string key) => new(cards[key].Value, cards[key].Light);
+        KpiGoalCheckDto CheckRuta(string key, int rutaId) =>
+            cards[key].ByRuta.FirstOrDefault(r => r.RutaId == rutaId) is { } r ? new(r.Value, r.Light) : new(null, KpiLight.SinMeta);
 
         KpiGoalDto? Dto(KpiGoal? g) => g is null ? null : new(g.Id, g.RutaId, g.RutaId is { } ruta ? codes.GetValueOrDefault(ruta) : null, g.Period,
             g.ResponsableUserId, g.ResponsableUserId is { } r ? names.GetValueOrDefault(r) : null, g.Red, g.Green, g.SuperGreen, g.ValidFrom,
@@ -37,11 +48,13 @@ public class KpiGoalService(ICleanComDbContext db, IBusinessClock clock, IUserSe
             Dto(KpiRules.GoalFor(goals, kpi.Key, null, todayRange, today)),
             Dto(Next(kpi.Key, null)),
             rutas.Where(r => r.Active)
-                .Select(r => new KpiRutaGoalDto(r.Id, r.Code, Dto(KpiRules.GoalFor(goals, kpi.Key, r.Id, todayRange, today)), Dto(Next(kpi.Key, r.Id))))
+                .Select(r => new KpiRutaGoalDto(r.Id, r.Code, Dto(KpiRules.GoalFor(goals, kpi.Key, r.Id, todayRange, today)), Dto(Next(kpi.Key, r.Id)),
+                    CheckRuta(kpi.Key, r.Id)))
                 .ToList(),
             goals.Where(g => g.IndicadorKey == kpi.Key).OrderByDescending(g => g.ValidFrom).ThenBy(g => g.RutaId).ThenByDescending(g => g.Id)
-                .Select(g => Dto(g)!).ToList())).ToList();
-        return new KpiGoalsDto(rows, await ResponsablesAsync(ct));
+                .Select(g => Dto(g)!).ToList(),
+            Check(kpi.Key))).ToList();
+        return new KpiGoalsDto(rows, await ResponsablesAsync(ct), lastWeek.Label);
     }
 
     /// <summary>

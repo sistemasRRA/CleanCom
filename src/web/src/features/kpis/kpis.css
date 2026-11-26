@@ -56,4 +56,26 @@ dialog.kpi-detail { width: min(920px, 96vw); }
 @media (max-width: 700px) {
   .kpi-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.kpi-goal-ruta td { border-top-style: dashed; }
+
+/* Metas: captured in the row. */
+.kpi-goals__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-bottom: 12px; }
+.kpi-goals__help { font-size: 12.5px; flex: 1 1 280px; }
+.kpi-goals td { vertical-align: middle; }
+.kpi-goals td:first-child { min-width: 250px; }
+.kpi-goals__ruta-name { font-weight: 600; }
+.kpi-goals__input { width: 76px; padding: 4px 8px; font-size: 13px; text-align: right; }
+select.kpi-goals__input { width: auto; max-width: 140px; text-align: left; }
+.kpi-goals th, .kpi-goals td { padding-left: 8px; padding-right: 8px; }
+.kpi-goals__company td { border-top: 1px solid var(--border); }
+.kpi-goals__ruta td { border-top: 1px dashed var(--border); background: var(--surface-2); }
+.kpi-goals__ruta td:first-child { padding-left: 28px; }
+.kpi-goals__info { cursor: help; color: var(--text-muted); font-size: 12px; }
+.kpi-goals__toggle { margin-top: 4px; font-size: 12.5px; }
+.kpi-goals__last { font-variant-numeric: tabular-nums; }
+.kpi-goals__actions { white-space: nowrap; }
+.kpi-goals__actions button + button { margin-left: 6px; }
+.kpi-goals__error { color: var(--danger); font-size: 12px; white-space: normal; max-width: 220px; margin-left: auto; }
+@media (max-width: 1360px) {
+  .kpi-goals td:first-child { min-width: 180px; }
+  select.kpi-goals__input { max-width: 118px; }
+}
