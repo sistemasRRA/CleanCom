@@ -503,7 +503,7 @@ namespace CleanCom.Migrations.Migrations
                         },
                         new
                         {
-                            Id = 47,
+                            Id = 10001,
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Level = "Edit",
                             RoleId = 1,
@@ -511,7 +511,7 @@ namespace CleanCom.Migrations.Migrations
                         },
                         new
                         {
-                            Id = 48,
+                            Id = 10002,
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Level = "Edit",
                             RoleId = 1,

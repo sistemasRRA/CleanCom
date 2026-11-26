@@ -232,8 +232,18 @@ public static class Permissions
 
         (Roles.PlantaId, Screens.TicketsEnPlanta, AccessLevel.Edit),
         (Roles.PlantaId, Screens.Pedidos, AccessLevel.View),
+    ];
 
+    /// <summary>
+    /// Initial grants of the special permissions (Screens.SpecialGroup). They are seeded with ids from
+    /// <see cref="SpecialSeedFirstId"/> on, apart from <see cref="Initial"/>: saving a role's permissions replaces its
+    /// rows with new ids, so the next ids after Initial may already be taken. New entries go at the end.
+    /// </summary>
+    public static IReadOnlyList<(int RoleId, string Screen, AccessLevel Level)> InitialSpecial { get; } =
+    [
         (Roles.AdministracionId, Screens.ReabrirCortes, AccessLevel.Edit),
         (Roles.AdministracionId, Screens.CerrarTurnos, AccessLevel.Edit),
     ];
+
+    public const int SpecialSeedFirstId = 10_001;
 }

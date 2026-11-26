@@ -43,8 +43,8 @@ namespace CleanCom.Migrations.Migrations
                 columns: new[] { "id", "created_at", "created_by", "level", "modified_at", "modified_by", "role_id", "screen" },
                 values: new object[,]
                 {
-                    { 47, new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, "Edit", null, null, 1, "reabrir-cortes" },
-                    { 48, new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, "Edit", null, null, 1, "cerrar-turnos" }
+                    { 10001, new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, "Edit", null, null, 1, "reabrir-cortes" },
+                    { 10002, new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, "Edit", null, null, 1, "cerrar-turnos" }
                 });
         }
 
@@ -54,12 +54,12 @@ namespace CleanCom.Migrations.Migrations
             migrationBuilder.DeleteData(
                 table: "role_permissions",
                 keyColumn: "id",
-                keyValue: 47);
+                keyValue: 10001);
 
             migrationBuilder.DeleteData(
                 table: "role_permissions",
                 keyColumn: "id",
-                keyValue: 48);
+                keyValue: 10002);
 
             migrationBuilder.DropColumn(
                 name: "shift_ended_by",

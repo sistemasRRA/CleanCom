@@ -225,6 +225,14 @@ internal class RolePermissionConfig : IEntityTypeConfiguration<RolePermission>
             Level = p.Level,
             CreatedAt = Seed.Date,
         }));
+        e.HasData(Permissions.InitialSpecial.Select((p, i) => new RolePermission
+        {
+            Id = Permissions.SpecialSeedFirstId + i,
+            RoleId = p.RoleId,
+            Screen = p.Screen,
+            Level = p.Level,
+            CreatedAt = Seed.Date,
+        }));
     }
 }
 
