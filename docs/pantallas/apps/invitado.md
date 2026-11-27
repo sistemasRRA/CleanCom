@@ -37,7 +37,7 @@ Autoservicio como Uber o DiDi, pero para tintorería: el invitado pide su servic
 - **Mis beneficios:** sellos y cupones con vencimiento y código.
 - **Mis pedidos:** historial con tickets.
 - **Mis direcciones** y **Mis datos**.
-- **Avisos:** preferencias de push, WhatsApp de servicio y WhatsApp de promociones.
+- **Avisos (hecho, semana 7):** en Mis datos, interruptores de notificaciones en la app, WhatsApp de tu servicio y promociones por WhatsApp (`receivesPush`, `receivesWhatsApp`, `receivesPromotions` en `GET|PUT /yo`). Ver [preferencias de aviso](../../03-reglas-de-negocio.md#tipos-de-invitado).
 - Empresas con convenio: cada contacto con su cuenta, ligado a la ficha de la empresa.
 
 ## Endpoints

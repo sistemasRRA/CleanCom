@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { type Loaded, useLoad } from '../../../common/hooks/useLoad';
 import { Chip } from '../../../common/components/Chip';
+import { PreferenceSwitch } from '../components/PreferenceSwitch';
 import { cuentaApi } from '../services/cuentaApi';
 
 /**
@@ -25,6 +26,9 @@ function PerfilForm({ me, options }: { me: Loaded<Me>; options: Loaded<Motivos> 
   const [name, setName] = useState(() => (me.data && (me.data.profileComplete || !me.data.name.startsWith('Invitado ')) ? me.data.name : ''));
   const [email, setEmail] = useState(me.data?.email ?? '');
   const [howFoundUs, setHowFoundUs] = useState<string | null>(me.data?.howFoundUs ?? null);
+  const [receivesPush, setReceivesPush] = useState(me.data?.receivesPush ?? true);
+  const [receivesWhatsApp, setReceivesWhatsApp] = useState(me.data?.receivesWhatsApp ?? true);
+  const [receivesPromotions, setReceivesPromotions] = useState(me.data?.receivesPromotions ?? false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const first = me.data ? !me.data.profileComplete : false;
@@ -38,7 +42,9 @@ function PerfilForm({ me, options }: { me: Loaded<Me>; options: Loaded<Motivos> 
         email: email.trim() || null,
         otherPhone: me.data?.otherPhone ?? null,
         howFoundUs,
-        receivesWhatsApp: me.data?.receivesWhatsApp ?? true,
+        receivesWhatsApp,
+        receivesPush,
+        receivesPromotions,
       });
       if (router.canGoBack()) router.back();
       else router.replace('/');
@@ -91,6 +97,29 @@ function PerfilForm({ me, options }: { me: Loaded<Me>; options: Loaded<Motivos> 
                 <Chip key={o.id} label={o.text} selected={howFoundUs === o.text} onPress={() => setHowFoundUs(o.text)} />
               ))}
           </View>
+        </Card>
+      )}
+      {!first && (
+        <Card>
+          <Body>Avisos</Body>
+          <PreferenceSwitch
+            label="Notificaciones en la app"
+            hint="Cuándo pasamos por tu ropa y cuándo está lista. Apagadas, te avisamos por WhatsApp."
+            value={receivesPush}
+            onChange={setReceivesPush}
+          />
+          <PreferenceSwitch
+            label="WhatsApp de tu servicio"
+            hint="Los mismos avisos de tus pedidos, por WhatsApp."
+            value={receivesWhatsApp}
+            onChange={setReceivesWhatsApp}
+          />
+          <PreferenceSwitch
+            label="Promociones por WhatsApp"
+            hint="Descuentos y novedades de CleanCom."
+            value={receivesPromotions}
+            onChange={setReceivesPromotions}
+          />
         </Card>
       )}
       {error && <Alert>{error}</Alert>}

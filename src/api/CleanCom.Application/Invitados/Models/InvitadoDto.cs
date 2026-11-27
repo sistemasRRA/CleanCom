@@ -14,6 +14,8 @@ public record InvitadoDto(
     string? Notes,
     bool Active,
     bool ReceivesWhatsApp,
+    bool ReceivesPush,
+    bool ReceivesPromotions,
     IReadOnlyList<AddressDto> Addresses);
 
 /// <summary>An active invitado who already has a phone being captured.</summary>

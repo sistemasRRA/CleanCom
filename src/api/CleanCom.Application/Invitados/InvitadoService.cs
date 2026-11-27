@@ -168,6 +168,9 @@ public class InvitadoService(
         invitado.Campaign = Clean(r.Campaign);
         invitado.Notes = Clean(r.Notes);
         invitado.ReceivesWhatsApp = r.ReceivesWhatsApp;
+        // Not sent (an older app or form): what the invitado already had stays.
+        invitado.ReceivesPush = r.ReceivesPush ?? invitado.ReceivesPush;
+        invitado.ReceivesPromotions = r.ReceivesPromotions ?? invitado.ReceivesPromotions;
     }
 
     /// <summary>Saves the address and its zona: the one chosen by hand, or the one found by polygon or postal code.</summary>
@@ -198,6 +201,7 @@ public class InvitadoService(
 
     private static InvitadoDto ToDto(Invitado i) => new(
         i.Id, i.Name, i.WhatsAppPhone, i.OtherPhone, i.Email, i.Type, i.HowFoundUs, i.Campaign, i.Notes, i.Active, i.ReceivesWhatsApp,
+        i.ReceivesPush, i.ReceivesPromotions,
         i.Addresses.OrderBy(d => d.Id).Select(d => new AddressDto(
             d.Id, d.Label, d.Street, d.ExteriorNumber, d.InteriorNumber, d.PostalCode, d.Neighborhood, d.Borough, d.References,
             d.Location?.Y, d.Location?.X, d.ZonaId, d.Zona?.Code, d.ZonaAssignedManually, d.Active)).ToList());

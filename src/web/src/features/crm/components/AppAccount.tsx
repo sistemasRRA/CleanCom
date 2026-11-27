@@ -59,6 +59,11 @@ export function AppAccount({ ficha, canEdit }: { ficha: Schemas['CrmFichaDto']; 
           </div>
         )}
       </div>
+      <span className="muted">
+        Avisos: push {ficha.invitado.receivesPush ? 'sí' : 'no'} · WhatsApp de servicio {ficha.invitado.receivesWhatsApp ? 'sí' : 'no'} · promociones
+        por WhatsApp {ficha.invitado.receivesPromotions ? 'sí' : 'no'}
+        {ficha.crm.doNotContact && ' · no contactar'}
+      </span>
     </section>
   );
 }

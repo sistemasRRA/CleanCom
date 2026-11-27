@@ -247,7 +247,15 @@ En la ficha: **gasto total** (importe de sus tickets de pedidos no cancelados), 
 
 Cliente final (servicio a domicilio), Convenio, Empresa y Tienda / uso interno, como en la captura de clientes del sistema actual. Las tiendas no cuentan en las métricas del CRM; convenio y empresa sí. Tienda interna no se ofrece al capturar un invitado nuevo.
 
-Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "Cómo nos conoció" (Operación › Catálogos › Motivos, editable; arranca con las 9 opciones del sistema actual), y si **recibe avisos por WhatsApp** (sí por omisión). Los avisos llegan con las notificaciones (semana 6) y solo se mandan a quien lo acepta; es distinto de "No contactar" del CRM, que lo saca de llamadas y campañas.
+Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "Cómo nos conoció" (Operación › Catálogos › Motivos, editable; arranca con las 9 opciones del sistema actual), y sus **preferencias de aviso**, una por canal:
+
+| Preferencia | Por omisión | Qué hace |
+| --- | --- | --- |
+| Push en la app | Sí | Apagada, los avisos de servicio le llegan por WhatsApp aunque tenga la app (si acepta WhatsApp de servicio) |
+| WhatsApp de servicio | Sí | Avisos de sus pedidos (agendada, en camino, listo…) cuando no van por push |
+| WhatsApp de promociones | No | Meta exige que acepte los mensajes de marketing; lo usarán las campañas, que además dejan fuera a quien pidió "No contactar" |
+
+Ejemplo: tiene la app, apaga los push y acepta WhatsApp de servicio → su recolección agendada le llega por WhatsApp. Con push y WhatsApp de servicio apagados el aviso se registra como omitido ("Apagó los avisos push y por WhatsApp."). Las preferencias son distintas de "No contactar" del CRM, que lo saca de llamadas y campañas. Oficina las cambia al capturar o editar al invitado; el invitado, en Mis datos de la app. Guardar sin mandar push o promociones (versiones anteriores de la app) conserva lo que tenía.
 
 ## Promociones
 
@@ -279,7 +287,7 @@ Cómo funciona (semana 6):
 
 | Evento | Canal |
 | --- | --- |
-| Recolección agendada | Push si tiene app; si no, WhatsApp de utilidad |
+| Recolección agendada | Push si tiene app y acepta push; si no, WhatsApp de utilidad si lo acepta |
 | Cambio o cancelación | Igual |
 | Chofer en camino (con hora estimada y liga de seguimiento) | Igual |
 | Recolección realizada | Igual |

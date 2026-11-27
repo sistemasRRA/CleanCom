@@ -8080,6 +8080,8 @@ export interface components {
             notes: null | string;
             active: boolean;
             receivesWhatsApp: boolean;
+            receivesPush: boolean;
+            receivesPromotions: boolean;
             addresses: components["schemas"]["AddressDto"][];
         };
         InvitadoSessionDto: {
@@ -8414,6 +8416,8 @@ export interface components {
             email: null | string;
             howFoundUs: null | string;
             receivesWhatsApp: boolean;
+            receivesPush: boolean;
+            receivesPromotions: boolean;
             profileComplete: boolean;
             addresses: components["schemas"]["AddressDto"][];
         };
@@ -9322,6 +9326,8 @@ export interface components {
             address?: null | components["schemas"]["SaveAddressRequest"];
             /** @default true */
             receivesWhatsApp: boolean;
+            receivesPush?: null | boolean;
+            receivesPromotions?: null | boolean;
         };
         SaveKpiGoalRequest: {
             period: components["schemas"]["KpiGoalPeriod"];
@@ -9828,6 +9834,8 @@ export interface components {
             howFoundUs: null | string;
             /** @default true */
             receivesWhatsApp: boolean;
+            receivesPush?: null | boolean;
+            receivesPromotions?: null | boolean;
         };
         UpdateUserRequest: {
             fullName: string;

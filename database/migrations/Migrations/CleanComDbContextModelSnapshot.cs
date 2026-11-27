@@ -3188,6 +3188,16 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("other_phone");
 
+                    b.Property<bool>("ReceivesPromotions")
+                        .HasColumnType("bit")
+                        .HasColumnName("receives_promotions");
+
+                    b.Property<bool>("ReceivesPush")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("receives_push");
+
                     b.Property<bool>("ReceivesWhatsApp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")

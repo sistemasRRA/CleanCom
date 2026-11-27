@@ -37,6 +37,30 @@ public class AgendaFlowTests(ApiFactory api)
     }
 
     [Fact]
+    public async Task With_push_turned_off_the_aviso_goes_by_whatsapp_even_with_the_app()
+    {
+        await api.ScenarioAsync();
+        var invitado = await api.InvitadoAsync("5530000105");
+        await invitado.PostJsonAsync("/yo/dispositivos", new { token = "ExponentPushToken[prueba-preferencias]", platform = "android" });
+        var howFoundUs = (await invitado.GetOkAsync("/motivos?type=HowFoundUs"))[0].GetProperty("text").GetString();
+        var me = await invitado.PutOkAsync("/yo", new
+        {
+            name = "Sin Push", email = (string?)null, otherPhone = (string?)null, howFoundUs, receivesWhatsApp = true, receivesPush = false,
+        });
+        Assert.False(me.GetProperty("receivesPush").GetBoolean());
+        Assert.False(me.GetProperty("receivesPromotions").GetBoolean());
+
+        // Scheduling saves the profile again without the new fields, as the current app does: they stay.
+        var pedidoId = await ScheduleFromTheAppAsync(invitado);
+        Assert.False((await invitado.GetOkAsync("/yo")).GetProperty("receivesPush").GetBoolean());
+
+        var admin = await api.AdminAsync();
+        var avisos = await admin.GetOkAsync($"/avisos?pedidoId={pedidoId}");
+        var agendada = Assert.Single(avisos.GetProperty("avisos").EnumerateArray(), a => a.GetProperty("evento").GetString() == "RecoleccionAgendada");
+        Assert.Equal("WhatsApp", agendada.GetProperty("canal").GetString());
+    }
+
+    [Fact]
     public async Task Moving_a_pedido_by_hand_is_kept_in_its_history()
     {
         var invitado = await api.InvitadoAsync("5530000102");

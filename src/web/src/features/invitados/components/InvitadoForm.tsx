@@ -23,6 +23,8 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
   const [notes, setNotes] = useState(invitado?.notes ?? '');
   const [type, setType] = useState<InvitadoType>(invitado?.type ?? 'ClienteFinal');
   const [receivesWhatsApp, setReceivesWhatsApp] = useState(invitado?.receivesWhatsApp ?? true);
+  const [receivesPush, setReceivesPush] = useState(invitado?.receivesPush ?? true);
+  const [receivesPromotions, setReceivesPromotions] = useState(invitado?.receivesPromotions ?? false);
   const [direccion, setDireccion] = useState(emptyDireccion);
   // "Cómo nos conoció" comes from its catalog (Operación › Catálogos › Motivos).
   const howFoundUsOptions = useQuery({
@@ -45,6 +47,8 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         notes: optional(notes),
         address: invitado ? null : toDireccionRequest(direccion),
         receivesWhatsApp,
+        receivesPush,
+        receivesPromotions,
       };
       return invitado ? invitadosApi.update(invitado.id, body) : invitadosApi.create(body);
     },
@@ -101,8 +105,14 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         <Field label="Observaciones" wide>
           <input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
+        <Checkbox wide checked={receivesPush} onChange={setReceivesPush}>
+          Recibe avisos push en la app (apagado, le llegan por WhatsApp)
+        </Checkbox>
         <Checkbox wide checked={receivesWhatsApp} onChange={setReceivesWhatsApp}>
-          Recibe avisos por WhatsApp
+          Recibe avisos de servicio por WhatsApp
+        </Checkbox>
+        <Checkbox wide checked={receivesPromotions} onChange={setReceivesPromotions}>
+          Acepta promociones por WhatsApp
         </Checkbox>
       </div>
       {!invitado && (

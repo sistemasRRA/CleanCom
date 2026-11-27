@@ -52,17 +52,19 @@ public static partial class AvisoRules
     public static bool IsNotified(InvitadoType type) => type != InvitadoType.TiendaInterna;
 
     /// <summary>
-    /// "Push si tiene app; si no, WhatsApp de utilidad": push when the invitado has a device registered; otherwise
-    /// WhatsApp only if it accepts notices by WhatsApp. Null = no channel (the notice is recorded as omitted).
+    /// "Push si tiene app; si no, WhatsApp de utilidad": push when the invitado has a device registered and accepts
+    /// push; otherwise WhatsApp only if it accepts service notices by WhatsApp. Null = no channel (the notice is
+    /// recorded as omitted). Example: with the app but push turned off and WhatsApp accepted → WhatsApp.
     /// </summary>
-    public static AvisoCanal? Channel(int devices, bool receivesWhatsApp, string? whatsAppPhone) =>
-        devices > 0 ? AvisoCanal.Push
+    public static AvisoCanal? Channel(int devices, bool receivesPush, bool receivesWhatsApp, string? whatsAppPhone) =>
+        devices > 0 && receivesPush ? AvisoCanal.Push
         : receivesWhatsApp && !string.IsNullOrWhiteSpace(whatsAppPhone) ? AvisoCanal.WhatsApp
         : null;
 
     /// <summary>Why a notice has no channel, for the history.</summary>
-    public static string OmittedReason(bool receivesWhatsApp) => receivesWhatsApp
-        ? "Sin app ni número de WhatsApp."
+    public static string OmittedReason(int devices, bool receivesPush, bool receivesWhatsApp) =>
+        receivesWhatsApp ? "Sin app ni número de WhatsApp."
+        : devices > 0 && !receivesPush ? "Apagó los avisos push y por WhatsApp."
         : "No acepta avisos por WhatsApp y no tiene la app.";
 
     /// <summary>Fills {{1}}, {{2}}… with the values in order; a variable without value stays empty.</summary>

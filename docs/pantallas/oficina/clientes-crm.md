@@ -70,4 +70,5 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Estado (semana 7)
 
 - Lista: en "Todos" se filtra por tipo de invitado y estado de la cuenta de la app; las filas marcan el tipo (si no es cliente final) y la cuenta (si tiene).
+- Preferencias de aviso por canal (push, WhatsApp de servicio, WhatsApp de promociones): se capturan y editan en el formulario del invitado y la ficha las muestra junto a la cuenta de la app. `InvitadoDto` trae `receivesPush` y `receivesPromotions`; en `POST|PUT /invitados` son opcionales y, si no se mandan, se conserva lo que tenía.
 - Ficha: gasto total y ticket promedio junto a los indicadores; aviso de posible duplicado con "Fusionar aquí" (SuperUser y Administración); cuenta de la app con último acceso, "Invitar a la app" (abre WhatsApp con el texto de `AppInvitado.MensajeInvitacion`) y "Bloquear acceso" / "Desbloquear"; historia legible con filtro (todo, pedidos, visitas, tickets, avisos, contactos) y montos.
