@@ -27,10 +27,17 @@ public class Invitado : Entity, IActivatable
     /// <summary>Cómo nos conoció: an option of the catalog (Reason type HowFoundUs), kept as text.</summary>
     public string? HowFoundUs { get; set; }
     /// <summary>
-    /// Accepts notices by WhatsApp (cita agendada, en camino, listo…). Captured now; the notices arrive in week 6.
+    /// Accepts service notices by WhatsApp (cita agendada, en camino, listo…).
     /// Different from <see cref="DoNotContact"/>, which keeps the invitado out of calls and campaigns.
     /// </summary>
     public bool ReceivesWhatsApp { get; set; } = true;
+    /// <summary>Accepts push notices in the app; off, the service notices go by WhatsApp (if accepted).</summary>
+    public bool ReceivesPush { get; set; } = true;
+    /// <summary>
+    /// Accepts promotions by WhatsApp (marketing templates of Meta need it). Off until the invitado accepts; the
+    /// campaigns also leave out <see cref="DoNotContact"/>.
+    /// </summary>
+    public bool ReceivesPromotions { get; set; }
     public string? Campaign { get; set; }
     public string? Notes { get; set; }
     public bool Active { get; set; } = true;
@@ -47,6 +54,13 @@ public class Invitado : Entity, IActivatable
     public CrmStatus? ManualStatus { get; set; }
     /// <summary>Frequency fixed by the office, in days; wins over the calculated one.</summary>
     public int? FixedFrequencyDays { get; set; }
+    /// <summary>
+    /// Reactivation: sent to "Llamar hoy" from Clientes y fuentes (perdidos). From this date the invitado appears there
+    /// whatever their zona and status, until a contact is registered.
+    /// </summary>
+    public DateOnly? CallRequestedOn { get; set; }
+    /// <summary>When the office last sent the invitation to the app (WhatsApp).</summary>
+    public DateTimeOffset? InvitedToAppAt { get; set; }
 
     public List<Address> Addresses { get; set; } = [];
 }

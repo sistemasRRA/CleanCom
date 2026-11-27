@@ -76,16 +76,24 @@ public class RoleService(
             throw new DomainException("SuperUser siempre ve y edita todas las pantallas de oficina; sus permisos no se cambian.");
         }
 
-        await using var transaction = await db.Database.BeginTransactionAsync(ct);
-        await db.RolePermissions.Where(p => p.RoleId == id).ExecuteDeleteAsync(ct);
-        db.RolePermissions.AddRange(r.Permissions.Select(p => new RolePermission
+        // Only what changed: a level updated, a screen added or taken away. The bitácora logs exactly that.
+        var current = await db.RolePermissions.Where(p => p.RoleId == id).ToListAsync(ct);
+        var wanted = r.Permissions.GroupBy(p => p.Screen).ToDictionary(g => g.Key, g => g.Last().Level);
+        foreach (var p in current)
         {
-            RoleId = id,
-            Screen = p.Screen,
-            Level = p.Level,
-        }));
+            if (!wanted.TryGetValue(p.Screen, out var level))
+            {
+                db.RolePermissions.Remove(p);
+            }
+            else if (p.Level != level)
+            {
+                p.Level = level;
+            }
+        }
+        db.RolePermissions.AddRange(wanted
+            .Where(w => current.All(p => p.Screen != w.Key))
+            .Select(w => new RolePermission { RoleId = id, Screen = w.Key, Level = w.Value }));
         await db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         store.Invalidate();
         return await GetAsync(id, ct);

@@ -7,7 +7,7 @@ Captura de una recolección por teléfono o WhatsApp. La fecha la calcula el mot
 ## Se conserva
 
 - Buscar invitado por nombre o teléfono; si existe se precargan sus datos y los cambios actualizan su ficha ("Capturar otro cliente").
-- Campos: nombre, WhatsApp, tipo (cliente final, convenio o empresa), calle y número, CP, colonia, cómo nos conoció (lista del catálogo), campaña, recibe avisos por WhatsApp, link de Maps, referencias, cuándo prefiere (cualquier hora, mañana, tarde, hora específica), prendas aproximadas, hora de registro editable, notas para el chofer, prioridad.
+- Campos: nombre, WhatsApp, tipo (cliente final, convenio o empresa), calle y número, CP, colonia, cómo nos conoció (lista del catálogo), campaña, preferencias de aviso (push, WhatsApp de servicio, WhatsApp de promociones), link de Maps, referencias, cuándo prefiere (cualquier hora, mañana, tarde, hora específica), prendas aproximadas, hora de registro editable, notas para el chofer, prioridad.
 - Panel "Así se agenda": zona y colonia, fecha calculada, explicación paso a paso (días de la zona, corte, primer día con cupo y lugar "9 de 14") y otros días de la zona con su ocupación.
 - "Agendar y avisar al cliente".
 

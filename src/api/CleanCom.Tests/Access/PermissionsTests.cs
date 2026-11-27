@@ -36,7 +36,19 @@ public class PermissionsTests
         Assert.DoesNotContain(Screens.AppChofer, admin);
         Assert.DoesNotContain(Screens.AppInvitado, admin);
         Assert.DoesNotContain(Screens.RolesYPermisos, admin);
-        Assert.Equal(Screens.All.Count - 3, admin.Count);
+        Assert.Equal(Screens.All.Count(s => s.Group != Screens.SpecialGroup) - 3, admin.Count);
+    }
+
+    [Fact]
+    public void Administracion_starts_with_the_special_permissions_seeded_apart()
+    {
+        var special = Screens.All.Where(s => s.Group == Screens.SpecialGroup).Select(s => s.Key).ToList();
+        Assert.Equal([Screens.ReabrirCortes, Screens.CerrarTurnos], special);
+        Assert.DoesNotContain(Permissions.Initial, p => special.Contains(p.Screen));
+        Assert.All(Permissions.InitialSpecial, p => Assert.Equal((Roles.AdministracionId, AccessLevel.Edit), (p.RoleId, p.Level)));
+        Assert.Equal(special, Permissions.InitialSpecial.Select(p => p.Screen));
+        // Far from the ids of Initial, which saving a role's permissions reuses.
+        Assert.True(Permissions.SpecialSeedFirstId > Permissions.Initial.Count + 1000);
     }
 
     [Fact]

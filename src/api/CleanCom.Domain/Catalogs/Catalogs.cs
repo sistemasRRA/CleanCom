@@ -88,6 +88,11 @@ public class Reason : Entity, IActivatable
     public ReasonType Type { get; set; }
     public string Text { get; set; } = "";
     public bool Active { get; set; } = true;
+    /// <summary>Only for "Cómo nos conoció": the source counts as marketing digital (Clientes y fuentes).</summary>
+    public bool IsDigital { get; set; }
+
+    /// <summary>The option of <see cref="HowFoundUsDefaults"/> that starts marked as marketing digital.</summary>
+    public const string DigitalDefault = "Marketing digital (Meta / Instagram / Facebook)";
 
     /// <summary>
     /// Initial "Cómo nos conoció" options, from the client capture of the current system. Inserted once when the

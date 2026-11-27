@@ -1,3 +1,4 @@
+using CleanCom.Domain.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
@@ -225,6 +226,14 @@ internal class RolePermissionConfig : IEntityTypeConfiguration<RolePermission>
             Level = p.Level,
             CreatedAt = Seed.Date,
         }));
+        e.HasData(Permissions.InitialSpecial.Select((p, i) => new RolePermission
+        {
+            Id = Permissions.SpecialSeedFirstId + i,
+            RoleId = p.RoleId,
+            Screen = p.Screen,
+            Level = p.Level,
+            CreatedAt = Seed.Date,
+        }));
     }
 }
 
@@ -251,6 +260,7 @@ internal class InvitadoConfig : IEntityTypeConfiguration<Invitado>
         e.Property(x => x.HowFoundUs).HasMaxLength(100);
         e.Property(x => x.Campaign).HasMaxLength(100);
         e.Property(x => x.ReceivesWhatsApp).HasDefaultValue(true);
+        e.Property(x => x.ReceivesPush).HasDefaultValue(true);
         e.Property(x => x.Notes).HasMaxLength(1000);
         // One active ficha per WhatsApp: the app signs in with it and the office searches by it.
         // Invitados given de baja keep their number, and it can be captured again.
@@ -343,6 +353,39 @@ internal class RutaDiaConfig : IEntityTypeConfiguration<RutaDia>
         e.HasOne(x => x.Operador).WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Paradas).WithOne(p => p.RutaDia).HasForeignKey(p => p.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Viajes).WithOne(v => v.RutaDia).HasForeignKey(v => v.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        e.Property(x => x.ShiftStartLocalId).HasMaxLength(64);
+        e.Property(x => x.ShiftEndLocalId).HasMaxLength(64);
+    }
+}
+
+internal class CorteCajaConfig : IEntityTypeConfiguration<CorteCaja>
+{
+    public void Configure(EntityTypeBuilder<CorteCaja> e)
+    {
+        e.ToTable("CortesCaja");
+        e.Property(x => x.ChoferNotes).HasMaxLength(500);
+        e.Property(x => x.OfficeNotes).HasMaxLength(1000);
+        e.Property(x => x.ReopenReason).HasMaxLength(500);
+        e.Property(x => x.Folio).HasMaxLength(30);
+        e.HasIndex(x => x.Folio).IsUnique().HasFilter("[folio] IS NOT NULL");
+        // One per shift.
+        e.HasIndex(x => x.RutaDiaId).IsUnique();
+        e.HasIndex(x => x.Date);
+        e.HasOne(x => x.RutaDia).WithMany().HasForeignKey(x => x.RutaDiaId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<CleanCom.Domain.People.Operador>().WithMany().HasForeignKey(x => x.OperadorId).OnDelete(DeleteBehavior.Restrict);
+        e.HasMany(x => x.Lines).WithOne().HasForeignKey(l => l.CorteCajaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class CorteCajaLineConfig : IEntityTypeConfiguration<CorteCajaLine>
+{
+    public void Configure(EntityTypeBuilder<CorteCajaLine> e)
+    {
+        e.ToTable("CorteCajaLines");
+        e.Property(x => x.Declared).HasPrecision(12, 2);
+        e.Property(x => x.Registered).HasPrecision(12, 2);
+        e.Property(x => x.Pos).HasPrecision(12, 2);
+        e.HasIndex(x => new { x.CorteCajaId, x.Method }).IsUnique();
     }
 }
 
@@ -545,6 +588,8 @@ internal class UnidadEventConfig : IEntityTypeConfiguration<UnidadEvent>
         e.Property(x => x.Amount).HasPrecision(12, 2);
         e.HasOne<RecurringPayment>().WithMany().HasForeignKey(x => x.RecurringPaymentId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.UnidadId, x.Date });
+        e.Property(x => x.LocalId).HasMaxLength(64);
+        e.HasIndex(x => x.LocalId).IsUnique().HasFilter("[local_id] IS NOT NULL");
     }
 }
 
@@ -718,5 +763,19 @@ internal class KpiValueConfig : IEntityTypeConfiguration<KpiValue>
         // Read by period: every indicador and ruta of one period at once.
         e.HasIndex(x => new { x.Period, x.PeriodStart, x.IndicadorKey });
         e.HasOne<Ruta>().WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class ChangeLogConfig : IEntityTypeConfiguration<ChangeLog>
+{
+    public void Configure(EntityTypeBuilder<ChangeLog> e)
+    {
+        e.ToTable("ChangeLogs");
+        e.Property(x => x.EntityType).HasMaxLength(40);
+        e.Property(x => x.OwnerType).HasMaxLength(40);
+        // The bitácora of a record and of what belongs to it, newest first; and the general one by date.
+        e.HasIndex(x => new { x.EntityType, x.EntityId, x.CreatedAt });
+        e.HasIndex(x => new { x.OwnerType, x.OwnerId, x.CreatedAt });
+        e.HasIndex(x => x.CreatedAt);
     }
 }

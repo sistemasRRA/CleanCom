@@ -22,7 +22,8 @@
 - [ ] Destinatarios de cada aviso de flota.
 - [ ] Textos iniciales del catálogo de motivos (no entrega, atraso en planta, resultado de contacto). El catálogo existe pero arranca vacío. "Cómo nos conoció" ya arranca con las 9 opciones del sistema actual.
 - [ ] Tipo de invitado Convenio frente a Empresa: la regla decía "Empresa (convenio)" como uno solo; se separaron como en el sistema actual. Confirmar qué cambia entre ellos (precios, facturación con `Empresa`, métricas) y si un convenio se liga a su empresa.
-- [ ] "Recibe avisos por WhatsApp": confirmar si apagarlo también evita los avisos operativos (en camino, listo) o solo los promocionales.
+- [x] "Recibe avisos por WhatsApp": se separó en tres preferencias (push, WhatsApp de servicio y WhatsApp de promociones). Apagar WhatsApp de servicio evita los avisos operativos por WhatsApp; las promociones van aparte.
+- [ ] Preferencias de aviso: WhatsApp de promociones arranca apagado para todos, incluidos los invitados que ya existen (Meta pide aceptación para marketing). Confirmar si oficina tiene la aceptación de algunos para marcarla, y si la app debe preguntarla al registrarse.
 - [ ] Permisos iniciales de Administración (todo menos Roles y permisos), Gerencia (ver todo menos Usuarios y Operación), Logística (rutas, paradas, pedidos, panel y unidades), Telemarketing (agendar, CRM y WhatsApp; ver promociones y pedidos) y Planta (tickets en planta y ver pedidos). Son una propuesta; se ajustan en Usuarios › Roles y permisos.
 - [ ] Equipo de los choferes: tableta de la empresa, celular (propio o de la empresa) o ambos; Android, iPhone o ambos. La app es responsiva, pero cambia cómo se distribuye.
 - [ ] Distribución de la app del chofer (no se publica en búsquedas de las tiendas). Propuesta: Android con APK interno o prueba interna de Google Play; iOS con Ad Hoc mientras sean menos de 100 equipos y después como app no listada en el App Store. Cambios de JavaScript con EAS Update.
@@ -35,7 +36,8 @@
 - [ ] Restablecer contraseña por link o código (usuarios.md): necesita WhatsApp o correo (semana 6). Mientras, oficina asigna una contraseña temporal.
 - [ ] Mapa de la dirección con OpenStreetMap (Nominatim y mosaicos públicos) mientras no estén las llaves de Google. Su política de uso es para poco volumen: en producción poner en `Geocoding:UserAgent` un correo de contacto de CleanCom, y pasar a Google Geocoding (o un servidor propio) cuando lleguen las llaves o crezca el uso, por ejemplo con la app del invitado.
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
-- [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
+- [x] Bitácora de cambios: invitados y direcciones, pedidos, rutas y zonas, metas, usuarios y permisos (ver `03-reglas-de-negocio.md#bitácora-de-cambios`).
+- [ ] Bitácora: el CRM la muestra en la ficha y Administración en Usuarios › Bitácora. Confirmar si Pedidos, Rutas y Usuarios deben mostrar la bitácora de cada registro en su propia pantalla, y cuánto tiempo se guarda (hoy sin límite; cuenta para los 10 GB de SQL Server Express).
 
 - [x] Agenda: el aviso "cita agendada" al invitado (semana 6, modo de prueba: WhatsApp por mandar a mano, push simulado).
 - [x] App del invitado: al pedir, cambiar día o cancelar, oficina lo ve en la campana del menú (semana 6).
@@ -56,7 +58,7 @@
 - [ ] Flota: el calendario de verificación por último dígito de la placa es el de la CDMX (engomados). Las trimotos (7J5BR, 7J6BR) quedaron "exentas de verificación". Confirmar si alguna otra unidad tiene holograma 0/00 o placa de otro estado, que verifican distinto.
 - [ ] Flota: las 8 unidades se cargaron del sistema anterior (capturas de pantalla, 20 nov 2026) en la base de desarrollo; falta pasarlas a producción con la migración de datos. NY2221B y NY2222B tenían en el año su número económico (2221, 2222): se dejaron como modelo "Tornado 2221/2222", año 2023; confirmar el año real. Ninguna trae fecha de última verificación ni servicio registrado.
 - [ ] Flota: servicio cada 10,000 km o 6 meses (`Unidad.ServicioCadaKm`, `Unidad.ServicioCadaMeses`), aviso de servicio 15 días antes y recordatorio cada 7 días después de la fecha (los lunes si se venció por km). Son valores propuestos: confirmar con Administración.
-- [ ] Flota: los avisos ya se calculan (y cuáles tocan hoy), pero el envío por correo, la campana de la web y el resumen semanal llegan con las notificaciones (semana 6). La falla reportada desde la app y el kilometraje de inicio y fin de turno llegan con la app del chofer (semana 7).
+- [ ] Flota: los avisos ya se calculan (y cuáles tocan hoy), pero el envío por correo, la campana de la web y el resumen semanal llegan con las notificaciones (semana 6). La falla reportada desde la app y el kilometraje de inicio y fin de turno ya llegan (semana 7); la falla se ve en Unidades, pero todavía no avisa por correo ni en la campana.
 - [ ] App del invitado: acceso con código de 6 dígitos, 10 minutos, 5 intentos, reenvío al minuto y 5 por hora (`Acceso.*`). Son valores propuestos. El código llega por WhatsApp con las notificaciones (semana 6; plantilla de Meta categoría Autenticación) y SMS de Twilio de respaldo; mientras, solo funciona en desarrollo (código en el log).
 - [ ] App del invitado: sin llaves de Google, la dirección se captura a mano (CP y colonia del catálogo) y el pin sale de "Buscar mi dirección" (OpenStreetMap por el API, 20 búsquedas por minuto por usuario), de "Usar mi ubicación" o de tocar el mapa; el autocompletado de Google llega con las llaves. En Android, la app instalada (no Expo Go) necesita la llave de Maps SDK for Android para mostrar el mapa, igual que la del chofer.
 - [ ] App del invitado: un invitado que ya estaba en el CRM entra directo a la app; falta el paso de "confirmar sus datos y direcciones" de la primera vez. Confirmar si se quiere.
@@ -65,6 +67,10 @@
 - [ ] Paradas fijas: la generación nocturna corre como servicio dentro del API (00:15) mientras no esté Hangfire; pasa a Hangfire con los demás procesos nocturnos.
 - [ ] Paradas fijas: tipo de parada (cliente final, convenio, insumos, traspaso) y qué se hace (recolección, entrega, entrega y recolección, traslado) son fijos, como en el sistema actual, y no usan el catálogo editable "Tipos de parada" de Operación. Confirmar si ese catálogo sigue siendo necesario o se quita.
 - [ ] Buscar y ver invitados pide permiso de Agendar; cuando exista la pantalla Clientes (CRM) se abre también a ese permiso.
+- [ ] Turno del chofer: no hay "reabrir turno" ni corrección del kilometraje desde la app si se capturó mal; oficina corrige el de la unidad en Unidades. Confirmar si oficina necesita corregir también el del turno.
+- [ ] Turno del chofer: falta la foto del tablero (opcional en el flujo) y la pausa de comida de 1 hora con recálculo de horas.
+- [ ] Corte de caja: mientras no se conecta el POS, oficina captura su monto a mano al cerrar. Con el POS conectado se llenará solo.
+- [ ] Evidencias y caja: "Exportar a Excel" baja hasta 20,000 visitas por archivo (aprox. 4 meses de operación con 2 rutas). Para periodos más largos se exporta por partes.
 
 ## Reglas propuestas que conviene validar
 
@@ -82,6 +88,13 @@
 - [ ] KPIs: alerta al responsable cuando su indicador cae en rojo; llega con el correo (avisos pendientes de canal).
 - [ ] KPIs: NPS y encuestas respondidas quedan sin datos hasta la encuesta de la app del invitado (cuándo se manda, por qué canal y la pregunta).
 - [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
+- [ ] Clientes y fuentes: "nuevos de marketing digital" ya se calcula con las opciones de "Cómo nos conoció" marcadas como marketing digital en Operación › Motivos, y de inicio solo viene marcada "Marketing digital (Meta / Instagram / Facebook)". Confirmar si otras cuentan (por ejemplo Google) y marcarlas.
+- [ ] CRM: al fusionar duplicados, el invitado de la ficha conserva su WhatsApp y nombre. Confirmar si oficina debe poder elegir cuál se queda, y si fusionar debe quedar en una bitácora (llega con la bitácora por sección).
+- [ ] CRM: "Invitar a la app" se manda desde el WhatsApp de oficina (link wa.me). Cuando el WhatsApp Business API esté conectado, confirmar si se manda solo como plantilla.
+- [ ] Clientes y fuentes: el tipo "Convenios" junta convenio y empresa (ver la duda de Convenio frente a Empresa). Confirmar.
+- [ ] Clientes y fuentes: "recurrente" es 120 días o menos desde su pedido anterior y "recuperado" más de 120; el documento decía "menos de 120", que dejaba fuera el día 120 exacto. Confirmar.
+- [ ] Clientes y fuentes: mandar perdidos a una campaña llega con las campañas de WhatsApp (plantillas de marketing de Meta). La fuente capturada sola desde un link o código de campaña de la app también está pendiente.
+- [ ] Clientes y fuentes: la venta es la de los tickets capturados en el periodo (fecha de captura), no la del pedido. Con el POS conectado se usará la fecha de venta del POS.
 
 Se escribieron en `03-reglas-de-negocio.md` como propuesta razonable; confirmar antes de darlas por cerradas:
 

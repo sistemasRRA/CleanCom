@@ -1,4 +1,4 @@
-import { type Draft, type Level, OPTIONS, type ScreenInfo } from '../types/roles';
+import { type Draft, type Level, OPTIONS, type ScreenInfo, SPECIAL_GROUP, SPECIAL_OPTIONS } from '../types/roles';
 import { SCREENS } from '../../../app/screens';
 
 export function PermissionGroup({
@@ -16,6 +16,7 @@ export function PermissionGroup({
   onSet: (screen: string, value: Level | 'none') => void;
   onSetGroup: (screens: ScreenInfo[], value: Level | 'none') => void;
 }) {
+  const options = name === SPECIAL_GROUP ? SPECIAL_OPTIONS : OPTIONS;
   return (
     <>
       <tr className="permissions__group">
@@ -24,7 +25,7 @@ export function PermissionGroup({
           {editable && (
             <span className="permissions__bulk">
               Todo:
-              {OPTIONS.map((o) => (
+              {options.map((o) => (
                 <button key={o.value} type="button" className="link" onClick={() => onSetGroup(screens, o.value)}>
                   {o.label}
                 </button>
@@ -44,7 +45,7 @@ export function PermissionGroup({
             </td>
             <td className="end">
               <div className="segmented" role="radiogroup" aria-label={`Acceso a ${s.name}`}>
-                {OPTIONS.map((o) => (
+                {options.map((o) => (
                   <button
                     key={o.value}
                     type="button"

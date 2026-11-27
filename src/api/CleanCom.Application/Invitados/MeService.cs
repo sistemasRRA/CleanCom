@@ -19,7 +19,7 @@ public class MeService(ICleanComDbContext db, ICurrentUser currentUser, Invitado
         // What only the office changes stays as it is: phone, type, campaign and notes.
         var dto = await invitados.UpdateAsync(id, new SaveInvitadoRequest(
             r.Name, current.WhatsAppPhone, r.OtherPhone, r.Email, current.Type, r.HowFoundUs, current.Campaign, current.Notes,
-            null, r.ReceivesWhatsApp), ct);
+            null, r.ReceivesWhatsApp, r.ReceivesPush, r.ReceivesPromotions), ct);
         return ToMe(dto);
     }
 
@@ -53,7 +53,7 @@ public class MeService(ICleanComDbContext db, ICurrentUser currentUser, Invitado
     }
 
     private static MeDto ToMe(InvitadoDto i) => new(
-        i.Id, i.Name, i.WhatsAppPhone, i.OtherPhone, i.Email, i.HowFoundUs, i.ReceivesWhatsApp,
+        i.Id, i.Name, i.WhatsAppPhone, i.OtherPhone, i.Email, i.HowFoundUs, i.ReceivesWhatsApp, i.ReceivesPush, i.ReceivesPromotions,
         !string.IsNullOrWhiteSpace(i.HowFoundUs) && !IsPlaceholderName(i.Name, i.WhatsAppPhone),
         i.Addresses.Where(a => a.Active).ToList());
 

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { type Draft, type Level, menuOrder, type Role, type ScreenInfo, toDraft } from '../types/roles';
+import { type Draft, type Level, menuOrder, type Role, type ScreenInfo, SPECIAL_GROUP, toDraft } from '../types/roles';
 import { useSave } from '../../../shared/hooks/useSave';
 import '../../../shared/api/client';
 import { keys } from '../../../shared/api/queryKeys';
@@ -47,7 +47,7 @@ export function RoleEditor({ role, screens, canEdit, onDeleted }: { role: Role; 
   });
 
   const menu = groups
-    .filter((g) => g.name !== 'Apps')
+    .filter((g) => g.name !== 'Apps' && g.name !== SPECIAL_GROUP)
     .map((g) => ({ name: g.name, screens: g.screens.filter((s) => draft[s.key]) }))
     .filter((g) => g.screens.length > 0);
   const apps = screens.filter((s) => s.group === 'Apps' && draft[s.key]);

@@ -32,6 +32,19 @@ public class InvitadosController(InvitadoService service, BeneficioService benef
     public Task<IReadOnlyList<InvitadoDto>> Search([FromQuery] string? q, CancellationToken ct) =>
         service.SearchAsync(q, ct);
 
+    /// <summary>
+    /// While capturing: active invitados who already have the WhatsApp or the other phone. <c>excluir</c> is the
+    /// invitado being edited. The same WhatsApp stops the save; any other shared phone is a warning.
+    /// </summary>
+    [HttpGet("telefono")]
+    [RequireScreen(Screens.Agendar, AccessLevel.View)]
+    public Task<IReadOnlyList<PhoneMatchDto>> PhoneMatches(
+        [FromQuery(Name = "whatsapp")] string? whatsApp,
+        [FromQuery(Name = "otro")] string? otherPhone,
+        [FromQuery(Name = "excluir")] int? exclude,
+        CancellationToken ct) =>
+        service.PhoneMatchesAsync(whatsApp, otherPhone, exclude, ct);
+
     [HttpGet("{id:int}")]
     [RequireScreen(Screens.Agendar, AccessLevel.View)]
     public Task<InvitadoDto> Get(int id, CancellationToken ct) =>

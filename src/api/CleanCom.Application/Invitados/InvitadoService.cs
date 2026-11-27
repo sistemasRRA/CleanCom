@@ -41,6 +41,31 @@ public class InvitadoService(
         return invitados.Select(ToDto).ToList();
     }
 
+    /// <summary>
+    /// Active invitados who already have the WhatsApp or the other phone being captured, the ones that stop the save
+    /// first. <paramref name="exclude"/> is the invitado being edited.
+    /// </summary>
+    public async Task<IReadOnlyList<PhoneMatchDto>> PhoneMatchesAsync(string? whatsApp, string? otherPhone, int? exclude, CancellationToken ct)
+    {
+        var phones = InvitadoAccount.Phones(whatsApp ?? "", otherPhone).ToList();
+        if (phones.Count == 0)
+        {
+            return [];
+        }
+        // Phones are stored normalized, so equal digits find them; the domain rule decides.
+        var candidates = await db.Invitados.AsNoTracking()
+            .Where(i => i.Active && i.Id != exclude && (phones.Contains(i.WhatsAppPhone) || (i.OtherPhone != null && phones.Contains(i.OtherPhone))))
+            .OrderBy(i => i.Name)
+            .Take(SearchLimit)
+            .ToListAsync(ct);
+        return candidates
+            .Select(i => (Invitado: i, Blocks: InvitadoAccount.CaptureConflict(whatsApp ?? "", otherPhone, i)))
+            .Where(m => m.Blocks is not null)
+            .OrderByDescending(m => m.Blocks)
+            .Select(m => new PhoneMatchDto(m.Invitado.Id, m.Invitado.Name, m.Invitado.WhatsAppPhone, m.Invitado.OtherPhone, m.Blocks!.Value))
+            .ToList();
+    }
+
     public async Task<InvitadoDto> GetAsync(int id, CancellationToken ct) =>
         ToDto(await Query().FirstOrDefaultAsync(i => i.Id == id, ct) ?? throw new NotFoundException($"El invitado {id} no existe."));
 
@@ -143,6 +168,9 @@ public class InvitadoService(
         invitado.Campaign = Clean(r.Campaign);
         invitado.Notes = Clean(r.Notes);
         invitado.ReceivesWhatsApp = r.ReceivesWhatsApp;
+        // Not sent (an older app or form): what the invitado already had stays.
+        invitado.ReceivesPush = r.ReceivesPush ?? invitado.ReceivesPush;
+        invitado.ReceivesPromotions = r.ReceivesPromotions ?? invitado.ReceivesPromotions;
     }
 
     /// <summary>Saves the address and its zona: the one chosen by hand, or the one found by polygon or postal code.</summary>
@@ -173,6 +201,7 @@ public class InvitadoService(
 
     private static InvitadoDto ToDto(Invitado i) => new(
         i.Id, i.Name, i.WhatsAppPhone, i.OtherPhone, i.Email, i.Type, i.HowFoundUs, i.Campaign, i.Notes, i.Active, i.ReceivesWhatsApp,
+        i.ReceivesPush, i.ReceivesPromotions,
         i.Addresses.OrderBy(d => d.Id).Select(d => new AddressDto(
             d.Id, d.Label, d.Street, d.ExteriorNumber, d.InteriorNumber, d.PostalCode, d.Neighborhood, d.Borough, d.References,
             d.Location?.Y, d.Location?.X, d.ZonaId, d.Zona?.Code, d.ZonaAssignedManually, d.Active)).ToList());

@@ -11,12 +11,21 @@ public class AvisoRulesTests
     [Fact]
     public void Push_if_it_has_the_app_otherwise_whatsapp_only_if_it_accepts_it()
     {
-        Assert.Equal(AvisoCanal.Push, AvisoRules.Channel(devices: 1, receivesWhatsApp: false, "5512345678"));
-        Assert.Equal(AvisoCanal.WhatsApp, AvisoRules.Channel(devices: 0, receivesWhatsApp: true, "5512345678"));
+        Assert.Equal(AvisoCanal.Push, AvisoRules.Channel(devices: 1, receivesPush: true, receivesWhatsApp: false, "5512345678"));
+        Assert.Equal(AvisoCanal.WhatsApp, AvisoRules.Channel(devices: 0, receivesPush: true, receivesWhatsApp: true, "5512345678"));
         // Without app and without accepting WhatsApp it is not sent (recorded as omitted, with the reason).
-        Assert.Null(AvisoRules.Channel(devices: 0, receivesWhatsApp: false, "5512345678"));
-        Assert.Null(AvisoRules.Channel(devices: 0, receivesWhatsApp: true, ""));
-        Assert.Equal("No acepta avisos por WhatsApp y no tiene la app.", AvisoRules.OmittedReason(false));
+        Assert.Null(AvisoRules.Channel(devices: 0, receivesPush: true, receivesWhatsApp: false, "5512345678"));
+        Assert.Null(AvisoRules.Channel(devices: 0, receivesPush: true, receivesWhatsApp: true, ""));
+        Assert.Equal("No acepta avisos por WhatsApp y no tiene la app.", AvisoRules.OmittedReason(0, true, false));
+    }
+
+    [Fact]
+    public void With_push_turned_off_the_notice_goes_by_whatsapp()
+    {
+        // Example of the document: with the app, push off and WhatsApp accepted → WhatsApp.
+        Assert.Equal(AvisoCanal.WhatsApp, AvisoRules.Channel(devices: 1, receivesPush: false, receivesWhatsApp: true, "5512345678"));
+        Assert.Null(AvisoRules.Channel(devices: 1, receivesPush: false, receivesWhatsApp: false, "5512345678"));
+        Assert.Equal("Apagó los avisos push y por WhatsApp.", AvisoRules.OmittedReason(1, false, false));
     }
 
     [Fact]

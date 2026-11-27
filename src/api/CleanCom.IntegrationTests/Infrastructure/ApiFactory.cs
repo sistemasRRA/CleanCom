@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Net;
+using Microsoft.AspNetCore.Builder;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using CleanCom.Application.Common;
@@ -66,7 +68,31 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             {
                 services.Remove(job);
             }
+            services.AddSingleton<IStartupFilter, TestClientIpFilter>();
         });
+    }
+
+    /// <summary>Header with the client IP a test request comes from (the test server has none).</summary>
+    public const string ClientIpHeader = "X-Test-Client-Ip";
+
+    /// <summary>
+    /// The sign-in code is limited per IP and minute, and every test request comes from the same one: each invitado of
+    /// the tests signs in from its own IP so the suite does not hit the limit as it grows. The limit itself is unchanged.
+    /// </summary>
+    private sealed class TestClientIpFilter : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+        {
+            app.Use((context, nextMiddleware) =>
+            {
+                if (context.Request.Headers.TryGetValue(ClientIpHeader, out var ip) && IPAddress.TryParse(ip, out var address))
+                {
+                    context.Connection.RemoteIpAddress = address;
+                }
+                return nextMiddleware(context);
+            });
+            next(app);
+        };
     }
 
     public new async Task DisposeAsync()
@@ -115,8 +141,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     /// <summary>The invitado app's sign-in: asks for the code, reads it as WhatsApp would deliver it and verifies it.</summary>
     public async Task<HttpClient> InvitadoAsync(string phone)
     {
-        await Anonymous().PostOkAsync("/auth/codigo", new { phone });
-        var verified = await Anonymous().PostOkAsync("/auth/verificar", new { phone, code = AccessCodes.CodeFor(phone) });
+        var client = Anonymous();
+        // Its own IP per phone (10.x.y.z from the last digits), see TestClientIpFilter.
+        var n = int.Parse(phone[^6..]);
+        client.DefaultRequestHeaders.Add(ClientIpHeader, $"10.{n / 65536 % 256}.{n / 256 % 256}.{n % 256}");
+        await client.PostOkAsync("/auth/codigo", new { phone });
+        var verified = await client.PostOkAsync("/auth/verificar", new { phone, code = AccessCodes.CodeFor(phone) });
         return WithToken(verified.GetProperty("session").Token());
     }
 

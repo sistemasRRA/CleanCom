@@ -13,7 +13,7 @@ Flota: verificación, seguro, tarjeta de circulación, servicios, reparaciones y
 ## Mejora
 
 - Kilometraje real desde inicio y fin de turno en la app del chofer.
-- Fallas reportadas desde la app con foto y gravedad; marcar unidad fuera de servicio.
+- Fallas reportadas desde la app con foto y gravedad; marcar unidad fuera de servicio. Hecho (semana 7): la falla del chofer entra a la bitácora como falla abierta con "(reportó …)" y su foto como documento "Foto de una falla"; el kilometraje se actualiza con el inicio y el fin de cada turno.
 - Servicio por kilómetros o por fecha, lo que llegue primero.
 - Documentos adjuntos (póliza, tarjeta, comprobantes).
 - Pagos recurrentes por unidad (tenencia o refrendo, crédito o arrendamiento, póliza en pagos) que suman al gasto del año.

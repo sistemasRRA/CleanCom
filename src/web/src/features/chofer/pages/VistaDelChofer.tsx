@@ -9,8 +9,21 @@ import { PageHeader, QueryState } from '../../../shared/components/Page';
 import { ParadaItem } from '../components/ParadaItem';
 import { ChoferMap } from '../components/ChoferMap';
 import { choferApi } from '../services/choferApi';
+import type { Vista } from '../types/chofer';
 
 const previewKey = ['chofer', 'vista'] as const;
+
+const km = (n: number | null) => `${(n ?? 0).toLocaleString('es-MX')} km`;
+
+/** "Unidad NY2221B · inició a las 08:05 con 45,210 km; cerró a las 18:10 con 45,700 km (490 km)". */
+function shiftText(s: NonNullable<Vista['shift']>): string {
+  const unidad = s.unidad ? `Unidad ${s.unidad.plate}` : 'Sin unidad';
+  if (!s.startedAt) return `${unidad} · turno sin iniciar`;
+  const start = `${unidad} · inició a las ${clock(s.startedAt)} con ${km(s.startKm)}`;
+  return s.endedAt
+    ? `${start}; cerró a las ${clock(s.endedAt)} con ${km(s.endKm)} (${km((s.endKm ?? 0) - (s.startKm ?? 0))})`
+    : start;
+}
 
 /**
  * Vista del chofer (docs/pantallas/oficina/vista-del-chofer.md): a read-only preview of what the chofer of a ruta sees
@@ -91,6 +104,7 @@ export function VistaDelChofer() {
                 </header>
                 <div className="vista-phone__body">
                   {v.notice && <div className="alert info">{v.notice}</div>}
+                  {v.ruta && v.shift && <p className="muted">{shiftText(v.shift)}</p>}
                   {v.paradas.length > 0 && (
                     <p className="muted">
                       {v.paradas.length} paradas · {v.paradas.filter((p) => p.state !== 'Realizada' && p.state !== 'NoRealizada').length} pendientes

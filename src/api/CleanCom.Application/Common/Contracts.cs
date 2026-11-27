@@ -1,3 +1,4 @@
+using CleanCom.Domain.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Catalogs;
@@ -37,6 +38,7 @@ public interface ICleanComDbContext
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
     DbSet<Contact> Contacts { get; }
+    DbSet<ChangeLog> ChangeLogs { get; }
     DbSet<ParadaFija> ParadasFijas { get; }
     DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
     DbSet<Viaje> Viajes { get; }
@@ -44,6 +46,7 @@ public interface ICleanComDbContext
     DbSet<Ticket> Tickets { get; }
     DbSet<Evidence> Evidence { get; }
     DbSet<ReferencePayment> ReferencePayments { get; }
+    DbSet<CorteCaja> CortesCaja { get; }
     DbSet<ChoferLocation> ChoferLocations { get; }
     DbSet<Unidad> Unidades { get; }
     DbSet<UnidadDocument> UnidadDocuments { get; }
@@ -101,6 +104,18 @@ public record ParadaChangedDto(int RutaDiaId, DateOnly Date, int ParadaId, Clean
 /// <summary>
 /// User making the request (null in background jobs or anonymous requests).
 /// </summary>
+/// <summary>The invitado's user in the app: whether it can sign in and when it last did.</summary>
+public record AppUserInfo(bool Active, DateTimeOffset? LastAccess);
+
+/// <summary>The invitados' app accounts (users with the Invitado role), for the CRM.</summary>
+public interface IInvitadoAccounts
+{
+    Task<IReadOnlyDictionary<int, AppUserInfo>> InfoAsync(IReadOnlyCollection<int> userIds, CancellationToken ct);
+
+    /// <summary>Blocks or unblocks the access; blocking also ends the open sessions.</summary>
+    Task SetActiveAsync(int userId, bool active, CancellationToken ct);
+}
+
 /// <summary>
 /// Photos and documents on the server's disk (Archivos:Ruta), never in SQL Server. Paths are relative to that folder.
 /// </summary>

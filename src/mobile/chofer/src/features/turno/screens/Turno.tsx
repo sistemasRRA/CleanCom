@@ -1,13 +1,13 @@
-import { Body, Button, Card, Logo, radius, type Schemas, space, Title, useLayout, useSession, useTheme } from '@cleancom/mobile-shared';
+import { Logo, radius, type Schemas, space, useLayout, useSession, useTheme } from '@cleancom/mobile-shared';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView, Text, View } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { stopTracking, useShiftTracking } from '../../../offline/locationTracking';
 import { MapaRuta, RutaDelDia } from '../../ruta';
 import { Panel } from '../components/Panel';
 import { HeaderButton } from '../components/HeaderButton';
+import { ShiftCard } from '../components/ShiftCard';
 import { TrackingNotice } from '../components/TrackingNotice';
 
 /**
@@ -53,14 +53,7 @@ export function Turno() {
 
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
         <ScrollView contentContainerStyle={{ padding: gutter, gap: space.lg, flexGrow: 1 }}>
-          <Card style={{ flexDirection: isTablet ? 'row' : 'column', alignItems: isTablet ? 'center' : 'stretch' }}>
-            <View style={{ flex: isTablet ? 1 : undefined, gap: space.xs }}>
-              <Title size="lg">Inicio de turno</Title>
-              <Body muted>Unidad, kilometraje inicial y foto del tablero. Disponible en la semana 7 del plan.</Body>
-            </View>
-            <Button title="Iniciar turno" onPress={() => undefined} disabled icon={<Ionicons name="play" size={18} color={colors.onBrand} />} />
-          </Card>
-
+          <ShiftCard ruta={ruta} />
           <TrackingNotice state={tracking} />
           {sideBySide ? (
             <View style={{ flex: 1, flexDirection: 'row', gap: space.lg }}>

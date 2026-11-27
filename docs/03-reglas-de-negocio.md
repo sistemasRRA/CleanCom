@@ -40,6 +40,7 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Crm.DiasNoContesto` | 1 | Volver a llamar si no contestó (registro de contacto sin fecha) |
 | `Crm.DiasLlamarDespues` | 3 | Volver a llamar si pidió que le llamaran después |
 | `Crm.DiasNoPorAhora` | 21 | Volver a llamar si dijo que no por ahora |
+| `AppInvitado.MensajeInvitacion` | "Hola {nombre}, ya puedes pedir tu recolección…" | Texto de "Invitar a la app" del CRM; `{nombre}` es el primer nombre |
 | `Pedido.DiasPermitidosPorEtapa` | Por etapa | Semáforo de atraso |
 | `Base.Direccion` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 | Inicio y fin de ruta |
 | `Base.Ubicacion` | 19.3608092,-99.1968494 | Coordenadas de la base |
@@ -49,6 +50,7 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Promociones.MetaCanjeSellos` | 40 | Meta de canje de los sellos, en % |
 | `Promociones.MetaCanjeCuponera` | 30 | Meta de canje de la cuponera, en % |
 | `Promociones.TopeSello` | 30 | % máximo de los sellos otorgados que puede tener un solo sello antes de avisar |
+| `Unidad.KmMaximoPorTurno` | 400 | Km en un turno a partir de los cuales la app del chofer pide confirmar el kilometraje (evita errores de captura) |
 
 Notas de implementación:
 
@@ -155,6 +157,25 @@ Solo se cambia o cancela desde la app una **recolección que falta por hacer**: 
 
 - El cobro oficial se registra en el POS. En la app el chofer anota forma y monto como referencia.
 - El corte de caja compara lo declarado por el chofer contra lo registrado en las visitas y contra el POS, y marca diferencias.
+- Al cerrar el turno el chofer declara cuánto trae por forma de pago (efectivo, tarjeta, transferencia) y una nota opcional. La app le muestra lo que anotó en sus visitas por forma de pago, para que cuadre. La forma que deja vacía cuenta como $0. Queda un corte de caja por turno (`CorteCaja`); oficina lo revisa y cierra en Evidencias y caja.
+- **Diferencias:** por forma de pago, declarado menos lo anotado en las visitas, y declarado menos el POS. Negativa = falta dinero. Ejemplo: anotó $350 en efectivo, declaró $330 y el POS dice $350 → −$20 contra las visitas y −$20 contra el POS. Una forma sin monto del POS no se compara contra el POS.
+- **Monto del POS:** mientras no se conecta el POS, oficina lo captura al cerrar el corte (opcional por forma de pago).
+- **Cierre:** solo se cierra un corte ya declarado (turno cerrado). Con cualquier diferencia, oficina debe anotar qué pasó. Al cerrar queda el folio `CC-AAAAMMDD-RUTA` (ejemplo: `CC-20261126-F`), quién lo cerró y cuándo, y lo anotado en las visitas en ese momento. Un corte cerrado no cambia, salvo que se reabra.
+- **Reabrir un corte** (solo roles con el permiso especial "Reabrir un corte de caja cerrado"): se escribe por qué. Vuelve a "Por revisar", pierde el folio hasta cerrarse otra vez y se compara de nuevo contra las visitas; conserva los montos del POS y las notas para corregirlos. Queda quién lo reabrió, cuándo y por qué (la última vez).
+- **Cerrar el turno desde oficina** (solo roles con el permiso especial "Cerrar el turno de un chofer desde oficina"): si el chofer dejó su turno abierto, oficina captura lo que entregó por forma de pago, el kilometraje final si lo sabe y por qué lo cierra (obligatorio). Pide confirmar un turno largo o paradas sin cerrar. Queda quién lo cerró; el corte pasa a "Por revisar" y el chofer ya no puede trabajar las paradas de ese día. Sin kilometraje, el de la unidad no cambia.
+- **Visitas fuera de radio:** una foto tomada a más de `Gps.ToleranciaMetros` de la parada, o una llegada confirmada fuera de radio, se marca en Evidencias y caja.
+
+## Turno del chofer
+
+1. **Inicio de turno:** el chofer anota el kilometraje del tablero de su unidad. La unidad siempre la asigna oficina a la ruta ese día (Rutas); el chofer no la elige y sin ella no puede iniciar turno. La app muestra como aviso, sin bloquear, si la unidad está fuera de servicio o tiene falla abierta o documentos vencidos.
+2. **El turno es obligatorio:** las acciones sobre las paradas de hoy (en camino, llegué, fotos, firma, cerrar visita, no realizada) solo se aceptan entre "Iniciar turno" y "Cerrar turno". Una acción de otro día que llega tarde (sin señal) no se revisa.
+3. **El kilometraje nunca baja.** El inicial no puede ser menor que el último de la unidad. Ejemplo: la unidad va en 45,200 km; 45,150 se rechaza y 45,210 se acepta.
+4. **Posible error de captura:** si el inicial supera en más de `Unidad.KmMaximoPorTurno` al último de la unidad, la app pide confirmar. Ejemplo: de 45,200 a 452,100 (un dígito de más) pide confirmar; de 45,200 a 45,600 no. Una unidad sin kilometraje registrado (0) acepta cualquier valor.
+5. **Fin de turno:** el kilometraje final no puede ser menor que el inicial. Pide confirmar, en un solo mensaje, si el turno pasó de `Unidad.KmMaximoPorTurno` (ejemplo: de 45,200 a 46,000 son 800 km) o si quedan paradas sin cerrar. Ejemplo normal: de 45,200 a 45,268, sin paradas abiertas, cierra sin preguntar.
+6. El kilometraje de la unidad se actualiza con el inicial y el final, y solo sube: una lectura vieja que llega tarde (sin señal) no lo baja.
+7. Un turno se inicia y se cierra una sola vez. El reenvío de la misma acción (sin señal) responde sin error y no duplica.
+8. **Ubicación:** la app la manda solo desde que inicia el turno hasta que lo cierra.
+9. **Falla de la unidad:** el chofer la reporta con gravedad (baja, media o alta), descripción y foto opcional, sobre la unidad de su ruta ese día. Queda abierta en la bitácora de la unidad (Unidades) hasta que oficina la marca resuelta, y cuenta en los avisos al asignar la unidad.
 
 ## CRM
 
@@ -178,6 +199,8 @@ El estatus se recalcula cada noche y guarda el "por qué" en texto ("pide cada 7
 
 Invitados Le toca o En riesgo cuya ruta pasa mañana por su zona, excluyendo a quien tenga `ProximoContacto` futuro o haya pedido no ser contactado.
 
+**Reactivación:** los perdidos que oficina manda desde Clientes y fuentes entran a "Llamar hoy" sin importar su estatus ni su zona (con la etiqueta "Reactivación"), hasta que se registra un contacto con ellos. También respetan `ProximoContacto` futuro y "no contactar".
+
 ### Registro de contacto
 
 Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 días si pidió que le llamaran, en 3 semanas si dijo que no por ahora (días configurables: `Crm.DiasNoContesto`, `Crm.DiasLlamarDespues`, `Crm.DiasNoPorAhora`). "No contactar" marca al invitado: sale de "Llamar hoy" y de campañas. "Agendó" no programa seguimiento.
@@ -187,18 +210,52 @@ Si no se indica fecha para volver a contactar: mañana si no contestó, en 3 dí
 | Término | Definición |
 | --- | --- |
 | Nuevo | Su primer pedido cae en el periodo |
-| Recurrente | Su pedido anterior fue hace menos de 120 días |
+| Recurrente | Su pedido anterior fue hace 120 días o menos |
 | Recuperado | Vuelve tras más de 120 días sin pedir |
-| Perdido | Cumple 120 días sin pedir dentro del periodo |
+| Perdido | Cumple más de 120 días sin pedir dentro del periodo |
 | Activo al cierre | Pidió en los 120 días previos al cierre del periodo |
 
 El periodo en curso se marca como parcial y se compara contra los mismos días del periodo anterior.
+
+Cómo se calcula (semana 7, en el API):
+
+1. **Los 120 días son `Crm.DiasInactivo`**, los mismos del estatus Inactivo del CRM: más de 120 días sin pedir es perdido.
+2. **Pedido (servicio):** un pedido no cancelado, en su fecha de recolección, hasta hoy; el mismo que usa el CRM. Sin tiendas internas. El tipo "convenios" junta convenio y empresa.
+3. **Cada invitado atendido cuenta una sola vez:** nuevo si su primer pedido cae en el periodo; si no, se mira el pedido anterior al primero del periodo: 120 días o menos → recurrente, más → recuperado. Ejemplo: pidió el 13 de julio y el 10 de noviembre (120 días) → recurrente; si el primero fue el 12 de julio (121 días) → recuperado.
+4. **Perdido:** el día que cumple más de 120 días sin pedir (último pedido + 121 días) cae en el periodo y no ha llegado después. Ejemplo: último pedido el 1 de julio → perdido el 30 de octubre. Un invitado puede ser perdido y recuperado en el mismo periodo (perdido el 12 de noviembre, vuelve el 20).
+5. **Activo al cierre:** un pedido en los 120 días hasta el cierre (hoy, si el periodo sigue abierto). Ejemplo al 26 de noviembre: pidió el 29 de julio → activo; el 28 de julio → no.
+6. **Comparación:** el periodo en curso (hasta hoy) contra los mismos días desde el inicio del anterior; un periodo cerrado contra el anterior completo. Ejemplo: 1 al 26 de noviembre contra 1 al 26 de octubre.
+7. **Venta:** importe de los tickets (POS; mientras tanto los de Tickets en planta) capturados en el periodo, de pedidos no cancelados. Venta de nuevos: la de los nuevos del periodo. Ticket promedio: venta entre tickets con importe. % de la venta: venta de la fuente entre la del periodo.
+8. **Fuente:** "Cómo nos conoció" del invitado sin la campaña que el sistema actual escribe después de « · »; "Sin capturar" si no tiene. Ejemplo: "Marketing digital (Meta / Instagram / Facebook) · Buen Fin" → "Marketing digital (Meta / Instagram / Facebook)".9. **Retención por generación:** los nuevos de cada mes (primer pedido en ese mes) y cuántos volvieron a pedir dentro de 30, 60 y 90 días de su primer pedido. Solo cuentan en la base quienes ya cumplieron esos días o ya volvieron. Ejemplo: primer pedido el 3 de septiembre y el segundo el 28 → repite a 30, 60 y 90 días.
+10. **Mandar perdidos a "Llamar hoy":** ver Reactivación en la lista "Llamar hoy".
+11. **Nuevos de marketing digital:** nuevos del periodo cuya fuente está marcada como "marketing digital" en el catálogo "Cómo nos conoció" (Operación › Motivos). La tabla por fuente marca esas fuentes como "Digital".
+
+### Valor del invitado
+
+En la ficha: **gasto total** (importe de sus tickets de pedidos no cancelados), **tickets**, **ticket promedio** (gasto entre tickets con importe; vacío sin tickets) y servicios, primero y último, con la misma definición de servicio del CRM.
+
+### Duplicados y cuenta de la app
+
+- **Duplicado:** otro invitado activo que comparte un teléfono (WhatsApp u otro teléfono), comparado ya normalizado a 10 dígitos. Ejemplo: 5512345678 y "+52 1 55 1234 5678" son el mismo.
+- **Al capturar o editar** un invitado se avisa mientras se escribe si su WhatsApp u otro teléfono ya es de otro invitado activo. El mismo WhatsApp no se puede guardar (es con lo que entra a la app): se usa la ficha que ya existe. Compartir cualquier otro teléfono solo avisa, porque una familia u oficina puede compartirlo. Ejemplo: capturar el WhatsApp 5512345678 cuando Ana lo tiene como WhatsApp → no se guarda; cuando Ana lo tiene como otro teléfono → aviso.
+- **Fusionar** (solo SuperUser y Administración; no se deshace): el invitado de la ficha se queda y recibe los pedidos, direcciones, contactos, beneficios, avisos y dispositivos del duplicado. Conserva sus datos y toma del duplicado lo que le falta: otro teléfono (el WhatsApp del duplicado si es distinto), correo, cómo nos conoció, campaña y cuenta de la app; las observaciones se juntan y "no contactar" se suma. El duplicado queda con baja lógica y la nota "Fusionado con el invitado …". Ejemplo: principal 5512345678 sin correo, duplicado 5587654321 con correo → el principal conserva 5512345678 y recibe 5587654321 como otro teléfono y el correo. No se fusionan dos invitados que tienen cuenta de la app.
+- **Estado de la cuenta de la app:** Sin app (nunca entró ni se le invitó), Invitado (oficina le mandó la invitación y no ha entrado), Activa y Bloqueada. Último acceso: la última vez que inició sesión o renovó su sesión.
+- **Invitar a la app:** arma el WhatsApp con `AppInvitado.MensajeInvitacion` y guarda la fecha; no se invita a quien ya tiene cuenta ni a quien pidió no ser contactado. Oficina lo manda desde su WhatsApp.
+- **Bloquear acceso:** desactiva su usuario y revoca sus sesiones; la app responde "Tu cuenta está bloqueada. Escríbenos por WhatsApp para ayudarte." Desbloquear lo regresa.
 
 ### Tipos de invitado
 
 Cliente final (servicio a domicilio), Convenio, Empresa y Tienda / uso interno, como en la captura de clientes del sistema actual. Las tiendas no cuentan en las métricas del CRM; convenio y empresa sí. Tienda interna no se ofrece al capturar un invitado nuevo.
 
-Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "Cómo nos conoció" (Operación › Catálogos › Motivos, editable; arranca con las 9 opciones del sistema actual), y si **recibe avisos por WhatsApp** (sí por omisión). Los avisos llegan con las notificaciones (semana 6) y solo se mandan a quien lo acepta; es distinto de "No contactar" del CRM, que lo saca de llamadas y campañas.
+Al capturar también se guarda **cómo nos conoció**, elegido del catálogo "Cómo nos conoció" (Operación › Catálogos › Motivos, editable; arranca con las 9 opciones del sistema actual), y sus **preferencias de aviso**, una por canal:
+
+| Preferencia | Por omisión | Qué hace |
+| --- | --- | --- |
+| Push en la app | Sí | Apagada, los avisos de servicio le llegan por WhatsApp aunque tenga la app (si acepta WhatsApp de servicio) |
+| WhatsApp de servicio | Sí | Avisos de sus pedidos (agendada, en camino, listo…) cuando no van por push |
+| WhatsApp de promociones | No | Meta exige que acepte los mensajes de marketing; lo usarán las campañas, que además dejan fuera a quien pidió "No contactar" |
+
+Ejemplo: tiene la app, apaga los push y acepta WhatsApp de servicio → su recolección agendada le llega por WhatsApp. Con push y WhatsApp de servicio apagados el aviso se registra como omitido ("Apagó los avisos push y por WhatsApp."). Las preferencias son distintas de "No contactar" del CRM, que lo saca de llamadas y campañas. Oficina las cambia al capturar o editar al invitado; el invitado, en Mis datos de la app. Guardar sin mandar push o promociones (versiones anteriores de la app) conserva lo que tenía.
 
 ## Promociones
 
@@ -230,7 +287,7 @@ Cómo funciona (semana 6):
 
 | Evento | Canal |
 | --- | --- |
-| Recolección agendada | Push si tiene app; si no, WhatsApp de utilidad |
+| Recolección agendada | Push si tiene app y acepta push; si no, WhatsApp de utilidad si lo acepta |
 | Cambio o cancelación | Igual |
 | Chofer en camino (con hora estimada y liga de seguimiento) | Igual |
 | Recolección realizada | Igual |
@@ -355,3 +412,15 @@ Cómo se calcula (semana 5, en el API):
 6. **Recordatorio:** pasada la fecha, el aviso se repite cada 7 días hasta que se registra algo. El servicio vencido por kilometraje (sin fecha) se recuerda los lunes.
 7. **Gasto del año y costo por km:** suma de los montos de la bitácora del año, entre los kilómetros recorridos en el año (del primer kilometraje registrado del año al actual).
 8. **Asignar una unidad a una ruta** fuera de servicio, con falla abierta o con seguro, tarjeta o verificación vencidos pide confirmar. Una unidad no puede estar en dos rutas el mismo día.
+
+## Bitácora de cambios
+
+Quién cambió qué y cuándo en los registros clave, para revisar errores y responder "¿quién movió esto?".
+
+1. **Qué se registra:** invitados y sus direcciones, pedidos, rutas y sus zonas, metas de KPI, usuarios (y el cambio de su rol) y permisos de roles. La configuración de Operación ya guarda cada cambio como una fila nueva con quién y desde cuándo, así que no entra aquí.
+2. **Cada entrada:** acción (alta, cambio, baja o reactivación), quién (o "Sistema" si fue un proceso automático), cuándo y cada campo con su valor anterior y nuevo. En un alta van los valores con que se creó.
+3. **Baja y reactivación:** apagar "activo" es una baja y prenderlo una reactivación, aunque cambien otros campos a la vez. Quitar un permiso o el rol de un usuario también es una baja.
+4. **Solo lo que cambió de verdad:** un campo que se guarda con el mismo valor no se registra, ni los campos técnicos (quién y cuándo modificó, último acceso, datos de seguridad del usuario). Si solo cambiaron esos, no hay entrada. Ejemplo: oficina cambia la colonia de "Portales" a "Portales Norte" y vuelve a guardar la calle igual → una entrada "Cambio" con Colonia: Portales → Portales Norte.
+5. **Permisos:** guardar los permisos de un rol registra solo los que cambiaron de nivel, se agregaron o se quitaron.
+6. **Lectura:** en la ficha del CRM, pestaña Bitácora (el invitado y sus direcciones; pide ver Clientes (CRM)). La bitácora general (Usuarios › Bitácora) es solo para SuperUser y Administración y filtra por tipo de registro, número y fechas; un registro trae también lo que le pertenece (una ruta con sus zonas, un usuario con su rol).
+7. **No se edita ni se borra.** Los textos largos se guardan hasta 300 caracteres. Los cambios masivos hechos directo en la base (por ejemplo, cerrar sesiones al bloquear la app) no pasan por la bitácora.

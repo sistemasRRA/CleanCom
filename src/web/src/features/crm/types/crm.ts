@@ -26,3 +26,35 @@ export const RESULTS: { key: Result; name: string; hint: string }[] = [
 ];
 
 export const resultName = (r: Result) => RESULTS.find((x) => x.key === r)?.name ?? r;
+
+export type InvitadoType = Schemas['InvitadoType'];
+
+export const TIPO: Record<InvitadoType, string> = {
+  ClienteFinal: 'Cliente final',
+  Convenio: 'Convenio',
+  Empresa: 'Empresa',
+  TiendaInterna: 'Tienda interna',
+};
+
+export type AccountState = Schemas['AppAccountState'];
+
+export const ACCOUNT: Record<AccountState, { name: string; tone: string }> = {
+  SinApp: { name: 'Sin app', tone: '' },
+  Invitado: { name: 'Invitado a la app', tone: 'warning' },
+  Activa: { name: 'App activa', tone: 'success' },
+  Bloqueada: { name: 'App bloqueada', tone: 'danger' },
+};
+
+export type HistoriaItem = Schemas['HistoriaItemDto'];
+
+export type HistoriaKind = Schemas['HistoriaKind'];
+
+export const HISTORIA: Record<HistoriaKind, string> = {
+  Pedido: 'Pedidos',
+  Visita: 'Visitas',
+  Ticket: 'Tickets',
+  Aviso: 'Avisos',
+  Contacto: 'Contactos',
+};
+
+export type Duplicate = Schemas['DuplicateDto'];

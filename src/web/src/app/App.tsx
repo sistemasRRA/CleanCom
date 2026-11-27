@@ -7,6 +7,7 @@ import { Layout } from './Layout';
 import { ComingSoon, Home, NotFound } from '../features/home';
 import { CoveragePage, Lugares, NonWorkingDays, Operations, OtherCatalogs, PostalCodes, Rutas, Settings, Zonas } from '../features/operacion';
 import { Operadores, RolesPermissions, UserList, Users } from '../features/usuarios';
+import { Bitacora } from '../features/bitacora';
 import { Agendar } from '../features/agenda';
 import { Clientes } from '../features/crm';
 import { ParadasFijas } from '../features/paradasFijas';
@@ -15,6 +16,8 @@ import { Unidades } from '../features/unidades';
 import { Promociones } from '../features/promociones';
 import { WhatsAppYMetas } from '../features/avisos';
 import { Kpis } from '../features/kpis';
+import { EvidenciasYCaja } from '../features/evidencias';
+import { ClientesYFuentes } from '../features/clientesFuentes';
 import { VistaDelChofer } from '../features/chofer';
 import { Rutas as RutasDelDia } from '../features/rutas';
 import { Pedidos } from '../features/pedidos';
@@ -34,6 +37,8 @@ export const queryClient = new QueryClient({
 /** Browser paths are user-visible, so they stay in Spanish. */
 export function App() {
   const { user, can } = useSession();
+  // The general bitácora is for SuperUser and Administración (the API checks it again).
+  const isAdmin = user?.role === 'SuperUser' || user?.role === 'Administracion';
 
   if (!user) return <SignIn />;
   if (user.mustChangePassword) return <ChangePassword required />;
@@ -63,6 +68,7 @@ export function App() {
             <Route index element={<Navigate to="lista" replace />} />
             <Route path="lista" element={<UserList />} />
             <Route path="operadores" element={<Operadores />} />
+            {isAdmin && <Route path="bitacora" element={<Bitacora />} />}
           </Route>
         )}
 
@@ -80,6 +86,8 @@ export function App() {
         {can('pedidos') && <Route path="pedidos" element={<Pedidos />} />}
         {can('tickets-en-planta') && <Route path="tickets-en-planta" element={<TicketsEnPlanta />} />}
         {can('kpis') && <Route path="kpis" element={<Kpis />} />}
+        {can('evidencias-y-caja') && <Route path="evidencias-y-caja" element={<EvidenciasYCaja />} />}
+        {can('clientes-y-fuentes') && <Route path="clientes-y-fuentes" element={<ClientesYFuentes />} />}
 
         {SCREENS.filter((s) => s.week && can(s.key)).map((s) => (
           <Route key={s.key} path={s.path.slice(1)} element={<ComingSoon screen={s} />} />

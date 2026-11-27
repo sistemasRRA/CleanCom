@@ -27,7 +27,7 @@ public class AvisoService(ICleanComDbContext db, IBusinessClock clock, ICurrentU
     {
         var plantilla = await db.Plantillas.AsNoTracking().FirstOrDefaultAsync(p => p.Evento == evento, ct);
         var invitado = await db.Invitados.AsNoTracking().Where(i => i.Id == pedido.InvitadoId)
-            .Select(i => new { i.Name, i.Type, i.ReceivesWhatsApp, i.WhatsAppPhone }).FirstOrDefaultAsync(ct);
+            .Select(i => new { i.Name, i.Type, i.ReceivesWhatsApp, i.ReceivesPush, i.WhatsAppPhone }).FirstOrDefaultAsync(ct);
         if (plantilla is not { Active: true } || invitado is null || !AvisoRules.IsNotified(invitado.Type))
         {
             return;
@@ -55,7 +55,7 @@ public class AvisoService(ICleanComDbContext db, IBusinessClock clock, ICurrentU
         }
 
         var devices = await db.DispositivosPush.CountAsync(d => d.InvitadoId == pedido.InvitadoId && d.Active, ct);
-        var canal = AvisoRules.Channel(devices, invitado.ReceivesWhatsApp, invitado.WhatsAppPhone);
+        var canal = AvisoRules.Channel(devices, invitado.ReceivesPush, invitado.ReceivesWhatsApp, invitado.WhatsAppPhone);
         var push = canal == AvisoCanal.Push;
         db.Avisos.Add(new Aviso
         {
@@ -69,7 +69,7 @@ public class AvisoService(ICleanComDbContext db, IBusinessClock clock, ICurrentU
             Title = push ? AvisoRules.Render(plantilla.PushTitle, values) : null,
             Text = AvisoRules.Render(push ? plantilla.PushText : plantilla.WhatsAppText, values),
             State = canal is null ? AvisoState.Omitido : AvisoState.Pendiente,
-            Detail = canal is null ? AvisoRules.OmittedReason(invitado.ReceivesWhatsApp) : null,
+            Detail = canal is null ? AvisoRules.OmittedReason(devices, invitado.ReceivesPush, invitado.ReceivesWhatsApp) : null,
         });
     }
 

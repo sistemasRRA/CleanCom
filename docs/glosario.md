@@ -1,6 +1,6 @@
 # Glosario
 
-En pantallas, mensajes y documentos se usa el término. En el código se usa la columna "Nombre en código": casi siempre es el término en español, y en algunos (Dirección, Evidencia, Cobro de referencia, Contacto) es un nombre en inglés.
+En pantallas, mensajes y documentos se usa el término. En el código se usa la columna "Nombre en código": casi siempre es el término en español, y en algunos (Dirección, Evidencia, Cobro de referencia, Contacto, Turno del chofer) es un nombre en inglés.
 
 | Término | Significado | Nombre en código |
 | --- | --- | --- |
@@ -24,7 +24,9 @@ En pantallas, mensajes y documentos se usa el término. En el código se usa la 
 | Traspaso | Mover ropa entre tiendas | `TipoParada.Traspaso` |
 | Insumos | Bobinas, ganchos, galones; se anotan como texto | `TipoParada.Insumos` |
 | Turno | Mañana (09:00 a 13:00), tarde (13:00 a 18:00) o cualquier hora | `Turno` |
+| Turno del chofer | Su jornada en la app: de "Iniciar turno" a "Cerrar turno", con el kilometraje de la unidad. No es el turno de una parada | Campos `Shift*` de `RutaDia` |
 | Corte | Hora límite para que algo entre el mismo día | Configuración `Agenda.*` |
+| Corte de caja | Lo que el chofer declara al cerrar su turno, por forma de pago, para compararlo con lo anotado en las visitas y con el POS | `CorteCaja` |
 | Cupo | Paradas máximas por ruta al día (14) | `Ruta.CupoParadas` |
 | Pedido | Lo que se recolecta a un invitado y recorre las etapas hasta entregarse | `Pedido` |
 | Ticket | Comprobante del POS por línea de servicio dentro de un pedido | `Ticket` |

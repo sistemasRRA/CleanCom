@@ -477,8 +477,14 @@ dialog.pedido-dialog .dialog__body { overflow-y: auto; min-height: 0; }
 .planta-card button.link { justify-self: start; }
 .planta-tickets li.done { opacity: 0.7; }
 .planta-tickets button.primary { min-width: 84px; min-height: 40px; }
-/* Evidence of a visit in the Pedidos card. */
+/* Evidence of a visit (Pedidos, Evidencias y caja). */
 .evidencias { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.evidencia { display: grid; gap: 2px; width: 110px; font-size: 12px; color: var(--text-muted); text-decoration: none; }
+.evidencia img { width: 110px; height: 82px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; }
+.evidencia.small { width: 64px; }
+.evidencia.small img { width: 64px; height: 48px; }
+.evidencia.outside img { border: 2px solid var(--danger); }
+.evidencia.outside span { color: var(--danger); font-weight: 600; }
 .evidencia.firma img { object-fit: contain; }
 .panel-stats .planta-stat { min-height: 110px; }
 .panel-stats .planta-stat strong { font-size: 32px; }

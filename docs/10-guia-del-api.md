@@ -286,8 +286,15 @@ El despliegue en el VPS se describe en [07-despliegue-vps.md](07-despliegue-vps.
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer` y `/unidad` (la unidad responde 409 hasta confirmar si tiene pendientes) | Panel del día o Rutas: Edit (política `AssignsRutaDia`) |
 | App del chofer | `POST /chofer/paradas/{id}/en-camino`, `POST /chofer/paradas/{id}/llegue` | App del chofer: Edit |
 | App del chofer | `GET /chofer/motivos` | App del chofer: View |
+| Clientes y fuentes | `GET /gerencia/clientes?periodo=&fecha=&tipo=`, `GET /gerencia/clientes/retencion`, `GET /gerencia/clientes/perdidos` | Clientes y fuentes: View |
+| Clientes y fuentes | `POST /gerencia/clientes/perdidos/llamar` (a "Llamar hoy" del CRM) | Clientes y fuentes: Edit |
+| Evidencias y caja | `GET /visitas?desde=&hasta=&ruta=&formaPago=&pagina=&porPagina=`, `GET /visitas/exportar` (Excel), `GET /cortes?fecha=` | Evidencias y caja: View |
+| Evidencias y caja | `POST /cortes/{id}/cerrar` (monto del POS y notas; folio) | Evidencias y caja: Edit |
+| Evidencias y caja | `POST /cortes/{id}/reabrir` (motivo) | Permiso especial `reabrir-cortes`: Edit |
+| Evidencias y caja | `POST /rutas/dia/{id}/turno/cerrar` (oficina cierra el turno del chofer) | Permiso especial `cerrar-turnos`: Edit |
+| Pedidos, Evidencias y caja | `GET /pedidos/{id}/evidencias` (galería), `GET /evidencias/{id}/archivo` | Pedidos o Evidencias y caja: View |
+| App del chofer | `POST /chofer/turno/iniciar`, `POST /chofer/turno/cerrar` (kilometraje y declaración del corte de caja; 409 pide confirmar), `POST /chofer/fallas` (multipart: falla de la unidad con foto opcional). Llevan `localId` y `at`; un reenvío no duplica | App del chofer: Edit |
 | App del chofer | `POST /chofer/evidencias` (multipart: foto JPG, PNG o WebP hasta 8 MB), `POST /chofer/evidencias/firma`, `POST /chofer/paradas/{id}/cerrar`, `POST /chofer/paradas/{id}/no-realizada`. Cada acción lleva `localId` y la hora del teléfono (`at`); un reenvío no duplica. `en-camino` y `llegue` también aceptan `localId` y `at` | App del chofer: Edit |
-| Evidencias | `GET /evidencias/{id}/archivo` | Pedidos: View |
 | Rutas | `GET /rutas/dia?fecha=` | Panel del día o Rutas: View (política `SeesOperacion`; el Panel lo usa para su mapa) |
 | Rutas | `PUT /rutas/{rutaId}/dias/{fecha}/chofer`, `POST /rutas/dia/{id}/optimizar`, `PATCH /paradas/{id}`, `POST /paradas` (parada de un día), `POST /viajes` (viaje de un día), `DELETE /paradas/{id}` (baja lógica) | Rutas: Edit |
 | Paradas fijas | `GET /paradas-fijas` (`?tipo=&inactivas=`), `GET /paradas-fijas/{id}`, `GET /paradas-fijas/semana?fecha=` | Paradas fijas: View |

@@ -167,7 +167,7 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
         await db.Reasons.AsNoTracking()
             .Where(m => type == null || m.Type == type)
             .OrderBy(m => m.Type).ThenBy(m => m.Text)
-            .Select(m => new ReasonDto(m.Id, m.Type, m.Text, m.Active)).ToListAsync(ct);
+            .Select(m => new ReasonDto(m.Id, m.Type, m.Text, m.Active, m.IsDigital)).ToListAsync(ct);
 
     public async Task<ReasonDto> SaveReasonAsync(int? id, SaveReasonRequest r, CancellationToken ct)
     {
@@ -176,12 +176,13 @@ public class CatalogService(ICleanComDbContext db, IServiceProvider validators)
         reason.Type = r.Type;
         reason.Text = r.Text.Trim();
         reason.Active = r.Active;
+        reason.IsDigital = r.Type == ReasonType.HowFoundUs && r.IsDigital;
         if (id is null)
         {
             db.Reasons.Add(reason);
         }
         await db.SaveChangesAsync(ct);
-        return new ReasonDto(reason.Id, reason.Type, reason.Text, reason.Active);
+        return new ReasonDto(reason.Id, reason.Type, reason.Text, reason.Active, reason.IsDigital);
     }
 
     // Non-working days

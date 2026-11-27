@@ -25,11 +25,12 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `PermisoRol` | RolId, Pantalla, Nivel (Ver, Editar) | Permisos por pantalla; Editar incluye Ver. Se editan en Roles y permisos (SuperUser no tiene filas: siempre tiene todo) y el API los lee de la base en cada petición (con caché); la sesión los entrega como `pantalla:nivel` para armar el menú |
 | `TokenRenovacion` | UsuarioId, TokenHash, CreadoEn, ExpiraEn, RevocadoEn? | Solo se guarda el hash; cada renovación revoca el anterior |
 | `Operador` | Nombre, Telefono, RutaHabitualId, Activo, UsuarioId? | Choferes de la nómina |
-| `Invitado` | Nombre, TelefonoWhatsApp, OtroTelefono, Correo, Tipo (ClienteFinal, Convenio, Empresa, TiendaInterna), ComoNosConocio (texto de una opción del catálogo `Motivo` tipo HowFoundUs), Campana, RecibeWhatsApp (sí por omisión), InfoRuteo, Observaciones, Etiquetas, EstatusCalculado, EstatusManual?, FrecuenciaFijaDias?, FrecuenciaCalculadaDias, ProximoContacto, LeTocaFecha, CuentaApp (SinApp, Invitado, Activa, Bloqueada), UsuarioId? | Ficha del CRM |
+| `Invitado` | Nombre, TelefonoWhatsApp, OtroTelefono, Correo, Tipo (ClienteFinal, Convenio, Empresa, TiendaInterna), ComoNosConocio (texto de una opción del catálogo `Motivo` tipo HowFoundUs), Campana, RecibeWhatsApp (de servicio, sí por omisión), RecibePush (sí por omisión), RecibePromociones (WhatsApp de marketing, no por omisión), InfoRuteo, Observaciones, Etiquetas, EstatusCalculado, EstatusManual?, FrecuenciaFijaDias?, LlamarDesde? (reactivación desde Clientes y fuentes; en código `CallRequestedOn`), FrecuenciaCalculadaDias, ProximoContacto, LeTocaFecha, CuentaApp (SinApp, Invitado, Activa, Bloqueada), UsuarioId? | Ficha del CRM |
 | `Empresa` | RazonSocial, RFC, DatosFacturacion, CondicionesPrecio | Para convenios; varios `Invitado` como contactos |
 | `Direccion` | InvitadoId, Etiqueta, Calle, Numero, Interior, CP, Colonia, Alcaldia, Referencias, Ubicacion (`geography`), ZonaId, ZonaAsignadaManual | Varias por invitado. En código: `Address` (tabla `addresses`) |
 | `PreferenciaAviso` | InvitadoId, Push, WhatsAppServicio, WhatsAppPromociones, BajaPromocionesEn? | |
 | `Contacto` | InvitadoId, Canal (Llamada, WhatsApp), Resultado, Nota, VolverAContactarEl, UsuarioId | Registro de llamadas del CRM. En código: `Contact` (tabla `contacts`) |
+| `Bitacora` | TipoRegistro, RegistroId, TipoDueño?, DueñoId? (la dirección de un invitado, la zona de una ruta), Accion (Alta, Cambio, Baja, Reactivacion), Cambios (JSON: campo, antes, después); quién y cuándo en `created_by` y `created_at` | Bitácora de cambios; solo se inserta. En código: `ChangeLog` (tabla `change_logs`) |
 
 ## Operación
 
@@ -39,7 +40,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `PedidoHistorial` | PedidoId, EtapaAnterior, EtapaNueva, Motivo?, UsuarioId, Fecha | Todo cambio de etapa |
 | `Ticket` | Folio (del POS), PedidoId, LineaServicioId, Prendas, Estado (EnProceso, Listo), ListoEn, Monto?, Origen (Manual, Pos), Activo | Llega del POS; mientras tanto se captura a mano. Folio único entre activos |
 | `ComentarioAtraso` | TicketId o PedidoId, MotivoId?, Texto, UsuarioId | Visible en Pedidos. Se guarda como evento `AtrasoPlanta` del historial del pedido |
-| `RutaDia` | RutaId, Fecha, OperadorId, UnidadId, KmInicial?, KmFinal?, InicioTurno?, FinTurno?, Estado | Una por ruta y fecha |
+| `RutaDia` | RutaId, Fecha, OperadorId, UnidadId, KmInicial?, KmFinal?, InicioTurno?, FinTurno?, IdLocalInicio?, IdLocalFin?, TurnoCerradoPor? (usuario de oficina), Estado | Una por ruta y fecha. El turno del chofer va aquí; en código `ShiftStartedAt`, `StartKm`, `ShiftEndedAt`, `EndKm` |
 | `Parada` | RutaDiaId, Tipo (Recoleccion, Entrega, RecoleccionYEntrega, Convenio, Insumos, Traspaso, Salida, Regreso, Comida), PedidoId?, LugarId?, DireccionId?, ViajeId?, PasoViaje?, ParadaFijaId?, Turno, Ventana, Posicion, PosicionFija, HoraEstimada, EnCaminoEn?, LlegadaEn?, CerradaEn?, UbicacionCierre?, PrendasRecogidas?, NotasCierre?, IdLocalCierre?, Estado (Pendiente, EnCamino, EnSitio, Realizada, NoRealizada), MotivoNoRealizadaId?, Insumos (texto), Notas | Una parada ocupa cupo salvo Salida, Regreso y Comida |
 | `Viaje` | RutaDiaId, Tipo (Traspaso, Insumos), QueSeLleva | Pasos encadenados en orden |
 | `ParadaFija` | Nombre, TipoParada (ClienteFinal, Convenio, Insumos, Traspaso), QueSeHace (Recoleccion, Entrega, RecoleccionYEntrega, Traslado), RutaId, Dias (lista en una columna), Turno (sin hora específica), LugarEnRuta (Automatica, Primera, Ultima), Insumos o carga, ContactoSitio, Telefono, PrendasAprox, NotasChofer, VigenteDesde?, VigenteHasta?, Pausada, Activa, Pasos | Con un paso es parada fija; con varios es **vuelta fija** (reemplaza ligar tramos por nombre) |
@@ -48,7 +49,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Viaje` | RutaDiaId, Nombre, Carga, ParadaFijaId?, Activo | Pasos que se visitan seguidos y en orden; lo genera una vuelta fija o un "viaje de un día" |
 | `Evidencia` | ParadaId, Tipo (Foto, Firma), Ruta del archivo, TipoContenido, Tamaño, TomadaEn, Ubicacion, DistanciaParadaMetros, IdLocal (único), Activa | El archivo va en disco (`Archivos:Ruta`), nunca en SQL Server. La firma se guarda como SVG que dibuja el API. En código: `Evidence` (tabla `evidence`) |
 | `CobroReferencia` | ParadaId, FormaPago (Efectivo, Tarjeta, Transferencia), Monto, Activo | Referencia; el cobro oficial está en el POS. En código: `ReferencePayment` (tabla `reference_payments`) |
-| `CorteCaja` | OperadorId, Fecha, Declarado (por forma de pago), Registrado, Diferencias, Folio, CerradoPor | |
+| `CorteCaja` | RutaDiaId (único), OperadorId, Fecha, NotasChofer, Folio? (único), CerradoEn?, CerradoPor?, NotasOficina?, ReabiertoEn?, ReabiertoPor?, MotivoReapertura?, Lineas (FormaPago, Declarado, Registrado?, Pos?) | Uno por turno; lo crea el chofer al cerrar el turno y lo cierra oficina en Evidencias y caja. Las diferencias se calculan, no se guardan. Tablas `cortes_caja` y `corte_caja_lines` |
 | `UbicacionChofer` | RutaDiaId, Ubicacion, TomadaEn, PrecisionMetros? | Historial reducido (reglas en GPS del chofer); la última posición también en memoria |
 
 ## Flota
@@ -56,8 +57,8 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | Entidad | Campos clave | Notas |
 | --- | --- | --- |
 | `Unidad` | Placa, Marca, Modelo, Anio, Tipo (Furgoneta, Pickup, Trimoto, Otro), CapacidadPrendas?, KmActual, KmActualizadoEn, EstadoServicio (Activa, FueraDeServicio), ExentaVerificacion, ServicioCadaKm?, ServicioCadaMeses?, Notas, Activa | Placa única entre activas |
-| `DocumentoUnidad` | UnidadId, Tipo (Seguro, TarjetaCirculacion, Verificacion, Comprobante, Otro, Foto), VigenteDesde?, VigenteHasta?, Descripcion, EventoId?, Archivo?, Activo | En código: `UnidadDocument`. El archivo va en disco |
-| `EventoUnidad` | UnidadId, Tipo (Servicio, Reparacion, Falla, Pago, Kilometraje), Fecha, Km?, Monto?, Descripcion, Gravedad?, ResueltaEl?, PagoRecurrenteId?, Activo; quién lo registró en `created_by` | Bitácora. En código: `UnidadEvent` |
+| `DocumentoUnidad` | UnidadId, Tipo (Seguro, TarjetaCirculacion, Verificacion, Comprobante, Otro, Foto, FotoFalla), VigenteDesde?, VigenteHasta?, Descripcion, EventoId?, Archivo?, Activo | En código: `UnidadDocument`. El archivo va en disco |
+| `EventoUnidad` | UnidadId, Tipo (Servicio, Reparacion, Falla, Pago, Kilometraje), Fecha, Km?, Monto?, Descripcion, Gravedad?, ResueltaEl?, PagoRecurrenteId?, IdLocal? (único; falla desde la app del chofer), Activo; quién lo registró en `created_by` | Bitácora. En código: `UnidadEvent` |
 | `PagoRecurrente` | UnidadId, Concepto, Monto, Periodicidad (Mensual, Bimestral, Trimestral, Semestral, Anual), ProximaFecha, Activo | Tenencia, crédito, póliza en pagos. En código: `RecurringPayment` |
 | `ReglaAviso` | Evento (uno por evento), DiasAntes, Destinatarios, Canales | Notificaciones de flota. En código: `FleetAlertRule` |
 

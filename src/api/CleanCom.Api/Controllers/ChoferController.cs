@@ -12,8 +12,46 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("chofer")]
 [Tags("App del chofer")]
-public class ChoferController(ChoferService service, ChoferVisitService visits, LocationService locations, ChoferPreviewService preview) : ControllerBase
+public class ChoferController(
+    ChoferService service,
+    ChoferVisitService visits,
+    ChoferShiftService shifts,
+    LocationService locations,
+    ChoferPreviewService preview) : ControllerBase
 {
+    /// <summary>
+    /// Inicio de turno: the unidad (the office's, or the one the chofer chooses) and its starting km. Lower than the
+    /// unidad's km is rejected; more than Unidad.KmMaximoPorTurno above it answers 409 until the chofer confirms.
+    /// </summary>
+    [HttpPost("turno/iniciar")]
+    [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
+    public Task<ChoferRutaDto> StartShift(StartShiftRequest request, CancellationToken ct) =>
+        shifts.StartAsync(request, ct);
+
+    /// <summary>
+    /// Fin de turno: final km and what was collected per forma de pago (corte de caja). A long shift or paradas still
+    /// open answer 409 until the chofer confirms.
+    /// </summary>
+    [HttpPost("turno/cerrar")]
+    [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
+    public Task<ChoferRutaDto> EndShift(EndShiftRequest request, CancellationToken ct) =>
+        shifts.EndAsync(request, ct);
+
+    /// <summary>A falla of the unidad of the day, with gravedad and an optional photo; it stays open in Unidades.</summary>
+    [HttpPost("fallas")]
+    [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
+    [RequestSizeLimit(ChoferShiftService.MaxPhotoBytes + 64 * 1024)]
+    public async Task<ChoferRutaDto> ReportFailure([FromForm] FailureUpload form, CancellationToken ct)
+    {
+        var request = new ReportFailureRequest(form.Description ?? "", form.Severity, form.LocalId, form.At);
+        if (form.File is null)
+        {
+            return await shifts.ReportFailureAsync(request, null, 0, ct);
+        }
+        await using var content = form.File.OpenReadStream();
+        return await shifts.ReportFailureAsync(request, content, form.File.Length, ct);
+    }
+
     /// <summary>
     /// Vista del chofer (office, read only): what the chofer of a ruta sees on a day (yyyy-MM-dd; today when empty),
     /// with the same paradas, order and times as the app, and their last position.
@@ -92,6 +130,16 @@ public class ChoferController(ChoferService service, ChoferVisitService visits, 
     [RequireScreen(Screens.AppChofer, AccessLevel.Edit)]
     public Task<ChoferRutaDto> NotDone(int id, NotDoneRequest request, CancellationToken ct) =>
         visits.NotDoneAsync(id, request, ct);
+}
+
+/// <summary>Multipart form of a falla of the unidad; the photo is optional.</summary>
+public class FailureUpload
+{
+    public string? Description { get; set; }
+    public CleanCom.Domain.Fleet.FailureSeverity Severity { get; set; }
+    public IFormFile? File { get; set; }
+    public string? LocalId { get; set; }
+    public DateTimeOffset? At { get; set; }
 }
 
 /// <summary>Multipart form of a photo.</summary>

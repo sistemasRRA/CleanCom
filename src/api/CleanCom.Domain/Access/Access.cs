@@ -111,12 +111,18 @@ public static class Screens
     public const string AppChofer = "app-chofer";
     public const string AppInvitado = "app-invitado";
     public const string RolesYPermisos = "roles-y-permisos";
+    /// <summary>Special permission (not a screen): reopen a closed corte de caja. Only Edit counts.</summary>
+    public const string ReabrirCortes = "reabrir-cortes";
+    /// <summary>Special permission (not a screen): close a chofer's shift from the office. Only Edit counts.</summary>
+    public const string CerrarTurnos = "cerrar-turnos";
 
     private const string OperacionDiaria = "Operación diaria";
     private const string Clientes = "Clientes";
     private const string GerenciaGroup = "Gerencia";
     private const string AdministracionGroup = "Administración";
     private const string Apps = "Apps";
+    /// <summary>Actions that need their own permission, beyond seeing or editing a screen.</summary>
+    public const string SpecialGroup = "Permisos especiales";
 
     /// <summary>
     /// The order fixes the ids of the seeded permissions, so new screens go at the end.
@@ -143,6 +149,8 @@ public static class Screens
         new(AppChofer, "App del chofer", Apps),
         new(AppInvitado, "App del invitado", Apps),
         new(RolesYPermisos, "Roles y permisos", AdministracionGroup),
+        new(ReabrirCortes, "Reabrir un corte de caja cerrado", SpecialGroup),
+        new(CerrarTurnos, "Cerrar el turno de un chofer desde oficina", SpecialGroup),
     ];
 
     public static IEnumerable<Screen> Office => All.Where(s => s.Group != Apps);
@@ -198,13 +206,13 @@ public static class Permissions
     /// </summary>
     public static IReadOnlyList<(int RoleId, string Screen, AccessLevel Level)> Initial { get; } =
     [
-        .. Screens.Office
+        .. Screens.Office.Where(s => s.Group != Screens.SpecialGroup)
             .Where(s => s.Key != Screens.RolesYPermisos)
             .Select(s => (Roles.AdministracionId, s.Key, AccessLevel.Edit)),
         (Roles.ChoferId, Screens.AppChofer, AccessLevel.Edit),
         (Roles.InvitadoId, Screens.AppInvitado, AccessLevel.Edit),
 
-        .. Screens.Office
+        .. Screens.Office.Where(s => s.Group != Screens.SpecialGroup)
             .Where(s => s.Key is not Screens.Usuarios and not Screens.Operacion and not Screens.RolesYPermisos)
             .Select(s => (Roles.GerenciaId, s.Key, AccessLevel.View)),
 
@@ -225,4 +233,17 @@ public static class Permissions
         (Roles.PlantaId, Screens.TicketsEnPlanta, AccessLevel.Edit),
         (Roles.PlantaId, Screens.Pedidos, AccessLevel.View),
     ];
+
+    /// <summary>
+    /// Initial grants of the special permissions (Screens.SpecialGroup). They are seeded with ids from
+    /// <see cref="SpecialSeedFirstId"/> on, apart from <see cref="Initial"/>: saving a role's permissions replaces its
+    /// rows with new ids, so the next ids after Initial may already be taken. New entries go at the end.
+    /// </summary>
+    public static IReadOnlyList<(int RoleId, string Screen, AccessLevel Level)> InitialSpecial { get; } =
+    [
+        (Roles.AdministracionId, Screens.ReabrirCortes, AccessLevel.Edit),
+        (Roles.AdministracionId, Screens.CerrarTurnos, AccessLevel.Edit),
+    ];
+
+    public const int SpecialSeedFirstId = 10_001;
 }

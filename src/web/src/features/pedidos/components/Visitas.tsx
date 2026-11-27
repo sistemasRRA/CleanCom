@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Schemas } from '../../../shared/api/client';
 import { formatDateTime } from '../../../shared/utils/dates';
 import { KIND, STATE, STATE_TONE, TURNO_NAME } from '../types/pedidos';
-import { EvidenciaThumb } from './EvidenciaThumb';
+import { EvidenciaThumb } from '../../../shared/components/EvidenciaThumb';
 
 /** Visits of the pedido by date; the removed ones (quitadas) fold away so they do not read as active. */
 export function Visitas({ paradas }: { paradas: Schemas['PedidoParadaDto'][] }) {

@@ -29,6 +29,7 @@ export const DOCUMENT: Record<DocumentKind, string> = {
   Comprobante: 'Comprobante',
   Otro: 'Otro',
   Foto: 'Foto de la unidad',
+  FotoFalla: 'Foto de una falla',
 };
 
 export const SEVERITY: Record<Severity, string> = { Baja: 'Baja', Media: 'Media', Alta: 'Alta' };

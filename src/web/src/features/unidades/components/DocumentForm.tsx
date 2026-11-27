@@ -54,7 +54,8 @@ export function DocumentForm({ detail, photo = false, onClose }: { detail: Detai
         <Field label="Tipo">
           <select value={f.kind} onChange={(e) => set({ kind: e.target.value as DocumentKind })}>
             {(Object.keys(DOCUMENT) as DocumentKind[])
-              .filter((k) => k !== 'Foto')
+              // The unidad's photo has its own button; a falla's photo comes from the chofer app.
+              .filter((k) => k !== 'Foto' && k !== 'FotoFalla')
               .map((k) => (
                 <option key={k} value={k}>
                   {DOCUMENT[k]}
