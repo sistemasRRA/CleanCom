@@ -746,6 +746,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bitacora": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    entidad?: string;
+                    id?: number;
+                    usuario?: number;
+                    desde?: string;
+                    hasta?: string;
+                    pagina?: number;
+                    porPagina?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChangeLogPageDto"];
+                        "application/json": components["schemas"]["ChangeLogPageDto"];
+                        "text/json": components["schemas"]["ChangeLogPageDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chofer/turno/iniciar": {
         parameters: {
             query?: never;
@@ -1711,6 +1756,48 @@ export interface paths {
                         "text/plain": components["schemas"]["HistoriaItemDto"][];
                         "application/json": components["schemas"]["HistoriaItemDto"][];
                         "text/json": components["schemas"]["HistoriaItemDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/bitacora": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    pagina?: number;
+                    porPagina?: number;
+                };
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ChangeLogPageDto"];
+                        "application/json": components["schemas"]["ChangeLogPageDto"];
+                        "text/json": components["schemas"]["ChangeLogPageDto"];
                     };
                 };
             };
@@ -7412,9 +7499,33 @@ export interface components {
             /** Format: double */
             amount: null | number;
         };
+        /** @enum {unknown} */
+        ChangeAction: "Alta" | "Cambio" | "Baja" | "Reactivacion";
         ChangeDayRequest: {
             /** Format: date */
             date: string;
+        };
+        ChangeLogDto: {
+            /** Format: int32 */
+            id: number;
+            /** Format: date-time */
+            at: string;
+            userName: null | string;
+            entityType: string;
+            entityLabel: string;
+            /** Format: int32 */
+            entityId: number;
+            action: components["schemas"]["ChangeAction"];
+            changes: components["schemas"]["FieldChangeDto"][];
+        };
+        ChangeLogPageDto: {
+            rows: components["schemas"]["ChangeLogDto"][];
+            /** Format: int32 */
+            rowCount: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
         };
         ChangePasswordRequest: {
             currentPassword: string;
@@ -7924,6 +8035,12 @@ export interface components {
         };
         /** @enum {unknown} */
         FailureSeverity: "Baja" | "Media" | "Alta";
+        FieldChangeDto: {
+            field: string;
+            label: string;
+            before: null | string;
+            after: null | string;
+        };
         FijasWeekCellDto: {
             /** Format: int32 */
             rutaId: number;

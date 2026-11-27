@@ -1,3 +1,4 @@
+using CleanCom.Domain.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Crm;
@@ -762,5 +763,19 @@ internal class KpiValueConfig : IEntityTypeConfiguration<KpiValue>
         // Read by period: every indicador and ruta of one period at once.
         e.HasIndex(x => new { x.Period, x.PeriodStart, x.IndicadorKey });
         e.HasOne<Ruta>().WithMany().HasForeignKey(x => x.RutaId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+internal class ChangeLogConfig : IEntityTypeConfiguration<ChangeLog>
+{
+    public void Configure(EntityTypeBuilder<ChangeLog> e)
+    {
+        e.ToTable("ChangeLogs");
+        e.Property(x => x.EntityType).HasMaxLength(40);
+        e.Property(x => x.OwnerType).HasMaxLength(40);
+        // The bitácora of a record and of what belongs to it, newest first; and the general one by date.
+        e.HasIndex(x => new { x.EntityType, x.EntityId, x.CreatedAt });
+        e.HasIndex(x => new { x.OwnerType, x.OwnerId, x.CreatedAt });
+        e.HasIndex(x => x.CreatedAt);
     }
 }

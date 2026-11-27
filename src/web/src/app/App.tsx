@@ -7,6 +7,7 @@ import { Layout } from './Layout';
 import { ComingSoon, Home, NotFound } from '../features/home';
 import { CoveragePage, Lugares, NonWorkingDays, Operations, OtherCatalogs, PostalCodes, Rutas, Settings, Zonas } from '../features/operacion';
 import { Operadores, RolesPermissions, UserList, Users } from '../features/usuarios';
+import { Bitacora } from '../features/bitacora';
 import { Agendar } from '../features/agenda';
 import { Clientes } from '../features/crm';
 import { ParadasFijas } from '../features/paradasFijas';
@@ -36,6 +37,8 @@ export const queryClient = new QueryClient({
 /** Browser paths are user-visible, so they stay in Spanish. */
 export function App() {
   const { user, can } = useSession();
+  // The general bitácora is for SuperUser and Administración (the API checks it again).
+  const isAdmin = user?.role === 'SuperUser' || user?.role === 'Administracion';
 
   if (!user) return <SignIn />;
   if (user.mustChangePassword) return <ChangePassword required />;
@@ -65,6 +68,7 @@ export function App() {
             <Route index element={<Navigate to="lista" replace />} />
             <Route path="lista" element={<UserList />} />
             <Route path="operadores" element={<Operadores />} />
+            {isAdmin && <Route path="bitacora" element={<Bitacora />} />}
           </Route>
         )}
 

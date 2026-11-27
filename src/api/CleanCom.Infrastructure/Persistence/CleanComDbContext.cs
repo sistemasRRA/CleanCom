@@ -1,3 +1,4 @@
+using CleanCom.Domain.Common;
 using CleanCom.Application.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Catalogs;
@@ -39,6 +40,7 @@ public class CleanComDbContext(DbContextOptions<CleanComDbContext> options)
     public DbSet<RutaDia> RutaDias => Set<RutaDia>();
     public DbSet<Parada> Paradas => Set<Parada>();
     public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<ChangeLog> ChangeLogs => Set<ChangeLog>();
     public DbSet<ParadaFija> ParadasFijas => Set<ParadaFija>();
     public DbSet<ParadaFijaException> ParadaFijaExceptions => Set<ParadaFijaException>();
     public DbSet<Viaje> Viajes => Set<Viaje>();

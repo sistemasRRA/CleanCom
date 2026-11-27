@@ -30,6 +30,7 @@ Entidades principales y sus campos clave. Es un punto de partida en español: en
 | `Direccion` | InvitadoId, Etiqueta, Calle, Numero, Interior, CP, Colonia, Alcaldia, Referencias, Ubicacion (`geography`), ZonaId, ZonaAsignadaManual | Varias por invitado. En código: `Address` (tabla `addresses`) |
 | `PreferenciaAviso` | InvitadoId, Push, WhatsAppServicio, WhatsAppPromociones, BajaPromocionesEn? | |
 | `Contacto` | InvitadoId, Canal (Llamada, WhatsApp), Resultado, Nota, VolverAContactarEl, UsuarioId | Registro de llamadas del CRM. En código: `Contact` (tabla `contacts`) |
+| `Bitacora` | TipoRegistro, RegistroId, TipoDueño?, DueñoId? (la dirección de un invitado, la zona de una ruta), Accion (Alta, Cambio, Baja, Reactivacion), Cambios (JSON: campo, antes, después); quién y cuándo en `created_by` y `created_at` | Bitácora de cambios; solo se inserta. En código: `ChangeLog` (tabla `change_logs`) |
 
 ## Operación
 

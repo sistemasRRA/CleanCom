@@ -11,6 +11,7 @@ import { formatDate, formatDateTime, shortDay } from '../../../shared/utils/date
 import { EditDireccionButton, ZonaPicker, invitadosApi } from '../../invitados';
 import { Seguimiento } from './Seguimiento';
 import { BeneficiosInvitado } from '../../promociones';
+import { InvitadoBitacora } from '../../bitacora';
 import { money } from '../../../shared/utils/format';
 import { AppAccount } from './AppAccount';
 import { DatosInvitado } from './DatosInvitado';
@@ -19,7 +20,7 @@ import { Historia } from './Historia';
 
 type FichaDto = Schemas['CrmFichaDto'];
 
-const TABS = ['resumen', 'datos', 'direcciones', 'pedidos', 'contactos', 'beneficios'] as const;
+const TABS = ['resumen', 'datos', 'direcciones', 'pedidos', 'contactos', 'beneficios', 'bitacora'] as const;
 type Tab = (typeof TABS)[number];
 
 const PEDIDOS_SHOWN = 50;
@@ -53,7 +54,9 @@ export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => v
             ? `Pedidos (${f?.pedidos.length ?? 0})`
             : t === 'contactos'
               ? `Contactos (${f?.contacts.length ?? 0})`
-              : 'Beneficios';
+              : t === 'beneficios'
+                ? 'Beneficios'
+                : 'Bitácora';
 
   return (
     <dialog ref={ref} onClose={onClose} className="ficha">
@@ -83,6 +86,7 @@ export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => v
               {tab === 'pedidos' && <Pedidos f={f} />}
               {tab === 'contactos' && <Contactos f={f} canEdit={canEdit} onContact={onContact} />}
               {tab === 'beneficios' && <BeneficiosInvitado invitadoId={f.invitado.id} />}
+              {tab === 'bitacora' && <InvitadoBitacora invitadoId={f.invitado.id} />}
             </>
           )}
         </QueryState>

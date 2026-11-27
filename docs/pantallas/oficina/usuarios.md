@@ -34,6 +34,7 @@ Dos caminos, siempre ligados a la ficha del CRM:
 - `POST /auth/login`, `POST /auth/renovar`, `POST /auth/cerrar`, `POST /auth/cambiar-contrasena`, `GET /auth/yo`.
 - `GET /usuarios?role=`, `GET /usuarios/roles`, `POST /usuarios`, `PUT /usuarios/{id}`, `POST /usuarios/{id}/restablecer` (contraseña temporal que se cambia al entrar).
 - `GET /operadores?includeInactive=`, `POST /operadores`, `PUT /operadores/{id}`.
+- `GET /bitacora?entidad=&id=&usuario=&desde=&hasta=&pagina=&porPagina=` (solo SuperUser y Administración, hecho): bitácora general, pestaña Usuarios › Bitácora. `entidad`: Invitado, Address, Pedido, Ruta, Zona, KpiGoal, User, UserRole, RolePermission o Role; con `id` trae también lo que le pertenece. Ver [Bitácora de cambios](../../03-reglas-de-negocio.md#bitácora-de-cambios).
 - `GET /invitados/cuentas?estado=` (pendiente, semana 5).
 
 ## Implementado (semana 1)

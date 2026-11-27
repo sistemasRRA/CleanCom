@@ -54,7 +54,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 - `POST /invitados/{id}/fusionar` `{ duplicadoId }` (solo SuperUser y Administración, hecho): fusiona el duplicado en este invitado y responde la ficha. Ver [Duplicados y cuenta de la app](../../03-reglas-de-negocio.md#duplicados-y-cuenta-de-la-app).
 - `POST /invitados/{id}/invitar-app` (Edit, hecho): texto y link de WhatsApp de la invitación; guarda la fecha.
 - `POST /invitados/{id}/bloquear-app` `{ blocked }` (Edit, hecho): bloquea o regresa el acceso a la app y responde la ficha.
-- Pendiente: bitácora por sección.
+- `GET /invitados/{id}/bitacora?pagina=&porPagina=` (View, hecho): bitácora del invitado y sus direcciones, lo más nuevo primero; pestaña Bitácora de la ficha. Ver [Bitácora de cambios](../../03-reglas-de-negocio.md#bitácora-de-cambios).
 
 ## Criterios de aceptación
 

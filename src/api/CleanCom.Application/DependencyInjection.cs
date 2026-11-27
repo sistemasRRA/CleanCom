@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<CleanCom.Application.Evidencias.CorteCajaService>();
         services.AddScoped<ClientesFuentesService>();
         services.AddScoped<CrmInvitadoService>();
+        services.AddScoped<ChangeLogs.ChangeLogService>();
         services.AddScoped<EvidenceService>();
         services.AddSingleton<LiveLocations>();
         services.AddScoped<LocationService>();

@@ -32,13 +32,14 @@ public static class DependencyInjection
         services.AddSingleton<IBusinessClock, BusinessClock>();
 
         services.AddScoped<AuditInterceptor>();
+        services.AddScoped<ChangeLogInterceptor>();
         services.AddDbContext<CleanComDbContext>((sp, options) => options
             .UseSqlServer(connectionString, sql => sql
                 .UseNetTopologySuite()
                 // Migrations live in database/migrations (CleanCom.Migrations project).
                 .MigrationsAssembly("CleanCom.Migrations")
                 .MigrationsHistoryTable("__ef_migrations_history"))
-            .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
+            .AddInterceptors(sp.GetRequiredService<AuditInterceptor>(), sp.GetRequiredService<ChangeLogInterceptor>()));
         services.AddScoped<ICleanComDbContext>(sp => sp.GetRequiredService<CleanComDbContext>());
         services.AddScoped<IAgendaLock, AgendaLock>();
         services.AddScoped<IBulkInserter, BulkInserter>();

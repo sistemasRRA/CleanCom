@@ -1,4 +1,5 @@
 using CleanCom.Api.Common;
+using CleanCom.Application.ChangeLogs;
 using CleanCom.Application.Crm;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Crm;
@@ -14,7 +15,7 @@ namespace CleanCom.Api.Controllers;
 [ApiController]
 [Route("invitados")]
 [Tags("Clientes (CRM)")]
-public class CrmController(CrmService service, CrmInvitadoService profile) : ControllerBase
+public class CrmController(CrmService service, CrmInvitadoService profile, ChangeLogService changeLog) : ControllerBase
 {
     /// <summary>
     /// Invitados with their calculated status. Filters: status, ruta, text (name, colonia or phone), type of invitado
@@ -38,6 +39,16 @@ public class CrmController(CrmService service, CrmInvitadoService profile) : Con
     [RequireScreen(Screens.ClientesCrm, AccessLevel.View)]
     public Task<IReadOnlyList<HistoriaItemDto>> History(int id, CancellationToken ct) =>
         profile.HistoryAsync(id, ct);
+
+    /// <summary>Bitácora of the invitado and their addresses: who changed what, newest first.</summary>
+    [HttpGet("{id:int}/bitacora")]
+    [RequireScreen(Screens.ClientesCrm, AccessLevel.View)]
+    public Task<ChangeLogPageDto> ChangeLog(
+        int id,
+        CancellationToken ct,
+        [FromQuery(Name = "pagina")] int page = 1,
+        [FromQuery(Name = "porPagina")] int pageSize = ChangeLogService.DefaultPageSize) =>
+        changeLog.ForInvitadoAsync(id, page, pageSize, ct);
 
     /// <summary>Other active invitados who share a phone with this one.</summary>
     [HttpGet("{id:int}/duplicados")]

@@ -1,3 +1,4 @@
+using CleanCom.Domain.Common;
 using CleanCom.Domain.Access;
 using CleanCom.Domain.Avisos;
 using CleanCom.Domain.Catalogs;
@@ -37,6 +38,7 @@ public interface ICleanComDbContext
     DbSet<RutaDia> RutaDias { get; }
     DbSet<Parada> Paradas { get; }
     DbSet<Contact> Contacts { get; }
+    DbSet<ChangeLog> ChangeLogs { get; }
     DbSet<ParadaFija> ParadasFijas { get; }
     DbSet<ParadaFijaException> ParadaFijaExceptions { get; }
     DbSet<Viaje> Viajes { get; }

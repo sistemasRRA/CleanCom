@@ -36,7 +36,8 @@
 - [ ] Restablecer contraseña por link o código (usuarios.md): necesita WhatsApp o correo (semana 6). Mientras, oficina asigna una contraseña temporal.
 - [ ] Mapa de la dirección con OpenStreetMap (Nominatim y mosaicos públicos) mientras no estén las llaves de Google. Su política de uso es para poco volumen: en producción poner en `Geocoding:UserAgent` un correo de contacto de CleanCom, y pasar a Google Geocoding (o un servidor propio) cuando lleguen las llaves o crezca el uso, por ejemplo con la app del invitado.
 - [ ] Verificación en dos pasos para Administración: no está en la semana 1.
-- [ ] Bitácora de cambios: hoy cada tabla guarda quién creó y quién modificó por última vez; falta el historial completo de pedidos, rutas, usuarios y metas.
+- [x] Bitácora de cambios: invitados y direcciones, pedidos, rutas y zonas, metas, usuarios y permisos (ver `03-reglas-de-negocio.md#bitácora-de-cambios`).
+- [ ] Bitácora: el CRM la muestra en la ficha y Administración en Usuarios › Bitácora. Confirmar si Pedidos, Rutas y Usuarios deben mostrar la bitácora de cada registro en su propia pantalla, y cuánto tiempo se guarda (hoy sin límite; cuenta para los 10 GB de SQL Server Express).
 
 - [x] Agenda: el aviso "cita agendada" al invitado (semana 6, modo de prueba: WhatsApp por mandar a mano, push simulado).
 - [x] App del invitado: al pedir, cambiar día o cancelar, oficina lo ve en la campana del menú (semana 6).

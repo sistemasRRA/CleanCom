@@ -412,3 +412,15 @@ Cómo se calcula (semana 5, en el API):
 6. **Recordatorio:** pasada la fecha, el aviso se repite cada 7 días hasta que se registra algo. El servicio vencido por kilometraje (sin fecha) se recuerda los lunes.
 7. **Gasto del año y costo por km:** suma de los montos de la bitácora del año, entre los kilómetros recorridos en el año (del primer kilometraje registrado del año al actual).
 8. **Asignar una unidad a una ruta** fuera de servicio, con falla abierta o con seguro, tarjeta o verificación vencidos pide confirmar. Una unidad no puede estar en dos rutas el mismo día.
+
+## Bitácora de cambios
+
+Quién cambió qué y cuándo en los registros clave, para revisar errores y responder "¿quién movió esto?".
+
+1. **Qué se registra:** invitados y sus direcciones, pedidos, rutas y sus zonas, metas de KPI, usuarios (y el cambio de su rol) y permisos de roles. La configuración de Operación ya guarda cada cambio como una fila nueva con quién y desde cuándo, así que no entra aquí.
+2. **Cada entrada:** acción (alta, cambio, baja o reactivación), quién (o "Sistema" si fue un proceso automático), cuándo y cada campo con su valor anterior y nuevo. En un alta van los valores con que se creó.
+3. **Baja y reactivación:** apagar "activo" es una baja y prenderlo una reactivación, aunque cambien otros campos a la vez. Quitar un permiso o el rol de un usuario también es una baja.
+4. **Solo lo que cambió de verdad:** un campo que se guarda con el mismo valor no se registra, ni los campos técnicos (quién y cuándo modificó, último acceso, datos de seguridad del usuario). Si solo cambiaron esos, no hay entrada. Ejemplo: oficina cambia la colonia de "Portales" a "Portales Norte" y vuelve a guardar la calle igual → una entrada "Cambio" con Colonia: Portales → Portales Norte.
+5. **Permisos:** guardar los permisos de un rol registra solo los que cambiaron de nivel, se agregaron o se quitaron.
+6. **Lectura:** en la ficha del CRM, pestaña Bitácora (el invitado y sus direcciones; pide ver Clientes (CRM)). La bitácora general (Usuarios › Bitácora) es solo para SuperUser y Administración y filtra por tipo de registro, número y fechas; un registro trae también lo que le pertenece (una ruta con sus zonas, un usuario con su rol).
+7. **No se edita ni se borra.** Los textos largos se guardan hasta 300 caracteres. Los cambios masivos hechos directo en la base (por ejemplo, cerrar sesiones al bloquear la app) no pasan por la bitácora.

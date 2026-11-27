@@ -53,7 +53,7 @@ Un solo backend en C# atiende a las tres aplicaciones. Toda regla de negocio viv
 - JWT de acceso de corta duración y token de renovación.
 - Contraseñas con hash de Identity; la inicial se cambia en el primer acceso; nadie puede verlas.
 - Verificación en dos pasos opcional para Administración.
-- Bitácora de cambios (quién, cuándo, qué) en entidades clave: pedidos, rutas, configuración, usuarios, metas.
+- Bitácora de cambios (quién, cuándo, qué) en entidades clave: invitados, pedidos, rutas, usuarios, permisos y metas (tabla `change_logs`, escrita por `ChangeLogInterceptor` al guardar con EF). La configuración guarda su propio historial por filas.
 - Datos personales de invitados solo visibles para roles autorizados; los archivos de importación no se suben a Git.
 - Límite de intentos en el envío de códigos de verificación por teléfono.
 

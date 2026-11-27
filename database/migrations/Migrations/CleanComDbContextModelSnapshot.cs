@@ -1513,6 +1513,74 @@ namespace CleanCom.Migrations.Migrations
                     b.ToTable("zona_visit_days", (string)null);
                 });
 
+            modelBuilder.Entity("CleanCom.Domain.Common.ChangeLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Changes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("changes");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("int")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("OwnerType")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("owner_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_change_logs");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_change_logs_created_at");
+
+                    b.HasIndex("EntityType", "EntityId", "CreatedAt")
+                        .HasDatabaseName("ix_change_logs_entity_type_entity_id_created_at");
+
+                    b.HasIndex("OwnerType", "OwnerId", "CreatedAt")
+                        .HasDatabaseName("ix_change_logs_owner_type_owner_id_created_at");
+
+                    b.ToTable("change_logs", (string)null);
+                });
+
             modelBuilder.Entity("CleanCom.Domain.Crm.Contact", b =>
                 {
                     b.Property<int>("Id")
