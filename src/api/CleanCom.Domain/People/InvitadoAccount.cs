@@ -54,6 +54,23 @@ public static class InvitadoAccount
         Phones(a.WhatsAppPhone, a.OtherPhone).Overlaps(Phones(b.WhatsAppPhone, b.OtherPhone));
 
     /// <summary>
+    /// While capturing an invitado: does <paramref name="other"/> already have one of the phones being captured, and
+    /// does it stop the save? Only the same WhatsApp stops it (the WhatsApp is the app sign-in); sharing any other phone
+    /// is a warning, because a family or an office can share a phone. Null when they share none.
+    /// Example: capturing WhatsApp 5512345678 when Ana has it as WhatsApp → blocks; when Ana has it as her other phone
+    /// → warning.
+    /// </summary>
+    public static bool? CaptureConflict(string whatsApp, string? otherPhone, Invitado other)
+    {
+        var captured = Phones(whatsApp, otherPhone);
+        if (!captured.Overlaps(Phones(other.WhatsAppPhone, other.OtherPhone)))
+        {
+            return null;
+        }
+        return TryNormalize(whatsApp) is { } w && w == TryNormalize(other.WhatsAppPhone);
+    }
+
+    /// <summary>
     /// Throws with the reason, in Spanish, when <paramref name="duplicate"/> cannot be merged into <paramref name="main"/>.
     /// Both must be active and different; only one of them can have an app account (the sign-in is the phone).
     /// </summary>

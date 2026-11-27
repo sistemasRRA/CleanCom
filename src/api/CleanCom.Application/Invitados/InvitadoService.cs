@@ -41,6 +41,31 @@ public class InvitadoService(
         return invitados.Select(ToDto).ToList();
     }
 
+    /// <summary>
+    /// Active invitados who already have the WhatsApp or the other phone being captured, the ones that stop the save
+    /// first. <paramref name="exclude"/> is the invitado being edited.
+    /// </summary>
+    public async Task<IReadOnlyList<PhoneMatchDto>> PhoneMatchesAsync(string? whatsApp, string? otherPhone, int? exclude, CancellationToken ct)
+    {
+        var phones = InvitadoAccount.Phones(whatsApp ?? "", otherPhone).ToList();
+        if (phones.Count == 0)
+        {
+            return [];
+        }
+        // Phones are stored normalized, so equal digits find them; the domain rule decides.
+        var candidates = await db.Invitados.AsNoTracking()
+            .Where(i => i.Active && i.Id != exclude && (phones.Contains(i.WhatsAppPhone) || (i.OtherPhone != null && phones.Contains(i.OtherPhone))))
+            .OrderBy(i => i.Name)
+            .Take(SearchLimit)
+            .ToListAsync(ct);
+        return candidates
+            .Select(i => (Invitado: i, Blocks: InvitadoAccount.CaptureConflict(whatsApp ?? "", otherPhone, i)))
+            .Where(m => m.Blocks is not null)
+            .OrderByDescending(m => m.Blocks)
+            .Select(m => new PhoneMatchDto(m.Invitado.Id, m.Invitado.Name, m.Invitado.WhatsAppPhone, m.Invitado.OtherPhone, m.Blocks!.Value))
+            .ToList();
+    }
+
     public async Task<InvitadoDto> GetAsync(int id, CancellationToken ct) =>
         ToDto(await Query().FirstOrDefaultAsync(i => i.Id == id, ct) ?? throw new NotFoundException($"El invitado {id} no existe."));
 

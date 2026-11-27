@@ -49,6 +49,7 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 - `GET /invitados/{id}`, `PUT /invitados/{id}`, `POST /invitados`.
 - `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` (hecho; Clientes (CRM): Edit). Seguimiento: estatus manual, frecuencia fija, próximo contacto y no contactar.
 - `GET /invitados/{id}/historia` (View, hecho): pedidos, visitas (con motivo o cobro de referencia), tickets, avisos (WhatsApp y push) y contactos en una lista, lo más nuevo primero, con montos. La pantalla filtra por tipo.
+- `GET /invitados/telefono?whatsapp=&otro=&excluir=` (Agendar: View, hecho): al capturar o editar, invitados activos que ya tienen alguno de esos teléfonos; `blocksSave` si es el mismo WhatsApp. El formulario avisa mientras se escribe y, al capturar uno nuevo, ofrece "Usar este invitado" (en Agendar lo elige, en el CRM abre su ficha).
 - `GET /invitados/{id}/duplicados` (View, hecho): otros invitados activos con el mismo teléfono.
 - `POST /invitados/{id}/fusionar` `{ duplicadoId }` (solo SuperUser y Administración, hecho): fusiona el duplicado en este invitado y responde la ficha. Ver [Duplicados y cuenta de la app](../../03-reglas-de-negocio.md#duplicados-y-cuenta-de-la-app).
 - `POST /invitados/{id}/invitar-app` (Edit, hecho): texto y link de WhatsApp de la invitación; guarda la fecha.

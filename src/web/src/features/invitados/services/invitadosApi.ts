@@ -39,6 +39,8 @@ export const invitadosApi = {
   /** POST /invitados/{id}/bloquear-app */
   bloquearApp: (id: number, body: Body<'/invitados/{id}/bloquear-app', 'post'>) =>
     unwrap(api.POST('/invitados/{id}/bloquear-app', { params: { path: { id } }, body })),
+  /** GET /invitados/telefono */
+  phoneMatches: (query: Query<'/invitados/telefono', 'get'>) => unwrap(api.GET('/invitados/telefono', { params: { query } })),
   /** GET /invitados/buscar */
   search: (query: Query<'/invitados/buscar', 'get'>) => unwrap(api.GET('/invitados/buscar', { params: { query } })),
   /** GET /invitados/llamar-hoy */

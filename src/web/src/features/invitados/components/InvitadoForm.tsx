@@ -8,6 +8,7 @@ import { optional } from '../../../shared/utils/format';
 import { Dialog } from '../../../shared/components/Dialog';
 import { Checkbox, Field } from '../../../shared/components/Form';
 import { DireccionFieldsForm } from './DireccionForm';
+import { PhoneMatches } from './PhoneMatches';
 import { invitadosApi } from '../services/invitadosApi';
 import { operacionApi } from '../../operacion';
 
@@ -68,6 +69,8 @@ export function InvitadoForm({ invitado, onClose, onSaved }: { invitado?: Invita
         <Field label="Otro teléfono">
           <input value={otherPhone} onChange={(e) => setOtherPhone(e.target.value)} inputMode="tel" />
         </Field>
+        {/* New: the existing invitado can be used instead; editing: only the warning. */}
+        <PhoneMatches whatsApp={phone} otherPhone={otherPhone} exclude={invitado?.id} onUse={invitado ? undefined : onSaved} />
         <Field label="Correo">
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>

@@ -44,6 +44,19 @@ public class InvitadoAccountTests
     }
 
     [Fact]
+    public void Capturing_an_existing_whatsapp_blocks_and_any_other_shared_phone_warns()
+    {
+        // Example of the document: Ana has 5512345678 as WhatsApp, Luis has it as his other phone.
+        var ana = new Invitado { Id = 1, WhatsAppPhone = "5512345678" };
+        var luis = new Invitado { Id = 2, WhatsAppPhone = "5587654321", OtherPhone = "5512345678" };
+        Assert.True(InvitadoAccount.CaptureConflict("55 1234 5678", null, ana));
+        Assert.False(InvitadoAccount.CaptureConflict("5512345678", null, luis));
+        Assert.False(InvitadoAccount.CaptureConflict("5500000000", "+52 1 55 1234 5678", ana));
+        Assert.Null(InvitadoAccount.CaptureConflict("5500000000", null, ana));
+        Assert.Null(InvitadoAccount.CaptureConflict("123", "", ana));
+    }
+
+    [Fact]
     public void Two_app_accounts_or_the_same_invitado_cannot_be_merged()
     {
         var main = new Invitado { Id = 1, WhatsAppPhone = "5512345678", UserId = 10 };

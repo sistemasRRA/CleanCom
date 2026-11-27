@@ -2507,6 +2507,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invitados/telefono": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    whatsapp?: string;
+                    otro?: string;
+                    excluir?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PhoneMatchDto"][];
+                        "application/json": components["schemas"]["PhoneMatchDto"][];
+                        "text/json": components["schemas"]["PhoneMatchDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invitados/{id}": {
         parameters: {
             query?: never;
@@ -8892,6 +8933,14 @@ export interface components {
         PerdidosDto: {
             label: string;
             rows: components["schemas"]["PerdidoDto"][];
+        };
+        PhoneMatchDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            whatsAppPhone: string;
+            otherPhone: null | string;
+            blocksSave: boolean;
         };
         PlantaBoardDto: {
             /** Format: date */

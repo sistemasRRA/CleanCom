@@ -92,6 +92,32 @@ public class CrmFichaTests(ApiFactory api)
         Assert.Equal("Activa", ficha.GetProperty("account").GetProperty("state").GetString());
     }
 
+    [Fact]
+    public async Task Capturing_a_phone_that_exists_warns_before_saving()
+    {
+        var admin = await api.AdminAsync();
+        using (var scope = api.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<CleanComDbContext>();
+            db.Invitados.Add(new Invitado { Name = "Tel Ana", WhatsAppPhone = "5532000021", OtherPhone = "5532000022" });
+            await db.SaveChangesAsync();
+        }
+
+        // Same WhatsApp, in any format: stops the save.
+        var same = Assert.Single((await admin.GetOkAsync("/invitados/telefono?whatsapp=55%203200%200021")).EnumerateArray());
+        Assert.Equal("Tel Ana", same.GetProperty("name").GetString());
+        Assert.True(same.GetProperty("blocksSave").GetBoolean());
+
+        // Her other phone as the new WhatsApp: only a warning.
+        var shared = Assert.Single((await admin.GetOkAsync("/invitados/telefono?whatsapp=5532000022")).EnumerateArray());
+        Assert.False(shared.GetProperty("blocksSave").GetBoolean());
+
+        // Editing Ana herself does not find her; an incomplete phone finds nobody.
+        var id = same.GetProperty("id").GetInt32();
+        Assert.Empty((await admin.GetOkAsync($"/invitados/telefono?whatsapp=5532000021&excluir={id}")).EnumerateArray());
+        Assert.Empty((await admin.GetOkAsync("/invitados/telefono?whatsapp=55320")).EnumerateArray());
+    }
+
     /// <summary>
     /// The same person captured twice: "Gemela López" (5532000001, other phone 5532000002) and "Gemela" (5532000002,
     /// with email and a pedido with a $420 ticket). Written straight to the database: capture rejects a repeated phone.
