@@ -104,7 +104,10 @@ export function ClientesYFuentes() {
                   <tbody>
                     {d.fuentes.map((f) => (
                       <tr key={f.fuente}>
-                        <td>{f.fuente}</td>
+                        <td>
+                          {f.fuente}
+                          {f.isDigital && <span className="badge brand"> Digital</span>}
+                        </td>
                         <td className="end">{f.nuevos}</td>
                         <td className="end">{money(f.ventaNuevos)}</td>
                         <td className="end">{f.atendidos}</td>
@@ -203,6 +206,9 @@ export function ClientesYFuentes() {
                 </li>
                 <li>
                   <strong>Activo al cierre:</strong> pidió en los {d.inactiveDays} días previos al cierre del periodo.
+                </li>
+                <li>
+                  <strong>Nuevos de marketing digital:</strong> nuevos cuya fuente está marcada como marketing digital en Operación (catálogo "Cómo nos conoció"). La campaña escrita después de « · » no cuenta para la fuente.
                 </li>
                 <li>
                   <strong>Venta:</strong> importe de los tickets del punto de venta (mientras no se conecta, los capturados en Tickets en planta). Sin tiendas internas.

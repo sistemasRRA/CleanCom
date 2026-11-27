@@ -9,6 +9,7 @@ namespace CleanCom.Application.Crm;
 /// <param name="StatusIsManual">The office fixed the status; <paramref name="Why"/> says what was calculated.</param>
 /// <param name="SuggestedVisit">Next visit day of their zona from the "le toca" date.</param>
 /// <param name="NextRecoleccion">Next scheduled recolección, if any: worth knowing before calling.</param>
+/// <param name="Account">State of their app account.</param>
 /// <param name="Reactivation">Sent to "Llamar hoy" from Clientes y fuentes (perdidos) and not contacted yet.</param>
 public record CrmRowDto(
     int Id,
@@ -29,4 +30,5 @@ public record CrmRowDto(
     DateOnly? NextRecoleccion,
     DateOnly? NextContactOn,
     bool DoNotContact,
-    bool Reactivation = false);
+    bool Reactivation = false,
+    AppAccountState Account = AppAccountState.SinApp);

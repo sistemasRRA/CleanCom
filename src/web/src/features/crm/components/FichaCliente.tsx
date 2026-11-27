@@ -11,6 +11,10 @@ import { formatDate, formatDateTime, shortDay } from '../../../shared/utils/date
 import { EditDireccionButton, ZonaPicker, invitadosApi } from '../../invitados';
 import { Seguimiento } from './Seguimiento';
 import { BeneficiosInvitado } from '../../promociones';
+import { money } from '../../../shared/utils/format';
+import { AppAccount } from './AppAccount';
+import { Duplicados } from './Duplicados';
+import { Historia } from './Historia';
 
 export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => void; onContact: (r: Row) => void }) {
   const canEdit = useSession().can('clientes-crm', 'edit');
@@ -61,8 +65,20 @@ export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => v
                   <span className="muted">Último servicio</span>
                   <strong>{shortDay(f.crm.lastService)}</strong>
                 </div>
+                <div>
+                  <span className="muted">Gasto total</span>
+                  <strong>{money(f.value.totalSpent)}</strong>
+                </div>
+                <div>
+                  <span className="muted">Ticket promedio</span>
+                  <strong>
+                    {money(f.value.averageTicket)}
+                    {f.value.tickets > 0 && <span className="muted"> · {f.value.tickets} tickets</span>}
+                  </strong>
+                </div>
               </div>
               <p className="muted">{f.crm.why}</p>
+              <Duplicados invitadoId={f.invitado.id} name={f.invitado.name} />
 
               <div className="ficha__grid">
                 <section className="stack">
@@ -81,6 +97,7 @@ export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => v
                       </div>
                     </div>
                   ))}
+                  <AppAccount ficha={f} canEdit={canEdit} />
                   {canEdit && <Seguimiento ficha={f} />}
                 </section>
 
@@ -125,6 +142,7 @@ export function Ficha({ id, onClose, onContact }: { id: number; onClose: () => v
                   <BeneficiosInvitado invitadoId={f.invitado.id} />
                 </section>
               </div>
+              <Historia invitadoId={f.invitado.id} />
             </>
           )}
         </QueryState>

@@ -1292,6 +1292,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasColumnType("int")
                         .HasColumnName("created_by");
 
+                    b.Property<bool>("IsDigital")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_digital");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("modified_at");
@@ -2699,6 +2703,16 @@ namespace CleanCom.Migrations.Migrations
                             Note = "Valor inicial",
                             Type = "Integer",
                             Value = "400"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EffectiveFrom = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Key = "AppInvitado.MensajeInvitacion",
+                            Note = "Valor inicial",
+                            Type = "Text",
+                            Value = "Hola {nombre}, ya puedes pedir tu recolección y seguir a tu chofer desde la app de CleanCom. Búscala como CleanCom en App Store o Google Play."
                         });
                 });
 
@@ -3136,6 +3150,10 @@ namespace CleanCom.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("how_found_us");
+
+                    b.Property<DateTimeOffset?>("InvitedToAppAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("invited_to_app_at");
 
                     b.Property<string>("ManualStatus")
                         .HasMaxLength(30)

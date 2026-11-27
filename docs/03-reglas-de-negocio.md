@@ -40,6 +40,7 @@ Valores iniciales, editables en la pantalla Operación. Cada cambio queda en his
 | `Crm.DiasNoContesto` | 1 | Volver a llamar si no contestó (registro de contacto sin fecha) |
 | `Crm.DiasLlamarDespues` | 3 | Volver a llamar si pidió que le llamaran después |
 | `Crm.DiasNoPorAhora` | 21 | Volver a llamar si dijo que no por ahora |
+| `AppInvitado.MensajeInvitacion` | "Hola {nombre}, ya puedes pedir tu recolección…" | Texto de "Invitar a la app" del CRM; `{nombre}` es el primer nombre |
 | `Pedido.DiasPermitidosPorEtapa` | Por etapa | Semáforo de atraso |
 | `Base.Direccion` | Calz. de los Leones 165, Los Alpes, Álvaro Obregón, 01710 | Inicio y fin de ruta |
 | `Base.Ubicacion` | 19.3608092,-99.1968494 | Coordenadas de la base |
@@ -225,9 +226,21 @@ Cómo se calcula (semana 7, en el API):
 5. **Activo al cierre:** un pedido en los 120 días hasta el cierre (hoy, si el periodo sigue abierto). Ejemplo al 26 de noviembre: pidió el 29 de julio → activo; el 28 de julio → no.
 6. **Comparación:** el periodo en curso (hasta hoy) contra los mismos días desde el inicio del anterior; un periodo cerrado contra el anterior completo. Ejemplo: 1 al 26 de noviembre contra 1 al 26 de octubre.
 7. **Venta:** importe de los tickets (POS; mientras tanto los de Tickets en planta) capturados en el periodo, de pedidos no cancelados. Venta de nuevos: la de los nuevos del periodo. Ticket promedio: venta entre tickets con importe. % de la venta: venta de la fuente entre la del periodo.
-8. **Fuente:** "Cómo nos conoció" del invitado; "Sin capturar" si no tiene.
-9. **Retención por generación:** los nuevos de cada mes (primer pedido en ese mes) y cuántos volvieron a pedir dentro de 30, 60 y 90 días de su primer pedido. Solo cuentan en la base quienes ya cumplieron esos días o ya volvieron. Ejemplo: primer pedido el 3 de septiembre y el segundo el 28 → repite a 30, 60 y 90 días.
+8. **Fuente:** "Cómo nos conoció" del invitado sin la campaña que el sistema actual escribe después de « · »; "Sin capturar" si no tiene. Ejemplo: "Marketing digital (Meta / Instagram / Facebook) · Buen Fin" → "Marketing digital (Meta / Instagram / Facebook)".9. **Retención por generación:** los nuevos de cada mes (primer pedido en ese mes) y cuántos volvieron a pedir dentro de 30, 60 y 90 días de su primer pedido. Solo cuentan en la base quienes ya cumplieron esos días o ya volvieron. Ejemplo: primer pedido el 3 de septiembre y el segundo el 28 → repite a 30, 60 y 90 días.
 10. **Mandar perdidos a "Llamar hoy":** ver Reactivación en la lista "Llamar hoy".
+11. **Nuevos de marketing digital:** nuevos del periodo cuya fuente está marcada como "marketing digital" en el catálogo "Cómo nos conoció" (Operación › Motivos). La tabla por fuente marca esas fuentes como "Digital".
+
+### Valor del invitado
+
+En la ficha: **gasto total** (importe de sus tickets de pedidos no cancelados), **tickets**, **ticket promedio** (gasto entre tickets con importe; vacío sin tickets) y servicios, primero y último, con la misma definición de servicio del CRM.
+
+### Duplicados y cuenta de la app
+
+- **Duplicado:** otro invitado activo que comparte un teléfono (WhatsApp u otro teléfono), comparado ya normalizado a 10 dígitos. Ejemplo: 5512345678 y "+52 1 55 1234 5678" son el mismo.
+- **Fusionar** (solo SuperUser y Administración; no se deshace): el invitado de la ficha se queda y recibe los pedidos, direcciones, contactos, beneficios, avisos y dispositivos del duplicado. Conserva sus datos y toma del duplicado lo que le falta: otro teléfono (el WhatsApp del duplicado si es distinto), correo, cómo nos conoció, campaña y cuenta de la app; las observaciones se juntan y "no contactar" se suma. El duplicado queda con baja lógica y la nota "Fusionado con el invitado …". Ejemplo: principal 5512345678 sin correo, duplicado 5587654321 con correo → el principal conserva 5512345678 y recibe 5587654321 como otro teléfono y el correo. No se fusionan dos invitados que tienen cuenta de la app.
+- **Estado de la cuenta de la app:** Sin app (nunca entró ni se le invitó), Invitado (oficina le mandó la invitación y no ha entrado), Activa y Bloqueada. Último acceso: la última vez que inició sesión o renovó su sesión.
+- **Invitar a la app:** arma el WhatsApp con `AppInvitado.MensajeInvitacion` y guarda la fecha; no se invita a quien ya tiene cuenta ni a quien pidió no ser contactado. Oficina lo manda desde su WhatsApp.
+- **Bloquear acceso:** desactiva su usuario y revoca sus sesiones; la app responde "Tu cuenta está bloqueada. Escríbenos por WhatsApp para ayudarte." Desbloquear lo regresa.
 
 ### Tipos de invitado
 

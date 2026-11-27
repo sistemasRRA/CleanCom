@@ -9,6 +9,11 @@ type Item = { key: keyof Totals; name: string; hint: string; money?: boolean; on
 export function Indicators({ totals, previous, comparedLabel, onPerdidos }: { totals: Totals; previous: Totals; comparedLabel: string; onPerdidos: () => void }) {
   const items: Item[] = [
     { key: 'nuevos', name: 'Nuevos', hint: 'Su primer pedido fue en el periodo' },
+    {
+      key: 'nuevosDigital',
+      name: 'Nuevos de marketing digital',
+      hint: 'Nuevos cuya fuente está marcada como marketing digital en Operación › Motivos (Cómo nos conoció)',
+    },
     { key: 'recurrentes', name: 'Recurrentes', hint: 'Su pedido anterior fue hace 120 días o menos' },
     { key: 'recuperados', name: 'Recuperados', hint: 'Volvieron tras más de 120 días sin pedir' },
     { key: 'perdidos', name: 'Perdidos', hint: 'Cumplieron más de 120 días sin pedir. Clic para ver la lista', onClick: onPerdidos },

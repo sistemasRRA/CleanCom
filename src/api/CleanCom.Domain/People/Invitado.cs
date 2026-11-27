@@ -52,6 +52,8 @@ public class Invitado : Entity, IActivatable
     /// whatever their zona and status, until a contact is registered.
     /// </summary>
     public DateOnly? CallRequestedOn { get; set; }
+    /// <summary>When the office last sent the invitation to the app (WhatsApp).</summary>
+    public DateTimeOffset? InvitedToAppAt { get; set; }
 
     public List<Address> Addresses { get; set; } = [];
 }

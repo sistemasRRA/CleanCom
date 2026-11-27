@@ -70,6 +70,15 @@ public class ClientesRulesTests
     }
 
     [Fact]
+    public void The_source_leaves_out_the_campaign_written_after_the_dot()
+    {
+        Assert.Equal("Marketing digital (Meta / Instagram / Facebook)", ClientesRules.Source("Marketing digital (Meta / Instagram / Facebook) · Buen Fin"));
+        Assert.Equal("Google (búsqueda o Maps)", ClientesRules.Source("  Google (búsqueda o Maps)  "));
+        Assert.Equal("Sin capturar", ClientesRules.Source(null));
+        Assert.Equal("Sin capturar", ClientesRules.Source(" · Buen Fin"));
+    }
+
+    [Fact]
     public void Retention_counts_only_when_the_days_have_passed()
     {
         // Example of the document: first service September 3, second September 28 → repeats at 30, 60 and 90.

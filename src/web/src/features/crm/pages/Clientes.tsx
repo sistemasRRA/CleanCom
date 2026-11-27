@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '../../../shared/session/Session';
-import { type Row, type Status, STATUS_ORDER } from '../types/crm';
+import { ACCOUNT, type AccountState, type InvitadoType, type Row, type Status, STATUS_ORDER, TIPO } from '../types/crm';
 import { useRutas } from '../../operacion';
 import { keys } from '../../../shared/api/queryKeys';
 import '../../../shared/api/client';
@@ -23,6 +23,8 @@ export function Clientes() {
   const [tab, setTab] = useState<'llamar' | 'todos'>('llamar');
   const [status, setStatus] = useState<Status | null>(null);
   const [rutaId, setRutaId] = useState<number | null>(null);
+  const [tipo, setTipo] = useState<InvitadoType | null>(null);
+  const [cuenta, setCuenta] = useState<AccountState | null>(null);
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   const [contacting, setContacting] = useState<Row | null>(null);
@@ -41,14 +43,22 @@ export function Clientes() {
 
   // Paged in the API (there can be thousands of invitados); a new tab, filter or search starts at page 1.
   const [page, setPage] = useState(1);
-  useEffect(() => setPage(1), [tab, status, rutaId, q]);
+  useEffect(() => setPage(1), [tab, status, rutaId, q, tipo, cuenta]);
 
   const list = useQuery({
-    queryKey: [...keys.crm, tab, status, rutaId, q, page],
+    queryKey: [...keys.crm, tab, status, rutaId, q, page, tipo, cuenta],
     queryFn: () =>
       tab === 'llamar'
         ? invitadosApi.callToday({ ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE })
-        : invitadosApi.list({ estatus: status ?? undefined, ruta: rutaId ?? undefined, q, pagina: page, porPagina: PAGE_SIZE }),
+        : invitadosApi.list({
+            estatus: status ?? undefined,
+            ruta: rutaId ?? undefined,
+            q,
+            pagina: page,
+            porPagina: PAGE_SIZE,
+            tipo: tipo ?? undefined,
+            cuenta: cuenta ?? undefined,
+          }),
     placeholderData: (previous) => previous,
   });
   const d = list.data;
@@ -128,6 +138,26 @@ export function Clientes() {
                   </option>
                 ))}
             </select>
+            {tab === 'todos' && (
+              <>
+                <select value={tipo ?? ''} onChange={(e) => setTipo((e.target.value || null) as InvitadoType | null)} style={{ width: 'auto' }}>
+                  <option value="">Todos los tipos</option>
+                  {(Object.keys(TIPO) as InvitadoType[]).map((t) => (
+                    <option key={t} value={t}>
+                      {TIPO[t]}
+                    </option>
+                  ))}
+                </select>
+                <select value={cuenta ?? ''} onChange={(e) => setCuenta((e.target.value || null) as AccountState | null)} style={{ width: 'auto' }}>
+                  <option value="">Cualquier cuenta de app</option>
+                  {(Object.keys(ACCOUNT) as AccountState[]).map((a) => (
+                    <option key={a} value={a}>
+                      {ACCOUNT[a].name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
           </div>
         </div>
         {tab === 'llamar' && (
@@ -157,6 +187,8 @@ export function Clientes() {
                         {r.whatsAppPhone}
                         {r.neighborhood && ` · ${r.neighborhood}`}
                       </div>
+                      {r.type !== 'ClienteFinal' && <span className="badge crm-flag">{TIPO[r.type]}</span>}
+                      {r.account && r.account !== 'SinApp' && <span className={`badge ${ACCOUNT[r.account].tone} crm-flag`}>{ACCOUNT[r.account].name}</span>}
                     </td>
                     <td>
                       {r.zonaCode ?? <span className="badge warning">Sin zona</span>}

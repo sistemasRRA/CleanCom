@@ -18,7 +18,6 @@ export const TIPOS: { key: Tipo; name: string }[] = [
   { key: 'Convenios', name: 'Convenios y empresas' },
 ];
 
-export const money = (n?: number | null) =>
-  n == null ? '—' : n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+export { money } from '../../../shared/utils/format';
 
 export const percent = (n?: number | null) => (n == null ? '—' : `${n.toLocaleString('es-MX')} %`);

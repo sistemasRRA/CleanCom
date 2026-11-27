@@ -86,7 +86,9 @@
 - [ ] KPIs: alerta al responsable cuando su indicador cae en rojo; llega con el correo (avisos pendientes de canal).
 - [ ] KPIs: NPS y encuestas respondidas quedan sin datos hasta la encuesta de la app del invitado (cuándo se manda, por qué canal y la pregunta).
 - [ ] "Llamar hoy" no excluye a quien ya tiene una recolección agendada; la lista lo muestra ("ya tiene recolección el …"). Confirmar si debe salir de la lista.
-- [ ] Clientes y fuentes: "nuevos de marketing digital" necesita saber qué opciones de "Cómo nos conoció" son marketing digital (Facebook, Instagram, Google…). Confirmar la lista; se puede marcar en el catálogo.
+- [ ] Clientes y fuentes: "nuevos de marketing digital" ya se calcula con las opciones de "Cómo nos conoció" marcadas como marketing digital en Operación › Motivos, y de inicio solo viene marcada "Marketing digital (Meta / Instagram / Facebook)". Confirmar si otras cuentan (por ejemplo Google) y marcarlas.
+- [ ] CRM: al fusionar duplicados, el invitado de la ficha conserva su WhatsApp y nombre. Confirmar si oficina debe poder elegir cuál se queda, y si fusionar debe quedar en una bitácora (llega con la bitácora por sección).
+- [ ] CRM: "Invitar a la app" se manda desde el WhatsApp de oficina (link wa.me). Cuando el WhatsApp Business API esté conectado, confirmar si se manda solo como plantilla.
 - [ ] Clientes y fuentes: el tipo "Convenios" junta convenio y empresa (ver la duda de Convenio frente a Empresa). Confirmar.
 - [ ] Clientes y fuentes: "recurrente" es 120 días o menos desde su pedido anterior y "recuperado" más de 120; el documento decía "menos de 120", que dejaba fuera el día 120 exacto. Confirmar.
 - [ ] Clientes y fuentes: mandar perdidos a una campaña llega con las campañas de WhatsApp (plantillas de marketing de Meta). La fuente capturada sola desde un link o código de campaña de la app también está pendiente.

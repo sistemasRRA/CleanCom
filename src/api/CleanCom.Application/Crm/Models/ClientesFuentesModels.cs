@@ -11,6 +11,7 @@ public enum ClientesTipo
 }
 
 /// <summary>The indicators of a period.</summary>
+/// <param name="NuevosDigital">Nuevos whose source is marked as marketing digital in the catalog "Cómo nos conoció".</param>
 /// <param name="Atendidos">Invitados with a service in the period (nuevos + recurrentes + recuperados).</param>
 /// <param name="ActivosAlCierre">Invitados with a service in the Crm.DiasInactivo days before the close of the period.</param>
 /// <param name="Pedidos">Services (pedidos not cancelled) in the period.</param>
@@ -19,6 +20,7 @@ public enum ClientesTipo
 /// <param name="TicketPromedio">Venta between the tickets with an amount; null without tickets.</param>
 public record ClientesTotalsDto(
     int Nuevos,
+    int NuevosDigital,
     int Recurrentes,
     int Recuperados,
     int Perdidos,
@@ -30,9 +32,11 @@ public record ClientesTotalsDto(
     decimal? TicketPromedio);
 
 /// <summary>A source (cómo nos conoció) in the period.</summary>
+/// <param name="IsDigital">The source is marked as marketing digital.</param>
 /// <param name="PorcentajeVenta">Share of the period's venta, 0 to 100; null when there was no venta.</param>
 public record FuenteRowDto(
     string Fuente,
+    bool IsDigital,
     int Nuevos,
     decimal VentaNuevos,
     int Atendidos,

@@ -44,11 +44,16 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 ## Endpoints
 
 - `GET /invitados?estatus=&ruta=&q=`, `GET /invitados/llamar-hoy` (semana 2, hecho): filas con estatus, por qué, frecuencia, le toca, visita sugerida, próxima recolección y próximo contacto, más los conteos por estatus (sin tiendas) y cuántos hay en "Llamar hoy". Paginado: `pagina` (desde 1) y `porPagina` (50 por omisión, máximo 200); responde `rowCount` (filas con los filtros, en todas las páginas), `page` y `pageSize`. Los conteos no dependen de la página. La pantalla pide 25 por página y vuelve a la 1 al cambiar de pestaña, filtro o búsqueda. Permiso Clientes (CRM): View.
-- `GET /invitados/{id}/ficha` (hecho): datos, direcciones, evaluación del CRM, pedidos y contactos.
-- `GET /invitados/{id}`, `PUT /invitados/{id}`, `POST /invitados`, `POST /invitados/{id}/fusionar`.
+- `GET /invitados` también filtra por `tipo` (ClienteFinal, Convenio, Empresa, TiendaInterna) y `cuenta` (SinApp, Invitado, Activa, Bloqueada); cada fila trae `account` (semana 7, hecho).
+- `GET /invitados/{id}/ficha` (hecho): datos, direcciones, evaluación del CRM, pedidos y contactos, más `value` (gasto total, tickets, ticket promedio, servicios, primero y último) y `account` (estado de la cuenta de la app, último acceso, fecha de invitación).
+- `GET /invitados/{id}`, `PUT /invitados/{id}`, `POST /invitados`.
 - `POST /invitados/{id}/contactos`, `PUT /invitados/{id}/seguimiento` (hecho; Clientes (CRM): Edit). Seguimiento: estatus manual, frecuencia fija, próximo contacto y no contactar.
-- Pendiente: `POST /invitados/{id}/fusionar`, invitar o bloquear en la app, bitácora por sección e indicadores de valor (gasto, ticket promedio).
-- `POST /invitados/{id}/invitar-app`, `POST /invitados/{id}/bloquear-app`.
+- `GET /invitados/{id}/historia` (View, hecho): pedidos, visitas (con motivo o cobro de referencia), tickets, avisos (WhatsApp y push) y contactos en una lista, lo más nuevo primero, con montos. La pantalla filtra por tipo.
+- `GET /invitados/{id}/duplicados` (View, hecho): otros invitados activos con el mismo teléfono.
+- `POST /invitados/{id}/fusionar` `{ duplicadoId }` (solo SuperUser y Administración, hecho): fusiona el duplicado en este invitado y responde la ficha. Ver [Duplicados y cuenta de la app](../../03-reglas-de-negocio.md#duplicados-y-cuenta-de-la-app).
+- `POST /invitados/{id}/invitar-app` (Edit, hecho): texto y link de WhatsApp de la invitación; guarda la fecha.
+- `POST /invitados/{id}/bloquear-app` `{ blocked }` (Edit, hecho): bloquea o regresa el acceso a la app y responde la ficha.
+- Pendiente: bitácora por sección.
 
 ## Criterios de aceptación
 
@@ -60,3 +65,8 @@ Clasifica a cada invitado por su frecuencia real y arma la lista de a quién lla
 - El estatus se calcula al consultar con la misma regla (`CrmRules`) que usará el proceso nocturno cuando Hangfire esté conectado; entonces se guardará por la noche junto con su "por qué".
 - Un servicio es un pedido activo, no cancelado, con fecha de recolección de hoy o antes. Mientras no se migre el historial del sistema actual, casi todos los invitados salen como Prospecto.
 - La zona del CRM es la de la primera dirección activa con zona.
+
+## Estado (semana 7)
+
+- Lista: en "Todos" se filtra por tipo de invitado y estado de la cuenta de la app; las filas marcan el tipo (si no es cliente final) y la cuenta (si tiene).
+- Ficha: gasto total y ticket promedio junto a los indicadores; aviso de posible duplicado con "Fusionar aquí" (SuperUser y Administración); cuenta de la app con último acceso, "Invitar a la app" (abre WhatsApp con el texto de `AppInvitado.MensajeInvitacion`) y "Bloquear acceso" / "Desbloquear"; historia legible con filtro (todo, pedidos, visitas, tickets, avisos, contactos) y montos.

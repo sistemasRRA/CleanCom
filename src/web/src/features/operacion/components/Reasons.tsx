@@ -42,7 +42,10 @@ export function Reasons() {
               {pagedReasons.rows.map((m) => (
                 <tr key={m.id} className={m.active ? '' : 'inactive'}>
                   <td>{REASON_TYPES[m.type]}</td>
-                  <td>{m.text}</td>
+                  <td>
+                    {m.text}
+                    {m.isDigital && <span className="badge brand"> Marketing digital</span>}
+                  </td>
                   <td>
                     <ActiveBadge active={m.active} />
                   </td>
@@ -70,9 +73,10 @@ function ReasonForm({ reason, onClose }: { reason: Reason | null; onClose: () =>
   const [type, setType] = useState<Reason['type']>(reason?.type ?? 'FailedEntrega');
   const [text, setText] = useState(reason?.text ?? '');
   const [active, setActive] = useState(reason?.active ?? true);
+  const [isDigital, setIsDigital] = useState(reason?.isDigital ?? false);
   const save = useSave(
     () => {
-      const body = { type, text: text.trim(), active };
+      const body = { type, text: text.trim(), active, isDigital: type === 'HowFoundUs' && isDigital };
       return reason ? operacionApi.updateMotivo(reason.id, body) : operacionApi.createMotivo(body);
     },
     { refetch: [keys.reasons], message: 'Motivo guardado.', onDone: onClose },
@@ -97,6 +101,11 @@ function ReasonForm({ reason, onClose }: { reason: Reason | null; onClose: () =>
       <Field label="Texto">
         <input autoFocus value={text} onChange={(e) => setText(e.target.value)} required />
       </Field>
+      {type === 'HowFoundUs' && (
+        <Checkbox checked={isDigital} onChange={setIsDigital}>
+          Es marketing digital (cuenta en "nuevos de marketing digital" de Clientes y fuentes)
+        </Checkbox>
+      )}
       <Checkbox checked={active} onChange={setActive}>
         Activo
       </Checkbox>

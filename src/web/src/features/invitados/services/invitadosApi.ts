@@ -27,6 +27,18 @@ export const invitadosApi = {
   /** PUT /invitados/{id}/seguimiento */
   updateSeguimiento: (id: number, body: Body<'/invitados/{id}/seguimiento', 'put'>) =>
     unwrap(api.PUT('/invitados/{id}/seguimiento', { params: { path: { id } }, body })),
+  /** GET /invitados/{id}/historia */
+  historia: (id: number) => unwrap(api.GET('/invitados/{id}/historia', { params: { path: { id } } })),
+  /** GET /invitados/{id}/duplicados */
+  duplicados: (id: number) => unwrap(api.GET('/invitados/{id}/duplicados', { params: { path: { id } } })),
+  /** POST /invitados/{id}/fusionar */
+  fusionar: (id: number, body: Body<'/invitados/{id}/fusionar', 'post'>) =>
+    unwrap(api.POST('/invitados/{id}/fusionar', { params: { path: { id } }, body })),
+  /** POST /invitados/{id}/invitar-app */
+  invitarApp: (id: number) => unwrap(api.POST('/invitados/{id}/invitar-app', { params: { path: { id } } })),
+  /** POST /invitados/{id}/bloquear-app */
+  bloquearApp: (id: number, body: Body<'/invitados/{id}/bloquear-app', 'post'>) =>
+    unwrap(api.POST('/invitados/{id}/bloquear-app', { params: { path: { id } }, body })),
   /** GET /invitados/buscar */
   search: (query: Query<'/invitados/buscar', 'get'>) => unwrap(api.GET('/invitados/buscar', { params: { query } })),
   /** GET /invitados/llamar-hoy */

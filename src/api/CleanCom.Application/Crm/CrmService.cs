@@ -25,14 +25,19 @@ public class CrmService(
     InvitadoService invitados,
     PedidoService pedidos,
     IValidator<SaveContactRequest> contactValidator,
-    IValidator<SaveSeguimientoRequest> seguimientoValidator)
+    IValidator<SaveSeguimientoRequest> seguimientoValidator,
+    IInvitadoAccounts accounts,
+    CrmInvitadoService profile)
 {
     private static readonly CrmStatus[] CallStatuses = [CrmStatus.LeToca, CrmStatus.EnRiesgo];
 
     /// <param name="callToday">Only "Llamar hoy": le toca or en riesgo, their ruta comes tomorrow, no future contact date, not "do not contact".</param>
     /// <param name="page">1-based; a page past the end returns the last one.</param>
     /// <param name="pageSize">Rows per page, from 1 to <see cref="MaxPageSize"/>.</param>
-    public async Task<CrmListDto> ListAsync(bool callToday, CrmStatus? status, int? rutaId, string? q, CancellationToken ct, int page = 1, int pageSize = DefaultPageSize)
+    /// <param name="type">Only invitados of this type (cliente final, convenio, empresa, tienda interna).</param>
+    /// <param name="account">Only invitados with their app account in this state.</param>
+    public async Task<CrmListDto> ListAsync(bool callToday, CrmStatus? status, int? rutaId, string? q, CancellationToken ct, int page = 1, int pageSize = DefaultPageSize,
+        InvitadoType? type = null, AppAccountState? account = null)
     {
         var today = clock.Today;
         var all = await EvaluateAsync(null, ct);
@@ -53,6 +58,8 @@ public class CrmService(
             .Where(r => !callToday || InCallToday(r))
             .Where(r => status is null || r.Dto.Status == status)
             .Where(r => rutaId is null || r.RutaId == rutaId)
+            .Where(r => type is null || r.Dto.Type == type)
+            .Where(r => account is null || r.Dto.Account == account)
             .Where(r => text.Length < 2
                 || r.Dto.Name.Contains(text, StringComparison.CurrentCultureIgnoreCase)
                 || (r.Dto.Neighborhood?.Contains(text, StringComparison.CurrentCultureIgnoreCase) ?? false)
@@ -90,7 +97,8 @@ public class CrmService(
             .Select(c => new ContactDto(c.Id, c.Channel, c.Result, c.Note, c.NextContactOn, c.ContactedAt))
             .ToListAsync(ct);
         var history = (await pedidos.ListAsync(DateOnly.MinValue, null, id, ct)).OrderByDescending(p => p.RecoleccionDate).ToList();
-        return new CrmFichaDto(await invitados.GetAsync(id, ct), row.Dto, invitado.ManualStatus, invitado.FixedFrequencyDays, history, contacts);
+        return new CrmFichaDto(await invitados.GetAsync(id, ct), row.Dto, invitado.ManualStatus, invitado.FixedFrequencyDays, history, contacts,
+            await profile.ValueAsync(id, ct), await profile.AccountAsync(invitado, ct));
     }
 
     /// <summary>
@@ -175,6 +183,8 @@ public class CrmService(
                 i.NextContactOn,
                 i.DoNotContact,
                 i.CallRequestedOn,
+                i.UserId,
+                i.InvitedToAppAt,
                 i.ManualStatus,
                 i.FixedFrequencyDays,
                 // First active address with a zona: the one the CRM uses for the visit days.
@@ -184,6 +194,7 @@ public class CrmService(
             })
             .ToListAsync(ct);
 
+        var appUsers = await accounts.InfoAsync(people.Where(p => p.UserId != null).Select(p => p.UserId!.Value).ToList(), ct);
         var zonas = await db.Zonas.AsNoTracking().Include(z => z.Ruta).Include(z => z.VisitDays)
             .Include(z => z.ZonaNucleo!).ThenInclude(n => n.VisitDays)
             .ToDictionaryAsync(z => z.Id, ct);
@@ -211,7 +222,8 @@ public class CrmService(
             return new Row(
                 new CrmRowDto(p.Id, p.Name, p.WhatsAppPhone, p.Type, p.Address?.Neighborhood, p.Address?.ZonaCode, zona?.Ruta?.Code,
                     status, p.ManualStatus is not null, why, e.ServiceCount, e.FrequencyDays, e.LastService, e.LeTocaDate,
-                    suggested, nextRecoleccion, p.NextContactOn, p.DoNotContact, p.CallRequestedOn is { } requested && requested <= today),
+                    suggested, nextRecoleccion, p.NextContactOn, p.DoNotContact, p.CallRequestedOn is { } requested && requested <= today,
+                    InvitadoAccount.State(p.UserId is { } u && appUsers.ContainsKey(u), p.UserId is { } v && appUsers.TryGetValue(v, out var info) && info.Active, p.InvitedToAppAt)),
                 zona?.RutaId,
                 visitDays,
                 p.CallRequestedOn);

@@ -35,7 +35,8 @@ Pantalla `/clientes-y-fuentes`. Reglas en [Clientes y fuentes](../../03-reglas-d
 - Retención por generación: nuevos de cada uno de los últimos 6 meses y cuántos volvieron a pedir a 30, 60 y 90 días, filtrable por fuente. El porcentaje es sobre quienes ya cumplieron esos días ("en curso" si faltan).
 - Perdidos: quién, fuente, último pedido, desde cuándo es perdido, pedidos y venta histórica. Con permiso de editar, "Mandar a Llamar hoy" los pone en la lista "Llamar hoy" del CRM (reactivación) hasta que alguien registre un contacto con ellos; no se manda a quien pidió no ser contactado, a quien ya está en la lista ni a quien ya volvió.
 - Definiciones al pie.
-- Pendiente: mandar a una campaña (llega con las campañas de WhatsApp), "nuevos de marketing digital" (falta decidir qué fuentes son digitales) y fuente capturada sola en la app.
+- Nuevos de marketing digital: los nuevos cuya fuente está marcada como "marketing digital" en Operación › Motivos (Cómo nos conoció); esas fuentes llevan la etiqueta "Digital" en la tabla. La campaña escrita después de « · » no separa la fuente.
+- Pendiente: mandar a una campaña (llega con las campañas de WhatsApp) y fuente capturada sola en la app.
 
 ## Endpoints
 

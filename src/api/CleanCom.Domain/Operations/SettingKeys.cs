@@ -52,4 +52,5 @@ public static class SettingKeys
     public const string PromocionesCuponeraGoal = "Promociones.MetaCanjeCuponera";
     public const string PromocionesSelloCap = "Promociones.TopeSello";
     public const string UnidadMaxKmPerShift = "Unidad.KmMaximoPorTurno";
+    public const string AppInvitadoInvitation = "AppInvitado.MensajeInvitacion";
 }

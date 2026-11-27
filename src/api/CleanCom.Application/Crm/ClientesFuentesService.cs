@@ -1,5 +1,6 @@
 using CleanCom.Application.Common;
 using CleanCom.Application.Operations;
+using CleanCom.Domain.Catalogs;
 using CleanCom.Domain.Common;
 using CleanCom.Domain.Crm;
 using CleanCom.Domain.Kpis;
@@ -18,11 +19,11 @@ namespace CleanCom.Application.Crm;
 /// </summary>
 public class ClientesFuentesService(ICleanComDbContext db, IBusinessClock clock, ISettingService settings)
 {
-    public const string NoSource = "Sin capturar";
+    public const string NoSource = ClientesRules.NoSource;
     private const int TrendPeriods = 6;
     private const int CohortMonths = 6;
 
-    private sealed record Person(int Id, string Name, string Phone, string Fuente, bool DoNotContact, DateOnly? CallRequestedOn, List<DateOnly> Services);
+    private sealed record Person(int Id, string Name, string Phone, string Fuente, bool IsDigital, bool DoNotContact, DateOnly? CallRequestedOn, List<DateOnly> Services);
 
     private sealed record Sale(int InvitadoId, DateOnly Date, decimal Amount);
 
@@ -153,6 +154,7 @@ public class ClientesFuentesService(ICleanComDbContext db, IBusinessClock clock,
         var venta = sales.Sum(s => s.Amount);
         return new ClientesTotalsDto(
             nuevos.Count,
+            data.People.Count(p => p.IsDigital && nuevos.Contains(p.Id)),
             kinds.Count(k => k == AttendedKind.Recurrente),
             kinds.Count(k => k == AttendedKind.Recuperado),
             data.People.Count(p => ClientesRules.LostOn(p.Services, range, data.InactiveDays, data.Today) is not null),
@@ -175,6 +177,7 @@ public class ClientesFuentesService(ICleanComDbContext db, IBusinessClock clock,
                 var venta = theirSales.Sum(s => s.Amount);
                 return new FuenteRowDto(
                     g.Key,
+                    people.Any(p => p.IsDigital),
                     kinds.Count(k => k == AttendedKind.Nuevo),
                     people.Where((_, i) => kinds[i] == AttendedKind.Nuevo).SelectMany(p => sales[p.Id]).Sum(s => s.Amount),
                     kinds.Count(k => k is not null),
@@ -209,6 +212,9 @@ public class ClientesFuentesService(ICleanComDbContext db, IBusinessClock clock,
             .Select(i => new { i.Id, i.Name, i.WhatsAppPhone, i.HowFoundUs, i.DoNotContact, i.CallRequestedOn })
             .ToListAsync(ct);
         var ids = people.Select(p => p.Id).ToHashSet();
+        // Sources marked as marketing digital in the catalog "Cómo nos conoció" (Operación).
+        var digital = (await db.Reasons.AsNoTracking().Where(r => r.Type == ReasonType.HowFoundUs && r.IsDigital).Select(r => r.Text).ToListAsync(ct))
+            .Select(ClientesRules.Source).ToHashSet();
         var services = (await db.Pedidos.AsNoTracking()
                 .Where(p => p.Active && p.Etapa != PedidoEtapa.Cancelado && p.RecoleccionDate <= today)
                 .Select(p => new { p.InvitadoId, p.RecoleccionDate })
@@ -226,7 +232,7 @@ public class ClientesFuentesService(ICleanComDbContext db, IBusinessClock clock,
         return new Data(
             people.Select(p => new Person(
                 p.Id, p.Name, p.WhatsAppPhone,
-                string.IsNullOrWhiteSpace(p.HowFoundUs) ? NoSource : p.HowFoundUs.Trim(),
+                ClientesRules.Source(p.HowFoundUs), digital.Contains(ClientesRules.Source(p.HowFoundUs)),
                 p.DoNotContact, p.CallRequestedOn,
                 services[p.Id].Order().ToList())).ToList(),
             sales, inactiveDays, today);

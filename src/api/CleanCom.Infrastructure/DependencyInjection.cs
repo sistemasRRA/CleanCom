@@ -93,6 +93,7 @@ public static class DependencyInjection
         services.AddSingleton<CleanCom.Application.Avisos.IAvisoSender, Messaging.TestWhatsAppSender>();
         services.AddSingleton<CleanCom.Application.Avisos.IAvisoSender, Messaging.TestPushSender>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IInvitadoAccounts, InvitadoAccounts>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddSingleton<IPermissionStore, PermissionStore>();
         return services;
@@ -112,9 +113,21 @@ public static class DependencyInjection
         if (!await db.Reasons.AnyAsync(r => r.Type == Domain.Catalogs.ReasonType.HowFoundUs))
         {
             db.Reasons.AddRange(Domain.Catalogs.Reason.HowFoundUsDefaults.Select(text =>
-                new Domain.Catalogs.Reason { Type = Domain.Catalogs.ReasonType.HowFoundUs, Text = text }));
+                new Domain.Catalogs.Reason { Type = Domain.Catalogs.ReasonType.HowFoundUs, Text = text, IsDigital = text == Domain.Catalogs.Reason.DigitalDefault }));
             await db.SaveChangesAsync();
             log.LogInformation("Catalog \"Cómo nos conoció\" created with {Count} options", Domain.Catalogs.Reason.HowFoundUsDefaults.Length);
+        }
+        // Catalogs created before the marketing digital mark: the default option gets it once, while the office has
+        // never edited it (an edit stamps modified_at, so unmarking it later is respected).
+        var digitalDefault = await db.Reasons.FirstOrDefaultAsync(r => r.Type == Domain.Catalogs.ReasonType.HowFoundUs
+            && r.Text == Domain.Catalogs.Reason.DigitalDefault && !r.IsDigital && r.ModifiedAt == null);
+        if (digitalDefault is not null && !await db.Reasons.AnyAsync(r => r.Type == Domain.Catalogs.ReasonType.HowFoundUs && r.IsDigital))
+        {
+            digitalDefault.IsDigital = true;
+            await db.SaveChangesAsync();
+            // Saving stamps modified_at; clear it so this stays the seed's doing, not an office edit.
+            await db.Reasons.Where(r => r.Id == digitalDefault.Id).ExecuteUpdateAsync(s => s.SetProperty(r => r.ModifiedAt, (DateTimeOffset?)null));
+            log.LogInformation("\"Cómo nos conoció\": {Text} marked as marketing digital", digitalDefault.Text);
         }
 
         // Avisos: one template per event, created when its event has none (new events get theirs on the next start).

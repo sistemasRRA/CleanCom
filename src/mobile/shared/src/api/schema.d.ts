@@ -1627,6 +1627,8 @@ export interface paths {
                     q?: string;
                     pagina?: number;
                     porPagina?: number;
+                    tipo?: components["schemas"]["InvitadoType"];
+                    cuenta?: components["schemas"]["AppAccountState"];
                 };
                 header?: never;
                 path?: never;
@@ -1672,6 +1674,213 @@ export interface paths {
                         "text/plain": components["schemas"]["InvitadoDto"];
                         "application/json": components["schemas"]["InvitadoDto"];
                         "text/json": components["schemas"]["InvitadoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/historia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["HistoriaItemDto"][];
+                        "application/json": components["schemas"]["HistoriaItemDto"][];
+                        "text/json": components["schemas"]["HistoriaItemDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/duplicados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DuplicateDto"][];
+                        "application/json": components["schemas"]["DuplicateDto"][];
+                        "text/json": components["schemas"]["DuplicateDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/fusionar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MergeRequest"];
+                    "text/json": components["schemas"]["MergeRequest"];
+                    "application/*+json": components["schemas"]["MergeRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmFichaDto"];
+                        "application/json": components["schemas"]["CrmFichaDto"];
+                        "text/json": components["schemas"]["CrmFichaDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/invitar-app": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["AppInvitationDto"];
+                        "application/json": components["schemas"]["AppInvitationDto"];
+                        "text/json": components["schemas"]["AppInvitationDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invitados/{id}/bloquear-app": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BlockAppRequest"];
+                    "text/json": components["schemas"]["BlockAppRequest"];
+                    "application/*+json": components["schemas"]["BlockAppRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CrmFichaDto"];
+                        "application/json": components["schemas"]["CrmFichaDto"];
+                        "text/json": components["schemas"]["CrmFichaDto"];
                     };
                 };
             };
@@ -6966,6 +7175,22 @@ export interface components {
             cupo: number;
             available: boolean;
         };
+        AppAccountDto: {
+            state: components["schemas"]["AppAccountState"];
+            /** Format: date-time */
+            lastAccess: null | string;
+            /** Format: date-time */
+            invitedAt: null | string;
+        };
+        /**
+         * @default SinApp
+         * @enum {unknown}
+         */
+        AppAccountState: "SinApp" | "Invitado" | "Activa" | "Bloqueada";
+        AppInvitationDto: {
+            text: string;
+            whatsAppUrl: string;
+        };
         ArriveRequest: {
             /** Format: double */
             lat: null | number;
@@ -7107,6 +7332,9 @@ export interface components {
         BeneficioOrigin: "Automatico" | "Oficina";
         /** @enum {unknown} */
         BeneficioState: "Disponible" | "Apartado" | "Usado" | "Vencido";
+        BlockAppRequest: {
+            blocked: boolean;
+        };
         BoardDayDto: {
             /** Format: date */
             date: string;
@@ -7320,6 +7548,8 @@ export interface components {
             /** Format: int32 */
             nuevos: number;
             /** Format: int32 */
+            nuevosDigital: number;
+            /** Format: int32 */
             recurrentes: number;
             /** Format: int32 */
             recuperados: number;
@@ -7507,6 +7737,8 @@ export interface components {
             fixedFrequencyDays: null | number;
             pedidos: components["schemas"]["PedidoDto"][];
             contacts: components["schemas"]["ContactDto"][];
+            value: components["schemas"]["CrmValueDto"];
+            account: components["schemas"]["AppAccountDto"];
         };
         CrmListDto: {
             /** Format: date */
@@ -7553,6 +7785,7 @@ export interface components {
             doNotContact: boolean;
             /** @default false */
             reactivation: boolean;
+            account?: components["schemas"]["AppAccountState"];
         };
         /** @enum {unknown} */
         CrmStatus: "Prospecto" | "Nuevo" | "Activo" | "LeToca" | "EnRiesgo" | "Inactivo";
@@ -7560,6 +7793,20 @@ export interface components {
             status: components["schemas"]["CrmStatus"];
             /** Format: int32 */
             count: number;
+        };
+        CrmValueDto: {
+            /** Format: double */
+            totalSpent: number;
+            /** Format: int32 */
+            tickets: number;
+            /** Format: double */
+            averageTicket: null | number;
+            /** Format: int32 */
+            services: number;
+            /** Format: date */
+            firstService: null | string;
+            /** Format: date */
+            lastService: null | string;
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
@@ -7575,6 +7822,19 @@ export interface components {
         DelayLevel: "None" | "Warning" | "Late";
         /** @enum {unknown} */
         DiscountType: "Porcentaje" | "Monto" | "ArticuloGratis" | "PrecioEspecial";
+        DuplicateDto: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            whatsAppPhone: string;
+            otherPhone: null | string;
+            email: null | string;
+            /** Format: int32 */
+            pedidos: number;
+            hasApp: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
         EndShiftRequest: {
             /** Format: int32 */
             km: number;
@@ -7710,6 +7970,7 @@ export interface components {
         };
         FuenteRowDto: {
             fuente: string;
+            isDigital: boolean;
             /** Format: int32 */
             nuevos: number;
             /** Format: double */
@@ -7750,6 +8011,19 @@ export interface components {
             beneficio: components["schemas"]["BeneficioDto"];
             warning: null | string;
         };
+        HistoriaItemDto: {
+            /** Format: date-time */
+            at: string;
+            kind: components["schemas"]["HistoriaKind"];
+            text: string;
+            detail: null | string;
+            /** Format: double */
+            amount: null | number;
+            /** Format: int32 */
+            pedidoId: null | number;
+        };
+        /** @enum {unknown} */
+        HistoriaKind: "Pedido" | "Visita" | "Ticket" | "Aviso" | "Contacto";
         /** Format: binary */
         IFormFile: string;
         InvitadoDto: {
@@ -8101,6 +8375,10 @@ export interface components {
             receivesWhatsApp: boolean;
             profileComplete: boolean;
             addresses: components["schemas"]["AddressDto"][];
+        };
+        MergeRequest: {
+            /** Format: int32 */
+            duplicadoId: number;
         };
         MethodTotalDto: {
             method: components["schemas"]["PaymentMethod"];
@@ -8776,6 +9054,8 @@ export interface components {
             type: components["schemas"]["ReasonType"];
             text: string;
             active: boolean;
+            /** @default false */
+            isDigital: boolean;
         };
         /** @enum {unknown} */
         ReasonType: "FailedEntrega" | "PlantaDelay" | "ContactResult" | "HowFoundUs";
@@ -9124,6 +9404,8 @@ export interface components {
             text: string;
             /** @default true */
             active: boolean;
+            /** @default false */
+            isDigital: boolean;
         };
         SaveRecurringPaymentRequest: {
             concept: string;

@@ -128,6 +128,25 @@ public static class ClientesRules
         return first.AddDays(days) <= today ? false : null;
     }
 
+    /// <summary>Text of an invitado without "Cómo nos conoció".</summary>
+    public const string NoSource = "Sin capturar";
+
+    /// <summary>
+    /// The source of an invitado: their "Cómo nos conoció" without the campaign, which the current system writes after
+    /// « · ». Example: "Marketing digital (Meta / Instagram / Facebook) · Buen Fin" → "Marketing digital (Meta /
+    /// Instagram / Facebook)". Empty → "Sin capturar".
+    /// </summary>
+    public static string Source(string? howFoundUs)
+    {
+        if (string.IsNullOrWhiteSpace(howFoundUs))
+        {
+            return NoSource;
+        }
+        var cut = howFoundUs.IndexOf(" · ", StringComparison.Ordinal);
+        var source = (cut < 0 ? howFoundUs : howFoundUs[..cut]).Trim();
+        return source.Length == 0 ? NoSource : source;
+    }
+
     /// <summary>"Noviembre 2026".</summary>
     public static string MonthLabel(DateOnly month)
     {
